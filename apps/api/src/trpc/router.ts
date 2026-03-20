@@ -1,8 +1,8 @@
 import { router } from './trpc';
+import { authRouter } from '../routers/auth';
 
-// Root router — domain routers will be added during implementation
 export const appRouter = router({
-  // Placeholder — each module adds its router here
+  auth: authRouter,
 });
 
 export type AppRouter = typeof appRouter;

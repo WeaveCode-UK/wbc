@@ -1,9 +1,12 @@
 import { createLogger } from './lib/logger';
+import { applyTenantMiddleware } from '@wbc/db';
+import { getCurrentTenant } from '@wbc/shared';
 
 const logger = createLogger('api');
 
-logger.info('WBC API starting...');
+// Apply tenant middleware — uses AsyncLocalStorage context
+applyTenantMiddleware(() => getCurrentTenant()?.tenantId);
 
-// HTTP server setup will be added during implementation
-// For now, just verify the module loads correctly
+logger.info('WBC API starting...');
+logger.info('Tenant middleware applied');
 logger.info('WBC API module loaded successfully');

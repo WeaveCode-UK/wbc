@@ -1,1 +1,15 @@
-{}
+{
+  "title": "Vendas",
+  "new_sale": "Nova venda",
+  "confirm": "Confirmar venda",
+  "cancel": "Cancelar venda",
+  "status": "Status",
+  "total": "Total",
+  "discount": "Desconto",
+  "cashback": "Cashback",
+  "payment_method": "Forma de pagamento",
+  "items": "Itens",
+  "accounts_receivable": "Contas a receber",
+  "no_sales": "Nenhuma venda registrada",
+  "no_sales_hint": "Registre sua primeira venda"
+}

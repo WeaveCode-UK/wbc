@@ -1,1 +1,15 @@
-{}
+{
+  "title": "Sales",
+  "new_sale": "New sale",
+  "confirm": "Confirm sale",
+  "cancel": "Cancel sale",
+  "status": "Status",
+  "total": "Total",
+  "discount": "Discount",
+  "cashback": "Cashback",
+  "payment_method": "Payment method",
+  "items": "Items",
+  "accounts_receivable": "Accounts receivable",
+  "no_sales": "No sales registered",
+  "no_sales_hint": "Register your first sale"
+}

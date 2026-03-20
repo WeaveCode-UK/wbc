@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",
+    "@sentry/nextjs": "^10.45.0",
     "@tanstack/react-query": "^5.0.0",
     "@trpc/client": "^11.0.0",
     "@trpc/next": "^11.0.0",

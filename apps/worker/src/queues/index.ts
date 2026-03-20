@@ -7,3 +7,4 @@ export const campaignQueue = new Queue('wbc:campaigns', { connection });
 export const scheduleQueue = new Queue('wbc:schedule', { connection });
 export const analyticsQueue = new Queue('wbc:analytics', { connection });
 export const outboxQueue = new Queue('wbc:outbox', { connection });
+export const dlqQueue = new Queue('wbc:dlq', { connection });

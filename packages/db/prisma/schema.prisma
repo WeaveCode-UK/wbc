@@ -1,0 +1,973 @@
+// ============================================================
+// WBC — Wave Beauty Consultant
+// Schema Prisma v1.0
+// Multi-tenant via tenant_id + RLS
+// ============================================================
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema", "postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [pgcrypto]
+}
+
+// ============================================================
+// TENANT & AUTH
+// ============================================================
+
+model Tenant {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String
+  slug      String   @unique // usado no subdomínio da landing page
+  phone     String   @unique
+  email     String?
+  avatar    String?  // URL da foto
+  role      Role     @default(CONSULTANT)
+  plan      Plan     @default(ESSENTIAL)
+  timezone  String   @default("America/Sao_Paulo")
+  currency  String   @default("BRL")
+  locale    String   @default("pt-BR")
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  subscription     Subscription?
+  clients          Client[]
+  tags             Tag[]
+  products         Product[]
+  showcases        Showcase[]
+  sales            Sale[]
+  cashbacks        Cashback[]
+  stocks           Stock[]
+  brandOrders      BrandOrder[]
+  samples          Sample[]
+  campaigns        Campaign[]
+  scheduledMessages ScheduledMessage[]
+  messageTemplates MessageTemplate[]
+  quickReplies     QuickReply[]
+  expenses         Expense[]
+  financialReports FinancialReport[]
+  appointments     Appointment[]
+  reminders        Reminder[]
+  opportunities    Opportunity[]
+  team             Team?
+  aiGenerations    AIGeneration[]
+  landingPage      LandingPage?
+  referralsMade    Referral[]        @relation("referrer")
+  referralsReceived Referral[]       @relation("referred")
+  onboarding       OnboardingProgress?
+
+  @@map("tenants")
+}
+
+enum Role {
+  CONSULTANT
+  LEADER
+  DIRECTOR
+  ADMIN
+}
+
+enum Plan {
+  ESSENTIAL
+  PRO
+}
+
+model Subscription {
+  id                  String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId            String   @unique @db.Uuid
+  plan                Plan
+  status              SubStatus @default(ACTIVE)
+  startsAt            DateTime
+  expiresAt           DateTime?
+  aiGenerationsUsed   Int      @default(0)
+  aiGenerationsLimit  Int      @default(30)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
+}
+
+enum SubStatus {
+  ACTIVE
+  TRIAL
+  EXPIRED
+  CANCELLED
+}
+
+model OtpCode {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  phone     String
+  code      String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([phone, code])
+  @@map("otp_codes")
+}
+
+// ============================================================
+// CLIENTS
+// ============================================================
+
+model Client {
+  id               String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId         String          @db.Uuid
+  name             String
+  phone            String
+  email            String?
+  sex              Sex?
+  birthday         DateTime?       @db.Date
+  profession       String?
+  skinType         SkinType?
+  hairType         HairType?
+  allergies        String?         // texto livre
+  makeupTones      String?         // texto livre
+  preferences      String?         // texto livre
+  notes            String?         // notas livres da consultora
+  source           ClientSource    @default(MANUAL)
+  classification   Classification  @default(C)
+  engagementScore  Int             @default(0)
+  firstPurchaseAt  DateTime?
+  isLead           Boolean         @default(false)
+  isActive         Boolean         @default(true)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  tenant           Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tags             ClientTag[]
+  wishlist         ClientWishlist[]
+  giftSuggestors   GiftSuggestor[]
+  sales            Sale[]
+  cashbacks        Cashback[]
+  scheduledMessages ScheduledMessage[]
+  reminders        Reminder[]
+  opportunities    Opportunity[]
+  appointments     Appointment[]
+  campaignRecipients CampaignRecipient[]
+  samples          Sample[]
+  deliveries       Delivery[]
+
+  @@unique([tenantId, phone])
+  @@index([tenantId, classification])
+  @@index([tenantId, isLead])
+  @@map("clients")
+}
+
+enum Sex {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum SkinType {
+  OILY
+  DRY
+  COMBINATION
+  NORMAL
+  SENSITIVE
+}
+
+enum HairType {
+  STRAIGHT
+  WAVY
+  CURLY
+  COILY
+}
+
+enum ClientSource {
+  MANUAL
+  QRCODE
+  IMPORT
+  AUTOCADASTRO
+  WHATSAPP
+  SPREADSHEET
+  REFERRAL
+}
+
+enum Classification {
+  A  // top compradoras
+  B  // regulares
+  C  // esporádicas
+}
+
+model Tag {
+  id        String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId  String     @db.Uuid
+  name      String
+  autoRule  String?    // regra JSON para etiqueta automática (nullable = manual)
+  color     String?
+  createdAt DateTime   @default(now())
+
+  tenant    Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  clients   ClientTag[]
+
+  @@unique([tenantId, name])
+  @@map("tags")
+}
+
+model ClientTag {
+  id       String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  clientId String @db.Uuid
+  tagId    String @db.Uuid
+
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  tag    Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([clientId, tagId])
+  @@map("client_tags")
+}
+
+model ClientWishlist {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId  String   @db.Uuid
+  clientId  String   @db.Uuid
+  productId String   @db.Uuid
+  createdAt DateTime @default(now())
+
+  client  Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([clientId, productId])
+  @@map("client_wishlists")
+}
+
+model GiftSuggestor {
+  id             String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId       String @db.Uuid
+  clientId       String @db.Uuid
+  suggestorName  String
+  suggestorPhone String
+
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@map("gift_suggestors")
+}
+
+// ============================================================
+// CATALOG
+// ============================================================
+
+model Brand {
+  id       String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name     String
+  logo     String?
+  isSystem Boolean   @default(false) // marcas padrão do sistema
+
+  products Product[]
+  brandOrders BrandOrder[]
+
+  @@map("brands")
+}
+
+model Product {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId    String   @db.Uuid
+  brandId     String   @db.Uuid
+  name        String
+  description String?
+  price       Decimal  @db.Decimal(10, 2)
+  costPrice   Decimal? @db.Decimal(10, 2)
+  photoUrl    String?
+  category    String?
+  isCustom    Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant    Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  brand     Brand           @relation(fields: [brandId], references: [id])
+  saleItems SaleItem[]
+  stock     Stock?
+  wishlists ClientWishlist[]
+  showcaseProducts ShowcaseProduct[]
+  samples   Sample[]
+
+  @@index([tenantId, brandId])
+  @@index([tenantId, category])
+  @@map("products")
+}
+
+model Showcase {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId  String   @db.Uuid
+  clientId  String?  @db.Uuid  // null = vitrine geral
+  name      String
+  shareLink String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  tenant   Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  products ShowcaseProduct[]
+
+  @@map("showcases")
+}
+
+model ShowcaseProduct {
+  id         String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  showcaseId String @db.Uuid
+  productId  String @db.Uuid
+  sortOrder  Int    @default(0)
+
+  showcase Showcase @relation(fields: [showcaseId], references: [id], onDelete: Cascade)
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([showcaseId, productId])
+  @@map("showcase_products")
+}
+
+// ============================================================
+// SALES
+// ============================================================
+
+model Sale {
+  id                String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId          String     @db.Uuid
+  clientId          String     @db.Uuid
+  status            SaleStatus @default(DRAFT)
+  deliveryDate      DateTime?  @db.Date
+  paymentMethod     PayMethod?
+  discount          Decimal    @default(0) @db.Decimal(10, 2)
+  total             Decimal    @db.Decimal(10, 2)
+  cashbackUsed      Decimal    @default(0) @db.Decimal(10, 2)
+  cashbackGenerated Decimal    @default(0) @db.Decimal(10, 2)
+  campaignId        String?    @db.Uuid  // origem da venda (campanha)
+  notes             String?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  tenant    Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  client    Client      @relation(fields: [clientId], references: [id])
+  campaign  Campaign?   @relation(fields: [campaignId], references: [id])
+  items     SaleItem[]
+  payments  Payment[]
+  returns   Return[]
+  postSaleFlows PostSaleFlow[]
+  delivery  Delivery?
+
+  @@index([tenantId, status])
+  @@index([tenantId, clientId])
+  @@index([tenantId, createdAt])
+  @@map("sales")
+}
+
+enum SaleStatus {
+  DRAFT
+  CONFIRMED
+  SEPARATED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PayMethod {
+  CASH
+  PIX
+  CREDIT_CARD
+  DEBIT_CARD
+  INSTALLMENT
+  BANK_TRANSFER
+  OTHER
+}
+
+model SaleItem {
+  id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  saleId    String  @db.Uuid
+  productId String  @db.Uuid
+  quantity  Int
+  unitPrice Decimal @db.Decimal(10, 2)
+  subtotal  Decimal @db.Decimal(10, 2)
+
+  sale    Sale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("sale_items")
+}
+
+model Payment {
+  id                String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  saleId            String      @db.Uuid
+  installmentNumber Int         @default(1)
+  amount            Decimal     @db.Decimal(10, 2)
+  dueDate           DateTime    @db.Date
+  status            PayStatus   @default(PENDING)
+  paidAt            DateTime?
+  mercadopagoId     String?     // ID do pagamento Mercado Pago
+  pixQrCode         String?     // QR Code gerado
+  pixLink           String?     // Link de pagamento
+  createdAt         DateTime    @default(now())
+
+  sale Sale @relation(fields: [saleId], references: [id], onDelete: Cascade)
+
+  @@index([saleId, status])
+  @@map("payments")
+}
+
+enum PayStatus {
+  PENDING
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+model Cashback {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId     String   @db.Uuid
+  clientId     String   @db.Uuid
+  amount       Decimal  @db.Decimal(10, 2)
+  usedAmount   Decimal  @default(0) @db.Decimal(10, 2)
+  expiresAt    DateTime
+  originSaleId String   @db.Uuid
+  createdAt    DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  client Client @relation(fields: [clientId], references: [id])
+
+  @@index([tenantId, clientId])
+  @@index([expiresAt])
+  @@map("cashbacks")
+}
+
+model Return {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  saleId       String   @db.Uuid
+  reason       String
+  refundAmount Decimal  @db.Decimal(10, 2)
+  stockUpdated Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  sale Sale @relation(fields: [saleId], references: [id], onDelete: Cascade)
+
+  @@map("returns")
+}
+
+// ============================================================
+// INVENTORY
+// ============================================================
+
+model Stock {
+  id        String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId  String @db.Uuid
+  productId String @unique @db.Uuid
+  quantity  Int    @default(0)
+  minAlert  Int    @default(0)
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@map("stocks")
+}
+
+model BrandOrder {
+  id         String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId   String          @db.Uuid
+  brandId    String          @db.Uuid
+  status     OrderStatus     @default(ORDERED)
+  notes      String?
+  orderedAt  DateTime        @default(now())
+  receivedAt DateTime?
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  brand  Brand  @relation(fields: [brandId], references: [id])
+  items  BrandOrderItem[]
+
+  @@map("brand_orders")
+}
+
+enum OrderStatus {
+  ORDERED
+  PARTIAL
+  RECEIVED
+  CANCELLED
+}
+
+model BrandOrderItem {
+  id           String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  brandOrderId String @db.Uuid
+  productName  String
+  quantity     Int
+  unitCost     Decimal @db.Decimal(10, 2)
+
+  brandOrder BrandOrder @relation(fields: [brandOrderId], references: [id], onDelete: Cascade)
+
+  @@map("brand_order_items")
+}
+
+model Sample {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId       String   @db.Uuid
+  productId      String   @db.Uuid
+  clientId       String?  @db.Uuid
+  quantity       Int      @default(1)
+  cost           Decimal  @db.Decimal(10, 2)
+  resultedInSale Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  tenant  Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+  client  Client? @relation(fields: [clientId], references: [id])
+
+  @@map("samples")
+}
+
+// ============================================================
+// CAMPAIGNS & MESSAGING
+// ============================================================
+
+model Campaign {
+  id           String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId     String         @db.Uuid
+  name         String
+  message      String
+  audioUrl     String?
+  attachments  Json?          // array de URLs
+  status       CampaignStatus @default(DRAFT)
+  scheduledAt  DateTime?
+  statsReceived Int           @default(0)
+  statsViewed   Int           @default(0)
+  statsReplied  Int           @default(0)
+  statsSales    Int           @default(0)
+  shareOnFeed   Boolean       @default(false)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  tenant     Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  recipients CampaignRecipient[]
+  sales      Sale[]
+
+  @@index([tenantId, status])
+  @@map("campaigns")
+}
+
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  SENDING
+  COMPLETED
+  CANCELLED
+}
+
+model CampaignRecipient {
+  id         String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  campaignId String          @db.Uuid
+  clientId   String          @db.Uuid
+  status     RecipientStatus @default(PENDING)
+  sentAt     DateTime?
+
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  client   Client   @relation(fields: [clientId], references: [id])
+
+  @@unique([campaignId, clientId])
+  @@map("campaign_recipients")
+}
+
+enum RecipientStatus {
+  PENDING
+  SENT
+  RECEIVED
+  VIEWED
+  REPLIED
+  FAILED
+}
+
+model ScheduledMessage {
+  id        String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId  String        @db.Uuid
+  clientId  String        @db.Uuid
+  message   String
+  audioUrl  String?
+  sendAt    DateTime
+  status    MessageStatus @default(PENDING)
+  type      MessageType
+  createdAt DateTime      @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  client Client @relation(fields: [clientId], references: [id])
+
+  @@index([tenantId, sendAt, status])
+  @@map("scheduled_messages")
+}
+
+enum MessageStatus {
+  PENDING
+  SENT
+  FAILED
+  CANCELLED
+}
+
+enum MessageType {
+  INDIVIDUAL
+  POST_SALE
+  RESTOCK_REMINDER
+  BILLING_REMINDER
+  BIRTHDAY
+  PROFESSION_DAY
+  WELCOME
+  REACTIVATION
+  CASHBACK_EXPIRING
+  GIFT_SUGGESTOR
+  CUSTOM
+}
+
+model PostSaleFlow {
+  id             String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  saleId         String        @db.Uuid
+  clientId       String        @db.Uuid
+  stage          PostSaleStage
+  messageVariant Int           @default(1) // qual variação do template (1-5)
+  scheduledAt    DateTime
+  sentAt         DateTime?
+  status         MessageStatus @default(PENDING)
+
+  sale Sale @relation(fields: [saleId], references: [id], onDelete: Cascade)
+
+  @@index([scheduledAt, status])
+  @@map("post_sale_flows")
+}
+
+enum PostSaleStage {
+  TWO_DAYS
+  TWO_WEEKS
+  TWO_MONTHS
+  RESTOCK
+}
+
+model MessageTemplate {
+  id        String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId  String?          @db.Uuid  // null = template do sistema
+  name      String
+  category  TemplateCategory
+  text      String
+  variant   Int              @default(1) // variações 1-5
+  isSystem  Boolean          @default(false)
+  locale    String           @default("pt-BR")
+  createdAt DateTime         @default(now())
+
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, category])
+  @@map("message_templates")
+}
+
+enum TemplateCategory {
+  RESTOCK
+  BIRTHDAY
+  PROFESSION_DAY
+  PROMOTION
+  POST_SALE_2D
+  POST_SALE_2W
+  POST_SALE_2M
+  BILLING
+  WELCOME
+  REACTIVATION
+  CASHBACK_EXPIRING
+  GIFT_SUGGESTOR
+  CUSTOM
+}
+
+model CommunityTemplate {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId   String   @db.Uuid
+  text       String
+  topic      String?
+  likesCount Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  @@index([likesCount(sort: Desc)])
+  @@index([topic])
+  @@map("community_templates")
+}
+
+model QuickReply {
+  id       String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId String @db.Uuid
+  label    String
+  text     String
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("quick_replies")
+}
+
+// ============================================================
+// FINANCE
+// ============================================================
+
+model Expense {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId  String   @db.Uuid
+  description String
+  amount    Decimal  @db.Decimal(10, 2)
+  category  String?
+  date      DateTime @db.Date
+  createdAt DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, date])
+  @@map("expenses")
+}
+
+model FinancialReport {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId      String   @db.Uuid
+  period        String   // ex: "2026-03"
+  totalRevenue  Decimal  @db.Decimal(10, 2)
+  totalExpenses Decimal  @db.Decimal(10, 2)
+  netProfit     Decimal  @db.Decimal(10, 2)
+  generatedAt   DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, period])
+  @@map("financial_reports")
+}
+
+// ============================================================
+// SCHEDULE
+// ============================================================
+
+model Appointment {
+  id        String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId  String          @db.Uuid
+  clientId  String?         @db.Uuid
+  title     String
+  type      AppointmentType
+  address   String?
+  notes     String?
+  startsAt  DateTime
+  endsAt    DateTime?
+  createdAt DateTime        @default(now())
+
+  tenant Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  client Client? @relation(fields: [clientId], references: [id])
+
+  @@index([tenantId, startsAt])
+  @@map("appointments")
+}
+
+enum AppointmentType {
+  VISIT
+  DEMO
+  BEAUTY_DAY
+  DELIVERY
+  OTHER
+}
+
+model Reminder {
+  id          String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId    String         @db.Uuid
+  clientId    String         @db.Uuid
+  type        ReminderType
+  message     String?
+  triggerDate DateTime       @db.Date
+  status      ReminderStatus @default(PENDING)
+  createdAt   DateTime       @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  client Client @relation(fields: [clientId], references: [id])
+
+  @@index([tenantId, triggerDate, status])
+  @@map("reminders")
+}
+
+enum ReminderType {
+  RESTOCK
+  BIRTHDAY
+  PROFESSION_DAY
+  CLIENT_ANNIVERSARY
+  CUSTOM
+}
+
+enum ReminderStatus {
+  PENDING
+  SENT
+  DISMISSED
+}
+
+model Opportunity {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId    String   @db.Uuid
+  clientId    String?  @db.Uuid
+  type        String
+  description String
+  scheduledAt DateTime
+  status      String   @default("pending")
+  createdAt   DateTime @default(now())
+
+  tenant Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  client Client? @relation(fields: [clientId], references: [id])
+
+  @@index([tenantId, scheduledAt])
+  @@map("opportunities")
+}
+
+// ============================================================
+// TEAM
+// ============================================================
+
+model Team {
+  id       String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId String @unique @db.Uuid // líder
+  name     String
+
+  tenant  Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  members TeamMember[]
+  tasks   TeamTask[]
+
+  @@map("teams")
+}
+
+model TeamMember {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  teamId      String   @db.Uuid
+  memberId    String   @db.Uuid // tenant_id do membro
+  role        String?
+  careerLevel String?
+  status      String   @default("active")
+  joinedAt    DateTime @default(now())
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, memberId])
+  @@map("team_members")
+}
+
+model TeamTask {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  teamId      String   @db.Uuid
+  memberId    String   @db.Uuid
+  description String
+  message     String?
+  status      String   @default("pending") // pending, approved, sent
+  scheduledAt DateTime?
+  createdAt   DateTime @default(now())
+
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@map("team_tasks")
+}
+
+// ============================================================
+// AI
+// ============================================================
+
+model AIGeneration {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId    String   @db.Uuid
+  type        AIGenType
+  inputTokens Int
+  outputTokens Int
+  model       String   @default("deepseek-v3.2")
+  prompt      String?
+  result      String?
+  createdAt   DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, createdAt])
+  @@map("ai_generations")
+}
+
+enum AIGenType {
+  CAMPAIGN
+  BILLING
+  REACTIVATION
+  CORRECTION
+}
+
+// ============================================================
+// LOGISTICS
+// ============================================================
+
+model Delivery {
+  id            String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  saleId        String         @unique @db.Uuid
+  clientId      String         @db.Uuid
+  method        DeliveryMethod
+  trackingCode  String?
+  status        DeliveryStatus @default(CONFIRMED)
+  estimatedDays Int?
+  address       String?
+  shippedAt     DateTime?
+  deliveredAt   DateTime?
+  createdAt     DateTime       @default(now())
+
+  sale   Sale   @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  client Client @relation(fields: [clientId], references: [id])
+
+  @@map("deliveries")
+}
+
+enum DeliveryMethod {
+  PERSONAL
+  MAIL
+  COURIER
+  PICKUP
+}
+
+enum DeliveryStatus {
+  CONFIRMED
+  SEPARATED
+  SHIPPED
+  DELIVERED
+}
+
+// ============================================================
+// LANDING PAGE
+// ============================================================
+
+model LandingPage {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId   String   @unique @db.Uuid
+  slug       String   @unique // nome.wbc.com.br
+  photoUrl   String?
+  bio        String?
+  philosophy String?
+  brands     Json?    // array de brand IDs/names
+  whatsappLink String?
+  qrCodeUrl  String?
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("landing_pages")
+}
+
+// ============================================================
+// PLATFORM
+// ============================================================
+
+model Referral {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  referrerTenantId String   @db.Uuid
+  referredTenantId String?  @db.Uuid
+  referralCode     String   @unique
+  reward           String?
+  usedAt           DateTime?
+  createdAt        DateTime @default(now())
+
+  referrer Tenant  @relation("referrer", fields: [referrerTenantId], references: [id])
+  referred Tenant? @relation("referred", fields: [referredTenantId], references: [id])
+
+  @@map("referrals")
+}
+
+model OnboardingProgress {
+  id             String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId       String @unique @db.Uuid
+  stepsCompleted Json   @default("[]") // array de step IDs
+  currentStep    String @default("welcome")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("onboarding_progress")
+}

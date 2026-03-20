@@ -4,16 +4,40 @@
     "jsx": "preserve",
     "declaration": false,
     "declarationMap": false,
-    "plugins": [{ "name": "next" }],
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
     "paths": {
-      "@/*": ["./src/*"],
-      "@wbc/db": ["../../packages/db/src"],
-      "@wbc/shared": ["../../packages/shared/src"],
-      "@wbc/shared/*": ["../../packages/shared/src/*"],
-      "@wbc/validators": ["../../packages/validators/src"],
-      "@wbc/i18n": ["../../packages/i18n/src"]
-    }
+      "@/*": [
+        "./src/*"
+      ],
+      "@wbc/db": [
+        "../../packages/db/src"
+      ],
+      "@wbc/shared": [
+        "../../packages/shared/src"
+      ],
+      "@wbc/shared/*": [
+        "../../packages/shared/src/*"
+      ],
+      "@wbc/validators": [
+        "../../packages/validators/src"
+      ],
+      "@wbc/i18n": [
+        "../../packages/i18n/src"
+      ]
+    },
+    "noEmit": true
   },
-  "include": ["next-env.d.ts", "src/**/*", ".next/types/**/*.ts", "../../packages/business/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "src/**/*",
+    ".next/types/**/*.ts",
+    "../../packages/business/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

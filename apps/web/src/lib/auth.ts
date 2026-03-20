@@ -6,7 +6,7 @@ import { verifyOtp } from '../../../../packages/business/auth/use-cases/verify-o
 
 const otpRepository = new PrismaOtpRepository();
 
-export const { handlers, signIn, signOut, auth } = NextAuth({
+const nextAuth = NextAuth({
   providers: [
     Credentials({
       id: 'otp',
@@ -72,7 +72,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.sub as string;
-        (session as Record<string, unknown>).tenant = {
+        (session as unknown as Record<string, unknown>).tenant = {
           tenantId: token.tid,
           userId: token.sub,
           role: token.role,
@@ -90,3 +90,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   secret: process.env.AUTH_SECRET,
 });
+
+export const handlers = nextAuth.handlers;
+export const signIn = nextAuth.signIn;
+export const signOut = nextAuth.signOut;
+export const auth = nextAuth.auth;

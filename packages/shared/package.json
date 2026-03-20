@@ -7,5 +7,8 @@
   "scripts": {
     "type-check": "tsc --noEmit",
     "lint": "eslint src/"
+  },
+  "devDependencies": {
+    "@wbc/config": "workspace:*"
   }
 }

@@ -20,3 +20,4 @@ if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 export { PrismaClient } from '@prisma/client';
 export * from '@prisma/client';
 export { createTenantMiddleware } from './middleware/tenant-middleware';
+export { PrismaOutboxRepository } from './outbox/prisma-outbox-repository';

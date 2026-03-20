@@ -1,7 +1,7 @@
 import { logger } from './lib/logger';
 import { applyTenantMiddleware } from '@wbc/db';
 import { getCurrentTenant, setOutboxPort } from '@wbc/shared';
-import { PrismaOutboxRepository } from '../../../packages/db/src/outbox/prisma-outbox-repository';
+import { PrismaOutboxRepository } from '@wbc/db';
 import { processOutbox } from './processors/outbox-processor';
 
 // Apply tenant middleware

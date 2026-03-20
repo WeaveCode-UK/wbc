@@ -1,4 +1,4 @@
-import { PrismaOutboxRepository } from '../../../../packages/db/src/outbox/prisma-outbox-repository';
+import { PrismaOutboxRepository } from '@wbc/db';
 import { dispatch, withTenant } from '@wbc/shared';
 import { logger } from '../lib/logger';
 

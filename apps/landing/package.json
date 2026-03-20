@@ -9,11 +9,16 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@wbc/db": "workspace:*",
+    "@wbc/ui": "workspace:*",
     "next": "^15.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "tailwindcss": "^3.4.0",
-    "@wbc/db": "workspace:*",
-    "@wbc/ui": "workspace:*"
+    "tailwindcss": "^3.4.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@wbc/config": "workspace:*"
   }
 }

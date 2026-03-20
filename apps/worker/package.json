@@ -9,11 +9,14 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "bullmq": "^5.0.0",
-    "ioredis": "^5.4.0",
-    "pino": "^9.0.0",
+    "@wbc/db": "workspace:*",
     "@wbc/shared": "workspace:*",
-    "@wbc/db": "workspace:*"
+    "bullmq": "^5.0.0",
+    "ioredis": "^5.9.3",
+    "pino": "^9.0.0"
   },
-  "devDependencies": { "tsx": "^4.0.0" }
+  "devDependencies": {
+    "@wbc/config": "workspace:*",
+    "tsx": "^4.0.0"
+  }
 }

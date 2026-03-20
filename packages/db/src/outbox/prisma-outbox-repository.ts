@@ -8,7 +8,7 @@ export class PrismaOutboxRepository implements OutboxPort {
       data: {
         type: event.type,
         tenantId: event.tenantId,
-        payload: event.payload as Record<string, unknown>,
+        payload: event.payload as object,
       },
     });
   }
@@ -18,7 +18,7 @@ export class PrismaOutboxRepository implements OutboxPort {
       data: events.map((e) => ({
         type: e.type,
         tenantId: e.tenantId,
-        payload: e.payload as Record<string, unknown>,
+        payload: e.payload as object,
       })),
     });
   }

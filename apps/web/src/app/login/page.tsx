@@ -35,13 +35,14 @@ export default function LoginPage() {
   async function handleVerify() {
     setLoading(true);
     setError('');
-    const result = await signIn('otp', {
-      phone,
-      code,
-      redirect: true,
-      callbackUrl: '/',
-    });
-    if (result?.error) {
+    try {
+      await signIn('otp', {
+        phone,
+        code,
+        redirect: true,
+        callbackUrl: '/',
+      });
+    } catch {
       setError('Invalid or expired code');
     }
     setLoading(false);

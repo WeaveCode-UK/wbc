@@ -11,6 +11,10 @@ import { messagingRouter } from '../routers/messaging';
 import { campaignsRouter } from '../routers/campaigns';
 import { aiRouter } from '../routers/ai';
 import { scheduleRouter } from '../routers/schedule';
+import { teamRouter } from '../routers/team';
+import { logisticsRouter } from '../routers/logistics';
+import { landingRouter } from '../routers/landing';
+import { platformRouter } from '../routers/platform';
 
 export const appRouter = router({
   auth: authRouter,
@@ -25,6 +29,10 @@ export const appRouter = router({
   campaigns: campaignsRouter,
   ai: aiRouter,
   schedule: scheduleRouter,
+  team: teamRouter,
+  logistics: logisticsRouter,
+  landing: landingRouter,
+  platform: platformRouter,
 });
 
 export type AppRouter = typeof appRouter;

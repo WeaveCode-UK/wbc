@@ -1,1 +1,24 @@
-{}
+{
+  "title": "Clientes",
+  "add_client": "Adicionar cliente",
+  "edit_client": "Editar cliente",
+  "name": "Nome",
+  "phone": "Telefone",
+  "email": "E-mail",
+  "birthday": "Aniversário",
+  "profession": "Profissão",
+  "skin_type": "Tipo de pele",
+  "hair_type": "Tipo de cabelo",
+  "allergies": "Alergias",
+  "notes": "Notas",
+  "classification": "Classificação",
+  "tags": "Etiquetas",
+  "leads": "Leads",
+  "convert_to_client": "Converter em cliente",
+  "no_clients": "Nenhum cliente cadastrado",
+  "no_clients_hint": "Adicione seu primeiro cliente para começar",
+  "import": "Importar contatos",
+  "wishlist": "Lista de desejos",
+  "gift_suggestors": "Presenteadores",
+  "delete_confirm": "Tem certeza que deseja excluir este cliente?"
+}

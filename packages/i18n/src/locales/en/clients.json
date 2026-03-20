@@ -1,1 +1,24 @@
-{}
+{
+  "title": "Clients",
+  "add_client": "Add client",
+  "edit_client": "Edit client",
+  "name": "Name",
+  "phone": "Phone",
+  "email": "Email",
+  "birthday": "Birthday",
+  "profession": "Profession",
+  "skin_type": "Skin type",
+  "hair_type": "Hair type",
+  "allergies": "Allergies",
+  "notes": "Notes",
+  "classification": "Classification",
+  "tags": "Tags",
+  "leads": "Leads",
+  "convert_to_client": "Convert to client",
+  "no_clients": "No clients registered",
+  "no_clients_hint": "Add your first client to get started",
+  "import": "Import contacts",
+  "wishlist": "Wishlist",
+  "gift_suggestors": "Gift suggestors",
+  "delete_confirm": "Are you sure you want to delete this client?"
+}

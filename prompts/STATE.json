@@ -4,7 +4,7 @@
   "current_phase": 4,
   "current_epic": "F4.E01",
   "current_task": 0,
-  "current_mode": "ARCHITECT",
+  "current_mode": "EXECUTOR",
   "status": "IN_PROGRESS",
   "branch": "main",
   "history": [
@@ -42,5 +42,5 @@
     "phase_3": { "status": "COMPLETED", "tag": "v0.4.0-fase-03", "epics": 9 }
   },
   "started_at": "2026-03-20T19:30:00Z",
-  "last_updated": "2026-03-21T02:30:00Z"
+  "last_updated": "2026-03-21T02:35:00Z"
 }

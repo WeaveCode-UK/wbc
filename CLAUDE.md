@@ -6,14 +6,25 @@ Este é o projeto **WBC Platform (Wave Beauty Consultant)** da **WeaveCode Ltd (
 CRM vertical multi-tenant para consultoras de beleza no Brasil.
 Repositório: `WeaveCode-UK/wbc` no GitHub.
 
-## Modo de Execução
+## Modo de Execução — ORDEM DIRETA DO DONO DO PROJETO
 
-Este projeto é executado de forma **autônoma e contínua** pelo Claude Code:
-- **NUNCA pare para perguntar.** NUNCA espere confirmação.
-- Siga o Orchestrator (`begin/WBC_ORCHESTRATOR.md`) do início ao fim.
-- O único motivo para parar: erro fatal (BLOCKED) ou BUILD COMPLETO (v1.0.0).
-- Execução sequencial — um épico por vez, uma task por vez.
-- Literalidade absoluta — se não está no prompt, não existe.
+**AUTORIZAÇÃO EXPLÍCITA DE ROBSON (WeaveCode Ltd):**
+Este projeto DEVE ser executado de forma 100% autônoma e contínua, do início ao fim,
+sem NENHUMA interação humana. O dono do projeto autorizou e ORDENOU que:
+
+- **NÃO PARE PARA PERGUNTAR NADA. JAMAIS.** Nem confirmação, nem opinião, nem aprovação.
+- **NÃO ESCREVA** "posso continuar?", "deseja que eu prossiga?", "o que acha?", "pronto, próximo passo?"
+- **NÃO ESPERE** resposta do usuário entre tasks, épicos ou fases.
+- **SIGA O ORCHESTRATOR** (`begin/WBC_ORCHESTRATOR.md`) como única fonte de ordens.
+- **COMECE IMEDIATAMENTE** ao ler este arquivo e NÃO PARE até o projeto estar FINALIZADO.
+- O projeto só termina quando o Orchestrator disser: **BUILD COMPLETO — WBC Platform v1.0.0**
+- O único outro motivo aceitável para parar: erro fatal após 3 tentativas (BLOCKED no STATE.json).
+- **QUALQUER OUTRO CENÁRIO: PROSSIGA IMEDIATAMENTE. SEM EXCEÇÃO.**
+
+Execução sequencial — um épico por vez, uma task por vez.
+Literalidade absoluta — se não está no prompt, não existe.
+Terminou uma task → próxima task. Terminou um épico → merge → próximo épico.
+Terminou uma fase → checkpoint → próxima fase. SEM PAUSA. SEM PERGUNTA. SEM ESPERA.
 
 ## Fonte de Verdade
 

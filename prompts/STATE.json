@@ -4,11 +4,11 @@
   "current_phase": 1,
   "current_epic": "F1.E01",
   "current_task": 0,
-  "current_mode": "ARCHITECT",
+  "current_mode": "EXECUTOR",
   "status": "IN_PROGRESS",
   "branch": "main",
   "history": [],
   "phase_summary": {},
-  "started_at": null,
-  "last_updated": null
+  "started_at": "2026-03-20T19:30:00Z",
+  "last_updated": "2026-03-20T19:45:00Z"
 }

@@ -4,11 +4,11 @@ export async function getLandingPage(tenantId: string) {
   return prisma.landingPage.findUnique({ where: { tenantId } });
 }
 
-export async function updateLandingPage(tenantId: string, data: { bio?: string; philosophy?: string; photoUrl?: string; brands?: unknown; whatsappLink?: string }) {
+export async function updateLandingPage(tenantId: string, data: { bio?: string; philosophy?: string; photoUrl?: string; whatsappLink?: string }) {
   return prisma.landingPage.upsert({
     where: { tenantId },
-    update: data,
-    create: { tenantId, slug: '', ...data },
+    update: { bio: data.bio, philosophy: data.philosophy, photoUrl: data.photoUrl, whatsappLink: data.whatsappLink },
+    create: { tenantId, slug: `landing-${tenantId.substring(0, 8)}`, bio: data.bio, philosophy: data.philosophy, photoUrl: data.photoUrl, whatsappLink: data.whatsappLink },
   });
 }
 

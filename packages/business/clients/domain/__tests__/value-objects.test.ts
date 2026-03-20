@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { validatePhone, formatPhoneE164, calculateClassification } from '../value-objects';
+import { validatePhone, formatPhoneE164 } from '../value-objects';
 import { calculateClassification as calcClass } from '../entities';
 
 describe('Client Value Objects', () => {

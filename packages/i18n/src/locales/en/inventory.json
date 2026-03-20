@@ -1,1 +1,13 @@
-{}
+{
+  "title": "Inventory",
+  "stock": "Stock",
+  "low_stock": "Low stock",
+  "orders": "Brand orders",
+  "samples": "Samples",
+  "quantity": "Quantity",
+  "min_alert": "Min alert",
+  "adjust": "Adjust",
+  "new_order": "New order",
+  "receive": "Receive",
+  "sample_roi": "Sample ROI"
+}

@@ -1,1 +1,13 @@
-{}
+{
+  "title": "Estoque",
+  "stock": "Estoque",
+  "low_stock": "Estoque baixo",
+  "orders": "Pedidos à marca",
+  "samples": "Amostras",
+  "quantity": "Quantidade",
+  "min_alert": "Alerta mínimo",
+  "adjust": "Ajustar",
+  "new_order": "Novo pedido",
+  "receive": "Receber",
+  "sample_roi": "ROI de amostras"
+}

@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: wbc-postgres
+    environment:
+      POSTGRES_USER: wbc
+      POSTGRES_PASSWORD: wbc_dev_2026
+      POSTGRES_DB: wbc
+    ports:
+      - "5432:5432"
+    volumes:
+      - wbc_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wbc"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: wbc-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - wbc_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  wbc_postgres_data:
+  wbc_redis_data:

@@ -10,6 +10,7 @@ import { analyticsRouter } from '../routers/analytics';
 import { messagingRouter } from '../routers/messaging';
 import { campaignsRouter } from '../routers/campaigns';
 import { aiRouter } from '../routers/ai';
+import { scheduleRouter } from '../routers/schedule';
 
 export const appRouter = router({
   auth: authRouter,
@@ -23,6 +24,7 @@ export const appRouter = router({
   messaging: messagingRouter,
   campaigns: campaignsRouter,
   ai: aiRouter,
+  schedule: scheduleRouter,
 });
 
 export type AppRouter = typeof appRouter;

@@ -1,0 +1,17 @@
+{
+  "name": "@wbc/ui",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "dependencies": {
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.0",
+    "tailwind-merge": "^2.2.0",
+    "lucide-react": "^0.400.0"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  }
+}

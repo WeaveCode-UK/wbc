@@ -9,6 +9,7 @@ import { financeRouter } from '../routers/finance';
 import { analyticsRouter } from '../routers/analytics';
 import { messagingRouter } from '../routers/messaging';
 import { campaignsRouter } from '../routers/campaigns';
+import { aiRouter } from '../routers/ai';
 
 export const appRouter = router({
   auth: authRouter,
@@ -21,6 +22,7 @@ export const appRouter = router({
   analytics: analyticsRouter,
   messaging: messagingRouter,
   campaigns: campaignsRouter,
+  ai: aiRouter,
 });
 
 export type AppRouter = typeof appRouter;

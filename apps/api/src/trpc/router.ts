@@ -8,6 +8,7 @@ import { inventoryRouter } from '../routers/inventory';
 import { financeRouter } from '../routers/finance';
 import { analyticsRouter } from '../routers/analytics';
 import { messagingRouter } from '../routers/messaging';
+import { campaignsRouter } from '../routers/campaigns';
 
 export const appRouter = router({
   auth: authRouter,
@@ -19,6 +20,7 @@ export const appRouter = router({
   finance: financeRouter,
   analytics: analyticsRouter,
   messaging: messagingRouter,
+  campaigns: campaignsRouter,
 });
 
 export type AppRouter = typeof appRouter;

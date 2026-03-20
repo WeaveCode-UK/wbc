@@ -996,3 +996,21 @@ enum OutboxStatus {
   PROCESSED
   FAILED
 }
+
+// ============================================================
+// NOTIFICATIONS
+// ============================================================
+
+model Notification {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId  String   @db.Uuid
+  title     String
+  body      String
+  type      String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([tenantId, read])
+  @@index([tenantId, createdAt])
+  @@map("notifications")
+}

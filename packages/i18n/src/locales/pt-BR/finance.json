@@ -1,1 +1,11 @@
-{}
+{
+  "title": "Financeiro",
+  "revenue": "Receita",
+  "expenses": "Despesas",
+  "profit": "Lucro",
+  "receivables": "A receber",
+  "new_expense": "Nova despesa",
+  "margin_calculator": "Calculadora de margem",
+  "goal_calculator": "Meta reversa",
+  "cac": "Custo de aquisição"
+}

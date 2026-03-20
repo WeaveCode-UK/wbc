@@ -11,12 +11,13 @@
   },
   "dependencies": {
     "@trpc/server": "^11.0.0",
-    "superjson": "^2.2.0",
-    "zod": "^3.23.0",
-    "pino": "^9.0.0",
+    "@wbc/db": "workspace:*",
     "@wbc/shared": "workspace:*",
     "@wbc/validators": "workspace:*",
-    "@wbc/db": "workspace:*"
+    "ioredis": "^5.4.0",
+    "pino": "^9.0.0",
+    "superjson": "^2.2.0",
+    "zod": "^3.23.0"
   },
   "devDependencies": {
     "tsx": "^4.0.0"

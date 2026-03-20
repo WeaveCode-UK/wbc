@@ -1,0 +1,24 @@
+{
+  "name": "@wbc/api",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@trpc/server": "^11.0.0",
+    "superjson": "^2.2.0",
+    "zod": "^3.23.0",
+    "pino": "^9.0.0",
+    "@wbc/shared": "workspace:*",
+    "@wbc/validators": "workspace:*",
+    "@wbc/db": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "^4.0.0"
+  }
+}

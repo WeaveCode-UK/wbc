@@ -972,3 +972,27 @@ model OnboardingProgress {
 
   @@map("onboarding_progress")
 }
+
+// ============================================================
+// OUTBOX (Event Bus)
+// ============================================================
+
+model OutboxEvent {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  type        String
+  tenantId    String   @db.Uuid
+  payload     Json
+  status      OutboxStatus @default(PENDING)
+  attempts    Int      @default(0)
+  createdAt   DateTime @default(now())
+  processedAt DateTime?
+
+  @@index([status, createdAt])
+  @@map("outbox_events")
+}
+
+enum OutboxStatus {
+  PENDING
+  PROCESSED
+  FAILED
+}

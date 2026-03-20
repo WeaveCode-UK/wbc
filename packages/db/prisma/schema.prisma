@@ -458,6 +458,7 @@ model Stock {
   quantity  Int    @default(0)
   minAlert  Int    @default(0)
 
+  tenant  Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@index([tenantId])

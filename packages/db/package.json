@@ -9,14 +9,15 @@
     "@wbc/shared": "workspace:*"
   },
   "devDependencies": {
+    "@wbc/config": "workspace:*",
     "prisma": "^5.20.0",
-    "@wbc/config": "workspace:*"
+    "tsx": "^4.0.0"
   },
   "scripts": {
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",
-    "db:seed": "ts-node prisma/seed.ts",
+    "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio"
   }
 }

@@ -1,1 +1,11 @@
-{}
+{
+  "title": "Finance",
+  "revenue": "Revenue",
+  "expenses": "Expenses",
+  "profit": "Profit",
+  "receivables": "Receivables",
+  "new_expense": "New expense",
+  "margin_calculator": "Margin calculator",
+  "goal_calculator": "Goal reverse",
+  "cac": "Customer acquisition cost"
+}

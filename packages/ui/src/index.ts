@@ -1,2 +1,13 @@
 export { cn } from './lib/utils';
-// Components will be added by each module during implementation
+export { Button } from './components/button';
+export { Input } from './components/input';
+export { Card, MetricCard } from './components/card';
+export { Badge } from './components/badge';
+export { Tag } from './components/tag';
+export { Avatar } from './components/avatar';
+export { SearchBar } from './components/search-bar';
+export { SegmentedControl } from './components/segmented-control';
+export { EmptyState } from './components/empty-state';
+export { ToggleSwitch } from './components/toggle-switch';
+export { ProgressBar } from './components/progress-bar';
+export { StepIndicator } from './components/step-indicator';

@@ -1,0 +1,137 @@
+/* WBC Design System — 4 Themes */
+/* Theme: default, Mode: light/dark */
+/* Theme: rose, Mode: light/dark */
+
+/* === TEMA 1: Padrão Light === */
+[data-theme="default"][data-mode="light"],
+:root {
+  --color-primary: #8127E8;
+  --color-primary-hover: #9F5AED;
+  --color-primary-surface: #EDE5FB;
+  --color-primary-surface-hover: #DDD6FE;
+  --color-accent: #240B33;
+  --color-bg-primary: #FFFFFF;
+  --color-bg-secondary: #F3F4F6;
+  --color-bg-tertiary: #F9FAFB;
+  --color-text-primary: #111827;
+  --color-text-secondary: #4A4A4A;
+  --color-text-tertiary: #6B7280;
+  --color-border-primary: #D1D5DB;
+  --color-border-secondary: #E5E7EB;
+  --color-border-tertiary: #F3F4F6;
+
+  /* Semantic */
+  --color-success: #059669;
+  --color-success-bg: #ECFDF5;
+  --color-success-text: #065F46;
+  --color-warning: #D97706;
+  --color-warning-bg: #FEF3C7;
+  --color-warning-text: #92400E;
+  --color-danger: #DC2626;
+  --color-danger-bg: #FEE2E2;
+  --color-danger-text: #991B1B;
+  --color-info: #2563EB;
+  --color-info-bg: #E6F1FB;
+  --color-info-text: #1E40AF;
+
+  /* ABC Classification */
+  --color-abc-a: #059669;
+  --color-abc-a-bg: #ECFDF5;
+  --color-abc-b: #D97706;
+  --color-abc-b-bg: #FEF3C7;
+  --color-abc-c: #6B7280;
+  --color-abc-c-bg: #F3F4F6;
+}
+
+/* === TEMA 2: Padrão Dark === */
+[data-theme="default"][data-mode="dark"] {
+  --color-primary: #9F5AED;
+  --color-primary-hover: #B07CF0;
+  --color-primary-surface: #1E1232;
+  --color-primary-surface-hover: #2D1B4E;
+  --color-accent: #240B33;
+  --color-bg-primary: #130E1F;
+  --color-bg-secondary: #1A1128;
+  --color-bg-tertiary: #0F0A1A;
+  --color-text-primary: #F3F4F6;
+  --color-text-secondary: #D1D5DB;
+  --color-text-tertiary: #9CA3AF;
+  --color-border-primary: #4B3A6B;
+  --color-border-secondary: #2D2640;
+  --color-border-tertiary: #1E1830;
+
+  --color-success: #6EE7B7;
+  --color-success-bg: #064E3B;
+  --color-success-text: #6EE7B7;
+  --color-warning: #FCD34D;
+  --color-warning-bg: #78350F;
+  --color-warning-text: #FCD34D;
+  --color-danger: #FCA5A5;
+  --color-danger-bg: #7F1D1D;
+  --color-danger-text: #FCA5A5;
+  --color-info: #93C5FD;
+  --color-info-bg: #1E3A5F;
+  --color-info-text: #93C5FD;
+}
+
+/* === TEMA 3: Rose Quartz Light === */
+[data-theme="rose"][data-mode="light"] {
+  --color-primary: #E91E8C;
+  --color-primary-hover: #F472B6;
+  --color-primary-surface: #FDF2F8;
+  --color-primary-surface-hover: #FBCFE8;
+  --color-accent: #831843;
+  --color-bg-primary: #FFFFFF;
+  --color-bg-secondary: #FDF2F8;
+  --color-bg-tertiary: #FFFBFC;
+  --color-text-primary: #1F1115;
+  --color-text-secondary: #6B4555;
+  --color-text-tertiary: #9D7A8A;
+  --color-border-primary: #F9A8D4;
+  --color-border-secondary: #F3E0E6;
+  --color-border-tertiary: #FDF2F8;
+
+  --color-success: #059669;
+  --color-success-bg: #ECFDF5;
+  --color-success-text: #065F46;
+  --color-warning: #D97706;
+  --color-warning-bg: #FEF3C7;
+  --color-warning-text: #92400E;
+  --color-danger: #DC2626;
+  --color-danger-bg: #FEE2E2;
+  --color-danger-text: #991B1B;
+  --color-info: #2563EB;
+  --color-info-bg: #E6F1FB;
+  --color-info-text: #1E40AF;
+}
+
+/* === TEMA 4: Rose Quartz Dark === */
+[data-theme="rose"][data-mode="dark"] {
+  --color-primary: #F472B6;
+  --color-primary-hover: #F9A8D4;
+  --color-primary-surface: #2D1422;
+  --color-primary-surface-hover: #3D1F2E;
+  --color-accent: #831843;
+  --color-bg-primary: #1A0D14;
+  --color-bg-secondary: #2D1422;
+  --color-bg-tertiary: #150A10;
+  --color-text-primary: #F3F4F6;
+  --color-text-secondary: #D1D5DB;
+  --color-text-tertiary: #9CA3AF;
+  --color-border-primary: #6B2340;
+  --color-border-secondary: #3D1F2E;
+  --color-border-tertiary: #2D1422;
+
+  --color-success: #6EE7B7;
+  --color-success-bg: #064E3B;
+  --color-success-text: #6EE7B7;
+  --color-warning: #FCD34D;
+  --color-warning-bg: #78350F;
+  --color-warning-text: #FCD34D;
+  --color-danger: #FCA5A5;
+  --color-danger-bg: #7F1D1D;
+  --color-danger-text: #FCA5A5;
+  --color-info: #93C5FD;
+  --color-info-bg: #1E3A5F;
+  --color-info-text: #93C5FD;
+}

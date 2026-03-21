@@ -1239,6 +1239,17 @@ Atualizar STATE.json: `status: "BUILD_COMPLETE"`
 
 ---
 
+# FASE 9 — UI/UX REDESIGN (Design System + Telas Completas)
+
+> **Objetivo:** Aplicar o novo Design System completo (4 temas, tipografia Sora, 17 componentes, navegação, microinterações) substituindo a UI básica da Fase 6. Redesenhar TODAS as telas mobile e web conforme especificação pixel-perfect.
+> **Depende de:** Fase 8 completa (v1.2.0)
+> **Épicos:** 10 (9 de implementação + 1 checkpoint)
+> **Doc de referência obrigatório:** begin/WBC-UI-UX-Design-System-v1.0.md — o ARQUITETO DEVE ler este documento INTEIRO antes de gerar prompts desta fase.
+
+Épicos detalhados: ver begin/WBC-Fase9-Pacote-Integracao.md Seção 1 (F9.E01 a F9.E10).
+
+---
+
 # RESUMO
 
 | Fase | Nome | Épicos (impl + checkpoint) | Tag |
@@ -1249,11 +1260,13 @@ Atualizar STATE.json: `status: "BUILD_COMPLETE"`
 | 4 | Agenda & Schedule | 3 + 1 = 4 | v0.5.0-fase-04 |
 | 5 | Diferenciadores | 7 + 1 = 8 | v0.6.0-fase-05 |
 | 6 | UI Completa | 7 + 1 = 8 | v0.7.0-fase-06 |
-| 7 | Testes + QA + Lançamento | 6 (sem checkpoint — F7.E06 é BUILD COMPLETE) | v1.0.0 |
+| 7 | Testes + QA + Lançamento | 6 (sem checkpoint) | v1.0.0 |
+| 8 | Engorda Backend | 2 (sem checkpoint) | v1.2.0 |
+| 9 | UI/UX Redesign | 9 + 1 = 10 | v1.3.0-fase-09 |
 
-**Total: 7 fases, ~53 épicos**
+**Total: 9 fases, ~65 épicos**
 
-> **NOTA SOBRE CHECKPOINTS:** O último épico de cada fase (Fases 1–6) é um CHECKPOINT.
+> **NOTA SOBRE CHECKPOINTS:** O último épico de cada fase (Fases 1–6, 9) é um CHECKPOINT.
 > Checkpoints NÃO são épicos de implementação. O Orchestrator NÃO gera prompt para eles.
 > O Orchestrator executa o procedimento de checkpoint diretamente: type-check + tag em main.
 

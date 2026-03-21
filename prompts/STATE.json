@@ -1,11 +1,11 @@
 {
   "version": 1,
   "project": "WBC Platform",
-  "current_phase": 7,
-  "current_epic": "F7.E06",
+  "current_phase": 9,
+  "current_epic": "F9.E01",
   "current_task": 0,
-  "current_mode": "EXECUTOR",
-  "status": "BUILD_COMPLETE",
+  "current_mode": "ARCHITECT",
+  "status": "IN_PROGRESS",
   "branch": "main",
   "history": [
     { "epic": "F1.E01-E07", "status": "COMPLETED" },
@@ -20,7 +20,8 @@
     { "epic": "F5.E08", "status": "COMPLETED", "type": "CHECKPOINT" },
     { "epic": "F6.E01-E07", "status": "COMPLETED" },
     { "epic": "F6.E08", "status": "COMPLETED", "type": "CHECKPOINT" },
-    { "epic": "F7.E01-E06", "status": "COMPLETED" }
+    { "epic": "F7.E01-E06", "status": "COMPLETED" },
+    { "epic": "F8.E01-E02", "status": "COMPLETED" }
   ],
   "phase_summary": {
     "phase_1": { "status": "COMPLETED", "tag": "v0.2.0-fase-01" },
@@ -29,9 +30,9 @@
     "phase_4": { "status": "COMPLETED", "tag": "v0.5.0-fase-04" },
     "phase_5": { "status": "COMPLETED", "tag": "v0.6.0-fase-05" },
     "phase_6": { "status": "COMPLETED", "tag": "v0.7.0-fase-06" },
-    "phase_7": { "status": "COMPLETED", "tag": "v1.0.0" }
+    "phase_7": { "status": "COMPLETED", "tag": "v1.0.0" },
+    "phase_8": { "status": "COMPLETED", "tag": "v1.2.0" }
   },
   "started_at": "2026-03-20T19:30:00Z",
-  "last_updated": "2026-03-21T04:30:00Z",
-  "completed_at": "2026-03-21T04:30:00Z"
+  "last_updated": null
 }

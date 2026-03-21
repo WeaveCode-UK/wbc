@@ -16,10 +16,10 @@ export default function RegisterPage() {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('/api/trpc/auth.register', {
+      const res = await fetch('/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ json: { name, phone } }),
+        body: JSON.stringify({ name, phone }),
       });
       if (res.ok) {
         setStep('code');

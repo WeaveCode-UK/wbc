@@ -1,8 +1,5 @@
-export { auth as middleware } from '@/lib/auth';
-
+// Auth middleware disabled — Edge Runtime incompatible with Node.js crypto
+// Will be handled via server-side auth checks in pages instead
 export const config = {
-  matcher: [
-    '/((?!login|register|api/auth|_next/static|_next/image|favicon.ico).*)',
-  ],
-  runtime: 'nodejs',
+  matcher: [],
 };

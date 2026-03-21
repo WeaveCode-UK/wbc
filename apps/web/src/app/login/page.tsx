@@ -15,10 +15,10 @@ export default function LoginPage() {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('/api/trpc/auth.sendOtp', {
+      const res = await fetch('/api/send-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ json: { phone } }),
+        body: JSON.stringify({ phone }),
       });
       if (res.ok) {
         setStep('code');

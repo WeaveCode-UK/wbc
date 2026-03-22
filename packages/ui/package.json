@@ -15,6 +15,7 @@
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
-    "@wbc/config": "workspace:*"
+    "@wbc/config": "workspace:*",
+    "@types/react": "^19.0.0"
   }
 }

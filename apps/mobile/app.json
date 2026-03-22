@@ -1,0 +1,21 @@
+{
+  "expo": {
+    "name": "WBC",
+    "slug": "wbc",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "scheme": "wbc",
+    "platforms": ["ios", "android"],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.weavecode.wbc"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#8127E8"
+      },
+      "package": "com.weavecode.wbc"
+    }
+  }
+}

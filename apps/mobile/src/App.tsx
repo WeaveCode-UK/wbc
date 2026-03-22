@@ -1,7 +1,8 @@
+import { registerRootComponent } from 'expo';
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-export default function App() {
+function App() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>WBC Platform</Text>
@@ -28,3 +29,5 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
 });
+
+registerRootComponent(App);

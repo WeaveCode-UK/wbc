@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useMemo } from 'react';
 import type { ReactNode } from 'react';
-import { themes } from '@wbc/shared';
-import type { ThemeName, ThemeMode, ThemeColors } from '@wbc/shared';
+import { themes } from '@wbc/shared/src/theme/colors';
+import type { ThemeName, ThemeMode, ThemeColors } from '@wbc/shared/src/theme/colors';
 
 interface ThemeContextValue {
   theme: ThemeName;

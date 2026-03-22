@@ -1,7 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { useTheme } from '../theme/theme-provider';
-import { radius } from '@wbc/shared';
+import { radius } from '@wbc/shared/src/theme/spacing';
 import type { ReactNode } from 'react';
 
 type Variant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'success';

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
 import { useTheme } from '../theme/theme-provider';
-import { radius } from '@wbc/shared';
+import { radius } from '@wbc/shared/src/theme/spacing';
 import type { TextInputProps } from 'react-native';
 
 interface InputProps extends TextInputProps {

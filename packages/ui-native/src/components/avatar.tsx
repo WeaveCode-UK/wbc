@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
-import { classificationColors } from '@wbc/shared';
+import { classificationColors } from '@wbc/shared/src/theme/colors';
 
 type Size = 'sm' | 'md' | 'lg';
 

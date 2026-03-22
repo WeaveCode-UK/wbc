@@ -20,6 +20,13 @@
     "db:migrate": "turbo db:migrate",
     "db:seed": "turbo db:seed"
   },
+  "pnpm": {
+    "overrides": {
+      "react": "19.1.0",
+      "react-native": "0.81.5",
+      "@types/react": "~19.1.17"
+    }
+  },
   "devDependencies": {
     "@types/node": "^25.5.0",
     "turbo": "^2.8.20",

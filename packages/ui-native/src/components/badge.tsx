@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useTheme } from '../theme/theme-provider';
-import { radius } from '@wbc/shared';
+import { radius } from '@wbc/shared/src/theme/spacing';
 
 type Variant = 'success' | 'warning' | 'danger' | 'info' | 'neutral';
 

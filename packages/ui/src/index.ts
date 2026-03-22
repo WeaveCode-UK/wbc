@@ -18,3 +18,5 @@ export { FunnelChart } from './components/funnel-chart';
 export { ListItem } from './components/list-item';
 export { Timeline } from './components/timeline';
 export { Toast } from './components/toast';
+export { Skeleton, SkeletonCard, SkeletonListItem } from './components/skeleton';
+export { ConfirmModal } from './components/confirm-modal';

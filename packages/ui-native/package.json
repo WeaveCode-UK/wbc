@@ -10,5 +10,9 @@
   "peerDependencies": {
     "react": "^19.0.0",
     "react-native": ">=0.76.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@wbc/config": "workspace:*"
   }
 }

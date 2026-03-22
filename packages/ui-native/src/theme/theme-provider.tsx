@@ -29,7 +29,7 @@ export function NativeThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<ThemeName>('default');
   const [mode, setMode] = useState<ThemeMode>('light');
 
-  const colors = useMemo(() => themes[theme][mode], [theme, mode]);
+  const colors = useMemo(() => themes[theme][mode] as ThemeColors, [theme, mode]);
   const toggleMode = () => setMode((m) => (m === 'light' ? 'dark' : 'light'));
 
   return (

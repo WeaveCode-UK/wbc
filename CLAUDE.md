@@ -55,9 +55,8 @@ Todos em `begin/`:
 - `WBC_REGRAS_INVIOLAVEIS.md` — contrato de execução
 - `WBC_FASES_E_EPICOS.md` — roadmap (7 fases, ~53 épicos)
 - `WBC_GERADOR_DE_PROMPTS.md` — template de geração de prompts
-- `WBC-Implementacao-v1.0.md` — Prisma schema, events, rotas tRPC
-- `WBC-Arquitetura-Tecnica-v1.0.md` — estrutura do monorepo
-- `WBC-Funcionalidades-v1.2.md` — 105 funcionalidades
+- `WBC-UI-UX-Design-System-v1.0.md` — design system e UI/UX
+- `WBC-Fase9-Pacote-Integracao.md` — pacote de integração fase 9
 
 ## Fluxo
 

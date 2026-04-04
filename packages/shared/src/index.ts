@@ -6,3 +6,4 @@ export * from './events/outbox-service';
 export * from './events/event-publisher';
 export * from './events/event-subscriber';
 export * from './theme';
+export * from './prisma-helpers';

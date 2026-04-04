@@ -26,21 +26,23 @@ export class PrismaCashbackRepository implements CashbackRepository {
   }
 
   async use(tenantId: string, clientId: string, amount: number): Promise<void> {
-    const cashbacks = await prisma.cashback.findMany({
-      where: { tenantId, clientId, expiresAt: { gt: new Date() } },
-      orderBy: { expiresAt: 'asc' },
-    });
-
-    let remaining = amount;
-    for (const c of cashbacks) {
-      if (remaining <= 0) break;
-      const available = Number(c.amount) - Number(c.usedAmount);
-      const toUse = Math.min(available, remaining);
-      await prisma.cashback.update({
-        where: { id: c.id },
-        data: { usedAmount: Number(c.usedAmount) + toUse },
+    await prisma.$transaction(async (tx) => {
+      const cashbacks = await tx.cashback.findMany({
+        where: { tenantId, clientId, expiresAt: { gt: new Date() } },
+        orderBy: { expiresAt: 'asc' },
       });
-      remaining -= toUse;
-    }
+
+      let remaining = amount;
+      for (const c of cashbacks) {
+        if (remaining <= 0) break;
+        const available = Number(c.amount) - Number(c.usedAmount);
+        const toUse = Math.min(available, remaining);
+        await tx.cashback.update({
+          where: { id: c.id },
+          data: { usedAmount: Number(c.usedAmount) + toUse },
+        });
+        remaining -= toUse;
+      }
+    });
   }
 }

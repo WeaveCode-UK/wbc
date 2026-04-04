@@ -1,4 +1,4 @@
-import { createHmac } from 'crypto';
+import { createHmac, timingSafeEqual } from 'crypto';
 
 // Meta API webhook handler for message status updates
 export interface WhatsAppWebhookPayload {
@@ -34,7 +34,9 @@ export function verifyWebhookSignature(rawBody: string, signature: string | unde
 
   const expectedSignature = 'sha256=' + createHmac('sha256', appSecret).update(rawBody).digest('hex');
 
-  if (signature !== expectedSignature) {
+  const sigBuffer = Buffer.from(signature);
+  const expectedBuffer = Buffer.from(expectedSignature);
+  if (sigBuffer.length !== expectedBuffer.length || !timingSafeEqual(sigBuffer, expectedBuffer)) {
     throw new WebhookSignatureError();
   }
 }

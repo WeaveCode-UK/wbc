@@ -39,7 +39,7 @@ export const campaignsRouter = router({
 
   getRecipients: protectedProcedure
     .input(z.object({ id: uuidSchema, status: z.string().optional() }))
-    .query(async ({ input }) => {
-      return getRecipients(input.id, input.status, campaignRepo);
+    .query(async ({ ctx, input }) => {
+      return getRecipients(ctx.tenant.tenantId, input.id, input.status, campaignRepo);
     }),
 });

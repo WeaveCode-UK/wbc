@@ -43,14 +43,16 @@ export class PrismaCampaignRepository implements CampaignRepository {
     return campaign as Campaign;
   }
 
-  async getRecipients(campaignId: string, status?: string): Promise<CampaignRecipient[]> {
-    const where: Record<string, unknown> = { campaignId };
+  async getRecipients(tenantId: string, campaignId: string, status?: string): Promise<CampaignRecipient[]> {
+    const where: Record<string, unknown> = { campaignId, campaign: { tenantId } };
     if (status) where.status = status;
     const recipients = await prisma.campaignRecipient.findMany({ where });
     return recipients as CampaignRecipient[];
   }
 
   async delete(tenantId: string, id: string): Promise<void> {
+    const existing = await prisma.campaign.findFirst({ where: { id, tenantId } });
+    if (!existing) throw new Error('Campaign not found');
     await prisma.campaign.delete({ where: { id } });
   }
 }

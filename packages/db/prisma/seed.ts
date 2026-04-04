@@ -1,4 +1,6 @@
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
+import { randomUUID } from 'crypto';
 
 const prisma = new PrismaClient();
 
@@ -18,22 +20,87 @@ async function main() {
   // eslint-disable-next-line no-console
   console.log(`Created ${brands.length} system brands`);
 
-  // 2. Create demo tenant
+  // 2. Create demo tenant (Auth 2.0 — no phone/email/role/plan on Tenant)
   const tenant = await prisma.tenant.upsert({
-    where: { phone: '+5511999990000' },
+    where: { slug: 'renata-cosmeticos' },
     update: {},
     create: {
-      name: 'Maria Consultora Demo',
-      slug: 'maria-demo',
-      phone: '+5511999990000',
-      email: 'demo@wbc.com.br',
-      plan: 'PRO',
-      role: 'CONSULTANT',
+      name: 'Renata Cosméticos',
+      slug: 'renata-cosmeticos',
     },
   });
 
   // eslint-disable-next-line no-console
   console.log(`Demo tenant: ${tenant.id}`);
+
+  // 2b. Create Auth 2.0 Accounts
+  const adminAccount = await prisma.account.upsert({
+    where: { email: 'admin@weavecode.co.uk' },
+    update: {},
+    create: {
+      email: 'admin@weavecode.co.uk',
+      name: 'Robson Admin',
+      passwordHash: null, // usa OAuth
+      emailVerified: new Date(),
+    },
+  });
+
+  const consultantPasswordHash = await bcrypt.hash('Teste@123', 12);
+  const consultantAccount = await prisma.account.upsert({
+    where: { email: 'renata@teste.com' },
+    update: {},
+    create: {
+      email: 'renata@teste.com',
+      name: 'Renata Silva',
+      passwordHash: consultantPasswordHash,
+      emailVerified: new Date(),
+    },
+  });
+
+  // eslint-disable-next-line no-console
+  console.log(`Created accounts: admin=${adminAccount.id}, consultant=${consultantAccount.id}`);
+
+  // 2c. Create TenantMembers
+  await prisma.tenantMember.upsert({
+    where: { accountId_tenantId: { accountId: consultantAccount.id, tenantId: tenant.id } },
+    update: {},
+    create: {
+      accountId: consultantAccount.id,
+      tenantId: tenant.id,
+      role: 'ADMIN',
+      phone: '11999990000',
+      displayName: 'Renata Silva',
+    },
+  });
+
+  await prisma.tenantMember.upsert({
+    where: { accountId_tenantId: { accountId: adminAccount.id, tenantId: tenant.id } },
+    update: {},
+    create: {
+      accountId: adminAccount.id,
+      tenantId: tenant.id,
+      role: 'ADMIN',
+    },
+  });
+
+  // eslint-disable-next-line no-console
+  console.log('Created tenant members');
+
+  // 2d. Create sample Invite
+  await prisma.invite.create({
+    data: {
+      tenantId: tenant.id,
+      email: 'convidada@teste.com',
+      role: 'CONSULTANT',
+      invitedBy: adminAccount.id,
+      token: randomUUID(),
+      status: 'PENDING',
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    },
+  });
+
+  // eslint-disable-next-line no-console
+  console.log('Created sample invite');
 
   // 3. Create subscription
   await prisma.subscription.upsert({

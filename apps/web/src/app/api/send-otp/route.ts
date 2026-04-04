@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { PrismaOtpRepository } from '../../../../../../packages/business/auth/adapters/prisma-otp-repository';
-import { sendOtp } from '../../../../../../packages/business/auth/use-cases/send-otp';
+import { PrismaOtpRepository, sendOtp } from '@wbc/business/auth';
 
 const otpRepository = new PrismaOtpRepository();
 

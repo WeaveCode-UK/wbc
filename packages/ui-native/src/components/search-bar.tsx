@@ -1,16 +1,20 @@
 import React from 'react';
-import { View, TextInput, StyleSheet } from 'react-native';
+import { View, TextInput, Text, StyleSheet } from 'react-native';
 import { useTheme } from '../theme/theme-provider';
-import { radius } from '@wbc/shared/src/theme/spacing';
 import type { TextInputProps } from 'react-native';
 
 export function SearchBar(props: TextInputProps) {
-  const { colors } = useTheme();
+  const { md3: c } = useTheme();
   return (
-    <View style={[styles.container, { backgroundColor: colors.bgSecondary, borderRadius: radius.md }]}>
+    <View style={[styles.container, {
+      backgroundColor: c.surfaceContainerLowest,
+      borderWidth: 0.5,
+      borderColor: c.outlineVariant + '4D',
+    }]}>
+      <Text style={[styles.icon, { color: c.outline }]}>search</Text>
       <TextInput
-        placeholderTextColor={colors.textTertiary}
-        style={[styles.input, { color: colors.textPrimary }]}
+        placeholderTextColor={c.outline}
+        style={[styles.input, { color: c.onSurface }]}
         {...props}
       />
     </View>
@@ -18,6 +22,19 @@ export function SearchBar(props: TextInputProps) {
 }
 
 const styles = StyleSheet.create({
-  container: { height: 38, paddingHorizontal: 12, justifyContent: 'center' },
-  input: { fontSize: 13, fontFamily: 'Sora_400Regular' },
+  container: {
+    height: 48,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    shadowColor: '#191C1E',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  icon: { fontSize: 20, fontFamily: 'Material Symbols Outlined' },
+  input: { flex: 1, fontSize: 14, fontFamily: 'Sora' },
 });

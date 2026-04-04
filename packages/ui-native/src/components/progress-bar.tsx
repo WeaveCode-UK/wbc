@@ -9,18 +9,23 @@ interface ProgressBarProps {
 }
 
 export function ProgressBar({ value, max = 100, variant = 'primary' }: ProgressBarProps) {
-  const { colors } = useTheme();
+  const { md3: c } = useTheme();
   const pct = Math.min(100, Math.max(0, (value / max) * 100));
-  const colorMap = { primary: colors.primary, success: colors.success, warning: colors.warning, danger: colors.danger };
+  const colorMap = {
+    primary: c.primaryContainer,
+    success: c.success,
+    warning: c.warning,
+    danger: c.error,
+  };
 
   return (
-    <View style={[styles.track, { backgroundColor: colors.bgSecondary }]}>
+    <View style={[styles.track, { backgroundColor: c.surfaceContainer }]}>
       <View style={[styles.fill, { width: `${pct}%`, backgroundColor: colorMap[variant] }]} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  track: { height: 6, borderRadius: 3, overflow: 'hidden' },
-  fill: { height: '100%', borderRadius: 3 },
+  track: { height: 8, borderRadius: 9999, overflow: 'hidden' },
+  fill: { height: '100%', borderRadius: 9999 },
 });

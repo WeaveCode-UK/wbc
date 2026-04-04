@@ -10,6 +10,8 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@expo-google-fonts/epilogue": "^0.4.2",
+    "@expo-google-fonts/manrope": "^0.4.2",
     "@expo-google-fonts/sora": "^0.4.2",
     "@wbc/shared": "workspace:*",
     "@wbc/ui-native": "workspace:*",

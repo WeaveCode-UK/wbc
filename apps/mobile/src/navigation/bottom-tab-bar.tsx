@@ -9,34 +9,56 @@ interface TabBarProps {
 }
 
 const tabs = [
-  { key: 'myday', label: 'Meu Dia', icon: '🏠' },
-  { key: 'clients', label: 'Clientes', icon: '👥' },
-  { key: 'fab', label: '', icon: '+' },
-  { key: 'sales', label: 'Vendas', icon: '💰' },
-  { key: 'menu', label: 'Menu', icon: '☰' },
+  { key: 'myday', label: 'MEU DIA', iconDefault: 'calendar_today', iconActive: 'calendar_today' },
+  { key: 'clients', label: 'CLIENTES', iconDefault: 'group', iconActive: 'group' },
+  { key: 'fab', label: '', iconDefault: 'add', iconActive: 'add' },
+  { key: 'sales', label: 'VENDAS', iconDefault: 'payments', iconActive: 'payments' },
+  { key: 'menu', label: 'MENU', iconDefault: 'menu', iconActive: 'menu' },
 ];
 
 export function BottomTabBar({ activeTab, onTabPress }: TabBarProps) {
-  const { colors } = useTheme();
+  const { md3: c } = useTheme();
   const [fabOpen, setFabOpen] = useState(false);
 
   return (
     <>
       <FabActionSheet visible={fabOpen} onClose={() => setFabOpen(false)} />
-      <View style={[styles.bar, { backgroundColor: colors.bgPrimary, borderTopColor: colors.borderTertiary }]}>
+      <View style={[styles.bar, { backgroundColor: c.surface + 'E6' }]}>
         {tabs.map((tab) => {
           if (tab.key === 'fab') {
             return (
-              <TouchableOpacity key="fab" onPress={() => setFabOpen(true)} style={[styles.fabBtn, { backgroundColor: colors.primary }]}>
-                <Text style={styles.fabIcon}>+</Text>
+              <TouchableOpacity
+                key="fab"
+                onPress={() => setFabOpen(true)}
+                activeOpacity={0.85}
+                style={styles.fabBtn}
+              >
+                <View style={styles.fabGradient}>
+                  <Text style={styles.fabIcon}>add</Text>
+                </View>
               </TouchableOpacity>
             );
           }
           const active = activeTab === tab.key;
           return (
-            <TouchableOpacity key={tab.key} onPress={() => onTabPress(tab.key)} style={styles.tab}>
-              <Text style={{ fontSize: 20 }}>{tab.icon}</Text>
-              <Text style={[styles.tabLabel, { color: active ? colors.primary : colors.textTertiary }]}>{tab.label}</Text>
+            <TouchableOpacity
+              key={tab.key}
+              onPress={() => onTabPress(tab.key)}
+              activeOpacity={0.7}
+              style={styles.tab}
+            >
+              <Text style={[
+                styles.tabIcon,
+                { color: active ? '#8127E8' : c.onSurface + '66' },
+              ]}>
+                {tab.iconDefault}
+              </Text>
+              <Text style={[
+                styles.tabLabel,
+                { color: active ? '#8127E8' : c.onSurface + '66' },
+              ]}>
+                {tab.label}
+              </Text>
             </TouchableOpacity>
           );
         })}
@@ -46,9 +68,36 @@ export function BottomTabBar({ activeTab, onTabPress }: TabBarProps) {
 }
 
 const styles = StyleSheet.create({
-  bar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', borderTopWidth: 0.5, paddingBottom: 24, paddingTop: 8 },
-  tab: { alignItems: 'center', gap: 2 },
-  tabLabel: { fontSize: 10, fontFamily: 'Sora_400Regular' },
-  fabBtn: { width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center', marginTop: -24, shadowColor: '#000', shadowOpacity: 0.15, shadowRadius: 8, elevation: 5 },
-  fabIcon: { color: '#FFFFFF', fontSize: 24, fontWeight: '500' },
+  bar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    paddingBottom: 28,
+    paddingTop: 10,
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    shadowColor: '#8127E8',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  tab: { alignItems: 'center', gap: 3 },
+  tabIcon: { fontSize: 24, fontFamily: 'Material Symbols Outlined' },
+  tabLabel: { fontSize: 10, fontFamily: 'Sora', fontWeight: '500', letterSpacing: 1.2 },
+  fabBtn: { marginTop: -32 },
+  fabGradient: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#8127E8',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#8127E8',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  fabIcon: { fontSize: 28, color: '#FFFFFF', fontFamily: 'Material Symbols Outlined', fontWeight: '700' },
 });

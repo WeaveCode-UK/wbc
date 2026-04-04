@@ -1,5 +1,5 @@
 export { NativeThemeProvider, useTheme } from './theme/theme-provider';
-export { textStyles } from './theme/typography-styles';
+export { textStyles, fontFamilies } from './theme/typography-styles';
 export { Button } from './components/button';
 export { Input } from './components/input';
 export { SearchBar } from './components/search-bar';

@@ -1,72 +1,291 @@
 import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
-import { useTheme, Avatar, Card, Badge, ProgressBar } from '@wbc/ui-native';
+import { useTheme, Avatar, Badge, ProgressBar, Card } from '@wbc/ui-native';
 
 export function ClientProfileScreen() {
-  const { colors } = useTheme();
+  const { md3: c } = useTheme();
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor: colors.bgTertiary }]} contentContainerStyle={styles.content}>
-      <View style={styles.profileHeader}>
-        <Avatar name="Ana Silva" size="lg" classification="A" />
-        <Text style={[styles.name, { color: colors.textPrimary }]}>Ana Silva</Text>
+    <ScrollView style={[styles.scroll, { backgroundColor: c.surface }]} contentContainerStyle={styles.content}>
+      {/* Profile Header */}
+      <View style={[styles.profileHeader, { backgroundColor: c.surfaceContainerLowest, borderColor: c.outlineVariant + '33' }]}>
+        <Avatar name="Ana Silva" size="xl" classification="A" />
+        <Text style={[styles.name, { color: c.onSurface }]}>Ana Silva</Text>
         <Badge variant="success">Classe A</Badge>
+        <Text style={[styles.clientSince, { color: c.outline }]}>Cliente desde Mar 2023</Text>
       </View>
 
+      {/* Action Strip */}
       <View style={styles.actionStrip}>
-        {['💬 WhatsApp', '📞 Ligar', '📦 Vender', '📝 Nota'].map((action, i) => (
-          <TouchableOpacity key={i} style={[styles.actionBtn, { backgroundColor: colors.bgSecondary }]}>
-            <Text style={[styles.actionLabel, { color: colors.primary }]}>{action}</Text>
+        {[
+          { icon: 'chat', label: 'WhatsApp', color: '#25D366' },
+          { icon: 'call', label: 'Ligar', color: c.primaryContainer },
+          { icon: 'shopping_bag', label: 'Vender', color: c.success },
+          { icon: 'edit_note', label: 'Nota', color: c.tertiary },
+        ].map((action, i) => (
+          <TouchableOpacity
+            key={i}
+            activeOpacity={0.85}
+            style={[
+              styles.actionBtn,
+              {
+                backgroundColor: c.surfaceContainerLowest,
+                borderWidth: 0.5,
+                borderColor: c.outlineVariant + '33',
+              },
+            ]}
+          >
+            <View style={[styles.actionIconWrap, { backgroundColor: action.color + '1A' }]}>
+              <Text style={[styles.actionIcon, { color: action.color }]}>{action.icon}</Text>
+            </View>
+            <Text style={[styles.actionLabel, { color: c.onSurface }]}>{action.label}</Text>
           </TouchableOpacity>
         ))}
       </View>
 
+      {/* Stats Grid */}
+      <View style={styles.sectionHeaderRow}>
+        <Text style={[styles.overlineLabel, { color: c.outline }]}>ESTATISTICAS</Text>
+      </View>
       <View style={styles.statsGrid}>
-        {[{ label: 'Compras', value: '12' }, { label: 'Total gasto', value: 'R$ 2.450' }, { label: 'Última compra', value: '3 dias' }, { label: 'Ticket médio', value: 'R$ 204' }, { label: 'Cashback', value: 'R$ 45' }, { label: 'Score', value: '85' }].map((s, i) => (
-          <View key={i} style={[styles.statCard, { backgroundColor: colors.bgSecondary }]}>
-            <Text style={[styles.statValue, { color: colors.textPrimary }]}>{s.value}</Text>
-            <Text style={[styles.statLabel, { color: colors.textTertiary }]}>{s.label}</Text>
+        {[
+          { label: 'COMPRAS', value: '12', color: c.primaryContainer },
+          { label: 'TOTAL GASTO', value: 'R$ 2.450', color: c.success },
+          { label: 'ULTIMA COMPRA', value: '3 dias', color: c.onSurface },
+          { label: 'TICKET MEDIO', value: 'R$ 204', color: c.onSurface },
+          { label: 'CASHBACK', value: 'R$ 45', color: c.tertiary },
+          { label: 'SCORE', value: '85', color: c.primaryContainer },
+        ].map((stat, i) => (
+          <View
+            key={i}
+            style={[
+              styles.statCard,
+              {
+                backgroundColor: c.surfaceContainerLowest,
+                borderWidth: 0.5,
+                borderColor: c.outlineVariant + '33',
+              },
+            ]}
+          >
+            <Text style={[styles.statValue, { color: stat.color }]}>{stat.value}</Text>
+            <Text style={[styles.statLabel, { color: c.outline }]}>{stat.label}</Text>
           </View>
         ))}
       </View>
 
+      {/* Engajamento */}
       <Card variant="elevated">
-        <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Engajamento</Text>
+        <View style={styles.cardHeader}>
+          <Text style={[styles.cardTitle, { color: c.onSurface }]}>Engajamento</Text>
+          <Text style={[styles.cardBadge, { color: c.primaryContainer }]}>85/100</Text>
+        </View>
         <ProgressBar value={85} variant="success" />
-        <Text style={[styles.engagementLabel, { color: colors.textTertiary }]}>85/100 — Cliente muito engajada</Text>
+        <Text style={[styles.cardHint, { color: c.outline }]}>Cliente muito engajada — alto potencial de recompra</Text>
       </Card>
 
+      {/* Perfil de Beleza */}
       <Card variant="elevated">
-        <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Perfil de beleza</Text>
-        <View style={styles.beautyRow}>
-          <Text style={[styles.beautyLabel, { color: colors.textTertiary }]}>Pele: Mista</Text>
-          <Text style={[styles.beautyLabel, { color: colors.textTertiary }]}>Cabelo: Cacheado</Text>
+        <Text style={[styles.cardTitle, { color: c.onSurface }]}>Perfil de Beleza</Text>
+        <View style={styles.beautyGrid}>
+          {[
+            { label: 'PELE', value: 'Mista' },
+            { label: 'CABELO', value: 'Cacheado' },
+            { label: 'TOM', value: 'Medio' },
+            { label: 'PREFERENCIA', value: 'Sem fragrancia' },
+          ].map((item, i) => (
+            <View key={i} style={[styles.beautyItem, { backgroundColor: c.surfaceContainerLow, borderRadius: 12 }]}>
+              <Text style={[styles.beautyLabel, { color: c.outline }]}>{item.label}</Text>
+              <Text style={[styles.beautyValue, { color: c.onSurface }]}>{item.value}</Text>
+            </View>
+          ))}
         </View>
       </Card>
 
+      {/* Notas */}
       <Card variant="elevated">
-        <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Notas</Text>
-        <Text style={[styles.notes, { color: colors.textSecondary }]}>Prefere produtos sem fragrância. Aniversário da filha em maio.</Text>
+        <Text style={[styles.cardTitle, { color: c.onSurface }]}>Notas</Text>
+        <View style={[styles.noteItem, { borderLeftColor: c.tertiary }]}>
+          <Text style={[styles.noteText, { color: c.onSurface }]}>Prefere produtos sem fragrancia. Aniversario da filha em maio.</Text>
+          <Text style={[styles.noteDate, { color: c.outline }]}>Adicionada em 15 Out 2023</Text>
+        </View>
+        <View style={[styles.noteItem, { borderLeftColor: c.outline }]}>
+          <Text style={[styles.noteText, { color: c.onSurface }]}>Interessada no Kit Cronos para presente de Natal.</Text>
+          <Text style={[styles.noteDate, { color: c.outline }]}>Adicionada em 02 Nov 2023</Text>
+        </View>
       </Card>
+
+      <View style={{ height: 100 }} />
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  content: { padding: 16, gap: 12 },
-  profileHeader: { alignItems: 'center', gap: 8, paddingVertical: 8 },
-  name: { fontSize: 18, fontWeight: '500', fontFamily: 'Sora_500Medium' },
-  actionStrip: { flexDirection: 'row', gap: 8 },
-  actionBtn: { flex: 1, alignItems: 'center', borderRadius: 10, padding: 10 },
-  actionLabel: { fontSize: 11, fontWeight: '500', fontFamily: 'Sora_500Medium' },
-  statsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  statCard: { width: '30%', flexGrow: 1, alignItems: 'center', borderRadius: 10, padding: 10 },
-  statValue: { fontSize: 15, fontWeight: '500', fontFamily: 'Sora_500Medium' },
-  statLabel: { fontSize: 10, fontFamily: 'Sora_400Regular', marginTop: 2 },
-  sectionTitle: { fontSize: 15, fontWeight: '500', fontFamily: 'Sora_500Medium', marginBottom: 8 },
-  engagementLabel: { fontSize: 11, fontFamily: 'Sora_400Regular', marginTop: 4 },
-  beautyRow: { flexDirection: 'row', gap: 16 },
-  beautyLabel: { fontSize: 13, fontFamily: 'Sora_400Regular' },
-  notes: { fontSize: 13, fontFamily: 'Sora_400Regular', lineHeight: 20 },
+  scroll: { flex: 1 },
+  content: {
+    paddingTop: 60,
+    paddingHorizontal: 16,
+    gap: 16,
+  },
+  profileHeader: {
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 24,
+    borderRadius: 24,
+    borderWidth: 0.5,
+    shadowColor: '#191C1E',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  name: {
+    fontSize: 24,
+    fontWeight: '700',
+    fontFamily: 'Epilogue',
+    letterSpacing: -0.3,
+    marginTop: 4,
+  },
+  clientSince: {
+    fontSize: 12,
+    fontFamily: 'Manrope',
+    marginTop: 2,
+  },
+  actionStrip: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  actionBtn: {
+    flex: 1,
+    alignItems: 'center',
+    borderRadius: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 4,
+    gap: 6,
+    shadowColor: '#191C1E',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  actionIconWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  actionIcon: {
+    fontSize: 18,
+    fontFamily: 'Material Symbols Outlined',
+  },
+  actionLabel: {
+    fontSize: 10,
+    fontWeight: '600',
+    fontFamily: 'Manrope',
+  },
+  sectionHeaderRow: {
+    paddingHorizontal: 4,
+    paddingTop: 4,
+  },
+  overlineLabel: {
+    fontSize: 10,
+    fontWeight: '700',
+    fontFamily: 'Manrope',
+    letterSpacing: 1.5,
+    textTransform: 'uppercase',
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  statCard: {
+    width: '30%',
+    flexGrow: 1,
+    alignItems: 'center',
+    borderRadius: 16,
+    paddingVertical: 14,
+    paddingHorizontal: 8,
+    shadowColor: '#191C1E',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 4,
+    elevation: 1,
+  },
+  statValue: {
+    fontSize: 18,
+    fontWeight: '800',
+    fontFamily: 'Epilogue',
+    letterSpacing: -0.5,
+  },
+  statLabel: {
+    fontSize: 8,
+    fontWeight: '700',
+    fontFamily: 'Manrope',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    marginTop: 4,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  cardTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    fontFamily: 'Sora',
+    marginBottom: 8,
+  },
+  cardBadge: {
+    fontSize: 14,
+    fontWeight: '700',
+    fontFamily: 'Sora',
+  },
+  cardHint: {
+    fontSize: 12,
+    fontFamily: 'Manrope',
+    marginTop: 8,
+  },
+  beautyGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  beautyItem: {
+    width: '47%',
+    flexGrow: 1,
+    padding: 12,
+  },
+  beautyLabel: {
+    fontSize: 9,
+    fontWeight: '700',
+    fontFamily: 'Manrope',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    marginBottom: 4,
+  },
+  beautyValue: {
+    fontSize: 14,
+    fontWeight: '600',
+    fontFamily: 'Sora',
+  },
+  noteItem: {
+    borderLeftWidth: 4,
+    paddingLeft: 12,
+    paddingVertical: 4,
+    marginBottom: 8,
+  },
+  noteText: {
+    fontSize: 13,
+    fontFamily: 'Sora',
+    fontWeight: '400',
+    lineHeight: 20,
+  },
+  noteDate: {
+    fontSize: 10,
+    fontFamily: 'Manrope',
+    marginTop: 4,
+  },
 });

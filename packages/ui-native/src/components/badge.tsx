@@ -1,9 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useTheme } from '../theme/theme-provider';
-import { radius } from '@wbc/shared/src/theme/spacing';
 
-type Variant = 'success' | 'warning' | 'danger' | 'info' | 'neutral';
+type Variant = 'success' | 'warning' | 'danger' | 'info' | 'neutral' | 'primary';
 
 interface BadgeProps {
   variant?: Variant;
@@ -11,25 +10,27 @@ interface BadgeProps {
 }
 
 export function Badge({ variant = 'neutral', children }: BadgeProps) {
-  const { colors } = useTheme();
+  const { md3: c } = useTheme();
 
   const bgColors: Record<Variant, string> = {
-    success: colors.successBg, warning: colors.warningBg, danger: colors.dangerBg,
-    info: colors.infoBg, neutral: colors.bgSecondary,
+    success: c.successBg, warning: c.warningBg, danger: c.dangerBg,
+    info: c.infoBg, neutral: c.surfaceContainerHigh,
+    primary: c.primaryFixed,
   };
   const textColors: Record<Variant, string> = {
-    success: colors.successText, warning: colors.warningText, danger: colors.dangerText,
-    info: colors.infoText, neutral: colors.textSecondary,
+    success: c.successText, warning: c.warningText, danger: c.dangerText,
+    info: c.infoText, neutral: c.onSurfaceVariant,
+    primary: c.primary,
   };
 
   return (
-    <View style={[styles.badge, { backgroundColor: bgColors[variant], borderRadius: radius.sm }]}>
+    <View style={[styles.badge, { backgroundColor: bgColors[variant] }]}>
       <Text style={[styles.text, { color: textColors[variant] }]}>{children}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  badge: { paddingHorizontal: 8, paddingVertical: 2, alignSelf: 'flex-start' },
-  text: { fontSize: 11, fontWeight: '500', fontFamily: 'Sora' },
+  badge: { paddingHorizontal: 10, paddingVertical: 3, alignSelf: 'flex-start', borderRadius: 9999 },
+  text: { fontSize: 9, fontWeight: '700', fontFamily: 'Manrope', letterSpacing: 0.5, textTransform: 'uppercase' },
 });

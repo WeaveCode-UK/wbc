@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, View, StyleSheet, Animated } from 'react-native';
+import { TouchableOpacity, View, StyleSheet } from 'react-native';
 import { useTheme } from '../theme/theme-provider';
 
 interface ToggleProps {
@@ -9,19 +9,29 @@ interface ToggleProps {
 }
 
 export function Toggle({ value, onChange, disabled }: ToggleProps) {
-  const { colors } = useTheme();
+  const { md3: c } = useTheme();
   return (
     <TouchableOpacity
       onPress={() => !disabled && onChange(!value)}
       activeOpacity={0.7}
-      style={[styles.track, { backgroundColor: value ? colors.primary : colors.borderSecondary, opacity: disabled ? 0.5 : 1 }]}
+      style={[styles.track, {
+        backgroundColor: value ? c.primaryContainer : c.surfaceContainerHigh,
+        opacity: disabled ? 0.5 : 1,
+      }]}
     >
-      <View style={[styles.knob, { transform: [{ translateX: value ? 16 : 0 }] }]} />
+      <View style={[styles.knob, {
+        transform: [{ translateX: value ? 22 : 0 }],
+        shadowColor: value ? c.primaryContainer : '#000',
+        shadowOpacity: value ? 0.3 : 0.1,
+      }]} />
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
-  track: { width: 36, height: 20, borderRadius: 10, padding: 2, justifyContent: 'center' },
-  knob: { width: 16, height: 16, borderRadius: 8, backgroundColor: '#FFFFFF' },
+  track: { width: 48, height: 26, borderRadius: 13, padding: 2, justifyContent: 'center' },
+  knob: {
+    width: 22, height: 22, borderRadius: 11, backgroundColor: '#FFFFFF',
+    shadowOffset: { width: 0, height: 2 }, shadowRadius: 4, elevation: 3,
+  },
 });

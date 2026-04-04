@@ -9,24 +9,43 @@ interface SegmentedControlProps {
 }
 
 export function SegmentedControl({ options, value, onChange }: SegmentedControlProps) {
-  const { colors } = useTheme();
+  const { md3: c } = useTheme();
   return (
-    <View style={[styles.container, { backgroundColor: colors.bgSecondary }]}>
-      {options.map((opt) => (
-        <TouchableOpacity
-          key={opt.value}
-          onPress={() => onChange(opt.value)}
-          style={[styles.item, value === opt.value && { backgroundColor: colors.bgPrimary, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 2, elevation: 1 }]}
-        >
-          <Text style={[styles.label, { color: value === opt.value ? colors.textPrimary : colors.textTertiary }]}>{opt.label}</Text>
-        </TouchableOpacity>
-      ))}
+    <View style={[styles.container, { backgroundColor: c.surfaceContainerLow }]}>
+      {options.map((opt) => {
+        const active = value === opt.value;
+        return (
+          <TouchableOpacity
+            key={opt.value}
+            onPress={() => onChange(opt.value)}
+            activeOpacity={0.8}
+            style={[
+              styles.item,
+              active && {
+                backgroundColor: c.surfaceContainerLowest,
+                shadowColor: '#000',
+                shadowOpacity: 0.06,
+                shadowRadius: 4,
+                shadowOffset: { width: 0, height: 2 },
+                elevation: 2,
+              },
+            ]}
+          >
+            <Text style={[
+              styles.label,
+              { color: active ? c.primary : c.onSurfaceVariant },
+            ]}>
+              {opt.label}
+            </Text>
+          </TouchableOpacity>
+        );
+      })}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flexDirection: 'row', borderRadius: 8, padding: 2 },
-  item: { flex: 1, alignItems: 'center', paddingVertical: 6, borderRadius: 6 },
-  label: { fontSize: 11, fontWeight: '500', fontFamily: 'Sora_500Medium' },
+  container: { flexDirection: 'row', borderRadius: 12, padding: 4, gap: 2 },
+  item: { flex: 1, alignItems: 'center', paddingVertical: 10, borderRadius: 10 },
+  label: { fontSize: 13, fontWeight: '700', fontFamily: 'Sora' },
 });

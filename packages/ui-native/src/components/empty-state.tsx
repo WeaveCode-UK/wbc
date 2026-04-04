@@ -11,12 +11,12 @@ interface EmptyStateProps {
 }
 
 export function EmptyState({ icon, title, description, action }: EmptyStateProps) {
-  const { colors } = useTheme();
+  const { md3: c } = useTheme();
   return (
     <View style={styles.container}>
-      {icon && <View style={[styles.iconBox, { backgroundColor: colors.bgSecondary }]}>{icon}</View>}
-      <Text style={[styles.title, { color: colors.textPrimary }]}>{title}</Text>
-      {description && <Text style={[styles.desc, { color: colors.textTertiary }]}>{description}</Text>}
+      {icon && <View style={[styles.iconBox, { backgroundColor: c.primaryFixed + '33' }]}>{icon}</View>}
+      <Text style={[styles.title, { color: c.onSurface }]}>{title}</Text>
+      {description && <Text style={[styles.desc, { color: c.onSurfaceVariant }]}>{description}</Text>}
       {action && <View style={styles.action}>{action}</View>}
     </View>
   );
@@ -24,8 +24,8 @@ export function EmptyState({ icon, title, description, action }: EmptyStateProps
 
 const styles = StyleSheet.create({
   container: { alignItems: 'center', justifyContent: 'center', paddingVertical: 48 },
-  iconBox: { width: 48, height: 48, borderRadius: 12, alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
-  title: { fontSize: 14, fontWeight: '500', fontFamily: 'Sora_500Medium' },
-  desc: { fontSize: 12, fontFamily: 'Sora_400Regular', textAlign: 'center', maxWidth: 280, marginTop: 4 },
-  action: { marginTop: 16 },
+  iconBox: { width: 56, height: 56, borderRadius: 16, alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
+  title: { fontSize: 16, fontWeight: '700', fontFamily: 'Epilogue' },
+  desc: { fontSize: 13, fontFamily: 'Manrope', textAlign: 'center', maxWidth: 280, marginTop: 6, lineHeight: 20 },
+  action: { marginTop: 20 },
 });

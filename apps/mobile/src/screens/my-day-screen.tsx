@@ -1,75 +1,205 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
-import { useTheme, Card } from '@wbc/ui-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { useTheme, ProgressBar } from '@wbc/ui-native';
 
 export function MyDayScreen() {
-  const { colors } = useTheme();
+  const { md3: c } = useTheme();
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Bom dia' : hour < 18 ? 'Boa tarde' : 'Boa noite';
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor: colors.bgTertiary }]} contentContainerStyle={styles.content}>
-      <Text style={[styles.greeting, { color: colors.textPrimary }]}>{greeting}! 👋</Text>
-      <Text style={[styles.subtitle, { color: colors.textTertiary }]}>Aqui está o resumo do seu dia</Text>
-
-      <View style={styles.statsRow}>
-        {[{ label: 'Vendas', value: '12', change: '+3' }, { label: 'Faturamento', value: 'R$ 2.450' }, { label: 'Pendentes', value: '5' }].map((stat, i) => (
-          <Card key={i} variant="flat">
-            <Text style={[styles.statLabel, { color: colors.textTertiary }]}>{stat.label}</Text>
-            <Text style={[styles.statValue, { color: colors.textPrimary }]}>{stat.value}</Text>
-            {stat.change && <Text style={[styles.statChange, { color: colors.success }]}>{stat.change}</Text>}
-          </Card>
-        ))}
+    <ScrollView style={[styles.scroll, { backgroundColor: c.surface }]} contentContainerStyle={styles.content}>
+      {/* Greeting */}
+      <View style={styles.greeting}>
+        <Text style={[styles.greetingText, { color: c.onSurface }]}>{greeting}, Consultora!</Text>
+        <Text style={[styles.dateText, { color: c.outline }]}>Segunda-feira, 23 de Outubro de 2023</Text>
       </View>
 
-      <View style={[styles.banner, { backgroundColor: colors.primarySurface }]}>
-        <Text style={{ fontSize: 18 }}>🎯</Text>
-        <View style={{ flex: 1 }}>
-          <Text style={[styles.bannerTitle, { color: colors.primary }]}>Meta do mês: 65%</Text>
-          <View style={[styles.progressTrack, { backgroundColor: colors.bgSecondary }]}>
-            <View style={[styles.progressFill, { width: '65%', backgroundColor: colors.primary }]} />
+      {/* Stats Grid */}
+      <View style={styles.statsGrid}>
+        <View style={[styles.statCardFull, { backgroundColor: c.surfaceContainerLowest, borderColor: c.outlineVariant + '33' }]}>
+          <View style={styles.metaRow}>
+            <Text style={[styles.overlineLabel, { color: c.primaryContainer }]}>META MENSAL</Text>
+            <Text style={[styles.metaPercent, { color: c.primaryContainer }]}>85%</Text>
           </View>
+          <ProgressBar value={85} variant="primary" />
+          <Text style={[styles.metaHint, { color: c.outline }]}>
+            Faltam <Text style={{ color: c.onSurface, fontWeight: '700' }}>R$ 1.250</Text> para atingir o Plano Diamante
+          </Text>
+        </View>
+
+        <View style={[styles.statCardHalf, { backgroundColor: c.surfaceContainerLowest, borderColor: c.outlineVariant + '33' }]}>
+          <Text style={[styles.overlineLabel, { color: c.outline }]}>FATURAMENTO</Text>
+          <Text style={[styles.statValue, { color: c.onSurface }]}>R$ 8.420</Text>
+        </View>
+
+        <View style={[styles.statCardHalf, { backgroundColor: c.surfaceContainerLowest, borderColor: c.outlineVariant + '33' }]}>
+          <Text style={[styles.overlineLabel, { color: c.outline }]}>CLIENTES</Text>
+          <Text style={[styles.statValue, { color: c.onSurface }]}>142</Text>
         </View>
       </View>
 
-      <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Ações do dia</Text>
+      {/* Urgente */}
+      <SectionHeader label="URGENTE" color={c.error} />
+      <View style={styles.cardList}>
+        <AlertCard
+          name="Ana Paula Silva" detail="Atraso: 3 dias • R$ 450,00" action="COBRAR"
+          borderColor={c.error} actionBg={c.error + '1A'} actionText={c.error}
+          cardBg={c.surfaceContainerLowest} textColor={c.onSurface} subColor={c.outline}
+        />
+        <AlertCard
+          name="Mariana Costa" detail="Atraso: 5 dias • R$ 120,00" action="COBRAR"
+          borderColor={c.error} actionBg={c.error + '1A'} actionText={c.error}
+          cardBg={c.surfaceContainerLowest} textColor={c.onSurface} subColor={c.outline}
+        />
+      </View>
 
-      {[
-        { color: colors.danger, title: 'Cobrança pendente', subtitle: 'Ana Silva — R$ 150,00', action: 'Cobrar' },
-        { color: colors.warning, title: 'Lembrete reposição', subtitle: 'Beatriz Santos — Creme', action: 'Enviar' },
-        { color: colors.success, title: 'Aniversário hoje 🎂', subtitle: 'Carla Oliveira', action: 'Parabenizar' },
-        { color: colors.info, title: 'Agendamento às 14h', subtitle: 'Visita — Daniela Costa', action: 'Ver' },
-      ].map((item, i) => (
-        <Card key={i} variant="action" accentColor={item.color}>
-          <View style={styles.actionRow}>
-            <View style={{ flex: 1 }}>
-              <Text style={[styles.actionTitle, { color: colors.textPrimary }]}>{item.title}</Text>
-              <Text style={[styles.actionSub, { color: colors.textTertiary }]}>{item.subtitle}</Text>
-            </View>
-            <TouchableOpacity><Text style={[styles.actionBtn, { color: colors.primary }]}>{item.action}</Text></TouchableOpacity>
+      {/* Lembretes */}
+      <SectionHeader label="LEMBRETES" color={c.tertiary} />
+      <View style={styles.cardList}>
+        <AlertCard
+          name="Reposicao: Kit Cronos" detail="Cliente: Bia Oliveira • Ciclo 12" action="LEMBRAR"
+          borderColor={c.tertiary} actionBg={c.tertiary + '1A'} actionText={c.tertiary}
+          cardBg={c.surfaceContainerLowest} textColor={c.onSurface} subColor={c.outline}
+        />
+        <AlertCard
+          name="Cashback Expirando" detail="Fernanda R. • Saldo R$ 45,00" action="LEMBRAR"
+          borderColor={c.tertiary} actionBg={c.tertiary + '1A'} actionText={c.tertiary}
+          cardBg={c.surfaceContainerLowest} textColor={c.onSurface} subColor={c.outline}
+        />
+      </View>
+
+      {/* Aniversarios */}
+      <SectionHeader label="ANIVERSARIOS" color="#059669" />
+      <View style={styles.cardList}>
+        <View style={[styles.alertCard, { backgroundColor: c.surfaceContainerLowest, borderLeftColor: '#059669' }]}>
+          <View style={[styles.birthdayAvatar, { backgroundColor: '#ECFDF5' }]}>
+            <Text style={{ color: '#059669', fontSize: 14, fontWeight: '600' }}>CM</Text>
           </View>
-        </Card>
-      ))}
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.alertName, { color: c.onSurface }]}>Carla Mendonca</Text>
+            <Text style={[styles.alertDetail, { color: c.outline }]}>Hoje • 32 anos</Text>
+          </View>
+          <TouchableOpacity style={[styles.actionBtn, { backgroundColor: '#059669' + '1A' }]}>
+            <Text style={[styles.actionBtnText, { color: '#059669' }]}>PARABENS</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* Agenda de Hoje */}
+      <View style={styles.agendaHeader}>
+        <Text style={[styles.agendaTitle, { color: c.onSurface }]}>Agenda de Hoje</Text>
+        <Text style={[styles.agendaLink, { color: c.primaryContainer }]}>Ver Calendario</Text>
+      </View>
+
+      <View style={styles.timeline}>
+        <View style={[styles.timelineLine, { backgroundColor: c.surfaceContainerHigh }]} />
+        <TimelineItem
+          time="09:30" title="Entrega - Condominio Alpha" subtitle="Cliente: Patricia L."
+          dotBg={c.primaryContainer} dotText="#FFFFFF" cardBg={c.surfaceContainerLow}
+          textColor={c.onSurface} subColor={c.outline} timeColor={c.primaryContainer}
+          surfaceColor={c.surface} opacity={1}
+        />
+        <TimelineItem
+          time="14:00" title="Sessao de SkinCare" subtitle="Cliente: Roberta Gomes"
+          dotBg={c.surfaceVariant} dotText={c.outline} cardBg={c.surfaceContainerLow}
+          textColor={c.onSurface} subColor={c.outline} timeColor={c.outline}
+          surfaceColor={c.surface} opacity={0.6}
+        />
+        <TimelineItem
+          time="17:30" title="Mentoria Equipe WBC" subtitle="Google Meet Link"
+          dotBg={c.surfaceVariant} dotText={c.outline} cardBg={c.surfaceContainerLow}
+          textColor={c.onSurface} subColor={c.outline} timeColor={c.outline}
+          surfaceColor={c.surface} opacity={0.6}
+        />
+      </View>
+
+      <View style={{ height: 100 }} />
     </ScrollView>
   );
 }
 
+function SectionHeader({ label, color }: { label: string; color: string }) {
+  return (
+    <View style={styles.sectionHeader}>
+      <Text style={[styles.sectionLabel, { color }]}>{label}</Text>
+    </View>
+  );
+}
+
+function AlertCard({ name, detail, action, borderColor, actionBg, actionText, cardBg, textColor, subColor }: {
+  name: string; detail: string; action: string; borderColor: string;
+  actionBg: string; actionText: string; cardBg: string; textColor: string; subColor: string;
+}) {
+  return (
+    <View style={[styles.alertCard, { backgroundColor: cardBg, borderLeftColor: borderColor }]}>
+      <View style={{ flex: 1 }}>
+        <Text style={[styles.alertName, { color: textColor }]}>{name}</Text>
+        <Text style={[styles.alertDetail, { color: subColor }]}>{detail}</Text>
+      </View>
+      <TouchableOpacity style={[styles.actionBtn, { backgroundColor: actionBg }]}>
+        <Text style={[styles.actionBtnText, { color: actionText }]}>{action}</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+function TimelineItem({ time, title, subtitle, dotBg, dotText, cardBg, textColor, subColor, timeColor, surfaceColor, opacity }: {
+  time: string; title: string; subtitle: string;
+  dotBg: string; dotText: string; cardBg: string; textColor: string;
+  subColor: string; timeColor: string; surfaceColor: string; opacity: number;
+}) {
+  return (
+    <View style={[styles.timelineItem, { opacity }]}>
+      <View style={[styles.timelineDot, { backgroundColor: dotBg, borderColor: surfaceColor }]}>
+        <Text style={{ color: dotText, fontSize: 12, fontWeight: '600' }}>{time.substring(0, 2)}</Text>
+      </View>
+      <View style={[styles.timelineCard, { backgroundColor: cardBg }]}>
+        <Text style={[styles.timelineTime, { color: timeColor }]}>{time}</Text>
+        <Text style={[styles.timelineTitle, { color: textColor }]}>{title}</Text>
+        <Text style={[styles.timelineSub, { color: subColor }]}>{subtitle}</Text>
+      </View>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  content: { padding: 16, gap: 12 },
-  greeting: { fontSize: 24, fontWeight: '500', fontFamily: 'Sora_500Medium' },
-  subtitle: { fontSize: 13, fontFamily: 'Sora_400Regular', marginBottom: 4 },
-  statsRow: { flexDirection: 'row', gap: 8 },
-  statLabel: { fontSize: 11, fontFamily: 'Sora_400Regular' },
-  statValue: { fontSize: 18, fontWeight: '500', fontFamily: 'Sora_500Medium', marginTop: 2 },
-  statChange: { fontSize: 11, fontFamily: 'Sora_400Regular' },
-  banner: { flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: 10, padding: 12 },
-  bannerTitle: { fontSize: 13, fontWeight: '500', fontFamily: 'Sora_500Medium', marginBottom: 4 },
-  progressTrack: { height: 6, borderRadius: 3 },
-  progressFill: { height: 6, borderRadius: 3 },
-  sectionTitle: { fontSize: 15, fontWeight: '500', fontFamily: 'Sora_500Medium', marginTop: 8 },
-  actionRow: { flexDirection: 'row', alignItems: 'center' },
-  actionTitle: { fontSize: 13, fontWeight: '500', fontFamily: 'Sora_500Medium' },
-  actionSub: { fontSize: 11, fontFamily: 'Sora_400Regular', marginTop: 1 },
-  actionBtn: { fontSize: 11, fontWeight: '500', fontFamily: 'Sora_500Medium' },
+  scroll: { flex: 1 },
+  content: { paddingTop: 80, paddingHorizontal: 16, gap: 24 },
+  greeting: { gap: 4 },
+  greetingText: { fontSize: 28, fontWeight: '600', fontFamily: 'Sora', letterSpacing: -0.5 },
+  dateText: { fontSize: 13, fontFamily: 'Sora', fontWeight: '500' },
+  statsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
+  statCardFull: { width: '100%', padding: 20, borderRadius: 24, borderWidth: 0.5, gap: 12, shadowColor: '#191C1E', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.03, shadowRadius: 4, elevation: 1 },
+  statCardHalf: { flex: 1, padding: 20, borderRadius: 24, borderWidth: 0.5, gap: 4, shadowColor: '#191C1E', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.03, shadowRadius: 4, elevation: 1 },
+  metaRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
+  metaPercent: { fontSize: 16, fontWeight: '700', fontFamily: 'Sora' },
+  metaHint: { fontSize: 12, fontFamily: 'Sora' },
+  overlineLabel: { fontSize: 10, fontWeight: '700', letterSpacing: 1.5, textTransform: 'uppercase', fontFamily: 'Sora' },
+  statValue: { fontSize: 20, fontWeight: '800', fontFamily: 'Epilogue', letterSpacing: -0.5 },
+  sectionHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 4 },
+  sectionLabel: { fontSize: 11, fontWeight: '700', letterSpacing: 2, textTransform: 'uppercase', fontFamily: 'Sora' },
+  cardList: { gap: 10 },
+  alertCard: {
+    flexDirection: 'row', alignItems: 'center', padding: 16, borderRadius: 16,
+    borderLeftWidth: 4, gap: 12,
+    shadowColor: '#191C1E', shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03, shadowRadius: 4, elevation: 1,
+  },
+  alertName: { fontSize: 14, fontWeight: '700', fontFamily: 'Sora' },
+  alertDetail: { fontSize: 11, fontFamily: 'Manrope', marginTop: 2 },
+  actionBtn: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 12 },
+  actionBtnText: { fontSize: 10, fontWeight: '700', fontFamily: 'Sora', letterSpacing: 1 },
+  birthdayAvatar: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
+  agendaHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', paddingHorizontal: 4 },
+  agendaTitle: { fontSize: 20, fontWeight: '700', fontFamily: 'Sora' },
+  agendaLink: { fontSize: 12, fontWeight: '700', fontFamily: 'Sora' },
+  timeline: { position: 'relative', gap: 24 },
+  timelineLine: { position: 'absolute', left: 15, top: 8, bottom: 8, width: 2, borderRadius: 1 },
+  timelineItem: { flexDirection: 'row', alignItems: 'flex-start', gap: 20 },
+  timelineDot: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center', borderWidth: 4, marginTop: 4 },
+  timelineCard: { flex: 1, padding: 16, borderRadius: 16 },
+  timelineTime: { fontSize: 10, fontWeight: '700', fontFamily: 'Sora' },
+  timelineTitle: { fontSize: 14, fontWeight: '700', fontFamily: 'Sora', marginTop: 4 },
+  timelineSub: { fontSize: 12, fontFamily: 'Manrope', marginTop: 4 },
 });

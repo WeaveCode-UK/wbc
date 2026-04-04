@@ -6,6 +6,7 @@ export const spacing = {
   5: 20,
   6: 24,
   8: 32,
+  10: 40,
   12: 48,
 } as const;
 
@@ -14,11 +15,13 @@ export const radius = {
   md: 10,
   lg: 12,
   xl: 16,
+  '2xl': 24,
+  '3xl': 32,
   full: 9999,
 } as const;
 
 export const borders = {
   default: 0.5,
   focus: 2,
-  priority: 3,
+  priority: 4,
 } as const;

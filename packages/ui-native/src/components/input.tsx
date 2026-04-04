@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
 import { useTheme } from '../theme/theme-provider';
-import { radius } from '@wbc/shared/src/theme/spacing';
 import type { TextInputProps } from 'react-native';
 
 interface InputProps extends TextInputProps {
@@ -11,26 +10,31 @@ interface InputProps extends TextInputProps {
 }
 
 export function Input({ label, error, helper, ...props }: InputProps) {
-  const { colors } = useTheme();
-  const borderColor = error ? colors.danger : colors.borderSecondary;
+  const { md3: c } = useTheme();
+  const borderColor = error ? c.error : 'transparent';
 
   return (
     <View style={styles.container}>
-      {label && <Text style={[styles.label, { color: colors.textTertiary }]}>{label}</Text>}
+      {label && <Text style={[styles.label, { color: c.onSurfaceVariant }]}>{label}</Text>}
       <TextInput
-        placeholderTextColor={colors.textTertiary}
-        style={[styles.input, { borderColor, backgroundColor: colors.bgPrimary, color: colors.textPrimary, borderRadius: radius.md }]}
+        placeholderTextColor={c.outline}
+        style={[styles.input, {
+          borderColor,
+          backgroundColor: c.surfaceContainerLow,
+          color: c.onSurface,
+          borderWidth: error ? 1 : 0,
+        }]}
         {...props}
       />
-      {error && <Text style={[styles.helper, { color: colors.danger }]}>{error}</Text>}
-      {helper && !error && <Text style={[styles.helper, { color: colors.textTertiary }]}>{helper}</Text>}
+      {error && <Text style={[styles.helper, { color: c.error }]}>{error}</Text>}
+      {helper && !error && <Text style={[styles.helper, { color: c.outline }]}>{helper}</Text>}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { gap: 4 },
-  label: { fontSize: 11, fontFamily: 'Sora' },
-  input: { height: 40, borderWidth: 0.5, paddingHorizontal: 12, fontSize: 13, fontFamily: 'Sora' },
-  helper: { fontSize: 11, fontFamily: 'Sora' },
+  container: { gap: 6 },
+  label: { fontSize: 10, fontFamily: 'Manrope', fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1 },
+  input: { height: 48, paddingHorizontal: 16, fontSize: 14, fontFamily: 'Sora', borderRadius: 12 },
+  helper: { fontSize: 11, fontFamily: 'Manrope', marginLeft: 4 },
 });

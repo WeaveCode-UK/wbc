@@ -12,8 +12,8 @@
 ## Resumo de Progresso
 - total_aprovados: 13
 - corrigidos_executor: 13
-- revisados_revisor: 0
-- corrigidos_pelo_revisor: 0
+- revisados_revisor: 13
+- corrigidos_pelo_revisor: 1
 - nao_corrigiveis: 1
 - nao_aprovados: 0
 - pendentes: 0
@@ -30,6 +30,9 @@
 - commit_revisor: none
 - arquivos_alterados:
   - packages/business/clients/adapters/prisma-client-repository.ts
+- status_revisor: aprovado
+- commit_revisor: none
+- resultado_revisao: correção completa e consistente
 - descricao_correcao: Adicionado guard findFirst com tenantId antes de update, delete, convertToClient e bulkEditNames. Impede operacao cross-tenant.
 - observacoes: Corrigido tambem convertToClient e bulkEditNames que tinham a mesma vulnerabilidade no mesmo arquivo.
 
@@ -46,6 +49,9 @@
   - packages/business/clients/use-cases/manage-tags.ts
   - packages/business/clients/adapters/prisma-tag-repository.ts
   - apps/api/src/routers/clients.ts
+- status_revisor: aprovado
+- commit_revisor: none
+- resultado_revisao: correção completa e consistente
 - descricao_correcao: Adicionado tenantId em todo o fluxo tagClient/untagClient/bulkTag/getClientTags. Repository valida ownership de client e tag antes de operar. Router passa ctx.tenant.tenantId. Tambem corrigido delete de tag com guard de tenantId.
 - observacoes: none
 

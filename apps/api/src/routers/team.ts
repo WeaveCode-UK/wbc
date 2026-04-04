@@ -47,6 +47,6 @@ export const teamRouter = router({
   getRanking: protectedProcedure.query(async ({ ctx }) => {
     const team = await teamRepo.findByLeaderId(ctx.tenant.tenantId, ctx.tenant.userId);
     if (!team) return [];
-    return getTeamRanking(ctx.tenant.tenantId, team.id);
+    return getTeamRanking(ctx.tenant.tenantId, team.id, memberRepo);
   }),
 });

@@ -3,12 +3,17 @@ import type { PaymentRepository } from '../ports/payment-repository';
 import type { Payment } from '../domain/entities';
 
 export class PrismaPaymentRepository implements PaymentRepository {
-  async findBySaleId(saleId: string): Promise<Payment[]> {
-    const payments = await prisma.payment.findMany({ where: { saleId }, orderBy: { installmentNumber: 'asc' } });
+  async findBySaleId(tenantId: string, saleId: string): Promise<Payment[]> {
+    const payments = await prisma.payment.findMany({
+      where: { saleId, sale: { tenantId } },
+      orderBy: { installmentNumber: 'asc' },
+    });
     return payments.map((p) => ({ ...p, amount: Number(p.amount) })) as Payment[];
   }
 
-  async markPaid(id: string): Promise<Payment> {
+  async markPaid(tenantId: string, id: string): Promise<Payment> {
+    const existing = await prisma.payment.findFirst({ where: { id, sale: { tenantId } } });
+    if (!existing) throw new Error('Payment not found');
     const p = await prisma.payment.update({ where: { id }, data: { status: 'PAID', paidAt: new Date() } });
     return { ...p, amount: Number(p.amount) } as Payment;
   }

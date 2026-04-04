@@ -65,14 +65,14 @@ export const salesRouter = router({
 
   listPayments: protectedProcedure
     .input(z.object({ saleId: uuidSchema }))
-    .query(async ({ input }) => {
-      return listPayments(input.saleId, paymentRepo);
+    .query(async ({ ctx, input }) => {
+      return listPayments(ctx.tenant.tenantId, input.saleId, paymentRepo);
     }),
 
   markPaid: protectedProcedure
     .input(z.object({ paymentId: uuidSchema }))
-    .mutation(async ({ input }) => {
-      return markPaid(input.paymentId, paymentRepo);
+    .mutation(async ({ ctx, input }) => {
+      return markPaid(ctx.tenant.tenantId, input.paymentId, paymentRepo);
     }),
 
   getCashbackBalance: protectedProcedure

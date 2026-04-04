@@ -4,3 +4,5 @@ export type { SessionRepository, CreateSessionInput } from './session.repository
 export type { OAuthAccountRepository, CreateOAuthAccountInput, UpdateOAuthTokensInput } from './oauth-account.repository';
 export type { PasswordHasher } from './password-hasher.port';
 export type { OtpRepository } from './otp-repository';
+export type { InviteRepository, InviteData, InviteStatus, CreateInviteInput } from './invite.repository';
+export type { EmailSender, EmailMessage } from './email-sender.port';

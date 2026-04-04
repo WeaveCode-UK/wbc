@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { router, protectedProcedure } from '../trpc/trpc';
+import { router, protectedProcedure, roleProtectedProcedure } from '../trpc/trpc';
 import { PrismaTeamRepository } from '../../../../packages/business/team/adapters/prisma-team-repository';
 import { PrismaTeamMemberRepository } from '../../../../packages/business/team/adapters/prisma-team-member-repository';
 import { PrismaTeamTaskRepository } from '../../../../packages/business/team/adapters/prisma-team-task-repository';
@@ -17,14 +17,14 @@ export const teamRouter = router({
   getTeam: protectedProcedure.query(async ({ ctx }) => {
     return teamRepo.findByLeaderId(ctx.tenant.tenantId, ctx.tenant.userId);
   }),
-  addMember: protectedProcedure
+  addMember: roleProtectedProcedure('LEADER')
     .input(z.object({ phone: z.string(), name: z.string().default(''), role: z.enum(['CONSULTANT', 'LEADER', 'DIRECTOR', 'ADMIN']).default('CONSULTANT') }))
     .mutation(async ({ ctx, input }) => {
       let team = await teamRepo.findByLeaderId(ctx.tenant.tenantId, ctx.tenant.userId);
       if (!team) team = await createTeam(teamRepo, { tenantId: ctx.tenant.tenantId, name: 'Minha Equipe', leaderId: ctx.tenant.userId });
       return addMember(memberRepo, { tenantId: ctx.tenant.tenantId, teamId: team.id, name: input.name, phone: input.phone, role: input.role });
     }),
-  removeMember: protectedProcedure
+  removeMember: roleProtectedProcedure('LEADER')
     .input(z.object({ memberId: z.string() }))
     .mutation(async ({ ctx, input }) => { await removeMember(memberRepo, ctx.tenant.tenantId, input.memberId); return { success: true }; }),
   listTasks: protectedProcedure

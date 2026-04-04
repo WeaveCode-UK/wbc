@@ -1,6 +1,7 @@
 import { initTRPC, TRPCError } from '@trpc/server';
 import superjson from 'superjson';
 import type { TRPCContext } from './context';
+import type { Role } from '@wbc/shared';
 import { runWithTenant } from '@wbc/shared';
 import { applyPublicRateLimit, applyProtectedRateLimit } from './rate-limit-middleware';
 
@@ -25,3 +26,21 @@ export const protectedProcedure = t.procedure.use(async ({ path, ctx, next }) =>
   await applyProtectedRateLimit(path, tenant.tenantId, tenant.userId);
   return runWithTenant(tenant, () => next({ ctx: { tenant } }));
 });
+
+const ROLE_HIERARCHY: Record<Role, number> = {
+  CONSULTANT: 0,
+  LEADER: 1,
+  DIRECTOR: 2,
+  ADMIN: 3,
+};
+
+export function roleProtectedProcedure(minimumRole: Role) {
+  return protectedProcedure.use(({ ctx, next }) => {
+    const userLevel = ROLE_HIERARCHY[ctx.tenant.role];
+    const requiredLevel = ROLE_HIERARCHY[minimumRole];
+    if (userLevel < requiredLevel) {
+      throw new TRPCError({ code: 'FORBIDDEN', message: 'Insufficient permissions' });
+    }
+    return next();
+  });
+}

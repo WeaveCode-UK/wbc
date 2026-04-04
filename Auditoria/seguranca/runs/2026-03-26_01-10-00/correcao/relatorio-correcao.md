@@ -84,7 +84,8 @@ Nenhum.
 17. 1071178 — fix: corrigir erro type-check pós-correção
 
 ## Merge
-- status_merge: pendente
+- status_merge: concluido
 - branch_origem: fix/seguranca/2026-03-26_01-10-00
 - branch_destino: main
-- aprovado_por_usuario: nao
+- aprovado_por_usuario: sim
+- data_merge: 2026-04-04 22:20:00

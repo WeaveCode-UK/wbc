@@ -1,18 +1,20 @@
 import { z } from 'zod';
 import { router, protectedProcedure } from '../trpc/trpc';
 import { PrismaExpenseRepository } from '../../../../packages/business/finance/adapters/prisma-expense-repository';
+import { PrismaFinanceRepository } from '../../../../packages/business/finance/adapters/prisma-finance-repository';
 import { listExpenses, createExpense, updateExpense, deleteExpense } from '../../../../packages/business/finance/use-cases/manage-expenses';
 import { getFinanceDashboard } from '../../../../packages/business/finance/use-cases/get-dashboard';
 import { getMargin, getGoalReverse, getCAC } from '../../../../packages/business/finance/use-cases/calculators';
 import { paginationSchema, uuidSchema } from '@wbc/validators';
 
 const expenseRepo = new PrismaExpenseRepository();
+const financeRepo = new PrismaFinanceRepository();
 
 export const financeRouter = router({
   getDashboard: protectedProcedure
     .input(z.object({ period: z.string().optional() }))
     .query(async ({ ctx, input }) => {
-      return getFinanceDashboard(ctx.tenant.tenantId, input.period);
+      return getFinanceDashboard(ctx.tenant.tenantId, input.period, financeRepo);
     }),
 
   listExpenses: protectedProcedure
@@ -56,7 +58,7 @@ export const financeRouter = router({
   getCAC: protectedProcedure
     .input(z.object({ clientId: z.string().uuid().optional() }))
     .query(async ({ ctx, input }) => {
-      return getCAC(ctx.tenant.tenantId, input.clientId);
+      return getCAC(ctx.tenant.tenantId, input.clientId, financeRepo);
     }),
 
   // Placeholders for Mercado Pago (Phase 5)

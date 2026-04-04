@@ -1,5 +1,17 @@
 import { prisma } from '@wbc/db';
 import type { AnalyticsRepository, DashboardData, SalesStats, ProductRankingItem, ClientEngagement } from '../ports/analytics-repository';
+import {
+  MS_PER_DAY,
+  DAYS_IN_WEEK,
+  ENGAGEMENT_SCORE_MAX,
+  ENGAGEMENT_WEIGHT_PER_SALE,
+  ENGAGEMENT_RECENCY_THRESHOLD_RECENT,
+  ENGAGEMENT_RECENCY_BONUS_RECENT,
+  ENGAGEMENT_RECENCY_THRESHOLD_MODERATE,
+  ENGAGEMENT_RECENCY_BONUS_MODERATE,
+  ABC_PERCENTILE_A,
+  ABC_PERCENTILE_B,
+} from '../domain/constants';
 
 export class PrismaAnalyticsRepository implements AnalyticsRepository {
   async getDashboard(tenantId: string): Promise<DashboardData> {
@@ -17,7 +29,7 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
       }),
       prisma.reminder.count({ where: { tenantId, status: 'PENDING' } }),
       prisma.appointment.count({
-        where: { tenantId, startsAt: { gte: now, lte: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000) } },
+        where: { tenantId, startsAt: { gte: now, lte: new Date(now.getTime() + DAYS_IN_WEEK * MS_PER_DAY) } },
       }),
     ]);
 
@@ -77,10 +89,15 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
     ]);
 
     const daysSinceLastPurchase = lastSale
-      ? Math.floor((Date.now() - lastSale.createdAt.getTime()) / (1000 * 60 * 60 * 24))
+      ? Math.floor((Date.now() - lastSale.createdAt.getTime()) / MS_PER_DAY)
       : -1;
 
-    const score = Math.min(100, salesCount * 10 + (daysSinceLastPurchase < 30 ? 30 : daysSinceLastPurchase < 60 ? 15 : 0));
+    const recencyBonus = daysSinceLastPurchase < ENGAGEMENT_RECENCY_THRESHOLD_RECENT
+      ? ENGAGEMENT_RECENCY_BONUS_RECENT
+      : daysSinceLastPurchase < ENGAGEMENT_RECENCY_THRESHOLD_MODERATE
+        ? ENGAGEMENT_RECENCY_BONUS_MODERATE
+        : 0;
+    const score = Math.min(ENGAGEMENT_SCORE_MAX, salesCount * ENGAGEMENT_WEIGHT_PER_SALE + recencyBonus);
 
     return {
       score,
@@ -101,7 +118,7 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
     const total = sorted.length;
     for (let i = 0; i < sorted.length; i++) {
       const percentile = (i + 1) / total;
-      const classification = percentile <= 0.2 ? 'A' : percentile <= 0.5 ? 'B' : 'C';
+      const classification = percentile <= ABC_PERCENTILE_A ? 'A' : percentile <= ABC_PERCENTILE_B ? 'B' : 'C';
       await prisma.client.update({ where: { id: sorted[i]!.id }, data: { classification } });
     }
 

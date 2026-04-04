@@ -98,14 +98,18 @@ enum SubStatus {
 }
 
 model OtpCode {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  phone     String
+  id        String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  accountId String     @db.Uuid
   code      String
+  purpose   OtpPurpose @default(TWO_FACTOR)
   expiresAt DateTime
   usedAt    DateTime?
-  createdAt DateTime @default(now())
+  createdAt DateTime   @default(now())
 
-  @@index([phone, code])
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([accountId, code])
+  @@index([accountId])
   @@map("otp_codes")
 }
 

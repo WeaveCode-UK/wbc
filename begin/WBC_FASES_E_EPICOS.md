@@ -1250,6 +1250,165 @@ Atualizar STATE.json: `status: "BUILD_COMPLETE"`
 
 ---
 
+# FASE 10 — AUTH 2.0 (Sistema de Login Completo)
+
+> **Objetivo:** Redesign completo do sistema de autenticação. Separar identidade pessoal (Account) de workspace (Tenant) com tabela de vínculo (TenantMember). Implementar login via Google OAuth + email/senha, JWT com claims customizados, sliding session, RBAC, RLS multi-tenant de 4 camadas, e telas completas de auth (login, registro, onboarding, convite, workspace selector).
+> **Depende de:** Fase 9 completa (v1.3.0-fase-09)
+> **Épicos:** 6 (5 de implementação + 1 checkpoint)
+> **Doc de referência obrigatório:** begin/WBC-Auth-2.0-Prompts-Execucao.md
+
+---
+
+### F10.E01 — Auth 2.0: Schema Prisma + Migration
+
+**Descrição:** Criar novos models (Account, OAuthAccount, TenantMember, Session, Invite), refatorar Tenant (remover campos de identidade), atualizar OtpCode, gerar migration, atualizar seed.
+
+**Referência:** [WBC-Auth-2.0-Prompts-Execucao.md — Épico 1]
+
+**Ações:**
+- Criar models: Account, OAuthAccount, TenantMember, Session, Invite
+- Criar enums: InviteStatus, OtpPurpose
+- Remover campos de identidade do Tenant (phone, email, avatar, role)
+- Atualizar OtpCode para usar accountId em vez de phone
+- Gerar migration e atualizar seed com dados de teste
+
+**Dependências:** Fase 9 completa
+
+**DoD:**
+- [ ] Novos models criados no schema Prisma
+- [ ] Migration aplicada sem erros
+- [ ] Seed atualizado com dados de teste
+- [ ] `npx prisma validate` e `pnpm type-check` passam
+
+---
+
+### F10.E02 — Auth 2.0: Auth Core (Auth.js + JWT + Session)
+
+**Descrição:** Camada hexagonal completa do auth core: domain entities, value objects, ports, use-cases (credentials, oauth, session, workspaces), adapters Prisma + bcrypt. Configuração do Auth.js v5 com Google + Credentials providers e JWT com claims customizados.
+
+**Referência:** [WBC-Auth-2.0-Prompts-Execucao.md — Épico 2]
+
+**Ações:**
+- Entities: Account, TenantMember, Session
+- Value Objects: Email, Password, JWTPayload
+- Ports: 5 interfaces (repositories + password hasher)
+- Use cases: authenticate-with-credentials, authenticate-with-oauth, create-session, refresh-session, revoke-session, revoke-all-sessions, list-workspaces, switch-workspace
+- Adapters: 4 Prisma repositories + bcrypt hasher
+- Auth.js v5: Google + Credentials, JWT callbacks, session callbacks
+
+**Dependências:** F10.E01
+
+**DoD:**
+- [ ] 8 use-cases implementados
+- [ ] Auth.js v5 configurado com Google + Credentials
+- [ ] JWT com claims customizados (sub, tid, mid, role, plan)
+- [ ] `pnpm type-check` passa
+
+---
+
+### F10.E03 — Auth 2.0: Auth Router tRPC
+
+**Descrição:** Router tRPC com 20+ procedures. Use-cases adicionais para onboarding, invites, member management, password reset, email verification. Schemas Zod para validação. Substituição completa do antigo router OTP.
+
+**Referência:** [WBC-Auth-2.0-Prompts-Execucao.md — Épico 3]
+
+**Ações:**
+- 16 use-cases adicionais (onboarding, invites, account/member management, password, email verification)
+- Ports e adapters adicionais (invite repository, email sender)
+- Schemas Zod para todos os inputs
+- auth.router com 20+ procedures (públicas, authed, tenant, admin)
+- Remover sistema OTP de login antigo
+
+**Dependências:** F10.E01, F10.E02
+
+**DoD:**
+- [ ] 20+ procedures no auth.router
+- [ ] Schemas Zod para todos os inputs
+- [ ] Sistema OTP antigo removido
+- [ ] `pnpm type-check` passa
+
+---
+
+### F10.E04 — Auth 2.0: Middleware + Guards + RLS
+
+**Descrição:** 4 camadas de isolamento de tenant: auth middleware tRPC (3 níveis de procedure), Prisma tenant injection middleware, RLS no PostgreSQL, e utilitário frontend para troca de workspace. Permission guards RBAC com hierarquia de roles.
+
+**Referência:** [WBC-Auth-2.0-Prompts-Execucao.md — Épico 4]
+
+**Ações:**
+- 3 níveis de tRPC procedure: publicProcedure, authedProcedure, tenantProcedure
+- Prisma middleware com AsyncLocalStorage para tenant context
+- RLS policies em todas as tabelas com tenant_id
+- Permission guards (RBAC hardcoded) com hierarquia de promoção
+- Utilitário frontend para troca de workspace
+- Migrar todos os routers de negócio para tenantProcedure
+
+**Dependências:** F10.E01, F10.E02, F10.E03
+
+**DoD:**
+- [ ] RLS policies ativas em todas as tabelas com tenant_id
+- [ ] Permission guards bloqueiam corretamente
+- [ ] Todos os routers migrados para tenantProcedure
+- [ ] `pnpm type-check` passa
+
+---
+
+### F10.E05 — Auth 2.0: Frontend Auth (Telas)
+
+**Descrição:** Telas completas de auth: login (Google + Credentials), registro, onboarding wizard (3 passos), aceitar invite, seletor de workspace, reset de senha, verificação de email, tenant suspenso. Middleware Next.js atualizado. i18n pt-BR + en.
+
+**Referência:** [WBC-Auth-2.0-Prompts-Execucao.md — Épico 5]
+
+**Ações:**
+- Telas: login, registro, onboarding, invite, select-workspace, reset-password, verify-email, suspended
+- Componentes: GoogleLoginButton, CredentialsForm, OnboardingWizard, WorkspaceSelector, EmailVerificationBanner
+- Middleware Next.js com routing baseado em estado do JWT
+- Chaves i18n em pt-BR e en
+
+**Dependências:** F10.E01, F10.E02, F10.E03, F10.E04
+
+**DoD:**
+- [ ] Todas as telas renderizam corretamente
+- [ ] Middleware redireciona conforme estado do JWT
+- [ ] i18n funciona em PT-BR e EN
+- [ ] ZERO strings hardcoded
+- [ ] `pnpm type-check` passa
+
+---
+
+### F10.E06 — Checkpoint Fase 10
+
+> **⚠️ CHECKPOINT — NÃO é épico de implementação.**
+> O Orchestrator NÃO gera prompt para checkpoints. Executa type-check + tag diretamente em main.
+> NÃO criar branch para checkpoints.
+
+**Ações:**
+```bash
+git checkout main
+pnpm install
+pnpm type-check
+# Se falhar: corrigir, max 3 tentativas, depois BLOCKED
+git tag v2.0.0-fase-10
+```
+
+**Validação final pós-checkpoint:**
+1. `npx tsc --noEmit` — zero erros
+2. `npx prisma validate` — schema válido
+3. RLS policies ativas (`SELECT * FROM pg_policies`)
+4. Fluxo completo: registro → onboarding → dashboard
+5. Fluxo Google: login → auto-select workspace → dashboard
+6. Fluxo multi-workspace: login → seletor → dashboard
+7. Convite: aceitar → mini-onboarding → dashboard
+8. Troca de workspace: dados limpos, novo contexto
+9. Isolamento: 2 tenants, dados não vazam
+
+**DoD:**
+- [ ] type-check passa com zero erros
+- [ ] Tag v2.0.0-fase-10 criada
+- [ ] STATE.json atualizado (phase 10 = COMPLETED)
+
+---
+
 # RESUMO
 
 | Fase | Nome | Épicos (impl + checkpoint) | Tag |
@@ -1263,10 +1422,11 @@ Atualizar STATE.json: `status: "BUILD_COMPLETE"`
 | 7 | Testes + QA + Lançamento | 6 (sem checkpoint) | v1.0.0 |
 | 8 | Engorda Backend | 2 (sem checkpoint) | v1.2.0 |
 | 9 | UI/UX Redesign | 9 + 1 = 10 | v1.3.0-fase-09 |
+| 10 | Auth 2.0 | 5 + 1 = 6 | v2.0.0-fase-10 |
 
-**Total: 9 fases, ~65 épicos**
+**Total: 10 fases, ~71 épicos**
 
-> **NOTA SOBRE CHECKPOINTS:** O último épico de cada fase (Fases 1–6, 9) é um CHECKPOINT.
+> **NOTA SOBRE CHECKPOINTS:** O último épico de cada fase (Fases 1–6, 9, 10) é um CHECKPOINT.
 > Checkpoints NÃO são épicos de implementação. O Orchestrator NÃO gera prompt para eles.
 > O Orchestrator executa o procedimento de checkpoint diretamente: type-check + tag em main.
 

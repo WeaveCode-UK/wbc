@@ -12,7 +12,7 @@ export class WhatsAppN2Adapter implements WhatsAppPort {
     this.phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID ?? '';
   }
 
-  async sendText(phone: string, message: string): Promise<SendMessageResult> {
+  private async sendMessage(phone: string, type: string, content: Record<string, unknown>): Promise<SendMessageResult> {
     const cleanPhone = formatPhoneForWhatsApp(phone);
     try {
       const response = await fetch(
@@ -26,76 +26,29 @@ export class WhatsAppN2Adapter implements WhatsAppPort {
           body: JSON.stringify({
             messaging_product: 'whatsapp',
             to: cleanPhone,
-            type: 'text',
-            text: { body: message },
+            type,
+            [type]: content,
           }),
         },
       );
 
-      if (!response.ok) {
-        return { success: false };
-      }
-
+      if (!response.ok) return { success: false };
       const data = await response.json() as { messages?: Array<{ id: string }> };
       return { success: true, messageId: data.messages?.[0]?.id };
     } catch {
       return { success: false };
     }
+  }
+
+  async sendText(phone: string, message: string): Promise<SendMessageResult> {
+    return this.sendMessage(phone, 'text', { body: message });
   }
 
   async sendImage(phone: string, imageUrl: string, caption?: string): Promise<SendMessageResult> {
-    const cleanPhone = formatPhoneForWhatsApp(phone);
-    try {
-      const response = await fetch(
-        `${WHATSAPP_API_URL}/${this.phoneNumberId}/messages`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${this.apiToken}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            messaging_product: 'whatsapp',
-            to: cleanPhone,
-            type: 'image',
-            image: { link: imageUrl, caption },
-          }),
-        },
-      );
-
-      if (!response.ok) return { success: false };
-      const data = await response.json() as { messages?: Array<{ id: string }> };
-      return { success: true, messageId: data.messages?.[0]?.id };
-    } catch {
-      return { success: false };
-    }
+    return this.sendMessage(phone, 'image', { link: imageUrl, caption });
   }
 
   async sendAudio(phone: string, audioUrl: string): Promise<SendMessageResult> {
-    const cleanPhone = formatPhoneForWhatsApp(phone);
-    try {
-      const response = await fetch(
-        `${WHATSAPP_API_URL}/${this.phoneNumberId}/messages`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${this.apiToken}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            messaging_product: 'whatsapp',
-            to: cleanPhone,
-            type: 'audio',
-            audio: { link: audioUrl },
-          }),
-        },
-      );
-
-      if (!response.ok) return { success: false };
-      const data = await response.json() as { messages?: Array<{ id: string }> };
-      return { success: true, messageId: data.messages?.[0]?.id };
-    } catch {
-      return { success: false };
-    }
+    return this.sendMessage(phone, 'audio', { link: audioUrl });
   }
 }

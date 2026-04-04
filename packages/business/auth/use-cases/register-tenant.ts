@@ -1,19 +1,15 @@
-import type { OtpRepository } from '../ports/otp-repository';
-import { PhoneAlreadyRegisteredError } from '../domain/errors';
+// Auth 2.0: This use-case is DEPRECATED. Will be replaced by complete-onboarding in F10.E03.
+// Temporarily stubbed to maintain compilation after Tenant schema refactor.
 
 export interface TenantRepository {
-  findByPhone(phone: string): Promise<{ id: string } | null>;
+  findBySlug(slug: string): Promise<{ id: string } | null>;
   create(data: {
     name: string;
-    phone: string;
     slug: string;
   }): Promise<{
     id: string;
     name: string;
-    phone: string;
     slug: string;
-    role: string;
-    plan: string;
     locale: string;
     timezone: string;
     currency: string;
@@ -23,19 +19,12 @@ export interface TenantRepository {
 
 export interface RegisterTenantInput {
   name: string;
-  phone: string;
 }
 
 export async function registerTenant(
   input: RegisterTenantInput,
   tenantRepository: TenantRepository,
-  _otpRepository: OtpRepository,
 ): Promise<{ tenantId: string; slug: string }> {
-  const existing = await tenantRepository.findByPhone(input.phone);
-  if (existing) {
-    throw new PhoneAlreadyRegisteredError();
-  }
-
   // Generate slug from name
   const slug = input.name
     .toLowerCase()
@@ -44,13 +33,16 @@ export async function registerTenant(
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');
 
+  const existing = await tenantRepository.findBySlug(slug);
+  if (existing) {
+    throw new Error('Slug already in use');
+  }
+
   const tenant = await tenantRepository.create({
     name: input.name,
-    phone: input.phone,
     slug,
   });
 
-  // Create default subscription (Essential plan)
   await tenantRepository.createSubscription(tenant.id, 'ESSENTIAL');
 
   return { tenantId: tenant.id, slug };

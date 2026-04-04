@@ -18,7 +18,7 @@ export class PrismaQuickReplyRepository implements QuickReplyRepository {
 export class PrismaScheduledMessageRepository implements ScheduledMessageRepository {
   async create(tenantId: string, data: { clientId: string; message: string; sendAt: Date; type: string }) {
     return prisma.scheduledMessage.create({
-      data: { tenantId, clientId: data.clientId, message: data.message, sendAt: data.sendAt, type: data.type },
+      data: { tenantId, clientId: data.clientId, message: data.message, sendAt: data.sendAt, type: data.type as 'WELCOME' | 'BILLING_REMINDER' | 'CASHBACK_EXPIRING' | 'BIRTHDAY' | 'REACTIVATION' | 'POST_SALE' },
     });
   }
 
@@ -37,7 +37,16 @@ export class PrismaPostSaleFlowRepository implements PostSaleFlowRepository {
   }
 
   async createMany(flows: Array<{ saleId: string; clientId: string; stage: string; messageVariant: number; scheduledAt: Date; status: string }>) {
-    await prisma.postSaleFlow.createMany({ data: flows as Parameters<typeof prisma.postSaleFlow.createMany>[0]['data'] });
+    await prisma.postSaleFlow.createMany({
+      data: flows.map((f) => ({
+        saleId: f.saleId,
+        clientId: f.clientId,
+        stage: f.stage as 'TWO_DAYS' | 'TWO_WEEKS' | 'TWO_MONTHS',
+        messageVariant: f.messageVariant,
+        scheduledAt: f.scheduledAt,
+        status: f.status as 'PENDING',
+      })),
+    });
   }
 
   async findPending(limit: number) {

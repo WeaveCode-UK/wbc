@@ -102,7 +102,7 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
     for (let i = 0; i < sorted.length; i++) {
       const percentile = (i + 1) / total;
       const classification = percentile <= 0.2 ? 'A' : percentile <= 0.5 ? 'B' : 'C';
-      await prisma.client.update({ where: { id: sorted[i].id }, data: { classification } });
+      await prisma.client.update({ where: { id: sorted[i]!.id }, data: { classification } });
     }
 
     return { updated: sorted.length };

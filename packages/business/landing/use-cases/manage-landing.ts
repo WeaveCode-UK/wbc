@@ -8,13 +8,13 @@ export async function updateLandingPage(tenantId: string, data: { bio?: string; 
   return repo.upsert(tenantId, {
     tenantId,
     slug: `landing-${tenantId.substring(0, 8)}`,
-    bio: data.bio,
-    philosophy: data.philosophy,
-    photoUrl: data.photoUrl,
-    whatsappPhone: data.whatsappLink,
+    name: '',
+    bio: data.bio ?? null,
+    philosophy: data.philosophy ?? null,
+    photoUrl: data.photoUrl ?? null,
+    whatsappPhone: data.whatsappLink ?? '',
     isActive: true,
-    brands: undefined,
-    qrCodeUrl: undefined,
+    brands: [],
   });
 }
 

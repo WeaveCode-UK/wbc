@@ -11,6 +11,7 @@ import { startCampaignWorker } from './processors/campaign-processor';
 import { startScheduleWorker } from './processors/schedule-processor';
 import { startAnalyticsWorker } from './processors/analytics-processor';
 import { startDLQWorker } from './processors/dlq-processor';
+import { cleanupProcessedOutboxEvents } from './processors/outbox-cleanup';
 
 // Apply tenant middleware
 applyTenantMiddleware(() => getCurrentTenant()?.tenantId);
@@ -45,4 +46,14 @@ startAnalyticsWorker();
 startDLQWorker();
 
 logger.info('BullMQ workers started (messaging, campaigns, schedule, analytics, dlq)');
+// Outbox cleanup: run daily (every 24h)
+setInterval(async () => {
+  try {
+    await cleanupProcessedOutboxEvents();
+  } catch (error) {
+    logger.error({ error }, 'Outbox cleanup failed');
+  }
+}, 24 * 60 * 60 * 1000);
+
+logger.info('Outbox cleanup scheduled (24h interval)');
 logger.info('WBC Worker module loaded successfully');

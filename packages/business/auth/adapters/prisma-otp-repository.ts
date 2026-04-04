@@ -13,7 +13,7 @@ function getRedis(): Redis {
 }
 
 const OTP_LOCKOUT_WINDOW = 900; // 15 minutes in seconds
-const OTP_MAX_ATTEMPTS = 5;
+const OTP_SEND_WINDOW = 3600; // 1 hour in seconds
 
 export class PrismaOtpRepository implements OtpRepository {
   async create(phone: string, code: string, expiresAt: Date): Promise<OtpCode> {
@@ -80,5 +80,20 @@ export class PrismaOtpRepository implements OtpRepository {
   async resetFailedAttempts(phone: string): Promise<void> {
     const redis = getRedis();
     await redis.del(`otp:fail:${phone}`);
+  }
+
+  async getSendCount(phone: string): Promise<number> {
+    const redis = getRedis();
+    const count = await redis.get(`otp:send:${phone}`);
+    return count ? parseInt(count, 10) : 0;
+  }
+
+  async incrementSendCount(phone: string): Promise<void> {
+    const redis = getRedis();
+    const key = `otp:send:${phone}`;
+    const current = await redis.incr(key);
+    if (current === 1) {
+      await redis.expire(key, OTP_SEND_WINDOW);
+    }
   }
 }

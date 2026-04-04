@@ -8,4 +8,6 @@ export interface OtpRepository {
   getFailedAttempts(phone: string): Promise<number>;
   incrementFailedAttempts(phone: string): Promise<void>;
   resetFailedAttempts(phone: string): Promise<void>;
+  getSendCount(phone: string): Promise<number>;
+  incrementSendCount(phone: string): Promise<void>;
 }

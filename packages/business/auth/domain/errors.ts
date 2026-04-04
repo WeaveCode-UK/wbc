@@ -39,3 +39,10 @@ export class OtpTooManyAttemptsError extends Error {
     this.name = 'OtpTooManyAttemptsError';
   }
 }
+
+export class OtpSendRateLimitError extends Error {
+  constructor() {
+    super('Too many OTP requests. Please wait before requesting another code.');
+    this.name = 'OtpSendRateLimitError';
+  }
+}

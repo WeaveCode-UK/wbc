@@ -1,5 +1,3 @@
-import { prisma } from '@wbc/db';
-
 export interface PaginationParams {
   page: number;
   limit: number;

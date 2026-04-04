@@ -4,6 +4,7 @@ import type { TRPCContext } from './context';
 import type { Role } from '@wbc/shared';
 import { runWithTenant } from '@wbc/shared';
 import { applyPublicRateLimit, applyProtectedRateLimit } from './rate-limit-middleware';
+import { mapDomainErrorToTRPC } from './error-handler';
 import {
   extractAuthedContext,
   extractTenantContext,
@@ -11,19 +12,41 @@ import {
 
 const t = initTRPC.context<TRPCContext>().create({
   transformer: superjson,
+  errorFormatter({ shape, error }) {
+    return {
+      ...shape,
+      data: {
+        ...shape.data,
+        domainError: error.cause?.constructor.name,
+      },
+    };
+  },
 });
 
 export const router = t.router;
 
+const domainErrorMiddleware = t.middleware(async ({ next }) => {
+  try {
+    return await next();
+  } catch (error) {
+    if (error instanceof TRPCError) throw error;
+    const mapped = mapDomainErrorToTRPC(error);
+    if (mapped) throw mapped;
+    throw error;
+  }
+});
+
+const baseProcedure = t.procedure.use(domainErrorMiddleware);
+
 // Level 1: Public — no auth required
-export const publicProcedure = t.procedure.use(async ({ path, ctx, next }) => {
+export const publicProcedure = baseProcedure.use(async ({ path, ctx, next }) => {
   const identifier = ctx.tenant?.userId ?? 'anonymous';
   await applyPublicRateLimit(path, identifier);
   return next();
 });
 
 // Level 2: Authed — requires accountId (sub in JWT), no tenant required
-export const authedProcedure = t.procedure.use(async ({ path, ctx, next }) => {
+export const authedProcedure = baseProcedure.use(async ({ path, ctx, next }) => {
   if (!ctx.tenant) {
     throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Not authenticated' });
   }
@@ -33,7 +56,7 @@ export const authedProcedure = t.procedure.use(async ({ path, ctx, next }) => {
 });
 
 // Level 3: Tenant — requires accountId + tenantId + role + plan
-export const tenantProcedure = t.procedure.use(async ({ path, ctx, next }) => {
+export const tenantProcedure = baseProcedure.use(async ({ path, ctx, next }) => {
   if (!ctx.tenant) {
     throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Not authenticated' });
   }

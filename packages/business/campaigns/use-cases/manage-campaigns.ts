@@ -39,6 +39,8 @@ export async function cancelCampaign(tenantId: string, id: string, repo: Campaig
   return repo.updateStatus(tenantId, id, 'CANCELLED');
 }
 
-export async function getRecipients(campaignId: string, status: string | undefined, repo: CampaignRepository) {
-  return repo.getRecipients(campaignId, status);
+export async function getRecipients(tenantId: string, campaignId: string, status: string | undefined, repo: CampaignRepository) {
+  const campaign = await repo.findById(tenantId, campaignId);
+  if (!campaign) throw new CampaignNotFoundError(campaignId);
+  return repo.getRecipients(tenantId, campaignId, status);
 }

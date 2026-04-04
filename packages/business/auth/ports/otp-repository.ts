@@ -5,4 +5,9 @@ export interface OtpRepository {
   findLatestByPhone(phone: string): Promise<OtpCode | null>;
   markAsUsed(id: string): Promise<void>;
   deleteExpiredByPhone(phone: string): Promise<void>;
+  getFailedAttempts(phone: string): Promise<number>;
+  incrementFailedAttempts(phone: string): Promise<void>;
+  resetFailedAttempts(phone: string): Promise<void>;
+  getSendCount(phone: string): Promise<number>;
+  incrementSendCount(phone: string): Promise<void>;
 }

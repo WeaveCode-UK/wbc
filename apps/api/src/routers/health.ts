@@ -1,6 +1,9 @@
 import { router, publicProcedure } from '../trpc/trpc';
 import { getRedis } from '../lib/redis';
+import { createLogger } from '../lib/logger';
 import { prisma } from '@wbc/db';
+
+const logger = createLogger('health');
 
 export const healthRouter = router({
   redis: publicProcedure.query(async () => {
@@ -9,7 +12,8 @@ export const healthRouter = router({
       const pong = await redis.ping();
       return { status: 'ok', response: pong };
     } catch (error) {
-      return { status: 'error', response: String(error) };
+      logger.error({ error }, 'Redis health check failed');
+      return { status: 'error' };
     }
   }),
 
@@ -18,7 +22,8 @@ export const healthRouter = router({
       await prisma.$queryRaw`SELECT 1`;
       return { status: 'ok' };
     } catch (error) {
-      return { status: 'error', response: String(error) };
+      logger.error({ error }, 'Database health check failed');
+      return { status: 'error' };
     }
   }),
 });

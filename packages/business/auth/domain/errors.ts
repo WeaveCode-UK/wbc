@@ -32,3 +32,17 @@ export class PhoneAlreadyRegisteredError extends Error {
     this.name = 'PhoneAlreadyRegisteredError';
   }
 }
+
+export class OtpTooManyAttemptsError extends Error {
+  constructor() {
+    super('Too many failed OTP attempts. Please wait 15 minutes.');
+    this.name = 'OtpTooManyAttemptsError';
+  }
+}
+
+export class OtpSendRateLimitError extends Error {
+  constructor() {
+    super('Too many OTP requests. Please wait before requesting another code.');
+    this.name = 'OtpSendRateLimitError';
+  }
+}

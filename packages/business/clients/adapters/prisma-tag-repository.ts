@@ -24,27 +24,42 @@ export class PrismaTagRepository implements TagRepository {
   }
 
   async delete(tenantId: string, id: string): Promise<void> {
+    const existing = await prisma.tag.findFirst({ where: { id, tenantId } });
+    if (!existing) throw new Error('Tag not found');
     await prisma.tag.delete({ where: { id } });
   }
 
-  async tagClient(clientId: string, tagId: string): Promise<ClientTag> {
+  async tagClient(tenantId: string, clientId: string, tagId: string): Promise<ClientTag> {
+    const client = await prisma.client.findFirst({ where: { id: clientId, tenantId } });
+    if (!client) throw new Error('Client not found');
+    const tag = await prisma.tag.findFirst({ where: { id: tagId, tenantId } });
+    if (!tag) throw new Error('Tag not found');
     const ct = await prisma.clientTag.create({ data: { clientId, tagId } });
     return ct as ClientTag;
   }
 
-  async untagClient(clientId: string, tagId: string): Promise<void> {
+  async untagClient(tenantId: string, clientId: string, tagId: string): Promise<void> {
+    const client = await prisma.client.findFirst({ where: { id: clientId, tenantId } });
+    if (!client) throw new Error('Client not found');
     await prisma.clientTag.deleteMany({ where: { clientId, tagId } });
   }
 
-  async bulkTag(clientIds: string[], tagId: string): Promise<number> {
+  async bulkTag(tenantId: string, clientIds: string[], tagId: string): Promise<number> {
+    const tag = await prisma.tag.findFirst({ where: { id: tagId, tenantId } });
+    if (!tag) throw new Error('Tag not found');
+    const clients = await prisma.client.findMany({ where: { id: { in: clientIds }, tenantId } });
+    const validClientIds = clients.map((c) => c.id);
+    if (validClientIds.length === 0) return 0;
     const result = await prisma.clientTag.createMany({
-      data: clientIds.map((clientId) => ({ clientId, tagId })),
+      data: validClientIds.map((clientId) => ({ clientId, tagId })),
       skipDuplicates: true,
     });
     return result.count;
   }
 
-  async getClientTags(clientId: string): Promise<Tag[]> {
+  async getClientTags(tenantId: string, clientId: string): Promise<Tag[]> {
+    const client = await prisma.client.findFirst({ where: { id: clientId, tenantId } });
+    if (!client) throw new Error('Client not found');
     const clientTags = await prisma.clientTag.findMany({
       where: { clientId },
       include: { tag: true },

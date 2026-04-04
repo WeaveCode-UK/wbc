@@ -5,6 +5,6 @@ export interface CampaignRepository {
   list(tenantId: string, filters: { status?: string; page: number; limit: number }): Promise<{ data: Campaign[]; total: number }>;
   create(data: { tenantId: string; name: string; message: string; audioUrl?: string; attachments?: unknown; recipientIds: string[]; scheduledAt?: Date }): Promise<Campaign>;
   updateStatus(tenantId: string, id: string, status: string): Promise<Campaign>;
-  getRecipients(campaignId: string, status?: string): Promise<CampaignRecipient[]>;
+  getRecipients(tenantId: string, campaignId: string, status?: string): Promise<CampaignRecipient[]>;
   delete(tenantId: string, id: string): Promise<void>;
 }

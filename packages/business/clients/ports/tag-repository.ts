@@ -6,8 +6,8 @@ export interface TagRepository {
   list(tenantId: string): Promise<Tag[]>;
   create(data: { tenantId: string; name: string; color?: string; autoRule?: string }): Promise<Tag>;
   delete(tenantId: string, id: string): Promise<void>;
-  tagClient(clientId: string, tagId: string): Promise<ClientTag>;
-  untagClient(clientId: string, tagId: string): Promise<void>;
-  bulkTag(clientIds: string[], tagId: string): Promise<number>;
-  getClientTags(clientId: string): Promise<Tag[]>;
+  tagClient(tenantId: string, clientId: string, tagId: string): Promise<ClientTag>;
+  untagClient(tenantId: string, clientId: string, tagId: string): Promise<void>;
+  bulkTag(tenantId: string, clientIds: string[], tagId: string): Promise<number>;
+  getClientTags(tenantId: string, clientId: string): Promise<Tag[]>;
 }

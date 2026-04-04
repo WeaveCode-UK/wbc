@@ -18,7 +18,7 @@ export const campaignsRouter = router({
       name: z.string().min(1),
       message: z.string().min(1),
       audioUrl: z.string().optional(),
-      recipientIds: z.array(z.string().uuid()),
+      recipientIds: z.array(z.string().uuid()).max(5000),
       scheduledAt: z.date().optional(),
     }))
     .mutation(async ({ ctx, input }) => {

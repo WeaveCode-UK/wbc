@@ -112,7 +112,7 @@ export const clientsRouter = router({
     }),
 
   bulkTag: protectedProcedure
-    .input(z.object({ clientIds: z.array(uuidSchema), tagId: uuidSchema }))
+    .input(z.object({ clientIds: z.array(uuidSchema).max(1000), tagId: uuidSchema }))
     .mutation(async ({ ctx, input }) => {
       const count = await bulkTag(ctx.tenant.tenantId, input.clientIds, input.tagId, tagRepo);
       return { success: true, count };

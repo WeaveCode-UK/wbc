@@ -1,3 +1,5 @@
+import { createHmac } from 'crypto';
+
 // Meta API webhook handler for message status updates
 export interface WhatsAppWebhookPayload {
   entry?: Array<{
@@ -11,6 +13,30 @@ export interface WhatsAppWebhookPayload {
       };
     }>;
   }>;
+}
+
+export class WebhookSignatureError extends Error {
+  constructor() {
+    super('Invalid webhook signature');
+    this.name = 'WebhookSignatureError';
+  }
+}
+
+export function verifyWebhookSignature(rawBody: string, signature: string | undefined): void {
+  const appSecret = process.env.WHATSAPP_APP_SECRET;
+  if (!appSecret) {
+    throw new Error('WHATSAPP_APP_SECRET is not configured');
+  }
+
+  if (!signature) {
+    throw new WebhookSignatureError();
+  }
+
+  const expectedSignature = 'sha256=' + createHmac('sha256', appSecret).update(rawBody).digest('hex');
+
+  if (signature !== expectedSignature) {
+    throw new WebhookSignatureError();
+  }
 }
 
 export function parseWebhookStatuses(payload: WhatsAppWebhookPayload): Array<{ messageId: string; status: string }> {

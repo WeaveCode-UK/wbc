@@ -1,6 +1,6 @@
 import type { SaleRepository } from '../ports/sale-repository';
+import type { ReturnRepository } from '../ports/return-repository';
 import { SaleNotFoundError } from '../domain/errors';
-import { prisma } from '@wbc/db';
 
 export interface CreateReturnInput {
   tenantId: string;
@@ -9,17 +9,10 @@ export interface CreateReturnInput {
   refundAmount: number;
 }
 
-export async function createReturn(input: CreateReturnInput, saleRepo: SaleRepository) {
+export async function createReturn(input: CreateReturnInput, saleRepo: SaleRepository, returnRepo?: ReturnRepository) {
   const sale = await saleRepo.findById(input.tenantId, input.saleId);
   if (!sale) throw new SaleNotFoundError(input.saleId);
 
-  const returnRecord = await prisma.return.create({
-    data: {
-      saleId: input.saleId,
-      reason: input.reason,
-      refundAmount: input.refundAmount,
-    },
-  });
-
-  return returnRecord;
+  if (!returnRepo) throw new Error('Return repository is required');
+  return returnRepo.create(input.saleId, input.reason, input.refundAmount);
 }

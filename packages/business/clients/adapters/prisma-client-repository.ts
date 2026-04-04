@@ -45,11 +45,15 @@ export class PrismaClientRepository implements ClientRepository {
   }
 
   async update(tenantId: string, id: string, data: Partial<Client>): Promise<Client> {
+    const existing = await prisma.client.findFirst({ where: { id, tenantId } });
+    if (!existing) throw new Error('Client not found');
     const client = await prisma.client.update({ where: { id }, data });
     return client as Client;
   }
 
   async delete(tenantId: string, id: string): Promise<void> {
+    const existing = await prisma.client.findFirst({ where: { id, tenantId } });
+    if (!existing) throw new Error('Client not found');
     await prisma.client.delete({ where: { id } });
   }
 
@@ -67,6 +71,8 @@ export class PrismaClientRepository implements ClientRepository {
   }
 
   async convertToClient(tenantId: string, id: string): Promise<Client> {
+    const existing = await prisma.client.findFirst({ where: { id, tenantId } });
+    if (!existing) throw new Error('Client not found');
     const client = await prisma.client.update({ where: { id }, data: { isLead: false } });
     return client as Client;
   }
@@ -74,6 +80,8 @@ export class PrismaClientRepository implements ClientRepository {
   async bulkEditNames(tenantId: string, edits: Array<{ id: string; name: string }>): Promise<number> {
     let count = 0;
     for (const edit of edits) {
+      const existing = await prisma.client.findFirst({ where: { id: edit.id, tenantId } });
+      if (!existing) throw new Error('Client not found');
       await prisma.client.update({ where: { id: edit.id }, data: { name: edit.name } });
       count++;
     }

@@ -6,6 +6,11 @@ import { processOutbox } from './processors/outbox-processor';
 import { registerInventoryEventHandlers } from '../../../packages/business/inventory/adapters/sale-confirmed-handler';
 import { registerPostSaleEventHandler } from '../../../packages/business/messaging/use-cases/post-sale-flow';
 import { registerNotificationEventHandlers } from '../../../packages/business/schedule/use-cases/notifications';
+import { startMessagingWorker } from './processors/messaging-processor';
+import { startCampaignWorker } from './processors/campaign-processor';
+import { startScheduleWorker } from './processors/schedule-processor';
+import { startAnalyticsWorker } from './processors/analytics-processor';
+import { startDLQWorker } from './processors/dlq-processor';
 
 // Apply tenant middleware
 applyTenantMiddleware(() => getCurrentTenant()?.tenantId);
@@ -31,4 +36,13 @@ setInterval(async () => {
 }, 5000);
 
 logger.info('Outbox processor started (5s interval)');
+
+// Start BullMQ workers
+startMessagingWorker();
+startCampaignWorker();
+startScheduleWorker();
+startAnalyticsWorker();
+startDLQWorker();
+
+logger.info('BullMQ workers started (messaging, campaigns, schedule, analytics, dlq)');
 logger.info('WBC Worker module loaded successfully');

@@ -462,7 +462,7 @@ model Stock {
   tenant  Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
-  @@index([tenantId])
+  @@unique([tenantId, productId])
   @@map("stocks")
 }
 

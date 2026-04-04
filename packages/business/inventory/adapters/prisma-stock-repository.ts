@@ -31,11 +31,13 @@ export class PrismaStockRepository implements StockRepository {
   }
 
   async decrementForSale(tenantId: string, items: Array<{ productId: string; quantity: number }>): Promise<void> {
-    for (const item of items) {
-      await prisma.stock.update({
-        where: { productId: item.productId },
-        data: { quantity: { decrement: item.quantity } },
-      });
-    }
+    await prisma.$transaction(
+      items.map((item) =>
+        prisma.stock.update({
+          where: { productId: item.productId },
+          data: { quantity: { decrement: item.quantity } },
+        }),
+      ),
+    );
   }
 }

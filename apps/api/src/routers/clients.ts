@@ -99,22 +99,22 @@ export const clientsRouter = router({
 
   tagClient: protectedProcedure
     .input(z.object({ clientId: uuidSchema, tagId: uuidSchema }))
-    .mutation(async ({ input }) => {
-      await tagClient(input.clientId, input.tagId, tagRepo);
+    .mutation(async ({ ctx, input }) => {
+      await tagClient(ctx.tenant.tenantId, input.clientId, input.tagId, tagRepo);
       return { success: true };
     }),
 
   untagClient: protectedProcedure
     .input(z.object({ clientId: uuidSchema, tagId: uuidSchema }))
-    .mutation(async ({ input }) => {
-      await untagClient(input.clientId, input.tagId, tagRepo);
+    .mutation(async ({ ctx, input }) => {
+      await untagClient(ctx.tenant.tenantId, input.clientId, input.tagId, tagRepo);
       return { success: true };
     }),
 
   bulkTag: protectedProcedure
     .input(z.object({ clientIds: z.array(uuidSchema), tagId: uuidSchema }))
-    .mutation(async ({ input }) => {
-      const count = await bulkTag(input.clientIds, input.tagId, tagRepo);
+    .mutation(async ({ ctx, input }) => {
+      const count = await bulkTag(ctx.tenant.tenantId, input.clientIds, input.tagId, tagRepo);
       return { success: true, count };
     }),
 

@@ -32,25 +32,28 @@ export async function listTags(
 }
 
 export async function tagClient(
+  tenantId: string,
   clientId: string,
   tagId: string,
   tagRepository: TagRepository,
 ): Promise<ClientTag> {
-  return tagRepository.tagClient(clientId, tagId);
+  return tagRepository.tagClient(tenantId, clientId, tagId);
 }
 
 export async function untagClient(
+  tenantId: string,
   clientId: string,
   tagId: string,
   tagRepository: TagRepository,
 ): Promise<void> {
-  return tagRepository.untagClient(clientId, tagId);
+  return tagRepository.untagClient(tenantId, clientId, tagId);
 }
 
 export async function bulkTag(
+  tenantId: string,
   clientIds: string[],
   tagId: string,
   tagRepository: TagRepository,
 ): Promise<number> {
-  return tagRepository.bulkTag(clientIds, tagId);
+  return tagRepository.bulkTag(tenantId, clientIds, tagId);
 }

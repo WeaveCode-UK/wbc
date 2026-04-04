@@ -1,29 +1,27 @@
 import { prisma } from '@wbc/db';
 import type { TenantRepository } from '../use-cases/register-tenant';
 
+// Auth 2.0: This adapter is DEPRECATED. Will be replaced in F10.E03.
+
 export class PrismaTenantRepository implements TenantRepository {
-  async findByPhone(phone: string) {
+  async findBySlug(slug: string) {
     const tenant = await prisma.tenant.findUnique({
-      where: { phone },
+      where: { slug },
       select: { id: true },
     });
     return tenant;
   }
 
-  async create(data: { name: string; phone: string; slug: string }) {
+  async create(data: { name: string; slug: string }) {
     const tenant = await prisma.tenant.create({
       data: {
         name: data.name,
-        phone: data.phone,
         slug: data.slug,
       },
       select: {
         id: true,
         name: true,
-        phone: true,
         slug: true,
-        role: true,
-        plan: true,
         locale: true,
         timezone: true,
         currency: true,

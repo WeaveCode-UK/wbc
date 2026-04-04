@@ -1,4 +1,4 @@
-import { prisma } from '@wbc/db';
+import type { TeamMemberRepository } from '../ports/team-repository';
 
 export interface TeamRanking {
   memberId: string;
@@ -7,7 +7,8 @@ export interface TeamRanking {
   totalRevenue: number;
 }
 
-export async function getTeamRanking(tenantId: string, teamId: string): Promise<TeamRanking[]> {
-  const members = await prisma.teamMember.findMany({ where: { teamId } });
-  return members.map((m) => ({ memberId: m.id, memberName: m.memberId, totalSales: 0, totalRevenue: 0 }));
+export async function getTeamRanking(tenantId: string, teamId: string, memberRepo?: TeamMemberRepository): Promise<TeamRanking[]> {
+  if (!memberRepo) return [];
+  const members = await memberRepo.findByTeamId(tenantId, teamId);
+  return members.map((m) => ({ memberId: m.id, memberName: m.name, totalSales: 0, totalRevenue: 0 }));
 }

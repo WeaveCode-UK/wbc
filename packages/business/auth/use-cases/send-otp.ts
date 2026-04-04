@@ -2,10 +2,12 @@ import { generateOtpCode, getOtpExpirationDate } from '../domain/otp';
 import { OtpSendRateLimitError } from '../domain/errors';
 import type { OtpRepository } from '../ports/otp-repository';
 
+// Auth 2.0: Updated to use accountId instead of phone.
+
 const MAX_SENDS_PER_HOUR = 3;
 
 export interface SendOtpInput {
-  phone: string;
+  accountId: string;
 }
 
 export interface SendOtpResult {
@@ -17,24 +19,22 @@ export async function sendOtp(
   input: SendOtpInput,
   otpRepository: OtpRepository,
 ): Promise<SendOtpResult> {
-  const sendCount = await otpRepository.getSendCount(input.phone);
+  const sendCount = await otpRepository.getSendCount(input.accountId);
   if (sendCount >= MAX_SENDS_PER_HOUR) {
     throw new OtpSendRateLimitError();
   }
 
-  // Delete any expired OTPs for this phone
-  await otpRepository.deleteExpiredByPhone(input.phone);
+  await otpRepository.deleteExpiredByAccountId(input.accountId);
 
   const code = generateOtpCode();
   const expiresAt = getOtpExpirationDate();
 
-  await otpRepository.create(input.phone, code, expiresAt);
-  await otpRepository.incrementSendCount(input.phone);
+  await otpRepository.create(input.accountId, code, expiresAt);
+  await otpRepository.incrementSendCount(input.accountId);
 
-  // Log OTP sent event without the code itself
   if (process.env.NODE_ENV === 'development') {
     // eslint-disable-next-line no-console
-    console.log(`[DEV] OTP sent to ${input.phone}`);
+    console.log(`[DEV] OTP sent for account ${input.accountId}`);
   }
 
   return { success: true, code };

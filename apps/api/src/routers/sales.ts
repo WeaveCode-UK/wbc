@@ -3,6 +3,7 @@ import { router, protectedProcedure } from '../trpc/trpc';
 import { PrismaSaleRepository } from '../../../../packages/business/sales/adapters/prisma-sale-repository';
 import { PrismaPaymentRepository } from '../../../../packages/business/sales/adapters/prisma-payment-repository';
 import { PrismaCashbackRepository } from '../../../../packages/business/sales/adapters/prisma-cashback-repository';
+import { PrismaReturnRepository } from '../../../../packages/business/sales/adapters/prisma-return-repository';
 import { createSale } from '../../../../packages/business/sales/use-cases/create-sale';
 import { confirmSale } from '../../../../packages/business/sales/use-cases/confirm-sale';
 import { cancelSale } from '../../../../packages/business/sales/use-cases/cancel-sale';
@@ -17,6 +18,7 @@ import { paginationSchema, uuidSchema } from '@wbc/validators';
 const saleRepo = new PrismaSaleRepository();
 const paymentRepo = new PrismaPaymentRepository();
 const cashbackRepo = new PrismaCashbackRepository();
+const returnRepo = new PrismaReturnRepository();
 
 export const salesRouter = router({
   list: protectedProcedure
@@ -84,7 +86,7 @@ export const salesRouter = router({
   createReturn: protectedProcedure
     .input(z.object({ saleId: uuidSchema, reason: z.string().min(1), refundAmount: z.number().positive() }))
     .mutation(async ({ ctx, input }) => {
-      return createReturn({ tenantId: ctx.tenant.tenantId, ...input }, saleRepo);
+      return createReturn({ tenantId: ctx.tenant.tenantId, ...input }, saleRepo, returnRepo);
     }),
 
   getAccountsReceivable: protectedProcedure

@@ -2,8 +2,9 @@ import { randomInt } from 'crypto';
 
 export interface OtpCode {
   id: string;
-  phone: string;
+  accountId: string;
   code: string;
+  purpose: 'TWO_FACTOR' | 'EMAIL_VERIFICATION';
   expiresAt: Date;
   usedAt: Date | null;
   createdAt: Date;

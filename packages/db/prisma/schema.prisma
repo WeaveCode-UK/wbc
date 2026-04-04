@@ -21,13 +21,8 @@ datasource db {
 
 model Tenant {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name      String
+  name      String   // nome do negócio (ex: "Renata Cosméticos")
   slug      String   @unique // usado no subdomínio da landing page
-  phone     String   @unique
-  email     String?
-  avatar    String?  // URL da foto
-  role      Role     @default(CONSULTANT)
-  plan      Plan     @default(ESSENTIAL)
   timezone  String   @default("America/Sao_Paulo")
   currency  String   @default("BRL")
   locale    String   @default("pt-BR")
@@ -35,31 +30,33 @@ model Tenant {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  subscription     Subscription?
-  clients          Client[]
-  tags             Tag[]
-  products         Product[]
-  showcases        Showcase[]
-  sales            Sale[]
-  cashbacks        Cashback[]
-  stocks           Stock[]
-  brandOrders      BrandOrder[]
-  samples          Sample[]
-  campaigns        Campaign[]
+  subscription      Subscription?
+  members           TenantMember[]
+  invites           Invite[]
+  clients           Client[]
+  tags              Tag[]
+  products          Product[]
+  showcases         Showcase[]
+  sales             Sale[]
+  cashbacks         Cashback[]
+  stocks            Stock[]
+  brandOrders       BrandOrder[]
+  samples           Sample[]
+  campaigns         Campaign[]
   scheduledMessages ScheduledMessage[]
-  messageTemplates MessageTemplate[]
-  quickReplies     QuickReply[]
-  expenses         Expense[]
-  financialReports FinancialReport[]
-  appointments     Appointment[]
-  reminders        Reminder[]
-  opportunities    Opportunity[]
-  team             Team?
-  aiGenerations    AIGeneration[]
-  landingPage      LandingPage?
-  referralsMade    Referral[]        @relation("referrer")
-  referralsReceived Referral[]       @relation("referred")
-  onboarding       OnboardingProgress?
+  messageTemplates  MessageTemplate[]
+  quickReplies      QuickReply[]
+  expenses          Expense[]
+  financialReports  FinancialReport[]
+  appointments      Appointment[]
+  reminders         Reminder[]
+  opportunities     Opportunity[]
+  team              Team?
+  aiGenerations     AIGeneration[]
+  landingPage       LandingPage?
+  referralsMade     Referral[]        @relation("referrer")
+  referralsReceived Referral[]        @relation("referred")
+  onboarding        OnboardingProgress?
 
   @@map("tenants")
 }
@@ -101,14 +98,18 @@ enum SubStatus {
 }
 
 model OtpCode {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  phone     String
+  id        String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  accountId String     @db.Uuid
   code      String
+  purpose   OtpPurpose @default(TWO_FACTOR)
   expiresAt DateTime
   usedAt    DateTime?
-  createdAt DateTime @default(now())
+  createdAt DateTime   @default(now())
 
-  @@index([phone, code])
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([accountId, code])
+  @@index([accountId])
   @@map("otp_codes")
 }
 
@@ -1013,4 +1014,116 @@ model Notification {
   @@index([tenantId, read])
   @@index([tenantId, createdAt])
   @@map("notifications")
+}
+
+// ============================================================
+// AUTH 2.0 — Account / TenantMember / Session / Invite
+// ============================================================
+
+model Account {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email         String    @unique
+  emailVerified DateTime?
+  passwordHash  String?
+  name          String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  oauthAccounts OAuthAccount[]
+  tenantMembers TenantMember[]
+  sessions      Session[]
+  otpCodes      OtpCode[]
+
+  @@map("accounts")
+}
+
+model OAuthAccount {
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  accountId         String   @db.Uuid
+  provider          String
+  providerAccountId String
+  accessToken       String?
+  refreshToken      String?
+  expiresAt         Int?
+  tokenType         String?
+  scope             String?
+  idToken           String?
+  createdAt         DateTime @default(now())
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([accountId])
+  @@map("oauth_accounts")
+}
+
+model TenantMember {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  accountId   String    @db.Uuid
+  tenantId    String    @db.Uuid
+  role        Role      @default(CONSULTANT)
+  phone       String?
+  displayName String?
+  avatar      String?
+  isActive    Boolean   @default(true)
+  deletedAt   DateTime?
+  joinedAt    DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  tenant  Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([accountId, tenantId])
+  @@index([tenantId])
+  @@index([accountId])
+  @@map("tenant_members")
+}
+
+model Session {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  accountId  String   @db.Uuid
+  tenantId   String?  @db.Uuid
+  tokenHash  String   @unique
+  expiresAt  DateTime
+  userAgent  String?
+  ipAddress  String?
+  lastUsedAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([accountId])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+model Invite {
+  id         String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId   String       @db.Uuid
+  email      String
+  role       Role         @default(CONSULTANT)
+  invitedBy  String       @db.Uuid
+  token      String       @unique
+  status     InviteStatus @default(PENDING)
+  expiresAt  DateTime
+  acceptedAt DateTime?
+  createdAt  DateTime     @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([email])
+  @@index([tenantId])
+  @@map("invites")
+}
+
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  CANCELLED
+}
+
+enum OtpPurpose {
+  TWO_FACTOR
+  EMAIL_VERIFICATION
 }

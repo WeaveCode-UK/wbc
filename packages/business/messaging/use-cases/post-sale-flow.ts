@@ -1,5 +1,8 @@
-import { prisma } from '@wbc/db';
 import { subscribe, EVENTS } from '@wbc/shared';
+import type { PostSaleFlowRepository } from '../ports/messaging-repository';
+import { PrismaPostSaleFlowRepository } from '../adapters/prisma-messaging-repository';
+
+const defaultRepo = new PrismaPostSaleFlowRepository();
 
 const POST_SALE_STAGES = [
   { stage: 'TWO_DAYS', daysAfter: 2 },
@@ -11,11 +14,9 @@ export async function createPostSaleFlows(
   tenantId: string,
   saleId: string,
   clientId: string,
+  repo: PostSaleFlowRepository = defaultRepo,
 ): Promise<void> {
-  // Delete any existing pending flows for this client (reset on new sale)
-  await prisma.postSaleFlow.deleteMany({
-    where: { clientId, status: 'PENDING' },
-  });
+  await repo.deletePendingByClient(clientId);
 
   const now = new Date();
   const flows = POST_SALE_STAGES.map((stage) => {
@@ -26,14 +27,14 @@ export async function createPostSaleFlows(
     return {
       saleId,
       clientId,
-      stage: stage.stage as 'TWO_DAYS' | 'TWO_WEEKS' | 'TWO_MONTHS',
+      stage: stage.stage as string,
       messageVariant: variant,
       scheduledAt,
-      status: 'PENDING' as const,
+      status: 'PENDING',
     };
   });
 
-  await prisma.postSaleFlow.createMany({ data: flows });
+  await repo.createMany(flows);
 }
 
 export function registerPostSaleEventHandler(): void {
@@ -43,19 +44,11 @@ export function registerPostSaleEventHandler(): void {
   });
 }
 
-export async function processPendingPostSaleFlows(): Promise<number> {
-  const now = new Date();
-  const pendingFlows = await prisma.postSaleFlow.findMany({
-    where: { status: 'PENDING', scheduledAt: { lte: now } },
-    take: 50,
-  });
-
+export async function processPendingPostSaleFlows(repo: PostSaleFlowRepository = defaultRepo): Promise<number> {
+  const pendingFlows = await repo.findPending(50);
   let processed = 0;
   for (const flow of pendingFlows) {
-    await prisma.postSaleFlow.update({
-      where: { id: flow.id },
-      data: { status: 'SENT', sentAt: now },
-    });
+    await repo.markSent(flow.id);
     processed++;
   }
   return processed;

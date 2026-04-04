@@ -293,6 +293,7 @@ export const authRouter = router({
   createInvite: roleProtectedProcedure('LEADER')
     .input(createInviteSchema)
     .mutation(async ({ input, ctx }) => {
+      requirePermission(ctx.tenant.role as Role, 'team:invite');
       const tenant = await prisma.tenant.findUnique({ where: { id: ctx.tenant.tenantId } });
       const uc = new CreateInvite(inviteRepo, emailSender);
       return uc.execute({
@@ -360,6 +361,10 @@ export const authRouter = router({
   updateMemberRole: roleProtectedProcedure('ADMIN')
     .input(updateMemberRoleSchema)
     .mutation(async ({ input, ctx }) => {
+      requirePermission(ctx.tenant.role as Role, 'team:promote');
+      if (!canPromoteTo(ctx.tenant.role as Role, input.newRole as Role)) {
+        throw new TRPCError({ code: 'FORBIDDEN', message: 'Cannot promote to this role' });
+      }
       const uc = new UpdateMemberRole(memberRepo);
       await uc.execute({
         callerAccountId: ctx.tenant.userId,

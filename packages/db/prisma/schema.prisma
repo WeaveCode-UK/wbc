@@ -21,13 +21,8 @@ datasource db {
 
 model Tenant {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name      String
+  name      String   // nome do negócio (ex: "Renata Cosméticos")
   slug      String   @unique // usado no subdomínio da landing page
-  phone     String   @unique
-  email     String?
-  avatar    String?  // URL da foto
-  role      Role     @default(CONSULTANT)
-  plan      Plan     @default(ESSENTIAL)
   timezone  String   @default("America/Sao_Paulo")
   currency  String   @default("BRL")
   locale    String   @default("pt-BR")
@@ -35,31 +30,33 @@ model Tenant {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  subscription     Subscription?
-  clients          Client[]
-  tags             Tag[]
-  products         Product[]
-  showcases        Showcase[]
-  sales            Sale[]
-  cashbacks        Cashback[]
-  stocks           Stock[]
-  brandOrders      BrandOrder[]
-  samples          Sample[]
-  campaigns        Campaign[]
+  subscription      Subscription?
+  members           TenantMember[]
+  invites           Invite[]
+  clients           Client[]
+  tags              Tag[]
+  products          Product[]
+  showcases         Showcase[]
+  sales             Sale[]
+  cashbacks         Cashback[]
+  stocks            Stock[]
+  brandOrders       BrandOrder[]
+  samples           Sample[]
+  campaigns         Campaign[]
   scheduledMessages ScheduledMessage[]
-  messageTemplates MessageTemplate[]
-  quickReplies     QuickReply[]
-  expenses         Expense[]
-  financialReports FinancialReport[]
-  appointments     Appointment[]
-  reminders        Reminder[]
-  opportunities    Opportunity[]
-  team             Team?
-  aiGenerations    AIGeneration[]
-  landingPage      LandingPage?
-  referralsMade    Referral[]        @relation("referrer")
-  referralsReceived Referral[]       @relation("referred")
-  onboarding       OnboardingProgress?
+  messageTemplates  MessageTemplate[]
+  quickReplies      QuickReply[]
+  expenses          Expense[]
+  financialReports  FinancialReport[]
+  appointments      Appointment[]
+  reminders         Reminder[]
+  opportunities     Opportunity[]
+  team              Team?
+  aiGenerations     AIGeneration[]
+  landingPage       LandingPage?
+  referralsMade     Referral[]        @relation("referrer")
+  referralsReceived Referral[]        @relation("referred")
+  onboarding        OnboardingProgress?
 
   @@map("tenants")
 }

@@ -31,10 +31,10 @@ export async function sendOtp(
   await otpRepository.create(input.phone, code, expiresAt);
   await otpRepository.incrementSendCount(input.phone);
 
-  // In dev mode, log to console. WhatsApp integration comes in Phase 3.
+  // Log OTP sent event without the code itself
   if (process.env.NODE_ENV === 'development') {
     // eslint-disable-next-line no-console
-    console.log(`[DEV] OTP for ${input.phone}: ${code}`);
+    console.log(`[DEV] OTP sent to ${input.phone}`);
   }
 
   return { success: true, code };

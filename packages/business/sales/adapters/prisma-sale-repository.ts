@@ -2,6 +2,24 @@ import { prisma } from '@wbc/db';
 import type { SaleRepository } from '../ports/sale-repository';
 import type { Sale, SaleItem } from '../domain/entities';
 
+function mapSaleFromPrisma(sale: Record<string, unknown>): Sale {
+  return {
+    ...sale,
+    discount: Number(sale.discount),
+    total: Number(sale.total),
+    cashbackUsed: Number(sale.cashbackUsed),
+    cashbackGenerated: Number(sale.cashbackGenerated),
+  } as Sale;
+}
+
+function mapSaleItemFromPrisma(item: Record<string, unknown>): SaleItem {
+  return {
+    ...item,
+    unitPrice: Number(item.unitPrice),
+    subtotal: Number(item.subtotal),
+  } as SaleItem;
+}
+
 export class PrismaSaleRepository implements SaleRepository {
   async findById(tenantId: string, id: string): Promise<(Sale & { items: SaleItem[] }) | null> {
     const sale = await prisma.sale.findFirst({
@@ -10,16 +28,8 @@ export class PrismaSaleRepository implements SaleRepository {
     });
     if (!sale) return null;
     return {
-      ...sale,
-      discount: Number(sale.discount),
-      total: Number(sale.total),
-      cashbackUsed: Number(sale.cashbackUsed),
-      cashbackGenerated: Number(sale.cashbackGenerated),
-      items: sale.items.map((i) => ({
-        ...i,
-        unitPrice: Number(i.unitPrice),
-        subtotal: Number(i.subtotal),
-      })),
+      ...mapSaleFromPrisma(sale as unknown as Record<string, unknown>),
+      items: sale.items.map((i) => mapSaleItemFromPrisma(i as unknown as Record<string, unknown>)),
     } as Sale & { items: SaleItem[] };
   }
 
@@ -34,7 +44,7 @@ export class PrismaSaleRepository implements SaleRepository {
     ]);
 
     return {
-      data: data.map((s) => ({ ...s, discount: Number(s.discount), total: Number(s.total), cashbackUsed: Number(s.cashbackUsed), cashbackGenerated: Number(s.cashbackGenerated) })) as Sale[],
+      data: data.map((s) => mapSaleFromPrisma(s as unknown as Record<string, unknown>)),
       total,
     };
   }
@@ -64,7 +74,7 @@ export class PrismaSaleRepository implements SaleRepository {
       },
     });
 
-    return { ...sale, discount: Number(sale.discount), total: Number(sale.total), cashbackUsed: Number(sale.cashbackUsed), cashbackGenerated: Number(sale.cashbackGenerated) } as Sale;
+    return mapSaleFromPrisma(sale as unknown as Record<string, unknown>);
   }
 
   async updateStatus(tenantId: string, id: string, status: string): Promise<Sale> {
@@ -72,7 +82,7 @@ export class PrismaSaleRepository implements SaleRepository {
       where: { id },
       data: { status: status as 'DRAFT' | 'CONFIRMED' | 'SEPARATED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED' },
     });
-    return { ...sale, discount: Number(sale.discount), total: Number(sale.total), cashbackUsed: Number(sale.cashbackUsed), cashbackGenerated: Number(sale.cashbackGenerated) } as Sale;
+    return mapSaleFromPrisma(sale as unknown as Record<string, unknown>);
   }
 
   async delete(tenantId: string, id: string): Promise<void> {

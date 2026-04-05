@@ -2,8 +2,8 @@
 
 ## Identificação
 - dominio: dados-persistencia
-- ultima_atualizacao: 2026-03-26 02:45:00
-- total_runs_registradas: 1
+- ultima_atualizacao: 2026-04-05 19:00:00
+- total_runs_registradas: 2
 
 ## Regras
 - Registrar apenas runs finalizadas.
@@ -12,6 +12,14 @@
 - Cada entrada deve resumir status, escopo, resultado e severidade agregada.
 
 ## Runs Registradas
+
+### RUN 2026-04-05_18-00-00
+- status: completed
+- iniciado_em: 2026-04-05 18:00:00
+- finalizado_em: 2026-04-05 19:00:00
+- escopo: auditoria completa do dominio dados-persistencia (segunda passada)
+- avaliacao_final: aceitavel_com_ressalvas
+- pasta_historica: /Auditoria/dados-persistencia/runs/2026-04-05_18-00-00/
 
 ### RUN 2026-03-26_02-20-00
 - status: completed

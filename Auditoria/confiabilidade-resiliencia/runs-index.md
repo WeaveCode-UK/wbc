@@ -2,8 +2,8 @@
 
 ## Identificação
 - dominio: confiabilidade-resiliencia
-- ultima_atualizacao: 2026-03-26 10:55:00
-- total_runs_registradas: 1
+- ultima_atualizacao: 2026-04-05 19:00:00
+- total_runs_registradas: 2
 
 ## Regras
 - Registrar apenas runs finalizadas.
@@ -12,6 +12,14 @@
 - Cada entrada deve resumir status, escopo, resultado e severidade agregada.
 
 ## Runs Registradas
+
+### RUN 2026-04-05_18-00-00
+- status: completed
+- iniciado_em: 2026-04-05 18:00:00
+- finalizado_em: 2026-04-05 19:00:00
+- escopo: auditoria completa do dominio confiabilidade-resiliencia (segunda passada)
+- avaliacao_final: adequado
+- pasta_historica: /Auditoria/confiabilidade-resiliencia/runs/2026-04-05_18-00-00/
 
 ### RUN 2026-03-26_10-30-00
 - status: completed

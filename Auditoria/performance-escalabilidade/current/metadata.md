@@ -1,14 +1,14 @@
 # Metadata da Run Atual
 
 - dominio: performance-escalabilidade
-- run_id: 2026-04-05_18-00-00
-- status: ready_for_finalize
-- iniciado_em: 2026-04-05 18:00:00
-- finalizado_em: 2026-04-05 18:30:00
-- escopo: Caching, BullMQ, paginacao, indices, connection pooling, Redis config
-- origem: prompt-02-iniciar-run
+- run_id: none
+- status: not_started
+- iniciado_em: none
+- finalizado_em: none
+- escopo: none
+- origem: reinicializado pelo Prompt 04 apos finalizacao de 2026-04-05_18-00-00
 - versao_framework: 2.0
 - responsavel_execucao: agente-local
 - modo_execucao: incremental-por-fase
-- auditoria_anterior_relacionada: 2026-03-26_02-50-00
-- observacoes: 7 achados, 0 criticos, 1 medio (KEYS no Redis). Avaliacao: adequado.
+- auditoria_anterior_relacionada: 2026-04-05_18-00-00
+- observacoes: current reinicializado em 2026-04-05 19:00:00 apos arquivamento da run 2026-04-05_18-00-00

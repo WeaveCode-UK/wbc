@@ -89,7 +89,11 @@ first_run() {
 
   log "Running database migrations..."
   docker compose -f docker-compose.prod.yml run --rm web \
-    npx prisma db push --skip-generate
+    npx prisma migrate deploy
+
+  log "Marking baseline as applied (if first run)..."
+  docker compose -f docker-compose.prod.yml run --rm web \
+    npx prisma migrate resolve --applied 0_baseline 2>/dev/null || true
 
   log "Starting all services..."
   docker compose -f docker-compose.prod.yml up -d
@@ -113,7 +117,7 @@ update() {
 
   log "Running database migrations..."
   docker compose -f docker-compose.prod.yml run --rm web \
-    npx prisma db push --skip-generate
+    npx prisma migrate deploy
 
   log "Restarting services (zero-downtime)..."
   docker compose -f docker-compose.prod.yml up -d --no-deps web worker

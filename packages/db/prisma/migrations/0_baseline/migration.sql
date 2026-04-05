@@ -1,0 +1,7 @@
+-- Baseline migration: represents the current state of the database
+-- Generated from schema.prisma via prisma db push (pre-migration era)
+-- This migration is marked as applied and serves as the starting point
+-- for all future prisma migrate dev migrations.
+--
+-- To mark this as applied on an existing database:
+--   npx prisma migrate resolve --applied 0_baseline

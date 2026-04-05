@@ -143,10 +143,14 @@ Total: 27 pendentes + 33 resolvidos (20 não corrigíveis + 0 não corrigidos + 
   - `deploy/backup/restore.sh` — restore interativo com confirmação, para web+worker antes
   - `deploy/backup/install-cron.sh` — instala cron diário às 3:00 AM
 
-### ACH-009 — Migrations não versionadas no git
+### ACH-009 — Migrations não versionadas no git ✅ RESOLVIDO
 - severidade: baixo
-- classificação: **não corrigível**
-- motivo: decisão de workflow. O projeto usou `prisma db push` até agora (aceitável em dev inicial). Migrar para `prisma migrate dev` requer gerar migration baseline e mudar o fluxo de trabalho.
+- classificação: **resolvido**
+- o que foi feito:
+  - Baseline migration criada em `prisma/migrations/0_baseline/migration.sql`
+  - `migration_lock.toml` adicionado (postgresql provider)
+  - Deploy script atualizado: `prisma migrate deploy` em vez de `db push`
+  - Baseline marcada como applied no primeiro deploy
 
 ### ACH-010 — Modelagem e constraints bem projetados
 - severidade: informativo

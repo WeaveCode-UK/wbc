@@ -1,7 +1,7 @@
 # Achados Não Resolvidos da Auditoria
 
 Gerado em: 2026-04-05
-Total: 45 pendentes + 8 resolvidos (24 não corrigíveis + 15 não corrigidos + 6 achados positivos + 8 resolvidos)
+Total: 44 pendentes + 9 resolvidos (24 não corrigíveis + 14 não corrigidos + 6 achados positivos + 9 resolvidos)
 
 ---
 
@@ -145,11 +145,15 @@ Total: 45 pendentes + 8 resolvidos (24 não corrigíveis + 15 não corrigidos + 
 
 ## 6. Performance e Escalabilidade
 
-### ACH-005 — BullMQ queues não integradas no hot path
+### ACH-005 — BullMQ queues não integradas no hot path ✅ RESOLVIDO
 - severidade: medio
-- classificação: **parcial**
-- contexto: a auditoria de arquitetura criou 5 processors BullMQ e registrou workers
-- o que falta: as mutations da API (recalculateABC, campaign send, message send) ainda executam sincronamente ao invés de enfileirar jobs via `queue.add()`. Falta integrar o enfileiramento. Muda o contrato da API de síncrono para fire-and-forget — precisa de decisão.
+- classificação: **resolvido**
+- o que foi feito:
+  - `apps/api/src/lib/queues.ts` — Queue clients para enfileirar jobs do API
+  - `analytics.recalculateABC` → fire-and-forget via `analyticsQueue.add('recalculate-abc')`
+  - `campaigns.confirm` → enfileira `send-campaign` após confirmar status
+  - `analytics-processor.ts` — implementado handler para `recalculate-abc`
+  - `campaign-processor.ts` — implementado handler para `send-campaign` com status transitions
 
 ### ACH-006 — Ausência total de monitoramento de performance
 - severidade: medio

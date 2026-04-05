@@ -2,9 +2,10 @@ import { z } from 'zod';
 import { router, protectedProcedure } from '../trpc/trpc';
 import { PrismaAnalyticsRepository } from '../../../../packages/business/analytics/adapters/prisma-analytics-repository';
 import { getAnalyticsDashboard } from '../../../../packages/business/analytics/use-cases/get-dashboard';
-import { getSalesStats, getProductRanking, getClientEngagement, calculateABCClassification } from '../../../../packages/business/analytics/use-cases/get-stats';
+import { getSalesStats, getProductRanking, getClientEngagement } from '../../../../packages/business/analytics/use-cases/get-stats';
 import { uuidSchema } from '@wbc/validators';
 import { cacheGet, cacheSet } from '../lib/cache';
+import { getAnalyticsQueue } from '../lib/queues';
 
 const analyticsRepo = new PrismaAnalyticsRepository();
 
@@ -42,6 +43,7 @@ export const analyticsRouter = router({
     }),
 
   recalculateABC: protectedProcedure.mutation(async ({ ctx }) => {
-    return calculateABCClassification(ctx.tenant.tenantId, analyticsRepo);
+    await getAnalyticsQueue().add('recalculate-abc', { tenantId: ctx.tenant.tenantId });
+    return { queued: true };
   }),
 });

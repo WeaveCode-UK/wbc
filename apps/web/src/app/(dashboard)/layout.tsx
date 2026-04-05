@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Sidebar } from '../../components/sidebar';
 import { BottomNav } from '../../components/bottom-nav';
 import { ErrorBoundary } from '../../components/error-boundary';
@@ -7,12 +8,12 @@ import { useTheme } from '../../providers/theme-provider';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { theme, mode, toggleMode, setTheme } = useTheme();
+  const t = useTranslations('common');
 
   return (
     <div className="flex min-h-screen bg-[var(--color-bg-tertiary)]">
       <Sidebar />
       <div className="flex flex-1 flex-col">
-        {/* Top Bar */}
         <header className="hidden md:flex h-14 items-center justify-between border-b border-[var(--color-border-tertiary)] bg-[var(--color-bg-primary)] px-6">
           <div />
           <div className="flex items-center gap-4">
@@ -20,7 +21,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               onClick={() => setTheme(theme === 'default' ? 'rose' : 'default')}
               className="text-caption text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)] transition-colors px-2 py-1 rounded-md hover:bg-[var(--color-bg-secondary)]"
             >
-              {theme === 'default' ? '💜 Padrão' : '🌹 Rose'}
+              {theme === 'default' ? `💜 ${t('theme_default')}` : `🌹 ${t('theme_rose')}`}
             </button>
             <button
               onClick={toggleMode}

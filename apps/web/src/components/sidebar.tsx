@@ -2,22 +2,24 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { cn } from '@wbc/ui';
 
 const navItems = [
-  { href: '/', label: 'Meu Dia', icon: '🏠', dot: 'var(--color-primary)' },
-  { href: '/clients', label: 'Clientes', icon: '👥', dot: 'var(--color-info)' },
-  { href: '/sales', label: 'Vendas', icon: '💰', dot: 'var(--color-success)' },
-  { href: '/campaigns', label: 'Campanhas', icon: '📢', dot: 'var(--color-warning)' },
-  { href: '/schedule', label: 'Agenda', icon: '📅', dot: 'var(--color-info)' },
-  { href: '/finance', label: 'Financeiro', icon: '📊', dot: 'var(--color-success)' },
-  { href: '/inventory', label: 'Estoque', icon: '📦', dot: 'var(--color-warning)' },
-  { href: '/team', label: 'Equipe', icon: '👩‍👩‍👧', dot: 'var(--color-primary)' },
-  { href: '/settings', label: 'Configurações', icon: '⚙️', dot: 'var(--color-text-tertiary)' },
-];
+  { href: '/', key: 'nav_my_day', icon: '🏠', dot: 'var(--color-primary)' },
+  { href: '/clients', key: 'nav_clients', icon: '👥', dot: 'var(--color-info)' },
+  { href: '/sales', key: 'nav_sales', icon: '💰', dot: 'var(--color-success)' },
+  { href: '/campaigns', key: 'nav_campaigns', icon: '📢', dot: 'var(--color-warning)' },
+  { href: '/schedule', key: 'nav_schedule', icon: '📅', dot: 'var(--color-info)' },
+  { href: '/finance', key: 'nav_finance', icon: '📊', dot: 'var(--color-success)' },
+  { href: '/inventory', key: 'nav_inventory', icon: '📦', dot: 'var(--color-warning)' },
+  { href: '/team', key: 'nav_team', icon: '👩‍👩‍👧', dot: 'var(--color-primary)' },
+  { href: '/settings', key: 'nav_settings', icon: '⚙️', dot: 'var(--color-text-tertiary)' },
+] as const;
 
 export function Sidebar() {
   const pathname = usePathname();
+  const t = useTranslations('common');
 
   return (
     <aside className="hidden md:flex md:w-[220px] md:flex-col border-r border-[var(--color-border-tertiary)] bg-[var(--color-bg-primary)]">
@@ -39,7 +41,7 @@ export function Sidebar() {
             <span className="flex h-8 w-8 items-center justify-center rounded-md bg-[var(--color-bg-secondary)] text-base">
               {item.icon}
             </span>
-            {item.label}
+            {t(item.key)}
             {pathname === item.href && (
               <span className="ml-auto h-1.5 w-1.5 rounded-full" style={{ backgroundColor: item.dot }} />
             )}

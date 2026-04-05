@@ -23,5 +23,16 @@
   "copied": "Copied!",
   "share": "Share",
   "export": "Export",
-  "import": "Import"
+  "import": "Import",
+  "nav_my_day": "My Day",
+  "nav_clients": "Clients",
+  "nav_sales": "Sales",
+  "nav_campaigns": "Campaigns",
+  "nav_schedule": "Schedule",
+  "nav_finance": "Finance",
+  "nav_inventory": "Inventory",
+  "nav_team": "Team",
+  "nav_settings": "Settings",
+  "theme_default": "Default",
+  "theme_rose": "Rose"
 }

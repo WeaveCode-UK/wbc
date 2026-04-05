@@ -40,4 +40,45 @@ export class PrismaTenantRepository implements TenantRepository {
       },
     });
   }
+
+  async onboardTenant(input: {
+    tenantName: string;
+    slug: string;
+    accountId: string;
+    displayName: string;
+    phone: string;
+    avatar?: string | null;
+  }): Promise<{ tenantId: string; memberId: string }> {
+    return prisma.$transaction(async (tx) => {
+      const tenant = await tx.tenant.create({
+        data: {
+          name: input.tenantName,
+          slug: input.slug,
+          timezone: 'America/Sao_Paulo',
+          locale: 'pt-BR',
+          currency: 'BRL',
+          isActive: true,
+        },
+      });
+      await tx.subscription.create({
+        data: {
+          tenantId: tenant.id,
+          plan: 'ESSENTIAL',
+          status: 'TRIAL',
+          expiresAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+        },
+      });
+      const member = await tx.tenantMember.create({
+        data: {
+          accountId: input.accountId,
+          tenantId: tenant.id,
+          role: 'ADMIN',
+          phone: input.phone,
+          displayName: input.displayName,
+          avatar: input.avatar ?? null,
+        },
+      });
+      return { tenantId: tenant.id, memberId: member.id };
+    });
+  }
 }

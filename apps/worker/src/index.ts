@@ -32,6 +32,8 @@ import { processOutbox } from './processors/outbox-processor';
 import { registerInventoryEventHandlers } from '../../../packages/business/inventory/adapters/sale-confirmed-handler';
 import { registerPostSaleEventHandler } from '../../../packages/business/messaging/use-cases/post-sale-flow';
 import { registerNotificationEventHandlers } from '../../../packages/business/schedule/use-cases/notifications';
+import { PrismaNotificationRepository } from '../../../packages/business/schedule/adapters/prisma-schedule-repository';
+import { PrismaPostSaleFlowRepository } from '../../../packages/business/messaging/adapters/prisma-messaging-repository';
 import { startMessagingWorker } from './processors/messaging-processor';
 import { startCampaignWorker } from './processors/campaign-processor';
 import { startScheduleWorker } from './processors/schedule-processor';
@@ -49,8 +51,8 @@ setOutboxPort(new PrismaOutboxRepository());
 
 // Register domain event handlers
 registerInventoryEventHandlers();
-registerPostSaleEventHandler();
-registerNotificationEventHandlers();
+registerPostSaleEventHandler(new PrismaPostSaleFlowRepository());
+registerNotificationEventHandlers(new PrismaNotificationRepository());
 
 logger.info('WBC Worker starting...');
 logger.info('Domain event handlers registered');

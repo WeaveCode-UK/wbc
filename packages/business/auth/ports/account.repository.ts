@@ -20,4 +20,5 @@ export interface AccountRepository {
   create(input: CreateAccountInput): Promise<Account>;
   update(id: string, input: UpdateAccountInput): Promise<Account>;
   delete(id: string): Promise<void>;
+  deleteWithCleanup(accountId: string): Promise<void>;
 }

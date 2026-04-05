@@ -38,4 +38,19 @@ export class PrismaAccountRepository implements AccountRepository {
   async delete(id: string): Promise<void> {
     await prisma.account.delete({ where: { id } });
   }
+
+  async deleteWithCleanup(accountId: string): Promise<void> {
+    await prisma.$transaction(async (tx) => {
+      await tx.account.update({
+        where: { id: accountId },
+        data: { email: `deleted_${accountId}@removed.wbc`, name: 'Conta Removida', passwordHash: null },
+      });
+      await tx.oAuthAccount.deleteMany({ where: { accountId } });
+      await tx.session.deleteMany({ where: { accountId } });
+      await tx.tenantMember.updateMany({
+        where: { accountId },
+        data: { deletedAt: new Date(), isActive: false },
+      });
+    });
+  }
 }

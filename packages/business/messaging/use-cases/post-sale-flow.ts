@@ -1,8 +1,5 @@
 import { subscribe, EVENTS } from '@wbc/shared';
 import type { PostSaleFlowRepository } from '../ports/messaging-repository';
-import { PrismaPostSaleFlowRepository } from '../adapters/prisma-messaging-repository';
-
-const defaultRepo = new PrismaPostSaleFlowRepository();
 
 const POST_SALE_STAGES = [
   { stage: 'TWO_DAYS', daysAfter: 2 },
@@ -14,7 +11,7 @@ export async function createPostSaleFlows(
   tenantId: string,
   saleId: string,
   clientId: string,
-  repo: PostSaleFlowRepository = defaultRepo,
+  repo: PostSaleFlowRepository,
 ): Promise<void> {
   await repo.deletePendingByClient(clientId);
 
@@ -37,14 +34,14 @@ export async function createPostSaleFlows(
   await repo.createMany(flows);
 }
 
-export function registerPostSaleEventHandler(): void {
+export function registerPostSaleEventHandler(repo: PostSaleFlowRepository): void {
   subscribe(EVENTS.SALE_CONFIRMED, async (event) => {
     const payload = event.payload as { tenantId: string; saleId: string; clientId: string };
-    await createPostSaleFlows(payload.tenantId, payload.saleId, payload.clientId);
+    await createPostSaleFlows(payload.tenantId, payload.saleId, payload.clientId, repo);
   });
 }
 
-export async function processPendingPostSaleFlows(repo: PostSaleFlowRepository = defaultRepo): Promise<number> {
+export async function processPendingPostSaleFlows(repo: PostSaleFlowRepository): Promise<number> {
   const pendingFlows = await repo.findPending(50);
   let processed = 0;
   for (const flow of pendingFlows) {

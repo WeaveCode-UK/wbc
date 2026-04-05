@@ -1,24 +1,19 @@
 import { subscribe, EVENTS } from '@wbc/shared';
 import type { NotificationRepository } from '../ports/schedule-repository';
-import { PrismaNotificationRepository } from '../adapters/prisma-schedule-repository';
 
-const defaultRepo = new PrismaNotificationRepository();
-
-export async function listNotifications(tenantId: string, page: number = 1, limit: number = 20, repo: NotificationRepository = defaultRepo) {
+export async function listNotifications(tenantId: string, page: number, limit: number, repo: NotificationRepository) {
   return repo.list(tenantId, page, limit);
 }
 
-export async function markAsRead(tenantId: string, id: string, repo: NotificationRepository = defaultRepo) {
+export async function markAsRead(tenantId: string, id: string, repo: NotificationRepository) {
   return repo.markAsRead(tenantId, id);
 }
 
-export async function markAllAsRead(tenantId: string, repo: NotificationRepository = defaultRepo) {
+export async function markAllAsRead(tenantId: string, repo: NotificationRepository) {
   return repo.markAllAsRead(tenantId);
 }
 
-export function registerNotificationEventHandlers(): void {
-  const repo = defaultRepo;
-
+export function registerNotificationEventHandlers(repo: NotificationRepository): void {
   subscribe(EVENTS.STOCK_LOW, async (event) => {
     const p = event.payload as { tenantId: string; productId: string; quantity: number };
     await repo.create(p.tenantId, 'Estoque baixo', `Produto com estoque baixo: ${p.quantity} unidades restantes`, 'STOCK_LOW');

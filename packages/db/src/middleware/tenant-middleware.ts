@@ -7,6 +7,8 @@ const TENANT_SCOPED_MODELS = new Set([
   'Stock', 'BrandOrder', 'Sample', 'Campaign', 'ScheduledMessage',
   'MessageTemplate', 'QuickReply', 'Expense', 'FinancialReport',
   'Appointment', 'Reminder', 'Opportunity', 'AIGeneration',
+  'Notification', 'LandingPage', 'Team', 'Invite',
+  'OnboardingProgress', 'ClientWishlist', 'GiftSuggestor',
 ]);
 
 export function createTenantMiddleware(

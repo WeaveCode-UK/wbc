@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { router, protectedProcedure } from '../trpc/trpc';
 import { createGetByIdProcedure } from '../trpc/crud-helpers';
+import { idempotent } from '../trpc/idempotency-middleware';
 import { PrismaSaleRepository } from '../../../../packages/business/sales/adapters/prisma-sale-repository';
 import { PrismaPaymentRepository } from '../../../../packages/business/sales/adapters/prisma-payment-repository';
 import { PrismaCashbackRepository } from '../../../../packages/business/sales/adapters/prisma-cashback-repository';
@@ -32,6 +33,7 @@ export const salesRouter = router({
 
   create: protectedProcedure
     .input(z.object({
+      idempotencyKey: z.string().uuid().optional(),
       clientId: z.string().uuid(),
       items: z.array(z.object({ productId: z.string().uuid(), quantity: z.number().int().positive(), unitPrice: z.number().positive() })),
       paymentMethod: z.string().optional(),
@@ -41,13 +43,14 @@ export const salesRouter = router({
       notes: z.string().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
-      return createSale({ ...input, tenantId: ctx.tenant.tenantId }, saleRepo);
+      const { idempotencyKey, ...saleInput } = input;
+      return idempotent(idempotencyKey, () => createSale({ ...saleInput, tenantId: ctx.tenant.tenantId }, saleRepo));
     }),
 
   confirm: protectedProcedure
-    .input(z.object({ id: uuidSchema }))
+    .input(z.object({ idempotencyKey: z.string().uuid().optional(), id: uuidSchema }))
     .mutation(async ({ ctx, input }) => {
-      return confirmSale(ctx.tenant.tenantId, input.id, saleRepo, cashbackRepo);
+      return idempotent(input.idempotencyKey, () => confirmSale(ctx.tenant.tenantId, input.id, saleRepo, cashbackRepo));
     }),
 
   cancel: protectedProcedure
@@ -69,9 +72,9 @@ export const salesRouter = router({
     }),
 
   markPaid: protectedProcedure
-    .input(z.object({ paymentId: uuidSchema }))
+    .input(z.object({ idempotencyKey: z.string().uuid().optional(), paymentId: uuidSchema }))
     .mutation(async ({ ctx, input }) => {
-      return markPaid(ctx.tenant.tenantId, input.paymentId, paymentRepo);
+      return idempotent(input.idempotencyKey, () => markPaid(ctx.tenant.tenantId, input.paymentId, paymentRepo));
     }),
 
   getCashbackBalance: protectedProcedure
@@ -81,9 +84,10 @@ export const salesRouter = router({
     }),
 
   createReturn: protectedProcedure
-    .input(z.object({ saleId: uuidSchema, reason: z.string().min(1), refundAmount: z.number().positive() }))
+    .input(z.object({ idempotencyKey: z.string().uuid().optional(), saleId: uuidSchema, reason: z.string().min(1), refundAmount: z.number().positive() }))
     .mutation(async ({ ctx, input }) => {
-      return createReturn({ tenantId: ctx.tenant.tenantId, ...input }, saleRepo, returnRepo);
+      const { idempotencyKey, ...returnInput } = input;
+      return idempotent(idempotencyKey, () => createReturn({ tenantId: ctx.tenant.tenantId, ...returnInput }, saleRepo, returnRepo));
     }),
 
   getAccountsReceivable: protectedProcedure

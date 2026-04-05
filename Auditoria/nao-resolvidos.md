@@ -1,7 +1,7 @@
 # Achados Não Resolvidos da Auditoria
 
 Gerado em: 2026-04-05
-Total: 47 pendentes + 6 resolvidos (24 não corrigíveis + 17 não corrigidos + 6 achados positivos + 6 resolvidos)
+Total: 46 pendentes + 7 resolvidos (24 não corrigíveis + 16 não corrigidos + 6 achados positivos + 7 resolvidos)
 
 ---
 
@@ -76,11 +76,14 @@ Total: 47 pendentes + 6 resolvidos (24 não corrigíveis + 17 não corrigidos + 
 
 ## 4. APIs e Integrações
 
-### ACH-002 — Ausência de idempotência em mutations
+### ACH-002 — Ausência de idempotência em mutations ✅ RESOLVIDO
 - severidade: alto
-- classificação: **parcial**
-- o que foi feito: middleware `checkIdempotency()` / `storeIdempotencyResult()` criado em `apps/api/src/trpc/idempotency-middleware.ts`
-- o que falta: integrar nas mutations específicas (create sale, confirm sale, markPaid, createReturn, createExpense). Requer adicionar `idempotencyKey` no input Zod de cada mutation, decidir quais mutations precisam de idempotência, e testar o fluxo com Redis.
+- classificação: **resolvido**
+- o que foi feito:
+  - Criado wrapper `idempotent<T>(key, handler)` em `idempotency-middleware.ts`
+  - Integrado em 5 mutations: `sales.create`, `sales.confirm`, `sales.markPaid`, `sales.createReturn`, `finance.createExpense`
+  - Cada mutation aceita `idempotencyKey?: string (uuid)` opcional no input Zod
+  - Cache Redis com TTL de 24h, graceful degradation se Redis indisponível
 
 ### ACH-003 — Ausência de versionamento de API
 - severidade: medio

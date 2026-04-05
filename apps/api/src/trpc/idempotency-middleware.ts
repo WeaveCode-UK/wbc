@@ -50,3 +50,16 @@ export async function storeIdempotencyResult(
     // Graceful degradation — don't fail the request if cache write fails
   }
 }
+
+export async function idempotent<T>(
+  key: string | undefined,
+  handler: () => Promise<T>,
+): Promise<T> {
+  if (key) {
+    const { isDuplicate, cachedResult } = await checkIdempotency(key);
+    if (isDuplicate) return cachedResult as T;
+  }
+  const result = await handler();
+  if (key) await storeIdempotencyResult(key, result);
+  return result;
+}

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { router, protectedProcedure } from '../trpc/trpc';
 import { createDeleteProcedure } from '../trpc/crud-helpers';
+import { idempotent } from '../trpc/idempotency-middleware';
 import { PrismaExpenseRepository } from '../../../../packages/business/finance/adapters/prisma-expense-repository';
 import { PrismaFinanceRepository } from '../../../../packages/business/finance/adapters/prisma-finance-repository';
 import { listExpenses, createExpense, updateExpense, deleteExpense } from '../../../../packages/business/finance/use-cases/manage-expenses';
@@ -25,9 +26,10 @@ export const financeRouter = router({
     }),
 
   createExpense: protectedProcedure
-    .input(z.object({ description: z.string().min(1), amount: z.number().positive(), category: z.string().optional(), date: z.date() }))
+    .input(z.object({ idempotencyKey: z.string().uuid().optional(), description: z.string().min(1), amount: z.number().positive(), category: z.string().optional(), date: z.date() }))
     .mutation(async ({ ctx, input }) => {
-      return createExpense({ tenantId: ctx.tenant.tenantId, ...input }, expenseRepo);
+      const { idempotencyKey, ...expenseInput } = input;
+      return idempotent(idempotencyKey, () => createExpense({ tenantId: ctx.tenant.tenantId, ...expenseInput }, expenseRepo));
     }),
 
   updateExpense: protectedProcedure

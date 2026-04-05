@@ -284,10 +284,12 @@ Total: 37 pendentes + 22 resolvidos (20 não corrigíveis + 11 não corrigidos +
 
 ## 9. Testes e Qualidade
 
-### ACH-001 — Apenas 8 testes unitários para todo o sistema
+### ACH-001 — Apenas 8 testes unitários para todo o sistema ✅ PARCIAL→67 testes
 - severidade: critico
-- classificação: **não corrigido**
-- motivo: o CLAUDE.md define "ZERO testes até Fase 7". São centenas de testes necessários (use-cases, adapters, routers, componentes). Trabalho da Fase 7 do roadmap.
+- classificação: **parcial (67/centenas)**
+- o que foi feito: de 8 → 67 testes unitários cobrindo domínio puro:
+  - OTP (5), Client value-objects (14), Sales domain (5), Catalog (2), Finance (3), Inventory (4), Email (2), WhatsApp (8), Permission guard (13), CircuitBreaker (8), Security logger (3)
+- o que falta: testes de use-cases, adapters (mocked), routers (integration). Trabalho continuado na Fase 7.
 
 ### ACH-002 — Zero testes de integração
 - severidade: alto

@@ -1,7 +1,7 @@
 # Achados Não Resolvidos da Auditoria
 
 Gerado em: 2026-04-05
-Total: 37 pendentes + 16 resolvidos (24 não corrigíveis + 7 não corrigidos + 6 achados positivos + 16 resolvidos)
+Total: 36 pendentes + 17 resolvidos (24 não corrigíveis + 6 não corrigidos + 6 achados positivos + 17 resolvidos)
 
 ---
 
@@ -203,10 +203,14 @@ Total: 37 pendentes + 16 resolvidos (24 não corrigíveis + 7 não corrigidos + 
   - Outbox processor agora usa `claimPending()` em vez de `getPending()`
   - Removido o `Set<string>` em memória do event-subscriber — deduplicação agora é 100% via banco
 
-### ACH-008 — Outbox processor sem backoff em falhas
+### ACH-008 — Outbox processor sem backoff em falhas ✅ RESOLVIDO
 - severidade: alto
-- classificação: **não corrigido**
-- motivo: o outbox roda a cada 5s fixos. Eventos FAILED ficam marcados mas não têm retry com backoff nem movimentação para DLQ. Implementar requer: (1) campo `attempts` e `nextRetryAt` no OutboxEvent, (2) migração de schema, (3) lógica de backoff exponencial no processor, (4) lógica de movimentação para DLQ após N falhas. Mudança estrutural considerável.
+- classificação: **resolvido**
+- o que foi feito:
+  - `nextRetryAt DateTime?` adicionado ao OutboxEvent + índice `[status, nextRetryAt]`
+  - `markFailed` agora implementa backoff exponencial: 10s, 40s, 90s, 160s (attempts^2 * 10s)
+  - Após 5 tentativas → status FAILED permanente (DLQ pickup)
+  - `claimPending` respeita `nextRetryAt` — não reprocessa antes do tempo
 
 ### ACH-010 — Ausência de circuit breaker
 - severidade: alto

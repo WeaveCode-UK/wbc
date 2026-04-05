@@ -982,16 +982,18 @@ model OnboardingProgress {
 // ============================================================
 
 model OutboxEvent {
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   type        String
-  tenantId    String   @db.Uuid
+  tenantId    String       @db.Uuid
   payload     Json
   status      OutboxStatus @default(PENDING)
-  attempts    Int      @default(0)
-  createdAt   DateTime @default(now())
+  attempts    Int          @default(0)
+  nextRetryAt DateTime?
+  createdAt   DateTime     @default(now())
   processedAt DateTime?
 
   @@index([status, createdAt])
+  @@index([status, nextRetryAt])
   @@map("outbox_events")
 }
 

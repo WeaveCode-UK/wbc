@@ -34,8 +34,13 @@ export class PrismaOutboxRepository implements OutboxPort {
 
   async claimPending(limit: number) {
     // Atomically claim PENDING events → PROCESSING to prevent duplicate dispatch
+    // Respects nextRetryAt for exponential backoff
+    const now = new Date();
     const pending = await prisma.outboxEvent.findMany({
-      where: { status: 'PENDING' },
+      where: {
+        status: 'PENDING',
+        OR: [{ nextRetryAt: null }, { nextRetryAt: { lte: now } }],
+      },
       orderBy: { createdAt: 'asc' },
       take: limit,
       select: { id: true },
@@ -62,12 +67,27 @@ export class PrismaOutboxRepository implements OutboxPort {
   }
 
   async markFailed(id: string): Promise<void> {
-    await prisma.outboxEvent.update({
-      where: { id },
-      data: {
-        status: 'FAILED',
-        attempts: { increment: 1 },
-      },
-    });
+    const event = await prisma.outboxEvent.findUnique({ where: { id }, select: { attempts: true } });
+    const attempts = (event?.attempts ?? 0) + 1;
+    const MAX_ATTEMPTS = 5;
+
+    if (attempts >= MAX_ATTEMPTS) {
+      // Move to FAILED permanently — DLQ processor will pick it up
+      await prisma.outboxEvent.update({
+        where: { id },
+        data: { status: 'FAILED', attempts },
+      });
+    } else {
+      // Exponential backoff: 10s, 40s, 90s, 160s
+      const backoffMs = Math.pow(attempts, 2) * 10_000;
+      await prisma.outboxEvent.update({
+        where: { id },
+        data: {
+          status: 'PENDING',
+          attempts,
+          nextRetryAt: new Date(Date.now() + backoffMs),
+        },
+      });
+    }
   }
 }

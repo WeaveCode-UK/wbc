@@ -1,0 +1,386 @@
+# Achados Não Resolvidos da Auditoria
+
+Gerado em: 2026-04-05
+Total: 53 achados (27 não corrigíveis + 20 não corrigidos + 6 achados positivos)
+
+---
+
+## Legenda
+
+- **Não corrigível**: impossível corrigir via código no repositório. Requer infraestrutura, decisão de negócio, instalação de serviço externo, ou está fora do escopo do agente.
+- **Não corrigido**: é corrigível via código, mas requer decisão humana sobre o design, ou o escopo é muito grande para correção automatizada.
+- **Achado positivo**: ponto forte do projeto, sem ação necessária.
+- **Parcial**: helper/base foi criado, mas aplicação completa requer validação humana.
+
+---
+
+## 1. Segurança
+
+### ACH-013 — Sem auditoria de eventos de segurança
+- severidade: medio
+- classificação: **parcial**
+- o que foi feito: security-logger.ts criado com tipos e interface exportada em `apps/api/src/lib/security-logger.ts`
+- o que falta: integrar nos use-cases individuais de auth, RBAC, login, OTP. Precisa de decisão sobre quais eventos priorizar.
+
+### ACH-014 — Validação Zod excelente
+- severidade: informativo
+- classificação: **achado positivo**
+- sem ação necessária
+
+---
+
+## 2. Arquitetura
+
+### ACH-007 — Deploy config ausente
+- severidade: medio
+- classificação: **não corrigível**
+- motivo: decisão de plataforma de deploy (Vercel? Railway? AWS?) ainda não foi tomada. Enquanto não se decidir onde o projeto vai rodar em produção, não há configuração para criar.
+
+---
+
+## 3. Código e Manutenibilidade
+
+### ACH-002 — Duplicação em 22 repositórios Prisma
+- severidade: medio
+- classificação: **parcial**
+- o que foi feito: helpers `paginatedQuery()` e `buildTenantWhere()` criados em `packages/shared/src/prisma-helpers.ts`
+- o que falta: aplicar os helpers nos 22 repositórios Prisma existentes. Cada repositório tem variações nos filtros que precisam de revisão humana para garantir que o helper cobre todos os casos.
+
+### ACH-003 — Duplicação em 16 tRPC routers CRUD
+- severidade: medio
+- classificação: **parcial**
+- o que foi feito: helpers `createGetByIdProcedure` e `createDeleteProcedure` criados em `apps/api/src/trpc/crud-helpers.ts`
+- o que falta: aplicar nos 16 routers. Cada router tem schemas de input e use-cases muito diferentes — uma factory genérica forçaria uma abstração que pode não fazer sentido. Precisa de decisão de design da API.
+
+### ACH-008 — Convenções de código e tipagem excelentes
+- severidade: informativo
+- classificação: **achado positivo**
+- sem ação necessária
+
+---
+
+## 4. APIs e Integrações
+
+### ACH-002 — Ausência de idempotência em mutations
+- severidade: alto
+- classificação: **parcial**
+- o que foi feito: middleware `checkIdempotency()` / `storeIdempotencyResult()` criado em `apps/api/src/trpc/idempotency-middleware.ts`
+- o que falta: integrar nas mutations específicas (create sale, confirm sale, markPaid, createReturn, createExpense). Requer adicionar `idempotencyKey` no input Zod de cada mutation, decidir quais mutations precisam de idempotência, e testar o fluxo com Redis.
+
+### ACH-003 — Ausência de versionamento de API
+- severidade: medio
+- classificação: **não corrigível**
+- motivo: decisão arquitetural. O projeto usa tRPC com monorepo — web e API são deployados juntos, o que mitiga o risco de breaking changes. Implementar versionamento (v1/v2) em tRPC requer redesign dos routers e do cliente. Decisão do dono do projeto.
+
+### ACH-004 — Ausência de documentação OpenAPI
+- severidade: medio
+- classificação: **não corrigível**
+- motivo: requer instalar pacote externo (`trpc-openapi`) e reconfigurar os 16 routers. Precisa de decisão sobre se a API será consumida por terceiros — se for apenas interna (web+mobile do mesmo monorepo), OpenAPI é nice-to-have.
+
+### ACH-009 — Contratos tRPC ricos e consistentes
+- severidade: informativo
+- classificação: **achado positivo**
+- sem ação necessária
+
+---
+
+## 5. Dados e Persistência
+
+### ACH-002 — Race condition em cashback/stock por loop sem locking
+- severidade: alto
+- classificação: **não corrigido**
+- contexto: o `$transaction` foi adicionado (ACH-001 corrigido), o que resolve atomicidade, mas NÃO resolve race condition entre requests concorrentes. Para isso seria necessário `$transaction` com isolamento `Serializable` ou `SELECT FOR UPDATE`.
+- motivo: Serializable pode causar deadlocks com carga alta. SELECT FOR UPDATE requer raw queries no Prisma. Precisa de análise de trade-offs (deadlock vs race condition) feita por humano.
+
+### ACH-005 — 6 foreign keys sem onDelete definido
+- severidade: medio
+- classificação: **não corrigido**
+- motivo: cada FK precisa de uma decisão de negócio individual:
+  - `Sale.clientId` — deletar vendas junto com cliente (Cascade)? Manter sem cliente (SetNull)? Bloquear (Restrict)?
+  - `SaleItem.productId` — mesma pergunta
+  - `Cashback.clientId` — mesma pergunta
+  - `CampaignRecipient.clientId` — mesma pergunta
+  - `Referral.referrerId` — mesma pergunta
+  - `Sale.campaignId` — mesma pergunta
+- São 6 FKs com semânticas diferentes. Só o dono do projeto pode decidir.
+
+### ACH-007 — Nenhum modelo com optimistic locking
+- severidade: medio
+- classificação: **não corrigido**
+- motivo: adicionar `version Int @default(0)` requer: (1) migração de schema, (2) alterar todos os updates para verificar version, (3) decidir QUAIS modelos precisam (Client? Sale? Stock? Todos?). Mudança estrutural grande.
+
+### ACH-008 — Sem backup/restore nem retention policy
+- severidade: medio
+- classificação: **não corrigível**
+- motivo: 100% decisão de infraestrutura. Depende de onde o PostgreSQL vai rodar (RDS com backup automático? Supabase? Self-hosted com pg_dump + cron?). Não é algo que se resolve no código do repositório.
+
+### ACH-009 — Migrations não versionadas no git
+- severidade: baixo
+- classificação: **não corrigível**
+- motivo: decisão de workflow. O projeto usou `prisma db push` até agora (aceitável em dev inicial). Migrar para `prisma migrate dev` requer gerar migration baseline e mudar o fluxo de trabalho.
+
+### ACH-010 — Modelagem e constraints bem projetados
+- severidade: informativo
+- classificação: **achado positivo**
+- sem ação necessária
+
+---
+
+## 6. Performance e Escalabilidade
+
+### ACH-005 — BullMQ queues não integradas no hot path
+- severidade: medio
+- classificação: **parcial**
+- contexto: a auditoria de arquitetura criou 5 processors BullMQ e registrou workers
+- o que falta: as mutations da API (recalculateABC, campaign send, message send) ainda executam sincronamente ao invés de enfileirar jobs via `queue.add()`. Falta integrar o enfileiramento. Muda o contrato da API de síncrono para fire-and-forget — precisa de decisão.
+
+### ACH-006 — Ausência total de monitoramento de performance
+- severidade: medio
+- classificação: **não corrigível**
+- motivo: requer escolher e instalar ferramentas (Prometheus+Grafana? Datadog? New Relic?), criar dashboards, definir SLOs. Decisão de tooling e infraestrutura.
+
+### ACH-007 — Frontend sem code splitting explícito
+- severidade: medio
+- classificação: **não corrigível**
+- motivo: Next.js 15 já faz route-based code splitting automaticamente. Otimização adicional (next/dynamic para componentes pesados) requer identificar quais componentes são pesados via bundle analysis. Precisa de medição antes de agir.
+
+### ACH-008 — Redis single instance sem clustering
+- severidade: medio
+- classificação: **não corrigível**
+- motivo: decisão de infraestrutura de produção. Redis clustering/Sentinel requer setup de múltiplas instâncias que depende da plataforma escolhida (ElastiCache? Redis Cloud? Self-hosted?).
+
+### ACH-010 — Uso adequado de Promise.all
+- severidade: informativo
+- classificação: **achado positivo**
+- sem ação necessária
+
+---
+
+## 7. Confiabilidade e Resiliência
+
+### ACH-001 — PostgreSQL single instance — SPOF
+- severidade: medio
+- classificação: **não corrigível**
+- motivo: decisão de infraestrutura de produção. Requer managed database (RDS/Cloud SQL) com failover automático ou replicação streaming.
+
+### ACH-002 — Redis single instance — SPOF
+- severidade: medio
+- classificação: **não corrigível**
+- motivo: decisão de infraestrutura de produção. Requer Redis Sentinel, Cluster, ou managed Redis com replicação.
+
+### ACH-006 — Deduplicação de eventos em memória
+- severidade: alto
+- classificação: **parcial**
+- contexto: o Set em memória ainda é a fonte de deduplicação no event-subscriber.ts
+- o que falta: verificar o campo `processedAt` no outbox antes de reexecutar, usando o banco como fonte de verdade. Não foi implementado porque requer mudança no `outbox-processor` e no `dispatch()` — o dispatch não tem acesso ao repository de outbox. Precisa de refactor do pipeline de eventos.
+
+### ACH-008 — Outbox processor sem backoff em falhas
+- severidade: alto
+- classificação: **não corrigido**
+- motivo: o outbox roda a cada 5s fixos. Eventos FAILED ficam marcados mas não têm retry com backoff nem movimentação para DLQ. Implementar requer: (1) campo `attempts` e `nextRetryAt` no OutboxEvent, (2) migração de schema, (3) lógica de backoff exponencial no processor, (4) lógica de movimentação para DLQ após N falhas. Mudança estrutural considerável.
+
+### ACH-010 — Ausência de circuit breaker
+- severidade: alto
+- classificação: **não corrigido**
+- motivo: requer escolher biblioteca (opossum, cockatiel, custom) e decidir thresholds (quantas falhas para abrir circuito? quanto tempo half-open?). Além disso, precisa definir fallback para cada serviço (DeepSeek fora → texto genérico? WhatsApp fora → enfileirar?). São decisões de produto.
+
+### ACH-012 — DLQ definida mas sem handler funcional
+- severidade: medio
+- classificação: **parcial**
+- contexto: DLQ processor existe (criado na auditoria de arquitetura), fila `wbc:dlq` criada
+- o que falta: nenhuma lógica move eventos para a DLQ. Falta o pipeline completo: outbox marca FAILED → após N attempts → move para DLQ → DLQ processor alerta. Depende da implementação do backoff (ACH-008 acima).
+
+### ACH-015 — Ausência de runbooks
+- severidade: baixo
+- classificação: **não corrigível**
+- motivo: runbooks são documentação operacional que deve ser escrita por quem conhece a infraestrutura de produção (que ainda não existe). Só faz sentido criar depois que a infra estiver definida.
+
+---
+
+## 8. Observabilidade e Operação
+
+### ACH-001 — Ausência total de métricas de aplicação
+- severidade: critico
+- classificação: **não corrigível**
+- motivo: requer instalar `prom-client`, instrumentar endpoints, criar contadores/histogramas, e expor `/metrics`. Precisa de design (quais métricas? quais labels? quais SLIs?). Métricas sem dashboard (Prometheus+Grafana) são inúteis — requer infra.
+
+### ACH-002 — Ausência de tracing distribuído
+- severidade: alto
+- classificação: **não corrigível**
+- motivo: requer instalar OpenTelemetry (`@opentelemetry/*`), configurar propagação de context entre API e Worker, e ter backend de traces (Jaeger, Tempo). Projeto de infraestrutura+código significativo.
+
+### ACH-004 — Worker sem Sentry
+- severidade: alto
+- classificação: **não corrigido**
+- motivo: o Sentry foi integrado no error handler da API, mas o worker não inicializa Sentry. Requer `SENTRY_DSN` configurado e `Sentry.init()` no worker. Depende de configuração externa (DSN).
+
+### ACH-006 — Ausência de monitoramento e alerting
+- severidade: alto
+- classificação: **não corrigível**
+- motivo: dashboards e alertas requerem infraestrutura de monitoramento (Grafana, Datadog, PagerDuty). Não é código do repositório.
+
+### ACH-007 — Health checks apenas via tRPC
+- severidade: medio
+- classificação: **não corrigido**
+- motivo: load balancers e Kubernetes precisam de HTTP GET `/health`. O health router existe como tRPC procedure, mas não como rota HTTP nativa. Corrigir requer criar rota HTTP fora do tRPC — depende de como o server HTTP está montado.
+
+### ACH-008 — Web app usa console.error
+- severidade: medio
+- classificação: **não corrigido**
+- motivo: `@sentry/nextjs` está instalado mas não configurado. Requer criar `sentry.client.config.ts`, `sentry.server.config.ts`, envolver `next.config.mjs` com `withSentryConfig()`. Depende do DSN do Sentry (configuração externa).
+
+### ACH-009 — Logging sem requestId e userId
+- severidade: medio
+- classificação: **não corrigido**
+- motivo: adicionar requestId requer gerar UUID no tRPC context e propagá-lo para todas as chamadas de log. Refactor do context factory e do logging middleware.
+
+---
+
+## 9. Testes e Qualidade
+
+### ACH-001 — Apenas 8 testes unitários para todo o sistema
+- severidade: critico
+- classificação: **não corrigido**
+- motivo: o CLAUDE.md define "ZERO testes até Fase 7". São centenas de testes necessários (use-cases, adapters, routers, componentes). Trabalho da Fase 7 do roadmap.
+
+### ACH-002 — Zero testes de integração
+- severidade: alto
+- classificação: **não corrigido**
+- motivo: Fase 7. Requer setup de banco de teste, fixtures, factory functions.
+
+### ACH-003 — Zero testes E2E
+- severidade: alto
+- classificação: **não corrigido**
+- motivo: Fase 7. Requer instalar Playwright/Cypress, criar fixtures, escrever cenários.
+
+### ACH-004 — Zero testes de componentes UI
+- severidade: alto
+- classificação: **não corrigido**
+- motivo: Fase 7. Requer instalar React Testing Library, criar test utils.
+
+### ACH-005 — Sem CI/CD pipeline
+- severidade: alto
+- classificação: **não corrigível**
+- motivo: requer decisão de plataforma de CI (GitHub Actions? GitLab CI?) e definição dos steps. Sem testes para executar, o CI só rodaria lint e type-check. Overlap com infraestrutura ACH-001.
+
+### ACH-006 — Sem pre-commit hooks
+- severidade: alto
+- classificação: **não corrigido**
+- motivo: requer instalar husky + lint-staged. É corrigível e relativamente simples. Foi agrupado com os demais achados de testes como "Fase 7", mas poderia ser feito agora.
+
+### ACH-007 — Sem configuração de coverage
+- severidade: medio
+- classificação: **não corrigido**
+- motivo: requer configurar `@vitest/coverage-v8` e definir thresholds. Depende de ter testes primeiro.
+
+### ACH-008 — Packages sem script test
+- severidade: medio
+- classificação: **não corrigido**
+- motivo: requer adicionar `"test": "vitest run"` em cada `package.json`. Depende de ter testes primeiro.
+
+### ACH-009 — TypeScript strict + ESLint bem configurados
+- severidade: informativo
+- classificação: **achado positivo**
+- sem ação necessária
+
+---
+
+## 10. UI/UX e Fluxos
+
+### ACH-001 — i18n não integrado: strings hardcoded
+- severidade: critico
+- classificação: **não corrigido**
+- motivo: os arquivos de tradução existem em `packages/i18n/` (16 por locale) mas nenhuma tela usa `useTranslation()`. Integrar requer instalar react-i18next no web e mobile, criar provider, e substituir cada string hardcoded em cada tela por `t('key')`. São dezenas de telas com centenas de strings. Projeto de implementação grande.
+
+### ACH-002 — Acessibilidade limitada: 2 atributos ARIA
+- severidade: alto
+- classificação: **não corrigido**
+- motivo: adicionar ARIA roles, labels, descriptions a todos os componentes interativos requer auditoria de acessibilidade completa e decisões de UX. Precisa de expertise em a11y.
+
+### ACH-003 — Sem form library: validação só server-side
+- severidade: alto
+- classificação: **não corrigido**
+- motivo: instalar react-hook-form + Zod resolver e reescrever todos os formulários do projeto (10+ telas). Muda a arquitetura do frontend. Requer decisão de design.
+
+### ACH-004 — Botões xs/sm abaixo de 44px touch target
+- severidade: medio
+- classificação: **não corrigido**
+- motivo: ajustar alturas mínimas dos botões web para 44px em viewport mobile. É corrigível e pontual. Foi agrupado com os demais achados de UI, mas poderia ser feito agora.
+
+### ACH-005 — Modais usam divs ao invés de dialog
+- severidade: medio
+- classificação: **não corrigido**
+- motivo: migrar modais para `<dialog>` nativo ou Radix UI Dialog. Requer refactor dos componentes de modal e decisão (dialog nativo vs Radix).
+
+### ACH-006 — @sentry/nextjs instalado mas não configurado
+- severidade: medio
+- classificação: **não corrigido**
+- motivo: mesmo que observabilidade ACH-008. Precisa de SENTRY_DSN (configuração externa) para configurar.
+
+### ACH-007 — Contraste de cores não verificado
+- severidade: baixo
+- classificação: **não corrigível**
+- motivo: requer executar ferramentas de verificação de contraste (axe-core, Lighthouse) e ajustar cores. É processo de QA, não correção de código.
+
+---
+
+## 11. Infraestrutura, Deploy e Config
+
+### ACH-001 — Sem CI/CD pipeline
+- severidade: critico
+- classificação: **não corrigível**
+- motivo: precisa de decisão de plataforma (GitHub Actions? GitLab CI?) e definição dos steps (lint, type-check, test, build, deploy). Overlap com testes ACH-005.
+
+### ACH-002 — Sem Dockerfiles para serviços de aplicação
+- severidade: critico
+- classificação: **não corrigível**
+- motivo: precisa de decisão de plataforma de deploy (containers? PaaS?). Criar Dockerfiles multi-stage para monorepo Turborepo é complexo e precisa de decisão sobre base images, build args, runtime config.
+
+### ACH-003 — Sem gestão de secrets
+- severidade: alto
+- classificação: **não corrigível**
+- motivo: .env já está no .gitignore. Para produção precisa de integração com secret manager (AWS Secrets Manager, Vault, GitHub Secrets). Depende da plataforma de deploy.
+
+### ACH-004 — Sem infraestrutura como código (IaC)
+- severidade: alto
+- classificação: **não corrigível**
+- motivo: Terraform/CDK requer saber qual cloud provider e quais recursos. Decisão de infraestrutura que depende de onde o projeto vai rodar.
+
+### ACH-005 — Sem CORS e CSP headers
+- severidade: alto
+- classificação: **parcial**
+- o que foi feito: CSP headers já foram adicionados na auditoria de segurança (ACH-011 de segurança — X-Frame-Options, HSTS, etc no next.config.mjs)
+- o que falta: CORS na API. Depende de saber quais origens são permitidas em produção.
+
+### ACH-006 — Sem validação de env vars no startup
+- severidade: alto
+- classificação: **não corrigido**
+- motivo: criar schema Zod para todas as env vars obrigatórias e validar no startup de cada app. Requer listar todas as env vars obrigatórias por app e definir valores default vs obrigatórios. É corrigível e poderia ser feito agora.
+
+### ACH-007 — Sem dependency vulnerability scanning
+- severidade: medio
+- classificação: **não corrigível**
+- motivo: requer criar `.github/dependabot.yml` ou configurar Renovate. Depende de ter CI primeiro (ACH-001).
+
+### ACH-008 — Sem HTTPS/TLS configurado
+- severidade: medio
+- classificação: **não corrigível**
+- motivo: configuração de produção. Qualquer PaaS (Vercel, Railway) fornece TLS automático. Self-hosted requer nginx + certbot. Não é código do repositório.
+
+### ACH-009 — Sem documentação de deploy
+- severidade: baixo
+- classificação: **não corrigível**
+- motivo: só faz sentido escrever depois de definir a estratégia de deploy (PaaS vs containers).
+
+---
+
+## Quick Wins — Corrigíveis agora sem decisão externa
+
+Estes achados poderiam ser corrigidos imediatamente sem depender de decisão de negócio ou infraestrutura:
+
+1. **testes ACH-006** — instalar husky + lint-staged (pre-commit hooks)
+2. **ui-ux ACH-004** — botões xs/sm para 44px minimum touch target
+3. **infra ACH-006** — validação Zod de env vars no startup
+4. **observabilidade ACH-009** — requestId no logging middleware
+5. **observabilidade ACH-007** — HTTP health endpoint `/health`
+6. **observabilidade ACH-004** — Sentry.init() no worker (quando DSN estiver disponível)

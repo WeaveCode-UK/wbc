@@ -1,7 +1,7 @@
 # Achados Não Resolvidos da Auditoria
 
 Gerado em: 2026-04-05
-Total: 46 pendentes + 7 resolvidos (24 não corrigíveis + 16 não corrigidos + 6 achados positivos + 7 resolvidos)
+Total: 45 pendentes + 8 resolvidos (24 não corrigíveis + 15 não corrigidos + 6 achados positivos + 8 resolvidos)
 
 ---
 
@@ -110,17 +110,16 @@ Total: 46 pendentes + 7 resolvidos (24 não corrigíveis + 16 não corrigidos + 
 - contexto: o `$transaction` foi adicionado (ACH-001 corrigido), o que resolve atomicidade, mas NÃO resolve race condition entre requests concorrentes. Para isso seria necessário `$transaction` com isolamento `Serializable` ou `SELECT FOR UPDATE`.
 - motivo: Serializable pode causar deadlocks com carga alta. SELECT FOR UPDATE requer raw queries no Prisma. Precisa de análise de trade-offs (deadlock vs race condition) feita por humano.
 
-### ACH-005 — 6 foreign keys sem onDelete definido
+### ACH-005 — 6 foreign keys sem onDelete definido ✅ RESOLVIDO
 - severidade: medio
-- classificação: **não corrigido**
-- motivo: cada FK precisa de uma decisão de negócio individual:
-  - `Sale.clientId` — deletar vendas junto com cliente (Cascade)? Manter sem cliente (SetNull)? Bloquear (Restrict)?
-  - `SaleItem.productId` — mesma pergunta
-  - `Cashback.clientId` — mesma pergunta
-  - `CampaignRecipient.clientId` — mesma pergunta
-  - `Referral.referrerId` — mesma pergunta
-  - `Sale.campaignId` — mesma pergunta
-- São 6 FKs com semânticas diferentes. Só o dono do projeto pode decidir.
+- classificação: **resolvido**
+- decisões aplicadas:
+  - `Sale.clientId` → `Restrict` — nunca apagar cliente com vendas (preservar histórico)
+  - `SaleItem.productId` → `Restrict` — nunca apagar produto vendido
+  - `Cashback.clientId` → `Restrict` — nunca apagar cliente com cashback
+  - `CampaignRecipient.clientId` → `Restrict` — preservar stats da campanha
+  - `Sale.campaignId` → `SetNull` — se campanha deletada, venda permanece
+  - `Referral.referrerTenantId` → `Restrict` / `referredTenantId` → `SetNull`
 
 ### ACH-007 — Nenhum modelo com optimistic locking
 - severidade: medio

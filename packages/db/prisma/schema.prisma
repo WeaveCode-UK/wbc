@@ -344,8 +344,8 @@ model Sale {
   updatedAt         DateTime   @updatedAt
 
   tenant    Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  client    Client      @relation(fields: [clientId], references: [id])
-  campaign  Campaign?   @relation(fields: [campaignId], references: [id])
+  client    Client      @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  campaign  Campaign?   @relation(fields: [campaignId], references: [id], onDelete: SetNull)
   items     SaleItem[]
   payments  Payment[]
   returns   Return[]
@@ -386,7 +386,7 @@ model SaleItem {
   subtotal  Decimal @db.Decimal(10, 2)
 
   sale    Sale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
-  product Product @relation(fields: [productId], references: [id])
+  product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
 
   @@map("sale_items")
 }
@@ -428,7 +428,7 @@ model Cashback {
   createdAt    DateTime @default(now())
 
   tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  client Client @relation(fields: [clientId], references: [id])
+  client Client @relation(fields: [clientId], references: [id], onDelete: Restrict)
 
   @@index([tenantId, clientId])
   @@index([expiresAt])
@@ -563,7 +563,7 @@ model CampaignRecipient {
   sentAt     DateTime?
 
   campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  client   Client   @relation(fields: [clientId], references: [id])
+  client   Client   @relation(fields: [clientId], references: [id], onDelete: Restrict)
 
   @@unique([campaignId, clientId])
   @@map("campaign_recipients")
@@ -957,8 +957,8 @@ model Referral {
   usedAt           DateTime?
   createdAt        DateTime @default(now())
 
-  referrer Tenant  @relation("referrer", fields: [referrerTenantId], references: [id])
-  referred Tenant? @relation("referred", fields: [referredTenantId], references: [id])
+  referrer Tenant  @relation("referrer", fields: [referrerTenantId], references: [id], onDelete: Restrict)
+  referred Tenant? @relation("referred", fields: [referredTenantId], references: [id], onDelete: SetNull)
 
   @@map("referrals")
 }

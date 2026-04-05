@@ -1,79 +1,80 @@
 # Acompanhamento da Auditoria
 
-## Identificação
+## Identificacao
 - dominio: ui-ux-fluxos
-- run_id: none
-- status_atual: not_started
-- ultima_atualizacao: none
+- run_id: 2026-04-05_18-00-00
+- status_atual: in_progress
+- ultima_atualizacao: 2026-04-05 18:00:00
 
 ## Objetivo da Run
-Descrever de forma curta o objetivo desta run de auditoria para o domínio atual.
+Avaliar se a interface do sistema e seus fluxos principais sao claros, consistentes, acessiveis, previsiveis e eficazes para o usuario.
 
 ## Escopo Planejado
-Listar as fases planejadas desta auditoria de forma objetiva e ordenada.
+Auditoria completa do dominio ui-ux-fluxos conforme playbook oficial. Segunda passada apos correcoes da primeira auditoria.
 
-Exemplo:
-1. Fase 1 do playbook
-2. Fase 2 do playbook
-3. Consolidação de achados
-4. Preparação para finalização
+## Fases Planejadas
+1. Inventario de Fluxos, Tarefas e Estrutura de Navegacao
+2. Clareza, Consistencia e Feedback de Sistema
+3. Formularios, Erros, Prevencao e Recuperacao
+4. Acessibilidade, Semantica e Padroes de Interacao
+5. Conclusao de Tarefa, Eficiencia e Atrito de Fluxo
+6. Consolidacao de Achados
+7. Preparacao para Finalizacao
 
 ## Fase Atual
-- fase_atual: none
-- lote_atual: none
-- descricao_lote_atual: none
+- fase_atual: Inventario de Fluxos, Tarefas e Estrutura de Navegacao
+- lote_atual: 1
+- descricao_lote_atual: inicio da execucao da primeira fase conforme playbook
 
 ## Progresso Geral
-- [ ] Run iniciada
-- [ ] Escopo definido
-- [ ] Fases executadas
+- [x] Run iniciada
+- [x] Escopo definido
+- [ ] 1. Inventario de Fluxos, Tarefas e Estrutura de Navegacao
+2. Clareza, Consistencia e Feedback de Sistema
+3. Formularios, Erros, Prevencao e Recuperacao
+4. Acessibilidade, Semantica e Padroes de Interacao
+5. Conclusao de Tarefa, Eficiencia e Atrito de Fluxo
+6. Consolidacao de Achados
+7. Preparacao para Finalizacao
 - [ ] Achados consolidados
-- [ ] Run pronta para finalização
+- [ ] Run pronta para finalizacao
 
-## Regras de Execução
+## Regras de Execucao
 - Executar apenas uma fase ou um lote pequeno por vez.
-- Não pular fases pendentes sem registrar justificativa.
-- Não marcar etapa como concluída sem evidência mínima no histórico.
-- Sempre atualizar este arquivo ao final de cada execução.
-- Se houver bloqueio, registrar em `Bloqueios e Impedimentos`.
-- Ao concluir o lote atual, definir explicitamente o próximo passo.
+- Nao pular fases pendentes sem registrar justificativa.
+- Nao marcar etapa como concluida sem evidencia minima no historico.
+- Sempre atualizar este arquivo ao final de cada execucao.
+- Se houver bloqueio, registrar em Bloqueios e Impedimentos.
+- Ao concluir o lote atual, definir explicitamente o proximo passo.
 
-## Histórico de Execuções
+## Historico de Execucoes
 
-### Execução 000
-- data_hora: none
-- objetivo: inicializacao via bootstrap core
-- status_resultado: pending
+### Execucao 000
+- data_hora: 2026-04-05 18:00:00
+- objetivo: abertura formal da run via Prompt 02
+- status_resultado: completed
 - arquivos_ou_areas_analisadas:
-  - none
+  - playbook do dominio ui-ux-fluxos
 - acoes_realizadas:
-  - estrutura current inicial criada
+  - run_id gerado: 2026-04-05_18-00-00
+  - metadata.md inicializado com status in_progress
+  - acompanhamento.md populado com objetivo, escopo e fases do playbook
+  - achados.md reinicializado
+  - relatorio-final.md reinicializado
+  - status-geral.md atualizado
 - achados_resumidos:
-  - none
+  - nenhum ainda
 - bloqueios:
-  - none
+  - nenhum
 - proximo_passo_obrigatorio:
-  - aguardar seed de playbooks e inicio formal da run
+  - executar Prompt 03 para iniciar a primeira fase: Inventario de Fluxos, Tarefas e Estrutura de Navegacao
 
 ## Achados Relacionados Nesta Run
-Referenciar de forma resumida os principais achados registrados em `achados.md`.
-
 - nenhum ate o momento
 
 ## Bloqueios e Impedimentos
-Registrar aqui qualquer impedimento que impeça a continuidade normal.
-
 - nenhum ate o momento
 
 ## Proximo Passo Obrigatorio
-Descrever exatamente a próxima ação que o agente deve executar.
-Este campo nunca deve ficar ambíguo.
-
-- aguardar seed de playbooks e inicio formal da run
-
-## Critério para Marcar `ready_for_finalize`
-A run só pode ser marcada como `ready_for_finalize` quando:
-- todas as fases planejadas aplicáveis estiverem concluídas ou justificadamente marcadas como não aplicáveis
-- os achados estiverem consolidados em `achados.md`
-- o `relatorio-final.md` estiver preenchido em versão final da run
-- não houver bloqueios abertos sem registro de decisão
+Executar o Prompt 03 — Executar Run.
+A primeira fase a executar e: Inventario de Fluxos, Tarefas e Estrutura de Navegacao

@@ -1,17 +1,16 @@
 # Achados da Auditoria
 
-## Identificação
+## Identificacao
 - dominio: testes-qualidade
-- run_id: none
-- ultima_atualizacao: none
+- run_id: 2026-04-05_18-00-00
+- ultima_atualizacao: 2026-04-05 18:00:00
 
 ## Regras de Registro
-- Registrar apenas achados reais com evidência observável.
-- Não registrar opinião vaga sem base no repositório.
-- Cada achado deve ter ID único dentro da run.
-- Cada achado deve pertencer a uma categoria compatível com o domínio atual.
+- Registrar apenas achados reais com evidencia observavel.
+- Nao registrar opiniao vaga sem base no repositorio.
+- Cada achado deve ter ID unico dentro da run.
 - Cada achado deve ter severidade definida.
-- Se o item não for confirmado, registrar como hipótese e explicar a limitação.
+- Se o item nao for confirmado, registrar como hipotese com justificativa.
 
 ## Severidades Permitidas
 - critico
@@ -27,32 +26,6 @@
 - resolvido
 - aceito
 - nao_aplicavel
-
-## Estrutura Padrão do Achado
-
-### ACH-001
-- titulo: none
-- severidade: informativo
-- categoria: none
-- status: aberto
-- resumo: none
-
-#### Evidencia
-- arquivo_ou_area: none
-- detalhe: none
-
-#### Impacto
-- tecnico: none
-- negocio: none
-
-#### Recomendacao
-- acao_sugerida: none
-- prioridade: none
-
-#### Observacoes
-- none
-
----
 
 ## Achados Registrados
 Nenhum achado registrado ate o momento.

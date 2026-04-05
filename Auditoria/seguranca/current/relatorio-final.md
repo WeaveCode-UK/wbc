@@ -1,27 +1,27 @@
-# Relatório Final da Auditoria
+# Relatorio Final da Auditoria
 
-## Identificação
+## Identificacao
 - dominio: seguranca
-- run_id: none
-- status_run: not_started
-- iniciado_em: none
+- run_id: 2026-04-05_18-00-00
+- status_run: in_progress
+- iniciado_em: 2026-04-05 18:00:00
 - finalizado_em: none
-- ultima_atualizacao: 2026-03-26 01:45:00
+- ultima_atualizacao: 2026-04-05 18:00:00
 
 ## Objetivo da Run
-A definir no início da próxima run.
+Avaliar se o sistema possui controles de seguranca minimamente robustos para reduzir risco de exploracao, exposicao indevida, manipulacao nao autorizada, vazamento de dados e comprometimento operacional.
 
 ## Escopo Executado
-- none
+- a preencher durante a execucao
 
 ## Escopo Nao Coberto ou Parcial
-- none
+- a preencher durante a execucao
 
 ## Resumo Executivo
-- none
+- a preencher ao consolidar a run
 
 ## Principais Achados
-- none
+- a preencher ao consolidar a run
 
 ## Distribuicao por Severidade
 - critico: 0
@@ -31,17 +31,17 @@ A definir no início da próxima run.
 - informativo: 0
 
 ## Riscos Prioritarios
-- none
+- a preencher ao consolidar a run
 
 ## Recomendacoes Prioritarias
-- none
+- a preencher ao consolidar a run
 
 ## Avaliacao Geral do Dominio
 - avaliacao: pendente
 
 ## Prontidao para Encerramento
 - pronto_para_finalizar: nao
-- justificativa: aguardando inicio de nova run
+- justificativa: run em andamento
 
 ## Observacoes Finais
-- none
+- a preencher ao consolidar a run

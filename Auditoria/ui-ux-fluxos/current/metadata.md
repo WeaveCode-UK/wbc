@@ -1,17 +1,17 @@
 # Metadata da Run Atual
 
 - dominio: ui-ux-fluxos
-- run_id: none
-- status: not_started
-- iniciado_em: none
+- run_id: 2026-04-05_18-00-00
+- status: in_progress
+- iniciado_em: 2026-04-05 18:00:00
 - finalizado_em: none
-- escopo: none
-- origem: bootstrap-core
+- escopo: auditoria completa do dominio ui-ux-fluxos conforme playbook oficial (segunda passada pos-correcoes)
+- origem: prompt-02-iniciar-run
 - versao_framework: 2.0
 - responsavel_execucao: agente-local
 - modo_execucao: incremental-por-fase
-- auditoria_anterior_relacionada: none
-- observacoes: current inicial criado pelo bootstrap core
+- auditoria_anterior_relacionada: run anterior do mesmo dominio
+- observacoes: segunda passada da auditoria apos correcoes implementadas
 
 ## Estados Permitidos
 - not_started
@@ -22,16 +22,7 @@
 - archived
 
 ## Regras
-- Não alterar o domínio.
-- Não inventar novos status.
-- Não marcar `completed` nesta área de `current`.
-- `completed` e `archived` são estados históricos e devem existir apenas em runs finalizadas.
-- Enquanto a run estiver em `current`, os estados válidos práticos são:
-  - not_started
-  - in_progress
-  - blocked
-  - ready_for_finalize
-
-## Atualização Esperada
-Atualize este arquivo apenas quando houver mudança real de estado da run.
-Não use este arquivo para registrar achados técnicos ou histórico detalhado de execução.
+- Nao alterar o dominio.
+- Nao inventar novos status.
+- Nao marcar completed nesta area de current.
+- Em current, os estados validos sao: not_started, in_progress, blocked, ready_for_finalize.

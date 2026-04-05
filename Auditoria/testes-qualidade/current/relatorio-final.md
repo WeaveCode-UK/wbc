@@ -1,37 +1,27 @@
-# Relatório Final da Auditoria
+# Relatorio Final da Auditoria
 
-## Identificação
+## Identificacao
 - dominio: testes-qualidade
-- run_id: none
-- status_run: none
-- iniciado_em: none
+- run_id: 2026-04-05_18-00-00
+- status_run: in_progress
+- iniciado_em: 2026-04-05 18:00:00
 - finalizado_em: none
-- ultima_atualizacao: none
+- ultima_atualizacao: 2026-04-05 18:00:00
 
 ## Objetivo da Run
-Descrever em 1 a 3 linhas o objetivo desta auditoria.
+Avaliar se o projeto possui uma estrategia de testes e qualidade de entrega capaz de fornecer sinal confiavel, prevenir regressoes e sustentar evolucao continua com risco controlado.
 
 ## Escopo Executado
-Listar o que foi efetivamente coberto nesta run.
-
-- none
+- a preencher durante a execucao
 
 ## Escopo Nao Coberto ou Parcial
-Listar o que ficou fora, parcial ou bloqueado, com justificativa curta.
-
-- none
+- a preencher durante a execucao
 
 ## Resumo Executivo
-Descrever em linguagem clara a situacao geral encontrada no dominio auditado.
-
-- none
+- a preencher ao consolidar a run
 
 ## Principais Achados
-Listar os achados mais relevantes desta run.
-
-1. none
-2. none
-3. none
+- a preencher ao consolidar a run
 
 ## Distribuicao por Severidade
 - critico: 0
@@ -41,31 +31,17 @@ Listar os achados mais relevantes desta run.
 - informativo: 0
 
 ## Riscos Prioritarios
-Listar os riscos que exigem atencao mais urgente.
-
-- none
+- a preencher ao consolidar a run
 
 ## Recomendacoes Prioritarias
-Listar as acoes recomendadas em ordem objetiva.
-
-1. none
-2. none
-3. none
+- a preencher ao consolidar a run
 
 ## Avaliacao Geral do Dominio
-Escolher uma avaliacao final coerente com os achados.
-
-- avaliacao: none
-
-Valores sugeridos:
-- adequado
-- aceitavel_com_ressalvas
-- preocupante
-- critico
+- avaliacao: pendente
 
 ## Prontidao para Encerramento
 - pronto_para_finalizar: nao
-- justificativa: none
+- justificativa: run em andamento
 
 ## Observacoes Finais
-- none
+- a preencher ao consolidar a run

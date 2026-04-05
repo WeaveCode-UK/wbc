@@ -2,26 +2,72 @@
 
 ## Identificacao
 - dominio: observabilidade-operacao
-- run_id: none
-- status_atual: not_started
-- ultima_atualizacao: 2026-03-26 11:25:00
+- run_id: 2026-04-05_18-00-00
+- status_atual: in_progress
+- ultima_atualizacao: 2026-04-05 18:00:00
 
 ## Objetivo da Run
-A definir no inicio da proxima run.
+Avaliar se o sistema oferece visibilidade operacional suficiente para detectar problemas, diagnosticar falhas e sustentar operacao continua.
+
+## Escopo Planejado
+Auditoria completa do dominio observabilidade-operacao conforme playbook oficial. Segunda passada apos correcoes da primeira auditoria.
+
+## Fases Planejadas
+1. Sinais de Telemetria e Cobertura Basica
+2. Logs, Estrutura, Contexto e Diagnostico
+3. Metricas, Traces e Correlacao Operacional
+4. Health Checks, Readiness e Operacao Basica
+5. Monitoramento, Alerting e Toil Operacional
+6. Consolidacao de Achados
+7. Preparacao para Finalizacao
+
+## Fase Atual
+- fase_atual: Sinais de Telemetria e Cobertura Basica
+- lote_atual: 1
+- descricao_lote_atual: inicio da execucao da primeira fase conforme playbook
 
 ## Progresso Geral
-- [ ] Run iniciada
-- [ ] Escopo definido
-- [ ] Fases executadas
+- [x] Run iniciada
+- [x] Escopo definido
+- [ ] 1. Sinais de Telemetria e Cobertura Basica
+2. Logs, Estrutura, Contexto e Diagnostico
+3. Metricas, Traces e Correlacao Operacional
+4. Health Checks, Readiness e Operacao Basica
+5. Monitoramento, Alerting e Toil Operacional
+6. Consolidacao de Achados
+7. Preparacao para Finalizacao
 - [ ] Achados consolidados
 - [ ] Run pronta para finalizacao
+
+## Regras de Execucao
+- Executar apenas uma fase ou um lote pequeno por vez.
+- Nao pular fases pendentes sem registrar justificativa.
+- Nao marcar etapa como concluida sem evidencia minima no historico.
+- Sempre atualizar este arquivo ao final de cada execucao.
+- Se houver bloqueio, registrar em Bloqueios e Impedimentos.
+- Ao concluir o lote atual, definir explicitamente o proximo passo.
 
 ## Historico de Execucoes
 
 ### Execucao 000
-- data_hora: 2026-03-26 11:25:00
-- objetivo: reinicializacao do current apos finalizacao da run 2026-03-26_11-00-00
+- data_hora: 2026-04-05 18:00:00
+- objetivo: abertura formal da run via Prompt 02
 - status_resultado: completed
+- arquivos_ou_areas_analisadas:
+  - playbook do dominio observabilidade-operacao
+- acoes_realizadas:
+  - run_id gerado: 2026-04-05_18-00-00
+  - metadata.md inicializado com status in_progress
+  - acompanhamento.md populado com objetivo, escopo e fases do playbook
+  - achados.md reinicializado
+  - relatorio-final.md reinicializado
+  - status-geral.md atualizado
+- achados_resumidos:
+  - nenhum ainda
+- bloqueios:
+  - nenhum
+- proximo_passo_obrigatorio:
+  - executar Prompt 03 para iniciar a primeira fase: Sinais de Telemetria e Cobertura Basica
 
 ## Achados Relacionados Nesta Run
 - nenhum ate o momento
@@ -30,4 +76,5 @@ A definir no inicio da proxima run.
 - nenhum ate o momento
 
 ## Proximo Passo Obrigatorio
-Executar Prompt 02 — Iniciar Run para abrir nova auditoria quando necessario.
+Executar o Prompt 03 — Executar Run.
+A primeira fase a executar e: Sinais de Telemetria e Cobertura Basica

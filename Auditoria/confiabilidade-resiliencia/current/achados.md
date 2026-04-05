@@ -2,8 +2,8 @@
 
 ## Identificacao
 - dominio: confiabilidade-resiliencia
-- run_id: none
-- ultima_atualizacao: 2026-03-26 10:55:00
+- run_id: 2026-04-05_18-00-00
+- ultima_atualizacao: 2026-04-05 18:00:00
 
 ## Regras de Registro
 - Registrar apenas achados reais com evidencia observavel.

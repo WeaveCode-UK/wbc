@@ -1,49 +1,73 @@
 # Acompanhamento da Auditoria
 
-## Identificação
+## Identificacao
 - dominio: seguranca
-- run_id: none
-- status_atual: not_started
-- ultima_atualizacao: 2026-03-26 01:45:00
+- run_id: 2026-04-05_18-00-00
+- status_atual: in_progress
+- ultima_atualizacao: 2026-04-05 18:00:00
 
 ## Objetivo da Run
-A definir no início da próxima run.
+Avaliar se o sistema possui controles de seguranca minimamente robustos para reduzir risco de exploracao, exposicao indevida, manipulacao nao autorizada, vazamento de dados e comprometimento operacional.
 
 ## Escopo Planejado
-A definir no início da próxima run.
+Auditoria completa do dominio seguranca conforme playbook oficial. Segunda passada apos correcoes da primeira auditoria.
 
 ## Fases Planejadas
-A definir no início da próxima run com base no playbook do domínio.
+1. Superficie de Exposicao e Mapeamento de Controles
+2. Autenticacao, Autorizacao e Sessao
+3. Validacao de Entrada, Protecao de Dados e Tratamento de Erros
+4. Segredos, Configuracao Sensivel, Webhooks e Supply Chain
+5. Protecao Operacional e Preparacao do Panorama de Risco
+6. Consolidacao de Achados
+7. Preparacao para Finalizacao
 
 ## Fase Atual
-- fase_atual: none
-- lote_atual: none
-- descricao_lote_atual: none
+- fase_atual: Superficie de Exposicao e Mapeamento de Controles
+- lote_atual: 1
+- descricao_lote_atual: inicio da execucao da primeira fase conforme playbook
 
 ## Progresso Geral
-- [ ] Run iniciada
-- [ ] Escopo definido
-- [ ] Fases executadas
+- [x] Run iniciada
+- [x] Escopo definido
+- [ ] 1. Superficie de Exposicao e Mapeamento de Controles
+2. Autenticacao, Autorizacao e Sessao
+3. Validacao de Entrada, Protecao de Dados e Tratamento de Erros
+4. Segredos, Configuracao Sensivel, Webhooks e Supply Chain
+5. Protecao Operacional e Preparacao do Panorama de Risco
+6. Consolidacao de Achados
+7. Preparacao para Finalizacao
 - [ ] Achados consolidados
-- [ ] Run pronta para finalização
+- [ ] Run pronta para finalizacao
 
-## Histórico de Execuções
+## Regras de Execucao
+- Executar apenas uma fase ou um lote pequeno por vez.
+- Nao pular fases pendentes sem registrar justificativa.
+- Nao marcar etapa como concluida sem evidencia minima no historico.
+- Sempre atualizar este arquivo ao final de cada execucao.
+- Se houver bloqueio, registrar em Bloqueios e Impedimentos.
+- Ao concluir o lote atual, definir explicitamente o proximo passo.
 
-### Execução 000
-- data_hora: 2026-03-26 01:45:00
-- objetivo: reinicializacao do current apos finalizacao da run 2026-03-26_01-10-00
+## Historico de Execucoes
+
+### Execucao 000
+- data_hora: 2026-04-05 18:00:00
+- objetivo: abertura formal da run via Prompt 02
 - status_resultado: completed
 - arquivos_ou_areas_analisadas:
-  - none
+  - playbook do dominio seguranca
 - acoes_realizadas:
-  - current reinicializado pelo Prompt 04
-  - run 2026-03-26_01-10-00 arquivada em /Auditoria/seguranca/runs/2026-03-26_01-10-00/
+  - run_id gerado: 2026-04-05_18-00-00
+  - metadata.md inicializado com status in_progress
+  - acompanhamento.md populado com objetivo, escopo e fases do playbook
+  - achados.md reinicializado
+  - relatorio-final.md reinicializado
+  - status-geral.md atualizado
 - achados_resumidos:
-  - none
+  - nenhum ainda
 - bloqueios:
-  - none
+  - nenhum
 - proximo_passo_obrigatorio:
-  - executar Prompt 02 para iniciar nova run quando necessario
+  - executar Prompt 03 para iniciar a primeira fase: Superficie de Exposicao e Mapeamento de Controles
 
 ## Achados Relacionados Nesta Run
 - nenhum ate o momento
@@ -52,7 +76,5 @@ A definir no início da próxima run com base no playbook do domínio.
 - nenhum ate o momento
 
 ## Proximo Passo Obrigatorio
-Executar Prompt 02 — Iniciar Run para abrir uma nova auditoria deste domínio quando necessário.
-
-## Critério para Marcar `ready_for_finalize`
-A definir com base no playbook do domínio na próxima run.
+Executar o Prompt 03 — Executar Run.
+A primeira fase a executar e: Superficie de Exposicao e Mapeamento de Controles

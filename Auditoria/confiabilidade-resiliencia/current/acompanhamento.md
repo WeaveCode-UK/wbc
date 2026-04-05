@@ -2,28 +2,40 @@
 
 ## Identificacao
 - dominio: confiabilidade-resiliencia
-- run_id: none
-- status_atual: not_started
-- ultima_atualizacao: 2026-03-26 10:55:00
+- run_id: 2026-04-05_18-00-00
+- status_atual: in_progress
+- ultima_atualizacao: 2026-04-05 18:00:00
 
 ## Objetivo da Run
-A definir no inicio da proxima run.
+Avaliar se o sistema continua executando sua funcao corretamente diante de falhas, degradacoes, picos de carga e condicoes anormais de operacao.
 
 ## Escopo Planejado
-A definir no inicio da proxima run.
+Auditoria completa do dominio confiabilidade-resiliencia conforme playbook oficial. Segunda passada apos correcoes da primeira auditoria.
 
 ## Fases Planejadas
-A definir no inicio da proxima run com base no playbook do dominio.
+1. Modos de Falha, Dependencias e Blast Radius
+2. Timeouts, Retries, Backoff, Idempotencia e Contencao
+3. Overload, Cascading Failure, Load Shedding e Backpressure
+4. Recuperacao, Failover, Continuidade e Estado
+5. Readiness Operacional para Confiabilidade
+6. Consolidacao de Achados
+7. Preparacao para Finalizacao
 
 ## Fase Atual
-- fase_atual: none
-- lote_atual: none
-- descricao_lote_atual: none
+- fase_atual: Modos de Falha, Dependencias e Blast Radius
+- lote_atual: 1
+- descricao_lote_atual: inicio da execucao da primeira fase conforme playbook
 
 ## Progresso Geral
-- [ ] Run iniciada
-- [ ] Escopo definido
-- [ ] Fases executadas
+- [x] Run iniciada
+- [x] Escopo definido
+- [ ] 1. Modos de Falha, Dependencias e Blast Radius
+2. Timeouts, Retries, Backoff, Idempotencia e Contencao
+3. Overload, Cascading Failure, Load Shedding e Backpressure
+4. Recuperacao, Failover, Continuidade e Estado
+5. Readiness Operacional para Confiabilidade
+6. Consolidacao de Achados
+7. Preparacao para Finalizacao
 - [ ] Achados consolidados
 - [ ] Run pronta para finalizacao
 
@@ -32,25 +44,30 @@ A definir no inicio da proxima run com base no playbook do dominio.
 - Nao pular fases pendentes sem registrar justificativa.
 - Nao marcar etapa como concluida sem evidencia minima no historico.
 - Sempre atualizar este arquivo ao final de cada execucao.
-- Arquivos fora de /Auditoria sao somente leitura durante toda a run.
+- Se houver bloqueio, registrar em Bloqueios e Impedimentos.
+- Ao concluir o lote atual, definir explicitamente o proximo passo.
 
 ## Historico de Execucoes
 
 ### Execucao 000
-- data_hora: 2026-03-26 10:55:00
-- objetivo: reinicializacao do current apos finalizacao da run 2026-03-26_10-30-00
+- data_hora: 2026-04-05 18:00:00
+- objetivo: abertura formal da run via Prompt 02
 - status_resultado: completed
 - arquivos_ou_areas_analisadas:
-  - none
+  - playbook do dominio confiabilidade-resiliencia
 - acoes_realizadas:
-  - current reinicializado pelo Prompt 04
-  - run 2026-03-26_10-30-00 arquivada em /Auditoria/confiabilidade-resiliencia/runs/2026-03-26_10-30-00/
+  - run_id gerado: 2026-04-05_18-00-00
+  - metadata.md inicializado com status in_progress
+  - acompanhamento.md populado com objetivo, escopo e fases do playbook
+  - achados.md reinicializado
+  - relatorio-final.md reinicializado
+  - status-geral.md atualizado
 - achados_resumidos:
-  - none
+  - nenhum ainda
 - bloqueios:
-  - none
+  - nenhum
 - proximo_passo_obrigatorio:
-  - executar Prompt 02 para iniciar nova run quando necessario
+  - executar Prompt 03 para iniciar a primeira fase: Modos de Falha, Dependencias e Blast Radius
 
 ## Achados Relacionados Nesta Run
 - nenhum ate o momento
@@ -59,7 +76,5 @@ A definir no inicio da proxima run com base no playbook do dominio.
 - nenhum ate o momento
 
 ## Proximo Passo Obrigatorio
-Executar Prompt 02 — Iniciar Run para abrir uma nova auditoria deste dominio quando necessario.
-
-## Criterio para Marcar `ready_for_finalize`
-A definir com base no playbook do dominio na proxima run.
+Executar o Prompt 03 — Executar Run.
+A primeira fase a executar e: Modos de Falha, Dependencias e Blast Radius

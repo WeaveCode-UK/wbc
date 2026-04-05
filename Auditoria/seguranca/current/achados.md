@@ -1,16 +1,16 @@
 # Achados da Auditoria
 
-## Identificação
+## Identificacao
 - dominio: seguranca
-- run_id: none
-- ultima_atualizacao: 2026-03-26 01:45:00
+- run_id: 2026-04-05_18-00-00
+- ultima_atualizacao: 2026-04-05 18:00:00
 
 ## Regras de Registro
-- Registrar apenas achados reais com evidência observável.
-- Não registrar opinião vaga sem base no repositório.
-- Cada achado deve ter ID único dentro da run.
+- Registrar apenas achados reais com evidencia observavel.
+- Nao registrar opiniao vaga sem base no repositorio.
+- Cada achado deve ter ID unico dentro da run.
 - Cada achado deve ter severidade definida.
-- Se o item não for confirmado, registrar como hipótese com justificativa.
+- Se o item nao for confirmado, registrar como hipotese com justificativa.
 
 ## Severidades Permitidas
 - critico

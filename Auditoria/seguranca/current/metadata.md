@@ -1,17 +1,17 @@
 # Metadata da Run Atual
 
 - dominio: seguranca
-- run_id: none
-- status: not_started
-- iniciado_em: none
+- run_id: 2026-04-05_18-00-00
+- status: in_progress
+- iniciado_em: 2026-04-05 18:00:00
 - finalizado_em: none
-- escopo: none
-- origem: reinicializado pelo Prompt 04 apos finalizacao de 2026-03-26_01-10-00
+- escopo: auditoria completa do dominio seguranca conforme playbook oficial (segunda passada pos-correcoes)
+- origem: prompt-02-iniciar-run
 - versao_framework: 2.0
 - responsavel_execucao: agente-local
 - modo_execucao: incremental-por-fase
-- auditoria_anterior_relacionada: 2026-03-26_01-10-00
-- observacoes: current reinicializado em 2026-03-26 01:45:00 apos arquivamento da run 2026-03-26_01-10-00
+- auditoria_anterior_relacionada: run anterior do mesmo dominio
+- observacoes: segunda passada da auditoria apos correcoes implementadas
 
 ## Estados Permitidos
 - not_started
@@ -22,10 +22,7 @@
 - archived
 
 ## Regras
-- Não alterar o domínio.
-- Não inventar novos status.
-- Não marcar `completed` nesta área de `current`.
-- Em `current`, os estados válidos são: not_started, in_progress, blocked, ready_for_finalize.
-
-## Atualização Esperada
-Atualize este arquivo apenas quando houver mudança real de estado da run.
+- Nao alterar o dominio.
+- Nao inventar novos status.
+- Nao marcar completed nesta area de current.
+- Em current, os estados validos sao: not_started, in_progress, blocked, ready_for_finalize.

@@ -1,7 +1,7 @@
 # Achados Não Resolvidos da Auditoria
 
 Gerado em: 2026-04-05
-Total: 52 pendentes + 1 resolvido (27 não corrigíveis + 19 não corrigidos + 6 achados positivos + 1 resolvido)
+Total: 49 pendentes + 4 resolvidos (24 não corrigíveis + 19 não corrigidos + 6 achados positivos + 4 resolvidos)
 
 ---
 
@@ -33,10 +33,19 @@ Total: 52 pendentes + 1 resolvido (27 não corrigíveis + 19 não corrigidos + 6
 
 ## 2. Arquitetura
 
-### ACH-007 — Deploy config ausente
+### ACH-007 — Deploy config ausente ✅ RESOLVIDO
 - severidade: medio
-- classificação: **não corrigível**
-- motivo: decisão de plataforma de deploy (Vercel? Railway? AWS?) ainda não foi tomada. Enquanto não se decidir onde o projeto vai rodar em produção, não há configuração para criar.
+- classificação: **resolvido**
+- plataforma: Hostinger KVM8 VPS (Docker + nginx + Let's Encrypt)
+- o que foi feito:
+  - `deploy/Dockerfile.web` — Multi-stage build (turbo prune → install → build → standalone runner)
+  - `deploy/Dockerfile.worker` — Multi-stage build para BullMQ worker
+  - `deploy/nginx.conf` — Reverse proxy com SSL/TLS, gzip, security headers, WebSocket support
+  - `docker-compose.prod.yml` — Stack completa (postgres, redis, web, worker, nginx, certbot auto-renewal)
+  - `deploy/deploy.sh` — Script de deploy (first-run, update, ssl)
+  - `.env.production.example` — Template de variáveis de produção
+  - `.dockerignore` — Excludes para build Docker
+  - `next.config.mjs` — Adicionado `output: 'standalone'`
 
 ---
 
@@ -333,10 +342,10 @@ Total: 52 pendentes + 1 resolvido (27 não corrigíveis + 19 não corrigidos + 6
 - classificação: **não corrigível**
 - motivo: precisa de decisão de plataforma (GitHub Actions? GitLab CI?) e definição dos steps (lint, type-check, test, build, deploy). Overlap com testes ACH-005.
 
-### ACH-002 — Sem Dockerfiles para serviços de aplicação
+### ACH-002 — Sem Dockerfiles para serviços de aplicação ✅ RESOLVIDO
 - severidade: critico
-- classificação: **não corrigível**
-- motivo: precisa de decisão de plataforma de deploy (containers? PaaS?). Criar Dockerfiles multi-stage para monorepo Turborepo é complexo e precisa de decisão sobre base images, build args, runtime config.
+- classificação: **resolvido**
+- o que foi feito: `deploy/Dockerfile.web` e `deploy/Dockerfile.worker` criados com multi-stage builds para Hostinger KVM8 VPS
 
 ### ACH-003 — Sem gestão de secrets
 - severidade: alto
@@ -364,10 +373,10 @@ Total: 52 pendentes + 1 resolvido (27 não corrigíveis + 19 não corrigidos + 6
 - classificação: **não corrigível**
 - motivo: requer criar `.github/dependabot.yml` ou configurar Renovate. Depende de ter CI primeiro (ACH-001).
 
-### ACH-008 — Sem HTTPS/TLS configurado
+### ACH-008 — Sem HTTPS/TLS configurado ✅ RESOLVIDO
 - severidade: medio
-- classificação: **não corrigível**
-- motivo: configuração de produção. Qualquer PaaS (Vercel, Railway) fornece TLS automático. Self-hosted requer nginx + certbot. Não é código do repositório.
+- classificação: **resolvido**
+- o que foi feito: nginx.conf com TLS 1.2/1.3 + certbot auto-renewal no docker-compose.prod.yml
 
 ### ACH-009 — Sem documentação de deploy
 - severidade: baixo

@@ -1,0 +1,43 @@
+# ── Stage 1: Base ──────────────────────────────────────────────
+FROM node:20-alpine AS base
+RUN apk add --no-cache libc6-compat
+RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
+WORKDIR /app
+
+# ── Stage 2: Install deps ─────────────────────────────────────
+FROM base AS builder
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+COPY packages/config/package.json ./packages/config/
+COPY packages/shared/package.json ./packages/shared/
+COPY packages/db/package.json ./packages/db/
+COPY apps/worker/package.json ./apps/worker/
+
+RUN pnpm install --frozen-lockfile
+
+COPY packages/ ./packages/
+COPY apps/worker/ ./apps/worker/
+
+ARG DATABASE_URL
+ENV DATABASE_URL=${DATABASE_URL}
+
+RUN pnpm --filter @wbc/db db:generate
+
+# Worker uses tsx at runtime (TypeScript execution)
+# No build step needed — tsx runs .ts directly
+
+# ── Stage 3: Production runner ────────────────────────────────
+FROM node:20-alpine AS runner
+RUN apk add --no-cache libc6-compat
+RUN corepack enable && corepack prepare pnpm@9.15.4 --activate
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+RUN addgroup --system --gid 1001 worker
+RUN adduser --system --uid 1001 worker
+
+COPY --from=builder --chown=worker:worker /app ./
+
+USER worker
+
+CMD ["npx", "tsx", "apps/worker/src/index.ts"]

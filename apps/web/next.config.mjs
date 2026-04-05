@@ -14,6 +14,7 @@ const securityHeaders = [
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'standalone',
   transpilePackages: ['@wbc/ui', '@wbc/shared', '@wbc/validators', '@wbc/i18n'],
   async headers() {
     return [{ source: '/(.*)', headers: securityHeaders }];

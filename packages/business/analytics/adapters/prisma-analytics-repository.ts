@@ -45,14 +45,15 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
   async getSalesStats(tenantId: string): Promise<SalesStats> {
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const where = { tenantId, status: { in: ['CONFIRMED' as const, 'DELIVERED' as const] }, createdAt: { gte: startOfMonth } };
 
-    const sales = await prisma.sale.findMany({
-      where: { tenantId, status: { in: ['CONFIRMED', 'DELIVERED'] }, createdAt: { gte: startOfMonth } },
-      select: { total: true },
-    });
+    const [count, agg] = await Promise.all([
+      prisma.sale.count({ where }),
+      prisma.sale.aggregate({ where, _sum: { total: true } }),
+    ]);
 
-    const totalSales = sales.length;
-    const totalRevenue = sales.reduce((sum, s) => sum + Number(s.total), 0);
+    const totalSales = count;
+    const totalRevenue = Number(agg._sum.total ?? 0);
     const avgTicket = totalSales > 0 ? totalRevenue / totalSales : 0;
 
     return { totalSales, totalRevenue, avgTicket };

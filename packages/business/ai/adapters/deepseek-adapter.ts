@@ -1,4 +1,7 @@
 import type { AIProvider, AIGenerateResult } from '../ports/ai-provider';
+import { CircuitBreaker } from '@wbc/shared';
+
+const deepseekCircuit = new CircuitBreaker('deepseek', { failureThreshold: 3, resetTimeoutMs: 60_000 });
 
 const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
 const TIMEOUT_MS = 30_000;
@@ -32,6 +35,13 @@ export class DeepSeekAdapter implements AIProvider {
       };
     }
 
+    return deepseekCircuit.execute(
+      () => this.callApi(prompt),
+      () => ({ text: '[AI indisponível no momento. Tente novamente em breve.]', inputTokens: 0, outputTokens: 0, model: this.model }),
+    );
+  }
+
+  private async callApi(prompt: string): Promise<AIGenerateResult> {
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);

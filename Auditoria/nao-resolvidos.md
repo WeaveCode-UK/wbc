@@ -1,7 +1,7 @@
 # Achados Não Resolvidos da Auditoria
 
 Gerado em: 2026-04-05
-Total: 36 pendentes + 17 resolvidos (24 não corrigíveis + 6 não corrigidos + 6 achados positivos + 17 resolvidos)
+Total: 35 pendentes + 18 resolvidos (24 não corrigíveis + 5 não corrigidos + 6 achados positivos + 18 resolvidos)
 
 ---
 
@@ -212,10 +212,14 @@ Total: 36 pendentes + 17 resolvidos (24 não corrigíveis + 6 não corrigidos + 
   - Após 5 tentativas → status FAILED permanente (DLQ pickup)
   - `claimPending` respeita `nextRetryAt` — não reprocessa antes do tempo
 
-### ACH-010 — Ausência de circuit breaker
+### ACH-010 — Ausência de circuit breaker ✅ RESOLVIDO
 - severidade: alto
-- classificação: **não corrigido**
-- motivo: requer escolher biblioteca (opossum, cockatiel, custom) e decidir thresholds (quantas falhas para abrir circuito? quanto tempo half-open?). Além disso, precisa definir fallback para cada serviço (DeepSeek fora → texto genérico? WhatsApp fora → enfileirar?). São decisões de produto.
+- classificação: **resolvido**
+- o que foi feito:
+  - `packages/shared/src/circuit-breaker.ts` — CircuitBreaker genérico (CLOSED → OPEN → HALF_OPEN)
+  - WhatsApp: 5 falhas → OPEN 60s, fallback `{ success: false }`
+  - DeepSeek: 3 falhas → OPEN 60s, fallback texto genérico "[AI indisponível]"
+  - Zero dependências externas, configurável por serviço
 
 ### ACH-012 — DLQ definida mas sem handler funcional
 - severidade: medio

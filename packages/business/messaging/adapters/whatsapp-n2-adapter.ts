@@ -1,5 +1,8 @@
 import type { WhatsAppPort, SendMessageResult } from '../ports/whatsapp-port';
 import { formatPhoneForWhatsApp } from '../domain/whatsapp';
+import { CircuitBreaker } from '@wbc/shared';
+
+const whatsappCircuit = new CircuitBreaker('whatsapp', { failureThreshold: 5, resetTimeoutMs: 60_000 });
 
 const WHATSAPP_API_URL = 'https://graph.facebook.com/v18.0';
 const TIMEOUT_MS = 10_000;
@@ -77,14 +80,23 @@ export class WhatsAppN2Adapter implements WhatsAppPort {
   }
 
   async sendText(phone: string, message: string): Promise<SendMessageResult> {
-    return this.sendMessage(phone, 'text', { body: message });
+    return whatsappCircuit.execute(
+      () => this.sendMessage(phone, 'text', { body: message }),
+      () => ({ success: false } as SendMessageResult),
+    );
   }
 
   async sendImage(phone: string, imageUrl: string, caption?: string): Promise<SendMessageResult> {
-    return this.sendMessage(phone, 'image', { link: imageUrl, caption });
+    return whatsappCircuit.execute(
+      () => this.sendMessage(phone, 'image', { link: imageUrl, caption }),
+      () => ({ success: false } as SendMessageResult),
+    );
   }
 
   async sendAudio(phone: string, audioUrl: string): Promise<SendMessageResult> {
-    return this.sendMessage(phone, 'audio', { link: audioUrl });
+    return whatsappCircuit.execute(
+      () => this.sendMessage(phone, 'audio', { link: audioUrl }),
+      () => ({ success: false } as SendMessageResult),
+    );
   }
 }

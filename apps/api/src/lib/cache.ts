@@ -42,10 +42,18 @@ export async function cacheDelete(key: string): Promise<void> {
 export async function cacheInvalidatePattern(pattern: string): Promise<void> {
   try {
     const redis = getRedis();
-    const keys = await redis.keys(prefixKey(pattern));
-    if (keys.length > 0) {
-      await redis.del(...keys);
+    const stream = redis.scanStream({ match: prefixKey(pattern), count: 100 });
+    const pipeline = redis.pipeline();
+    let count = 0;
+
+    for await (const keys of stream) {
+      for (const key of keys as string[]) {
+        pipeline.del(key);
+        count++;
+      }
     }
+
+    if (count > 0) await pipeline.exec();
   } catch (error) {
     logger.warn({ pattern, error }, 'Cache invalidate failed — bypassing cache');
   }

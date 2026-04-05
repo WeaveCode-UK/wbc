@@ -9,12 +9,12 @@ interface ConfirmModalProps {
   onConfirm: () => void;
   title: string;
   description?: string;
-  confirmLabel?: string;
-  cancelLabel?: string;
+  confirmLabel: string;
+  cancelLabel: string;
   destructive?: boolean;
 }
 
-export function ConfirmModal({ open, onClose, onConfirm, title, description, confirmLabel = 'Confirmar', cancelLabel = 'Cancelar', destructive }: ConfirmModalProps) {
+export function ConfirmModal({ open, onClose, onConfirm, title, description, confirmLabel, cancelLabel, destructive }: ConfirmModalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {

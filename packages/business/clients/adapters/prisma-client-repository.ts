@@ -73,13 +73,14 @@ export class PrismaClientRepository implements ClientRepository {
   }
 
   async bulkEditNames(tenantId: string, edits: Array<{ id: string; name: string }>): Promise<number> {
-    let count = 0;
-    for (const edit of edits) {
-      const existing = await prisma.client.findFirst({ where: { id: edit.id, tenantId } });
-      if (!existing) throw new Error('Client not found');
-      await prisma.client.update({ where: { id: edit.id }, data: { name: edit.name } });
-      count++;
-    }
-    return count;
+    await prisma.$transaction(
+      edits.map((edit) =>
+        prisma.client.update({
+          where: { id: edit.id },
+          data: { name: edit.name },
+        }),
+      ),
+    );
+    return edits.length;
   }
 }

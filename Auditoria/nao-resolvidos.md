@@ -135,10 +135,13 @@ Total: 27 pendentes + 33 resolvidos (20 não corrigíveis + 0 não corrigidos + 
   - `prisma-client-repository.ts` — update usa `where: { id, version }` + `data: { version: { increment: 1 } }` quando version é fornecido
   - Prisma rejeita o update se a version não bater (row not found), sinalizando conflito
 
-### ACH-008 — Sem backup/restore nem retention policy
+### ACH-008 — Sem backup/restore nem retention policy ✅ RESOLVIDO
 - severidade: medio
-- classificação: **não corrigível**
-- motivo: 100% decisão de infraestrutura. Depende de onde o PostgreSQL vai rodar (RDS com backup automático? Supabase? Self-hosted com pg_dump + cron?). Não é algo que se resolve no código do repositório.
+- classificação: **resolvido**
+- o que foi feito:
+  - `deploy/backup/backup.sh` — pg_dump comprimido (gzip) via docker exec + retention 30 dias
+  - `deploy/backup/restore.sh` — restore interativo com confirmação, para web+worker antes
+  - `deploy/backup/install-cron.sh` — instala cron diário às 3:00 AM
 
 ### ACH-009 — Migrations não versionadas no git
 - severidade: baixo

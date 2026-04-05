@@ -5,6 +5,7 @@ import type { Role } from '@wbc/shared';
 import { runWithTenant } from '@wbc/shared';
 import { applyPublicRateLimit, applyProtectedRateLimit } from './rate-limit-middleware';
 import { mapDomainErrorToTRPC } from './error-handler';
+import { Sentry } from '../lib/sentry';
 import {
   extractAuthedContext,
   extractTenantContext,
@@ -30,6 +31,7 @@ const domainErrorMiddleware = t.middleware(async ({ next }) => {
     return await next();
   } catch (error) {
     if (error instanceof TRPCError) throw error;
+    Sentry.captureException(error);
     const mapped = mapDomainErrorToTRPC(error);
     if (mapped) throw mapped;
     throw error;

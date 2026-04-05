@@ -19,6 +19,7 @@ export async function processOutbox(): Promise<void> {
         });
       });
       await outboxRepo.markProcessed(event.id);
+      logger.info({ eventId: event.id, type: event.type, tenantId: event.tenantId }, 'Outbox event processed');
     } catch (error) {
       logger.error({ eventId: event.id, type: event.type, error }, 'Failed to process outbox event');
       await outboxRepo.markFailed(event.id);

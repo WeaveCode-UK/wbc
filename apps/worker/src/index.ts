@@ -12,6 +12,7 @@ import { startScheduleWorker } from './processors/schedule-processor';
 import { startAnalyticsWorker } from './processors/analytics-processor';
 import { startDLQWorker } from './processors/dlq-processor';
 import { cleanupProcessedOutboxEvents } from './processors/outbox-cleanup';
+import { subscribe, EVENTS } from '@wbc/shared';
 
 // Apply tenant middleware
 applyTenantMiddleware(() => getCurrentTenant()?.tenantId);
@@ -46,6 +47,20 @@ startAnalyticsWorker();
 startDLQWorker();
 
 logger.info('BullMQ workers started (messaging, campaigns, schedule, analytics, dlq)');
+// Cache invalidation handlers
+subscribe(EVENTS.TENANT_PLAN_CHANGED, async (event) => {
+  const p = event.payload as { tenantId: string };
+  try {
+    const Redis = (await import('ioredis')).default;
+    const redis = new Redis(process.env.REDIS_URL ?? 'redis://localhost:6379/0');
+    await redis.del(`wbc:entitlements:${p.tenantId}`);
+    await redis.quit();
+    logger.info({ tenantId: p.tenantId }, 'Entitlements cache invalidated');
+  } catch (error) {
+    logger.error({ error, tenantId: p.tenantId }, 'Failed to invalidate entitlements cache');
+  }
+});
+
 // Outbox cleanup: run daily (every 24h)
 setInterval(async () => {
   try {

@@ -5,10 +5,22 @@ export type EventHandler = (event: { type: string; tenantId: string; payload: un
 const handlers = new Map<string, EventHandler[]>();
 const processedEvents = new Set<string>();
 
+const HANDLER_TIMEOUT_MS = 30_000;
+
 export function subscribe(type: EventType, handler: EventHandler): void {
   const existing = handlers.get(type) ?? [];
   existing.push(handler);
   handlers.set(type, existing);
+}
+
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(`Handler timeout after ${ms}ms`)), ms);
+    promise.then(
+      (val) => { clearTimeout(timer); resolve(val); },
+      (err) => { clearTimeout(timer); reject(err); },
+    );
+  });
 }
 
 export async function dispatch(event: {
@@ -17,20 +29,26 @@ export async function dispatch(event: {
   tenantId: string;
   payload: unknown;
 }): Promise<void> {
-  // Idempotency check
   if (processedEvents.has(event.id)) {
     return;
   }
 
   const eventHandlers = handlers.get(event.type) ?? [];
 
-  for (const handler of eventHandlers) {
-    await handler(event);
+  const results = await Promise.allSettled(
+    eventHandlers.map((handler) =>
+      withTimeout(handler(event), HANDLER_TIMEOUT_MS),
+    ),
+  );
+
+  for (const result of results) {
+    if (result.status === 'rejected') {
+      console.error(`[EventDispatch] Handler failed for ${event.type}:`, result.reason);
+    }
   }
 
   processedEvents.add(event.id);
 
-  // Prevent memory leak — keep only last 10000 event IDs
   if (processedEvents.size > 10000) {
     const iterator = processedEvents.values();
     const first = iterator.next().value;

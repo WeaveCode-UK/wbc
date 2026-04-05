@@ -1,7 +1,7 @@
 # Achados Não Resolvidos da Auditoria
 
 Gerado em: 2026-04-05
-Total: 31 pendentes + 22 resolvidos (24 não corrigíveis + 1 não corrigido + 6 achados positivos + 22 resolvidos)
+Total: 37 pendentes + 22 resolvidos (20 não corrigíveis + 11 não corrigidos + 6 achados positivos + 22 resolvidos) = 59 entries (53 original + 6 parciais desmembrados)
 
 ---
 

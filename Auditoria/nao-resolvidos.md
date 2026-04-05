@@ -1,7 +1,7 @@
 # Achados Não Resolvidos da Auditoria
 
 Gerado em: 2026-04-05
-Total: 39 pendentes + 14 resolvidos (24 não corrigíveis + 9 não corrigidos + 6 achados positivos + 14 resolvidos)
+Total: 38 pendentes + 15 resolvidos (24 não corrigíveis + 8 não corrigidos + 6 achados positivos + 15 resolvidos)
 
 ---
 
@@ -123,10 +123,13 @@ Total: 39 pendentes + 14 resolvidos (24 não corrigíveis + 9 não corrigidos + 
   - `Sale.campaignId` → `SetNull` — se campanha deletada, venda permanece
   - `Referral.referrerTenantId` → `Restrict` / `referredTenantId` → `SetNull`
 
-### ACH-007 — Nenhum modelo com optimistic locking
+### ACH-007 — Nenhum modelo com optimistic locking ✅ RESOLVIDO
 - severidade: medio
-- classificação: **não corrigido**
-- motivo: adicionar `version Int @default(0)` requer: (1) migração de schema, (2) alterar todos os updates para verificar version, (3) decidir QUAIS modelos precisam (Client? Sale? Stock? Todos?). Mudança estrutural grande.
+- classificação: **resolvido**
+- o que foi feito:
+  - `version Int @default(0)` adicionado nos modelos Client, Sale e Stock (os 3 mais críticos para concorrência)
+  - `prisma-client-repository.ts` — update usa `where: { id, version }` + `data: { version: { increment: 1 } }` quando version é fornecido
+  - Prisma rejeita o update se a version não bater (row not found), sinalizando conflito
 
 ### ACH-008 — Sem backup/restore nem retention policy
 - severidade: medio

@@ -39,7 +39,11 @@ export class PrismaClientRepository implements ClientRepository {
   async update(tenantId: string, id: string, data: Partial<Client>): Promise<Client> {
     const existing = await prisma.client.findFirst({ where: { id, tenantId } });
     if (!existing) throw new Error('Client not found');
-    const client = await prisma.client.update({ where: { id }, data });
+    const { version: expectedVersion, ...updateData } = data;
+    const client = await prisma.client.update({
+      where: { id, ...(expectedVersion !== undefined ? { version: expectedVersion } : {}) },
+      data: { ...updateData, version: { increment: 1 } },
+    });
     return client as Client;
   }
 

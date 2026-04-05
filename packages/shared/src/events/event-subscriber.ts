@@ -3,7 +3,6 @@ import type { EventType } from './domain-event';
 export type EventHandler = (event: { type: string; tenantId: string; payload: unknown }) => Promise<void>;
 
 const handlers = new Map<string, EventHandler[]>();
-const processedEvents = new Set<string>();
 
 const HANDLER_TIMEOUT_MS = 30_000;
 
@@ -29,10 +28,7 @@ export async function dispatch(event: {
   tenantId: string;
   payload: unknown;
 }): Promise<void> {
-  if (processedEvents.has(event.id)) {
-    return;
-  }
-
+  // Deduplication is handled by the outbox processor (claimPending sets status = PROCESSING)
   const eventHandlers = handlers.get(event.type) ?? [];
 
   const results = await Promise.allSettled(
@@ -45,14 +41,6 @@ export async function dispatch(event: {
     if (result.status === 'rejected') {
       console.error(`[EventDispatch] Handler failed for ${event.type}:`, result.reason);
     }
-  }
-
-  processedEvents.add(event.id);
-
-  if (processedEvents.size > 10000) {
-    const iterator = processedEvents.values();
-    const first = iterator.next().value;
-    if (first) processedEvents.delete(first);
   }
 }
 

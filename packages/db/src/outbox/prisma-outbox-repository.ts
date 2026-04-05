@@ -32,6 +32,28 @@ export class PrismaOutboxRepository implements OutboxPort {
     });
   }
 
+  async claimPending(limit: number) {
+    // Atomically claim PENDING events → PROCESSING to prevent duplicate dispatch
+    const pending = await prisma.outboxEvent.findMany({
+      where: { status: 'PENDING' },
+      orderBy: { createdAt: 'asc' },
+      take: limit,
+      select: { id: true },
+    });
+    if (pending.length === 0) return [];
+
+    const ids = pending.map((e) => e.id);
+    await prisma.outboxEvent.updateMany({
+      where: { id: { in: ids }, status: 'PENDING' },
+      data: { status: 'PROCESSING' },
+    });
+
+    return prisma.outboxEvent.findMany({
+      where: { id: { in: ids }, status: 'PROCESSING' },
+      select: { id: true, type: true, tenantId: true, payload: true },
+    });
+  }
+
   async markProcessed(id: string): Promise<void> {
     await prisma.outboxEvent.update({
       where: { id },

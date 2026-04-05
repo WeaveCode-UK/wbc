@@ -6,7 +6,7 @@ const outboxRepo = new PrismaOutboxRepository();
 const BATCH_SIZE = 50;
 
 export async function processOutbox(): Promise<void> {
-  const events = await outboxRepo.getPending(BATCH_SIZE);
+  const events = await outboxRepo.claimPending(BATCH_SIZE);
 
   for (const event of events) {
     try {

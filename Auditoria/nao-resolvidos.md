@@ -1,7 +1,7 @@
 # Achados Não Resolvidos da Auditoria
 
 Gerado em: 2026-04-05
-Total: 38 pendentes + 15 resolvidos (24 não corrigíveis + 8 não corrigidos + 6 achados positivos + 15 resolvidos)
+Total: 37 pendentes + 16 resolvidos (24 não corrigíveis + 7 não corrigidos + 6 achados positivos + 16 resolvidos)
 
 ---
 
@@ -194,11 +194,14 @@ Total: 38 pendentes + 15 resolvidos (24 não corrigíveis + 8 não corrigidos + 
 - classificação: **não corrigível**
 - motivo: decisão de infraestrutura de produção. Requer Redis Sentinel, Cluster, ou managed Redis com replicação.
 
-### ACH-006 — Deduplicação de eventos em memória
+### ACH-006 — Deduplicação de eventos em memória ✅ RESOLVIDO
 - severidade: alto
-- classificação: **parcial**
-- contexto: o Set em memória ainda é a fonte de deduplicação no event-subscriber.ts
-- o que falta: verificar o campo `processedAt` no outbox antes de reexecutar, usando o banco como fonte de verdade. Não foi implementado porque requer mudança no `outbox-processor` e no `dispatch()` — o dispatch não tem acesso ao repository de outbox. Precisa de refactor do pipeline de eventos.
+- classificação: **resolvido**
+- o que foi feito:
+  - Adicionado status `PROCESSING` ao enum OutboxStatus
+  - `claimPending()` no outbox repository — atomicamente muda status de PENDING → PROCESSING antes do dispatch
+  - Outbox processor agora usa `claimPending()` em vez de `getPending()`
+  - Removido o `Set<string>` em memória do event-subscriber — deduplicação agora é 100% via banco
 
 ### ACH-008 — Outbox processor sem backoff em falhas
 - severidade: alto

@@ -1,11 +1,13 @@
 import type { TenantContext } from '@wbc/shared';
+import { randomUUID } from 'crypto';
 
 export interface TRPCContext {
+  requestId: string;
   tenant: TenantContext | null;
 }
 
 export function createContext(tenant: TenantContext | null = null): TRPCContext {
-  return { tenant };
+  return { requestId: randomUUID(), tenant };
 }
 
 export function createAuthenticatedContext(claims: {

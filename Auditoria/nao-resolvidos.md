@@ -1,7 +1,7 @@
 # Achados Não Resolvidos da Auditoria
 
 Gerado em: 2026-04-05
-Total: 44 pendentes + 9 resolvidos (24 não corrigíveis + 14 não corrigidos + 6 achados positivos + 9 resolvidos)
+Total: 43 pendentes + 10 resolvidos (24 não corrigíveis + 13 não corrigidos + 6 achados positivos + 10 resolvidos)
 
 ---
 
@@ -250,10 +250,12 @@ Total: 44 pendentes + 9 resolvidos (24 não corrigíveis + 14 não corrigidos + 
 - classificação: **não corrigido**
 - motivo: `@sentry/nextjs` está instalado mas não configurado. Requer criar `sentry.client.config.ts`, `sentry.server.config.ts`, envolver `next.config.mjs` com `withSentryConfig()`. Depende do DSN do Sentry (configuração externa).
 
-### ACH-009 — Logging sem requestId e userId
+### ACH-009 — Logging sem requestId e userId ✅ RESOLVIDO
 - severidade: medio
-- classificação: **não corrigido**
-- motivo: adicionar requestId requer gerar UUID no tRPC context e propagá-lo para todas as chamadas de log. Refactor do context factory e do logging middleware.
+- classificação: **resolvido**
+- o que foi feito:
+  - `context.ts` — adicionado `requestId: randomUUID()` ao TRPCContext
+  - `trpc.ts` — adicionado `loggingMiddleware` que loga requestId, userId, tenantId, path, type e durationMs em cada chamada tRPC
 
 ---
 

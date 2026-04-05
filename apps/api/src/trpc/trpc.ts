@@ -10,6 +10,9 @@ import {
   extractAuthedContext,
   extractTenantContext,
 } from '../middleware/auth.middleware';
+import { createLogger } from '../lib/logger';
+
+const apiLogger = createLogger('api');
 
 const t = initTRPC.context<TRPCContext>().create({
   transformer: superjson,
@@ -26,6 +29,21 @@ const t = initTRPC.context<TRPCContext>().create({
 
 export const router = t.router;
 
+const loggingMiddleware = t.middleware(async ({ path, type, ctx, next }) => {
+  const start = Date.now();
+  const result = await next();
+  const durationMs = Date.now() - start;
+  apiLogger.info({
+    requestId: ctx.requestId,
+    userId: ctx.tenant?.userId,
+    tenantId: ctx.tenant?.tenantId,
+    path,
+    type,
+    durationMs,
+  }, `${type} ${path}`);
+  return result;
+});
+
 const domainErrorMiddleware = t.middleware(async ({ next }) => {
   try {
     return await next();
@@ -38,7 +56,7 @@ const domainErrorMiddleware = t.middleware(async ({ next }) => {
   }
 });
 
-const baseProcedure = t.procedure.use(domainErrorMiddleware);
+const baseProcedure = t.procedure.use(loggingMiddleware).use(domainErrorMiddleware);
 
 // Level 1: Public — no auth required
 export const publicProcedure = baseProcedure.use(async ({ path, ctx, next }) => {

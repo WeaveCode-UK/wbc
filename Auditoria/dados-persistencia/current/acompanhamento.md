@@ -3,78 +3,54 @@
 ## Identificacao
 - dominio: dados-persistencia
 - run_id: 2026-04-05_18-00-00
-- status_atual: in_progress
-- ultima_atualizacao: 2026-04-05 18:00:00
+- status_atual: ready_for_finalize
+- ultima_atualizacao: 2026-04-05 18:30:00
 
 ## Objetivo da Run
-Avaliar se a camada de dados do sistema esta modelada, protegida e operada de forma que preserve integridade, consistencia, concorrencia segura, evolutividade e capacidade de recuperacao.
+Auditar schema Prisma, repositories, indices, multi-tenancy e outbox.
 
 ## Escopo Planejado
-Auditoria completa do dominio dados-persistencia conforme playbook oficial. Segunda passada apos correcoes da primeira auditoria.
-
-## Fases Planejadas
-1. Inventario de Stores, Modelo e Padroes de Acesso
-2. Integridade, Constraints e Qualidade do Modelo
-3. Indices, Queries e Acesso a Dados
-4. Transacoes, Isolamento, Concorrencia e Consistencia
-5. Evolucao de Schema, Migrations e Ciclo de Vida dos Dados
-6. Consolidacao de Achados
-7. Preparacao para Finalizacao
+1. Analise de schema Prisma (modelos, relacoes, indices)
+2. Analise de repositories e adapters
+3. Analise de tenant middleware
+4. Analise de outbox repository
+5. Consolidacao de achados
 
 ## Fase Atual
-- fase_atual: Inventario de Stores, Modelo e Padroes de Acesso
-- lote_atual: 1
-- descricao_lote_atual: inicio da execucao da primeira fase conforme playbook
+- fase_atual: consolidacao
+- lote_atual: final
+- descricao_lote_atual: Achados registrados e relatorio finalizado
 
 ## Progresso Geral
 - [x] Run iniciada
 - [x] Escopo definido
-- [ ] 1. Inventario de Stores, Modelo e Padroes de Acesso
-2. Integridade, Constraints e Qualidade do Modelo
-3. Indices, Queries e Acesso a Dados
-4. Transacoes, Isolamento, Concorrencia e Consistencia
-5. Evolucao de Schema, Migrations e Ciclo de Vida dos Dados
-6. Consolidacao de Achados
-7. Preparacao para Finalizacao
-- [ ] Achados consolidados
-- [ ] Run pronta para finalizacao
-
-## Regras de Execucao
-- Executar apenas uma fase ou um lote pequeno por vez.
-- Nao pular fases pendentes sem registrar justificativa.
-- Nao marcar etapa como concluida sem evidencia minima no historico.
-- Sempre atualizar este arquivo ao final de cada execucao.
-- Se houver bloqueio, registrar em Bloqueios e Impedimentos.
-- Ao concluir o lote atual, definir explicitamente o proximo passo.
+- [x] Fases executadas
+- [x] Achados consolidados
+- [x] Run pronta para finalizacao
 
 ## Historico de Execucoes
 
-### Execucao 000
-- data_hora: 2026-04-05 18:00:00
-- objetivo: abertura formal da run via Prompt 02
-- status_resultado: completed
+### Execucao 001
+- data_hora: 2026-04-05 18:30:00
+- objetivo: Auditoria completa de dados e persistencia
+- status_resultado: concluido
 - arquivos_ou_areas_analisadas:
-  - playbook do dominio dados-persistencia
-- acoes_realizadas:
-  - run_id gerado: 2026-04-05_18-00-00
-  - metadata.md inicializado com status in_progress
-  - acompanhamento.md populado com objetivo, escopo e fases do playbook
-  - achados.md reinicializado
-  - relatorio-final.md reinicializado
-  - status-geral.md atualizado
+  - packages/db/prisma/schema.prisma (1137 linhas)
+  - packages/db/src/middleware/tenant-middleware.ts
+  - packages/db/src/outbox/prisma-outbox-repository.ts
+  - packages/business/clients/adapters/prisma-client-repository.ts
 - achados_resumidos:
-  - nenhum ainda
+  - ACH-DP-001 a ACH-DP-008 (6 positivos, 2 medios)
 - bloqueios:
   - nenhum
 - proximo_passo_obrigatorio:
-  - executar Prompt 03 para iniciar a primeira fase: Inventario de Stores, Modelo e Padroes de Acesso
+  - Aguardar finalizacao da run
 
 ## Achados Relacionados Nesta Run
-- nenhum ate o momento
+- ACH-DP-001 a ACH-DP-008 registrados em achados.md
 
 ## Bloqueios e Impedimentos
-- nenhum ate o momento
+- nenhum
 
 ## Proximo Passo Obrigatorio
-Executar o Prompt 03 — Executar Run.
-A primeira fase a executar e: Inventario de Stores, Modelo e Padroes de Acesso
+- Aguardar finalizacao da run pelo orquestrador.

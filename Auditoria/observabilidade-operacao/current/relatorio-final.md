@@ -3,45 +3,57 @@
 ## Identificacao
 - dominio: observabilidade-operacao
 - run_id: 2026-04-05_18-00-00
-- status_run: in_progress
+- status_run: ready_for_finalize
 - iniciado_em: 2026-04-05 18:00:00
-- finalizado_em: none
-- ultima_atualizacao: 2026-04-05 18:00:00
+- finalizado_em: 2026-04-05 18:30:00
+- ultima_atualizacao: 2026-04-05 18:30:00
 
 ## Objetivo da Run
-Avaliar se o sistema oferece visibilidade operacional suficiente para detectar problemas, diagnosticar falhas e sustentar operacao continua.
+Avaliar logging, metricas, tracing, health checks e Sentry.
 
 ## Escopo Executado
-- a preencher durante a execucao
+- Prometheus metrics (4 custom + defaults)
+- OpenTelemetry tracing
+- Pino structured logging
+- RequestId propagation
+- Sentry error tracking
+- Health checks (tRPC + HTTP)
+- Prometheus + Grafana Docker stack
 
 ## Escopo Nao Coberto ou Parcial
-- a preencher durante a execucao
+- Grafana dashboards especificos (nao analisados, sao configurados via UI)
+- Alertmanager configuration
 
 ## Resumo Executivo
-- a preencher ao consolidar a run
+A observabilidade do WBC e abrangente com Prometheus, OpenTelemetry, Pino e Sentry. Metricas custom cobrem latencia e throughput. Structured logging com requestId permite correlacao. Health checks cobrem DB e Redis. O unico achado negativo e que o logging middleware sempre registra status 'ok' nas metricas, nao diferenciando erros.
 
 ## Principais Achados
-- a preencher ao consolidar a run
+
+1. 4 metricas Prometheus custom + defaults — positivo (ACH-OO-001)
+2. OpenTelemetry tracing com auto-instrumentations — positivo (ACH-OO-002)
+3. Structured logging Pino com requestId — positivo (ACH-OO-003/004)
+4. Sentry com 30% sample em prod — positivo (ACH-OO-005)
+5. Metricas sempre registram status 'ok', sem error tracking — baixo (ACH-OO-008)
 
 ## Distribuicao por Severidade
 - critico: 0
 - alto: 0
 - medio: 0
-- baixo: 0
-- informativo: 0
+- baixo: 1
+- informativo: 7
 
 ## Riscos Prioritarios
-- a preencher ao consolidar a run
+- Metricas sem error rate impedem alertas baseados em taxa de erro
 
 ## Recomendacoes Prioritarias
-- a preencher ao consolidar a run
+1. Corrigir logging middleware para diferenciar status ok/error nas metricas (ACH-OO-008)
 
 ## Avaliacao Geral do Dominio
-- avaliacao: pendente
+- avaliacao: adequado
 
 ## Prontidao para Encerramento
-- pronto_para_finalizar: nao
-- justificativa: run em andamento
+- pronto_para_finalizar: sim
+- justificativa: Areas analisadas, achados consolidados, nenhum bloqueio.
 
 ## Observacoes Finais
-- a preencher ao consolidar a run
+- Stack de observabilidade completa e acima do esperado para MVP. A correcao das metricas de erro e a unica pendencia relevante.

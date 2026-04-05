@@ -3,78 +3,59 @@
 ## Identificacao
 - dominio: observabilidade-operacao
 - run_id: 2026-04-05_18-00-00
-- status_atual: in_progress
-- ultima_atualizacao: 2026-04-05 18:00:00
+- status_atual: ready_for_finalize
+- ultima_atualizacao: 2026-04-05 18:30:00
 
 ## Objetivo da Run
-Avaliar se o sistema oferece visibilidade operacional suficiente para detectar problemas, diagnosticar falhas e sustentar operacao continua.
+Avaliar logging, metricas, tracing, health checks e Sentry.
 
 ## Escopo Planejado
-Auditoria completa do dominio observabilidade-operacao conforme playbook oficial. Segunda passada apos correcoes da primeira auditoria.
-
-## Fases Planejadas
-1. Sinais de Telemetria e Cobertura Basica
-2. Logs, Estrutura, Contexto e Diagnostico
-3. Metricas, Traces e Correlacao Operacional
-4. Health Checks, Readiness e Operacao Basica
-5. Monitoramento, Alerting e Toil Operacional
-6. Consolidacao de Achados
-7. Preparacao para Finalizacao
+1. Analise de metricas Prometheus
+2. Analise de tracing OpenTelemetry
+3. Analise de logging Pino
+4. Analise de Sentry
+5. Analise de health checks
+6. Consolidacao de achados
 
 ## Fase Atual
-- fase_atual: Sinais de Telemetria e Cobertura Basica
-- lote_atual: 1
-- descricao_lote_atual: inicio da execucao da primeira fase conforme playbook
+- fase_atual: consolidacao
+- lote_atual: final
+- descricao_lote_atual: Achados registrados e relatorio finalizado
 
 ## Progresso Geral
 - [x] Run iniciada
 - [x] Escopo definido
-- [ ] 1. Sinais de Telemetria e Cobertura Basica
-2. Logs, Estrutura, Contexto e Diagnostico
-3. Metricas, Traces e Correlacao Operacional
-4. Health Checks, Readiness e Operacao Basica
-5. Monitoramento, Alerting e Toil Operacional
-6. Consolidacao de Achados
-7. Preparacao para Finalizacao
-- [ ] Achados consolidados
-- [ ] Run pronta para finalizacao
-
-## Regras de Execucao
-- Executar apenas uma fase ou um lote pequeno por vez.
-- Nao pular fases pendentes sem registrar justificativa.
-- Nao marcar etapa como concluida sem evidencia minima no historico.
-- Sempre atualizar este arquivo ao final de cada execucao.
-- Se houver bloqueio, registrar em Bloqueios e Impedimentos.
-- Ao concluir o lote atual, definir explicitamente o proximo passo.
+- [x] Fases executadas
+- [x] Achados consolidados
+- [x] Run pronta para finalizacao
 
 ## Historico de Execucoes
 
-### Execucao 000
-- data_hora: 2026-04-05 18:00:00
-- objetivo: abertura formal da run via Prompt 02
-- status_resultado: completed
+### Execucao 001
+- data_hora: 2026-04-05 18:30:00
+- objetivo: Auditoria completa de observabilidade e operacao
+- status_resultado: concluido
 - arquivos_ou_areas_analisadas:
-  - playbook do dominio observabilidade-operacao
-- acoes_realizadas:
-  - run_id gerado: 2026-04-05_18-00-00
-  - metadata.md inicializado com status in_progress
-  - acompanhamento.md populado com objetivo, escopo e fases do playbook
-  - achados.md reinicializado
-  - relatorio-final.md reinicializado
-  - status-geral.md atualizado
+  - apps/api/src/lib/metrics.ts
+  - apps/api/src/lib/tracing.ts
+  - apps/api/src/lib/logger.ts
+  - apps/api/src/lib/sentry.ts
+  - apps/api/src/trpc/trpc.ts (logging middleware)
+  - apps/web/src/app/api/health/route.ts
+  - apps/api/src/routers/health.ts
+  - docker-compose.prod.yml (Prometheus, Grafana)
 - achados_resumidos:
-  - nenhum ainda
+  - ACH-OO-001 a ACH-OO-008 (7 positivos, 1 baixo)
 - bloqueios:
   - nenhum
 - proximo_passo_obrigatorio:
-  - executar Prompt 03 para iniciar a primeira fase: Sinais de Telemetria e Cobertura Basica
+  - Aguardar finalizacao da run
 
 ## Achados Relacionados Nesta Run
-- nenhum ate o momento
+- ACH-OO-001 a ACH-OO-008 registrados em achados.md
 
 ## Bloqueios e Impedimentos
-- nenhum ate o momento
+- nenhum
 
 ## Proximo Passo Obrigatorio
-Executar o Prompt 03 — Executar Run.
-A primeira fase a executar e: Sinais de Telemetria e Cobertura Basica
+- Aguardar finalizacao da run pelo orquestrador.

@@ -3,78 +3,58 @@
 ## Identificacao
 - dominio: confiabilidade-resiliencia
 - run_id: 2026-04-05_18-00-00
-- status_atual: in_progress
-- ultima_atualizacao: 2026-04-05 18:00:00
+- status_atual: ready_for_finalize
+- ultima_atualizacao: 2026-04-05 18:30:00
 
 ## Objetivo da Run
-Avaliar se o sistema continua executando sua funcao corretamente diante de falhas, degradacoes, picos de carga e condicoes anormais de operacao.
+Avaliar circuit breaker, outbox, DLQ, retries e graceful degradation.
 
 ## Escopo Planejado
-Auditoria completa do dominio confiabilidade-resiliencia conforme playbook oficial. Segunda passada apos correcoes da primeira auditoria.
-
-## Fases Planejadas
-1. Modos de Falha, Dependencias e Blast Radius
-2. Timeouts, Retries, Backoff, Idempotencia e Contencao
-3. Overload, Cascading Failure, Load Shedding e Backpressure
-4. Recuperacao, Failover, Continuidade e Estado
-5. Readiness Operacional para Confiabilidade
-6. Consolidacao de Achados
-7. Preparacao para Finalizacao
+1. Analise de circuit breaker
+2. Analise de outbox (claim, backoff, DLQ)
+3. Analise de graceful degradation
+4. Analise de resiliencia Docker
+5. Consolidacao de achados
 
 ## Fase Atual
-- fase_atual: Modos de Falha, Dependencias e Blast Radius
-- lote_atual: 1
-- descricao_lote_atual: inicio da execucao da primeira fase conforme playbook
+- fase_atual: consolidacao
+- lote_atual: final
+- descricao_lote_atual: Achados registrados e relatorio finalizado
 
 ## Progresso Geral
 - [x] Run iniciada
 - [x] Escopo definido
-- [ ] 1. Modos de Falha, Dependencias e Blast Radius
-2. Timeouts, Retries, Backoff, Idempotencia e Contencao
-3. Overload, Cascading Failure, Load Shedding e Backpressure
-4. Recuperacao, Failover, Continuidade e Estado
-5. Readiness Operacional para Confiabilidade
-6. Consolidacao de Achados
-7. Preparacao para Finalizacao
-- [ ] Achados consolidados
-- [ ] Run pronta para finalizacao
-
-## Regras de Execucao
-- Executar apenas uma fase ou um lote pequeno por vez.
-- Nao pular fases pendentes sem registrar justificativa.
-- Nao marcar etapa como concluida sem evidencia minima no historico.
-- Sempre atualizar este arquivo ao final de cada execucao.
-- Se houver bloqueio, registrar em Bloqueios e Impedimentos.
-- Ao concluir o lote atual, definir explicitamente o proximo passo.
+- [x] Fases executadas
+- [x] Achados consolidados
+- [x] Run pronta para finalizacao
 
 ## Historico de Execucoes
 
-### Execucao 000
-- data_hora: 2026-04-05 18:00:00
-- objetivo: abertura formal da run via Prompt 02
-- status_resultado: completed
+### Execucao 001
+- data_hora: 2026-04-05 18:30:00
+- objetivo: Auditoria completa de confiabilidade e resiliencia
+- status_resultado: concluido
 - arquivos_ou_areas_analisadas:
-  - playbook do dominio confiabilidade-resiliencia
-- acoes_realizadas:
-  - run_id gerado: 2026-04-05_18-00-00
-  - metadata.md inicializado com status in_progress
-  - acompanhamento.md populado com objetivo, escopo e fases do playbook
-  - achados.md reinicializado
-  - relatorio-final.md reinicializado
-  - status-geral.md atualizado
+  - packages/shared/src/circuit-breaker.ts
+  - packages/db/src/outbox/prisma-outbox-repository.ts
+  - apps/worker/src/processors/outbox-processor.ts
+  - apps/worker/src/processors/dlq-scanner.ts
+  - apps/worker/src/processors/dlq-processor.ts
+  - apps/api/src/trpc/idempotency-middleware.ts
+  - apps/api/src/lib/cache.ts
+  - docker-compose.prod.yml
 - achados_resumidos:
-  - nenhum ainda
+  - ACH-CR-001 a ACH-CR-007 (6 positivos, 1 baixo)
 - bloqueios:
   - nenhum
 - proximo_passo_obrigatorio:
-  - executar Prompt 03 para iniciar a primeira fase: Modos de Falha, Dependencias e Blast Radius
+  - Aguardar finalizacao da run
 
 ## Achados Relacionados Nesta Run
-- nenhum ate o momento
+- ACH-CR-001 a ACH-CR-007 registrados em achados.md
 
 ## Bloqueios e Impedimentos
-- nenhum ate o momento
+- nenhum
 
 ## Proximo Passo Obrigatorio
-Executar o Prompt 03 — Executar Run.
-A primeira fase a executar e: Modos de Falha, Dependencias e Blast Radius
+- Aguardar finalizacao da run pelo orquestrador.

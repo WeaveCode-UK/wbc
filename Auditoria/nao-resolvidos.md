@@ -316,15 +316,15 @@ Total: 37 pendentes + 22 resolvidos (20 não corrigíveis + 11 não corrigidos +
 - classificação: **resolvido**
 - o que foi feito: husky 9 + lint-staged instalados. Pre-commit roda eslint --fix + prettier --write em *.ts/*.tsx e prettier em *.json/*.md
 
-### ACH-007 — Sem configuração de coverage
+### ACH-007 — Sem configuração de coverage ✅ RESOLVIDO
 - severidade: medio
-- classificação: **não corrigido**
-- motivo: requer configurar `@vitest/coverage-v8` e definir thresholds. Depende de ter testes primeiro.
+- classificação: **resolvido**
+- o que foi feito: `vitest.config.ts` criado com provider v8, thresholds 30% (lines/branches/functions/statements), scripts `test:coverage` no root package.json
 
-### ACH-008 — Packages sem script test
+### ACH-008 — Packages sem script test ✅ RESOLVIDO
 - severidade: medio
-- classificação: **não corrigido**
-- motivo: requer adicionar `"test": "vitest run"` em cada `package.json`. Depende de ter testes primeiro.
+- classificação: **resolvido**
+- o que foi feito: `"test": "vitest run"` adicionado em shared e validators package.json. Root package.json tem `test`, `test:watch`, `test:coverage`.
 
 ### ACH-009 — TypeScript strict + ESLint bem configurados
 - severidade: informativo

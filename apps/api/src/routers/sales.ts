@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { router, protectedProcedure } from '../trpc/trpc';
+import { createGetByIdProcedure } from '../trpc/crud-helpers';
 import { PrismaSaleRepository } from '../../../../packages/business/sales/adapters/prisma-sale-repository';
 import { PrismaPaymentRepository } from '../../../../packages/business/sales/adapters/prisma-payment-repository';
 import { PrismaCashbackRepository } from '../../../../packages/business/sales/adapters/prisma-cashback-repository';
@@ -27,11 +28,7 @@ export const salesRouter = router({
       return listSales(ctx.tenant.tenantId, { status: input.status, clientId: input.clientId, page: input.page, limit: input.limit }, saleRepo);
     }),
 
-  getById: protectedProcedure
-    .input(z.object({ id: uuidSchema }))
-    .query(async ({ ctx, input }) => {
-      return getSaleById(ctx.tenant.tenantId, input.id, saleRepo);
-    }),
+  getById: createGetByIdProcedure((tenantId, id) => getSaleById(tenantId, id, saleRepo)),
 
   create: protectedProcedure
     .input(z.object({

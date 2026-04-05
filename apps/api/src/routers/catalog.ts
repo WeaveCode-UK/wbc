@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { router, protectedProcedure, publicProcedure } from '../trpc/trpc';
+import { createDeleteProcedure } from '../trpc/crud-helpers';
 import { PrismaProductRepository } from '../../../../packages/business/catalog/adapters/prisma-product-repository';
 import { PrismaBrandRepository } from '../../../../packages/business/catalog/adapters/prisma-brand-repository';
 import { PrismaShowcaseRepository } from '../../../../packages/business/catalog/adapters/prisma-showcase-repository';
@@ -55,12 +56,7 @@ export const catalogRouter = router({
       return updateProduct(ctx.tenant.tenantId, id, data, productRepo);
     }),
 
-  deleteProduct: protectedProcedure
-    .input(z.object({ id: uuidSchema }))
-    .mutation(async ({ ctx, input }) => {
-      await deleteProduct(ctx.tenant.tenantId, input.id, productRepo);
-      return { success: true };
-    }),
+  deleteProduct: createDeleteProcedure((tenantId, id) => deleteProduct(tenantId, id, productRepo)),
 
   getTopProducts: protectedProcedure
     .input(z.object({ limit: z.number().int().min(1).max(50).default(10) }))
@@ -78,12 +74,7 @@ export const catalogRouter = router({
       return createShowcase(ctx.tenant.tenantId, input.name, input.clientId, input.productIds, showcaseRepo);
     }),
 
-  deleteShowcase: protectedProcedure
-    .input(z.object({ id: uuidSchema }))
-    .mutation(async ({ ctx, input }) => {
-      await deleteShowcase(ctx.tenant.tenantId, input.id, showcaseRepo);
-      return { success: true };
-    }),
+  deleteShowcase: createDeleteProcedure((tenantId, id) => deleteShowcase(tenantId, id, showcaseRepo)),
 
   getPublicShowcase: publicProcedure
     .input(z.object({ shareLink: z.string() }))

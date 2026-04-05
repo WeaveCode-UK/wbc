@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { router, protectedProcedure } from '../trpc/trpc';
+import { createDeleteProcedure } from '../trpc/crud-helpers';
 import { PrismaExpenseRepository } from '../../../../packages/business/finance/adapters/prisma-expense-repository';
 import { PrismaFinanceRepository } from '../../../../packages/business/finance/adapters/prisma-finance-repository';
 import { listExpenses, createExpense, updateExpense, deleteExpense } from '../../../../packages/business/finance/use-cases/manage-expenses';
@@ -36,12 +37,7 @@ export const financeRouter = router({
       return updateExpense(ctx.tenant.tenantId, id, data, expenseRepo);
     }),
 
-  deleteExpense: protectedProcedure
-    .input(z.object({ id: uuidSchema }))
-    .mutation(async ({ ctx, input }) => {
-      await deleteExpense(ctx.tenant.tenantId, input.id, expenseRepo);
-      return { success: true };
-    }),
+  deleteExpense: createDeleteProcedure((tenantId, id) => deleteExpense(tenantId, id, expenseRepo)),
 
   calculateMargin: protectedProcedure
     .input(z.object({ costPrice: z.number().positive(), salePrice: z.number().positive() }))

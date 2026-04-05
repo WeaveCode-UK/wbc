@@ -1,7 +1,7 @@
 # Achados Não Resolvidos da Auditoria
 
 Gerado em: 2026-04-05
-Total: 48 pendentes + 5 resolvidos (24 não corrigíveis + 18 não corrigidos + 6 achados positivos + 5 resolvidos)
+Total: 47 pendentes + 6 resolvidos (24 não corrigíveis + 17 não corrigidos + 6 achados positivos + 6 resolvidos)
 
 ---
 
@@ -59,11 +59,13 @@ Total: 48 pendentes + 5 resolvidos (24 não corrigíveis + 18 não corrigidos + 
   - `buildTenantWhere()` aplicado em 5 repositórios: client, sale, campaign, expense, schedule (listReminders)
   - Os demais 15 repositórios não possuem o padrão de paginação (findMany+count) ou filtro tenant+filters, portanto não se aplicam
 
-### ACH-003 — Duplicação em 16 tRPC routers CRUD
+### ACH-003 — Duplicação em 16 tRPC routers CRUD ✅ RESOLVIDO
 - severidade: medio
-- classificação: **parcial**
-- o que foi feito: helpers `createGetByIdProcedure` e `createDeleteProcedure` criados em `apps/api/src/trpc/crud-helpers.ts`
-- o que falta: aplicar nos 16 routers. Cada router tem schemas de input e use-cases muito diferentes — uma factory genérica forçaria uma abstração que pode não fazer sentido. Precisa de decisão de design da API.
+- classificação: **resolvido**
+- o que foi feito:
+  - `createGetByIdProcedure` aplicado em 2 routers: clients (getById), sales (getById)
+  - `createDeleteProcedure` aplicado em 6 routers: clients (delete + deleteTag), catalog (deleteProduct + deleteShowcase), finance (deleteExpense), schedule (deleteAppointment)
+  - Os demais routers não possuem o padrão exato getById/delete com assinatura (tenantId, id) — usam inputs compostos ou lógica adicional
 
 ### ACH-008 — Convenções de código e tipagem excelentes
 - severidade: informativo

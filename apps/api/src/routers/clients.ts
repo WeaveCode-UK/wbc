@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { router, protectedProcedure } from '../trpc/trpc';
+import { createGetByIdProcedure, createDeleteProcedure } from '../trpc/crud-helpers';
 import { PrismaClientRepository } from '../../../../packages/business/clients/adapters/prisma-client-repository';
 import { PrismaTagRepository } from '../../../../packages/business/clients/adapters/prisma-tag-repository';
 import { createClient } from '../../../../packages/business/clients/use-cases/create-client';
@@ -32,11 +33,7 @@ export const clientsRouter = router({
       }, clientRepo);
     }),
 
-  getById: protectedProcedure
-    .input(z.object({ id: uuidSchema }))
-    .query(async ({ ctx, input }) => {
-      return getClientById(ctx.tenant.tenantId, input.id, clientRepo);
-    }),
+  getById: createGetByIdProcedure((tenantId, id) => getClientById(tenantId, id, clientRepo)),
 
   create: protectedProcedure
     .input(z.object({
@@ -73,12 +70,7 @@ export const clientsRouter = router({
       return updateClient({ tenantId: ctx.tenant.tenantId, id, data }, clientRepo);
     }),
 
-  delete: protectedProcedure
-    .input(z.object({ id: uuidSchema }))
-    .mutation(async ({ ctx, input }) => {
-      await deleteClient(ctx.tenant.tenantId, input.id, clientRepo);
-      return { success: true };
-    }),
+  delete: createDeleteProcedure((tenantId, id) => deleteClient(tenantId, id, clientRepo)),
 
   listTags: protectedProcedure.query(async ({ ctx }) => {
     return listTags(ctx.tenant.tenantId, tagRepo);
@@ -90,12 +82,7 @@ export const clientsRouter = router({
       return createTag(ctx.tenant.tenantId, input.name, input.color, input.autoRule, tagRepo);
     }),
 
-  deleteTag: protectedProcedure
-    .input(z.object({ id: uuidSchema }))
-    .mutation(async ({ ctx, input }) => {
-      await deleteTag(ctx.tenant.tenantId, input.id, tagRepo);
-      return { success: true };
-    }),
+  deleteTag: createDeleteProcedure((tenantId, id) => deleteTag(tenantId, id, tagRepo)),
 
   tagClient: protectedProcedure
     .input(z.object({ clientId: uuidSchema, tagId: uuidSchema }))

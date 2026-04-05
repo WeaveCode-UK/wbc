@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { router, protectedProcedure } from '../trpc/trpc';
+import { createDeleteProcedure } from '../trpc/crud-helpers';
 import { PrismaScheduleRepository } from '../../../../packages/business/schedule/adapters/prisma-schedule-repository';
 import { listAppointments, createAppointment, updateAppointment, deleteAppointment, listReminders, dismissReminder, getUpcomingBirthdays, getMyDay, getCalendar } from '../../../../packages/business/schedule/use-cases/manage-appointments';
 import { uuidSchema } from '@wbc/validators';
@@ -37,12 +38,7 @@ export const scheduleRouter = router({
       return updateAppointment(ctx.tenant.tenantId, id, data, scheduleRepo);
     }),
 
-  deleteAppointment: protectedProcedure
-    .input(z.object({ id: uuidSchema }))
-    .mutation(async ({ ctx, input }) => {
-      await deleteAppointment(ctx.tenant.tenantId, input.id, scheduleRepo);
-      return { success: true };
-    }),
+  deleteAppointment: createDeleteProcedure((tenantId, id) => deleteAppointment(tenantId, id, scheduleRepo)),
 
   listReminders: protectedProcedure
     .input(z.object({ status: z.string().optional(), type: z.string().optional() }))

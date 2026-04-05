@@ -31,13 +31,17 @@ export class PrismaStockRepository implements StockRepository {
   }
 
   async decrementForSale(tenantId: string, items: Array<{ productId: string; quantity: number }>): Promise<void> {
-    await prisma.$transaction(
-      items.map((item) =>
-        prisma.stock.update({
-          where: { productId: item.productId },
+    await prisma.$transaction(async (tx) => {
+      for (const item of items) {
+        const stock = await tx.stock.findFirst({ where: { tenantId, productId: item.productId } });
+        if (!stock || stock.quantity < item.quantity) {
+          throw new Error(`Insufficient stock for product ${item.productId}: need ${item.quantity}, have ${stock?.quantity ?? 0}`);
+        }
+        await tx.stock.update({
+          where: { tenantId_productId: { tenantId, productId: item.productId } },
           data: { quantity: { decrement: item.quantity } },
-        }),
-      ),
-    );
+        });
+      }
+    }, { isolationLevel: 'Serializable' });
   }
 }

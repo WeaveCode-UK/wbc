@@ -27,6 +27,7 @@ export class PrismaCashbackRepository implements CashbackRepository {
 
   async use(tenantId: string, clientId: string, amount: number): Promise<void> {
     await prisma.$transaction(async (tx) => {
+      // Serializable isolation prevents concurrent cashback usage from overspending
       const cashbacks = await tx.cashback.findMany({
         where: { tenantId, clientId, expiresAt: { gt: new Date() } },
         orderBy: { expiresAt: 'asc' },
@@ -43,6 +44,6 @@ export class PrismaCashbackRepository implements CashbackRepository {
         });
         remaining -= toUse;
       }
-    });
+    }, { isolationLevel: 'Serializable' });
   }
 }

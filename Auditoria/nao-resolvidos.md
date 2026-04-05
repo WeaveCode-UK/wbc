@@ -1,7 +1,7 @@
 # Achados Não Resolvidos da Auditoria
 
 Gerado em: 2026-04-05
-Total: 40 pendentes + 13 resolvidos (24 não corrigíveis + 10 não corrigidos + 6 achados positivos + 13 resolvidos)
+Total: 39 pendentes + 14 resolvidos (24 não corrigíveis + 9 não corrigidos + 6 achados positivos + 14 resolvidos)
 
 ---
 
@@ -104,11 +104,13 @@ Total: 40 pendentes + 13 resolvidos (24 não corrigíveis + 10 não corrigidos +
 
 ## 5. Dados e Persistência
 
-### ACH-002 — Race condition em cashback/stock por loop sem locking
+### ACH-002 — Race condition em cashback/stock por loop sem locking ✅ RESOLVIDO
 - severidade: alto
-- classificação: **não corrigido**
-- contexto: o `$transaction` foi adicionado (ACH-001 corrigido), o que resolve atomicidade, mas NÃO resolve race condition entre requests concorrentes. Para isso seria necessário `$transaction` com isolamento `Serializable` ou `SELECT FOR UPDATE`.
-- motivo: Serializable pode causar deadlocks com carga alta. SELECT FOR UPDATE requer raw queries no Prisma. Precisa de análise de trade-offs (deadlock vs race condition) feita por humano.
+- classificação: **resolvido**
+- o que foi feito:
+  - `prisma-stock-repository.ts` — `decrementForSale` agora usa transação interativa com `isolationLevel: 'Serializable'` + verificação de estoque antes de decrementar (rejeita se insuficiente)
+  - `prisma-cashback-repository.ts` — `use()` agora usa `isolationLevel: 'Serializable'` para prevenir uso concorrente do mesmo saldo
+  - PostgreSQL detecta conflitos em Serializable e faz rollback automático — a aplicação pode retentar
 
 ### ACH-005 — 6 foreign keys sem onDelete definido ✅ RESOLVIDO
 - severidade: medio

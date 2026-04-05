@@ -1,15 +1,19 @@
 import { prisma } from '@wbc/db';
+import { paginatedQuery } from '@wbc/shared';
 import type { SampleRepository } from '../ports/sample-repository';
 import type { Sample } from '../domain/entities';
 
 export class PrismaSampleRepository implements SampleRepository {
   async list(tenantId: string, page: number, limit: number) {
-    const where = { tenantId };
-    const [data, total] = await Promise.all([
-      prisma.sample.findMany({ where, skip: (page - 1) * limit, take: limit, orderBy: { createdAt: 'desc' } }),
-      prisma.sample.count({ where }),
-    ]);
-    return { data: data.map((s) => ({ ...s, cost: Number(s.cost) })) as Sample[], total };
+    const result = await paginatedQuery<Record<string, unknown>>(
+      prisma.sample as never,
+      { tenantId },
+      { page, limit },
+    );
+    return {
+      data: result.data.map((s) => ({ ...s, cost: Number(s.cost) })) as Sample[],
+      total: result.total,
+    };
   }
 
   async create(data: { tenantId: string; productId: string; clientId?: string; quantity: number; cost: number }): Promise<Sample> {

@@ -1,4 +1,5 @@
 import { prisma } from '@wbc/db';
+import { buildTenantWhere, paginatedQuery } from '@wbc/shared';
 import type { ClientRepository, ClientFilters } from '../ports/client-repository';
 import type { Client } from '../domain/entities';
 
@@ -14,7 +15,11 @@ export class PrismaClientRepository implements ClientRepository {
   }
 
   async list(tenantId: string, filters: ClientFilters, page: number, limit: number) {
-    const where: Record<string, unknown> = { tenantId };
+    const where = buildTenantWhere(tenantId, {
+      classification: filters.classification,
+      isLead: filters.isLead,
+      isActive: filters.isActive,
+    });
     if (filters.search) {
       where.OR = [
         { name: { contains: filters.search, mode: 'insensitive' } },
@@ -22,21 +27,8 @@ export class PrismaClientRepository implements ClientRepository {
         { email: { contains: filters.search, mode: 'insensitive' } },
       ];
     }
-    if (filters.classification) where.classification = filters.classification;
-    if (filters.isLead !== undefined) where.isLead = filters.isLead;
-    if (filters.isActive !== undefined) where.isActive = filters.isActive;
 
-    const [data, total] = await Promise.all([
-      prisma.client.findMany({
-        where,
-        skip: (page - 1) * limit,
-        take: limit,
-        orderBy: { createdAt: 'desc' },
-      }),
-      prisma.client.count({ where }),
-    ]);
-
-    return { data: data as Client[], total };
+    return paginatedQuery<Client>(prisma.client as never, where, { page, limit });
   }
 
   async create(data: Omit<Client, 'id' | 'createdAt' | 'updatedAt' | 'engagementScore' | 'classification' | 'firstPurchaseAt'>): Promise<Client> {
@@ -62,12 +54,11 @@ export class PrismaClientRepository implements ClientRepository {
   }
 
   async listLeads(tenantId: string, page: number, limit: number) {
-    const where = { tenantId, isLead: true };
-    const [data, total] = await Promise.all([
-      prisma.client.findMany({ where, skip: (page - 1) * limit, take: limit, orderBy: { createdAt: 'desc' } }),
-      prisma.client.count({ where }),
-    ]);
-    return { data: data as Client[], total };
+    return paginatedQuery<Client>(
+      prisma.client as never,
+      { tenantId, isLead: true },
+      { page, limit },
+    );
   }
 
   async convertToClient(tenantId: string, id: string): Promise<Client> {

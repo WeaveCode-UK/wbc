@@ -1,4 +1,5 @@
 import { prisma } from '@wbc/db';
+import { paginatedQuery } from '@wbc/shared';
 import type { TemplateRepository } from '../ports/template-repository';
 
 export class PrismaTemplateRepository implements TemplateRepository {
@@ -25,12 +26,13 @@ export class PrismaTemplateRepository implements TemplateRepository {
   async listCommunity(filters: { topic?: string; sort?: string; page: number; limit: number }) {
     const where: Record<string, unknown> = {};
     if (filters.topic) where.topic = filters.topic;
-    const orderBy = filters.sort === 'recent' ? { createdAt: 'desc' as const } : { likesCount: 'desc' as const };
-    const [data, total] = await Promise.all([
-      prisma.communityTemplate.findMany({ where, orderBy, skip: (filters.page - 1) * filters.limit, take: filters.limit }),
-      prisma.communityTemplate.count({ where }),
-    ]);
-    return { data, total };
+    const orderBy = filters.sort === 'recent' ? { createdAt: 'desc' } : { likesCount: 'desc' };
+    return paginatedQuery(
+      prisma.communityTemplate as never,
+      where,
+      { page: filters.page, limit: filters.limit },
+      orderBy,
+    );
   }
 
   async likeCommunity(id: string) {

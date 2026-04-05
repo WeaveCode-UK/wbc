@@ -1,4 +1,5 @@
 import { prisma } from '@wbc/db';
+import { buildTenantWhere, paginatedQuery } from '@wbc/shared';
 import type { SaleRepository } from '../ports/sale-repository';
 import type { Sale, SaleItem } from '../domain/entities';
 
@@ -34,18 +35,15 @@ export class PrismaSaleRepository implements SaleRepository {
   }
 
   async list(tenantId: string, filters: { status?: string; clientId?: string; page: number; limit: number }) {
-    const where: Record<string, unknown> = { tenantId };
-    if (filters.status) where.status = filters.status;
-    if (filters.clientId) where.clientId = filters.clientId;
-
-    const [data, total] = await Promise.all([
-      prisma.sale.findMany({ where, skip: (filters.page - 1) * filters.limit, take: filters.limit, orderBy: { createdAt: 'desc' } }),
-      prisma.sale.count({ where }),
-    ]);
-
+    const where = buildTenantWhere(tenantId, { status: filters.status, clientId: filters.clientId });
+    const result = await paginatedQuery<Record<string, unknown>>(
+      prisma.sale as never,
+      where,
+      { page: filters.page, limit: filters.limit },
+    );
     return {
-      data: data.map((s) => mapSaleFromPrisma(s as unknown as Record<string, unknown>)),
-      total,
+      data: result.data.map((s) => mapSaleFromPrisma(s)),
+      total: result.total,
     };
   }
 

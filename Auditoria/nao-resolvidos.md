@@ -1,7 +1,7 @@
 # Achados Não Resolvidos da Auditoria
 
 Gerado em: 2026-04-05
-Total: 49 pendentes + 4 resolvidos (24 não corrigíveis + 19 não corrigidos + 6 achados positivos + 4 resolvidos)
+Total: 48 pendentes + 5 resolvidos (24 não corrigíveis + 18 não corrigidos + 6 achados positivos + 5 resolvidos)
 
 ---
 
@@ -51,11 +51,13 @@ Total: 49 pendentes + 4 resolvidos (24 não corrigíveis + 19 não corrigidos + 
 
 ## 3. Código e Manutenibilidade
 
-### ACH-002 — Duplicação em 22 repositórios Prisma
+### ACH-002 — Duplicação em 22 repositórios Prisma ✅ RESOLVIDO
 - severidade: medio
-- classificação: **parcial**
-- o que foi feito: helpers `paginatedQuery()` e `buildTenantWhere()` criados em `packages/shared/src/prisma-helpers.ts`
-- o que falta: aplicar os helpers nos 22 repositórios Prisma existentes. Cada repositório tem variações nos filtros que precisam de revisão humana para garantir que o helper cobre todos os casos.
+- classificação: **resolvido**
+- o que foi feito:
+  - `paginatedQuery()` aplicado em 7 repositórios: client (list + listLeads), sale, campaign, expense, sample, template (listCommunity), notification
+  - `buildTenantWhere()` aplicado em 5 repositórios: client, sale, campaign, expense, schedule (listReminders)
+  - Os demais 15 repositórios não possuem o padrão de paginação (findMany+count) ou filtro tenant+filters, portanto não se aplicam
 
 ### ACH-003 — Duplicação em 16 tRPC routers CRUD
 - severidade: medio

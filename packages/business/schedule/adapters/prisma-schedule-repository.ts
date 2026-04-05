@@ -1,4 +1,5 @@
 import { prisma } from '@wbc/db';
+import { buildTenantWhere, paginatedQuery } from '@wbc/shared';
 import type { ScheduleRepository, NotificationRepository } from '../ports/schedule-repository';
 
 export class PrismaScheduleRepository implements ScheduleRepository {
@@ -27,9 +28,7 @@ export class PrismaScheduleRepository implements ScheduleRepository {
   }
 
   async listReminders(tenantId: string, status?: string, type?: string) {
-    const where: Record<string, unknown> = { tenantId };
-    if (status) where.status = status;
-    if (type) where.type = type;
+    const where = buildTenantWhere(tenantId, { status, type });
     return prisma.reminder.findMany({ where, orderBy: { triggerDate: 'asc' }, take: 200 });
   }
 
@@ -72,12 +71,11 @@ export class PrismaScheduleRepository implements ScheduleRepository {
 export class PrismaNotificationRepository implements NotificationRepository {
   async list(tenantId: string, page: number, limit: number) {
     const where = { tenantId };
-    const [data, total, unread] = await Promise.all([
-      prisma.notification.findMany({ where, skip: (page - 1) * limit, take: limit, orderBy: { createdAt: 'desc' } }),
-      prisma.notification.count({ where }),
+    const [result, unread] = await Promise.all([
+      paginatedQuery(prisma.notification as never, where, { page, limit }),
       prisma.notification.count({ where: { tenantId, read: false } }),
     ]);
-    return { data, total, unread };
+    return { ...result, unread };
   }
 
   async markAsRead(tenantId: string, id: string) {

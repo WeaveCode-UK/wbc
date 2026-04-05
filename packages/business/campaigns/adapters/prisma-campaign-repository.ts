@@ -1,4 +1,6 @@
 import { prisma } from '@wbc/db';
+import { buildTenantWhere, paginatedQuery } from '@wbc/shared';
+import type { PaginationParams } from '@wbc/shared';
 import type { CampaignRepository } from '../ports/campaign-repository';
 import type { Campaign, CampaignRecipient } from '../domain/entities';
 
@@ -9,13 +11,12 @@ export class PrismaCampaignRepository implements CampaignRepository {
   }
 
   async list(tenantId: string, filters: { status?: string; page: number; limit: number }) {
-    const where: Record<string, unknown> = { tenantId };
-    if (filters.status) where.status = filters.status;
-    const [data, total] = await Promise.all([
-      prisma.campaign.findMany({ where, skip: (filters.page - 1) * filters.limit, take: filters.limit, orderBy: { createdAt: 'desc' } }),
-      prisma.campaign.count({ where }),
-    ]);
-    return { data: data as Campaign[], total };
+    const where = buildTenantWhere(tenantId, { status: filters.status });
+    return paginatedQuery<Campaign>(
+      prisma.campaign as never,
+      where,
+      { page: filters.page, limit: filters.limit },
+    );
   }
 
   async create(data: { tenantId: string; name: string; message: string; audioUrl?: string; attachments?: unknown; recipientIds: string[]; scheduledAt?: Date }): Promise<Campaign> {

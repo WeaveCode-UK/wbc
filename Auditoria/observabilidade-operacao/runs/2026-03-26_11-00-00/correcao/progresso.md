@@ -1,2 +1,4 @@
 # Progresso — observabilidade-operacao
-- fase: executor
+- fase: concluido
+- corrigidos: 4
+- nao_corrigiveis: 7

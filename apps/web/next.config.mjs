@@ -18,7 +18,19 @@ const nextConfig = {
   output: 'standalone',
   transpilePackages: ['@wbc/ui', '@wbc/shared', '@wbc/validators', '@wbc/i18n'],
   async headers() {
-    return [{ source: '/(.*)', headers: securityHeaders }];
+    const allowedOrigin = process.env.AUTH_URL ?? 'http://localhost:3000';
+    return [
+      { source: '/(.*)', headers: securityHeaders },
+      {
+        source: '/api/:path*',
+        headers: [
+          { key: 'Access-Control-Allow-Origin', value: allowedOrigin },
+          { key: 'Access-Control-Allow-Methods', value: 'GET, POST, OPTIONS' },
+          { key: 'Access-Control-Allow-Headers', value: 'Content-Type, Authorization' },
+          { key: 'Access-Control-Max-Age', value: '86400' },
+        ],
+      },
+    ];
   },
 };
 

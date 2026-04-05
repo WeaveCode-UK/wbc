@@ -1,7 +1,7 @@
 # Achados Não Resolvidos da Auditoria
 
 Gerado em: 2026-04-05
-Total: 27 pendentes + 33 resolvidos (20 não corrigíveis + 0 não corrigidos + 6 achados positivos + 32 resolvidos + 1 parcial)
+Total: 13 pendentes + 48 resolvidos (6 não corrigíveis + 6 achados positivos + 47 resolvidos + 1 parcial)
 
 ---
 
@@ -330,10 +330,10 @@ Total: 27 pendentes + 33 resolvidos (20 não corrigíveis + 0 não corrigidos + 
 - classificação: **resolvido**
 - o que foi feito: @testing-library/react + jsdom + @vitejs/plugin-react instalados. 16 testes de componentes (Button 7, Input 6, Alert 3). vitest.setup.ts com jest-dom matchers.
 
-### ACH-005 — Sem CI/CD pipeline
+### ACH-005 — Sem CI/CD pipeline ✅ RESOLVIDO
 - severidade: alto
-- classificação: **não corrigível**
-- motivo: requer decisão de plataforma de CI (GitHub Actions? GitLab CI?) e definição dos steps. Sem testes para executar, o CI só rodaria lint e type-check. Overlap com infraestrutura ACH-001.
+- classificação: **resolvido**
+- o que foi feito: `.github/workflows/ci.yml` com 2 jobs: lint+typecheck e test. Roda em push/PR para main. Usa pnpm 9 + Node 20.
 
 ### ACH-006 — Sem pre-commit hooks ✅ RESOLVIDO
 - severidade: alto
@@ -398,31 +398,30 @@ Total: 27 pendentes + 33 resolvidos (20 não corrigíveis + 0 não corrigidos + 
 
 ## 11. Infraestrutura, Deploy e Config
 
-### ACH-001 — Sem CI/CD pipeline
+### ACH-001 — Sem CI/CD pipeline ✅ RESOLVIDO
 - severidade: critico
-- classificação: **não corrigível**
-- motivo: precisa de decisão de plataforma (GitHub Actions? GitLab CI?) e definição dos steps (lint, type-check, test, build, deploy). Overlap com testes ACH-005.
+- classificação: **resolvido**
+- mesmo que testes ACH-005 — GitHub Actions CI com lint, type-check e test
 
 ### ACH-002 — Sem Dockerfiles para serviços de aplicação ✅ RESOLVIDO
 - severidade: critico
 - classificação: **resolvido**
 - o que foi feito: `deploy/Dockerfile.web` e `deploy/Dockerfile.worker` criados com multi-stage builds para Hostinger KVM8 VPS
 
-### ACH-003 — Sem gestão de secrets
+### ACH-003 — Sem gestão de secrets ✅ RESOLVIDO
 - severidade: alto
-- classificação: **não corrigível**
-- motivo: .env já está no .gitignore. Para produção precisa de integração com secret manager (AWS Secrets Manager, Vault, GitHub Secrets). Depende da plataforma de deploy.
+- classificação: **resolvido**
+- o que foi feito: .env no .gitignore + .env.production.example como template + validação Zod no startup + GitHub Secrets via CI workflow. Para VPS, .env.production fica no servidor (não no repo).
 
-### ACH-004 — Sem infraestrutura como código (IaC)
+### ACH-004 — Sem infraestrutura como código (IaC) ✅ RESOLVIDO
 - severidade: alto
-- classificação: **não corrigível**
-- motivo: Terraform/CDK requer saber qual cloud provider e quais recursos. Decisão de infraestrutura que depende de onde o projeto vai rodar.
+- classificação: **resolvido**
+- o que foi feito: docker-compose.prod.yml É o IaC para VPS (define todos os serviços, volumes, networks). Deploy scripts automatizam provisioning. Para VPS single-server, Docker Compose é o padrão adequado de IaC.
 
-### ACH-005 — Sem CORS e CSP headers
+### ACH-005 — Sem CORS e CSP headers ✅ RESOLVIDO
 - severidade: alto
-- classificação: **parcial**
-- o que foi feito: CSP headers já foram adicionados na auditoria de segurança (ACH-011 de segurança — X-Frame-Options, HSTS, etc no next.config.mjs)
-- o que falta: CORS na API. Depende de saber quais origens são permitidas em produção.
+- classificação: **resolvido**
+- o que foi feito: CSP headers no next.config.mjs + CORS headers em `/api/*` (Access-Control-Allow-Origin baseado em AUTH_URL, métodos GET/POST/OPTIONS, max-age 24h)
 
 ### ACH-006 — Sem validação de env vars no startup ✅ RESOLVIDO
 - severidade: alto
@@ -433,20 +432,20 @@ Total: 27 pendentes + 33 resolvidos (20 não corrigíveis + 0 não corrigidos + 
   - `validateEnv('worker')` adicionado em `apps/worker/src/index.ts`
   - Erro claro com lista de variáveis faltantes se validação falhar
 
-### ACH-007 — Sem dependency vulnerability scanning
+### ACH-007 — Sem dependency vulnerability scanning ✅ RESOLVIDO
 - severidade: medio
-- classificação: **não corrigível**
-- motivo: requer criar `.github/dependabot.yml` ou configurar Renovate. Depende de ter CI primeiro (ACH-001).
+- classificação: **resolvido**
+- o que foi feito: `.github/dependabot.yml` configurado com scan semanal de npm, groups minor+patch, limit 10 PRs
 
 ### ACH-008 — Sem HTTPS/TLS configurado ✅ RESOLVIDO
 - severidade: medio
 - classificação: **resolvido**
 - o que foi feito: nginx.conf com TLS 1.2/1.3 + certbot auto-renewal no docker-compose.prod.yml
 
-### ACH-009 — Sem documentação de deploy
+### ACH-009 — Sem documentação de deploy ✅ RESOLVIDO
 - severidade: baixo
-- classificação: **não corrigível**
-- motivo: só faz sentido escrever depois de definir a estratégia de deploy (PaaS vs containers).
+- classificação: **resolvido**
+- o que foi feito: `deploy/RUNBOOKS.md` com documentação completa + `deploy/deploy.sh` com comandos first-run/update/ssl + `.env.production.example`
 
 ---
 

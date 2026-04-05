@@ -116,11 +116,22 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
       .sort((a, b) => b.totalSpent - a.totalSpent);
 
     const total = sorted.length;
+    const aIds: string[] = [];
+    const bIds: string[] = [];
+    const cIds: string[] = [];
+
     for (let i = 0; i < sorted.length; i++) {
       const percentile = (i + 1) / total;
-      const classification = percentile <= ABC_PERCENTILE_A ? 'A' : percentile <= ABC_PERCENTILE_B ? 'B' : 'C';
-      await prisma.client.update({ where: { id: sorted[i]!.id }, data: { classification } });
+      if (percentile <= ABC_PERCENTILE_A) aIds.push(sorted[i]!.id);
+      else if (percentile <= ABC_PERCENTILE_B) bIds.push(sorted[i]!.id);
+      else cIds.push(sorted[i]!.id);
     }
+
+    await prisma.$transaction([
+      prisma.client.updateMany({ where: { id: { in: aIds } }, data: { classification: 'A' } }),
+      prisma.client.updateMany({ where: { id: { in: bIds } }, data: { classification: 'B' } }),
+      prisma.client.updateMany({ where: { id: { in: cIds } }, data: { classification: 'C' } }),
+    ]);
 
     return { updated: sorted.length };
   }

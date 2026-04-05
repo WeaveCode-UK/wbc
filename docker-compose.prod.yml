@@ -106,11 +106,41 @@ services:
     networks:
       - internal
 
+  # ── Prometheus (metrics collection) ──────────────────────────
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: wbc-prometheus
+    restart: unless-stopped
+    volumes:
+      - ./deploy/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command: --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.retention.time=30d
+    networks:
+      - internal
+
+  # ── Grafana (dashboards) ────────────────────────────────────
+  grafana:
+    image: grafana/grafana:latest
+    container_name: wbc-grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+      GF_SERVER_ROOT_URL: https://${DOMAIN}/grafana/
+      GF_SERVER_SERVE_FROM_SUB_PATH: "true"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - internal
+
 volumes:
   postgres_data:
   redis_data:
   ssl_certs:
   certbot_www:
+  prometheus_data:
+  grafana_data:
 
 networks:
   internal:

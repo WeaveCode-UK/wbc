@@ -171,10 +171,16 @@ Total: 27 pendentes + 33 resolvidos (20 não corrigíveis + 0 não corrigidos + 
   - `analytics-processor.ts` — implementado handler para `recalculate-abc`
   - `campaign-processor.ts` — implementado handler para `send-campaign` com status transitions
 
-### ACH-006 — Ausência total de monitoramento de performance
+### ACH-006 — Ausência total de monitoramento de performance ✅ RESOLVIDO
 - severidade: medio
-- classificação: **não corrigível**
-- motivo: requer escolher e instalar ferramentas (Prometheus+Grafana? Datadog? New Relic?), criar dashboards, definir SLOs. Decisão de tooling e infraestrutura.
+- classificação: **resolvido**
+- o que foi feito:
+  - `prom-client` instalado na API com métricas: request duration (histogram), request count, domain errors
+  - Endpoint `/api/metrics` expondo métricas no formato Prometheus
+  - tRPC logging middleware instrumentado com httpRequestDuration e httpRequestTotal
+  - Prometheus + Grafana adicionados ao docker-compose.prod.yml
+  - `deploy/prometheus.yml` com scrape config apontando para web:3000
+  - Nginx proxy para Grafana em `/grafana/`
 
 ### ACH-007 — Frontend sem code splitting explícito
 - severidade: medio

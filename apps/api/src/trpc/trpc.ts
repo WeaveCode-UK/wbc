@@ -11,6 +11,7 @@ import {
   extractTenantContext,
 } from '../middleware/auth.middleware';
 import { createLogger } from '../lib/logger';
+import { httpRequestDuration, httpRequestTotal } from '../lib/metrics';
 
 const apiLogger = createLogger('api');
 
@@ -33,6 +34,9 @@ const loggingMiddleware = t.middleware(async ({ path, type, ctx, next }) => {
   const start = Date.now();
   const result = await next();
   const durationMs = Date.now() - start;
+  const durationSec = durationMs / 1000;
+  httpRequestDuration.observe({ path, type, status: 'ok' }, durationSec);
+  httpRequestTotal.inc({ path, type, status: 'ok' });
   apiLogger.info({
     requestId: ctx.requestId,
     userId: ctx.tenant?.userId,

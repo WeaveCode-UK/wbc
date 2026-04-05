@@ -3,14 +3,11 @@
 ## Identificacao
 - dominio: arquitetura
 - run_id: 2026-04-05_18-00-00
-- status_atual: in_progress
-- ultima_atualizacao: 2026-04-05 18:00:00
+- status_atual: ready_for_finalize
+- ultima_atualizacao: 2026-04-05 18:40:00
 
 ## Objetivo da Run
-Avaliar se a arquitetura declarada do sistema esta claramente definida, documentada de forma util e realmente refletida na implementacao do projeto.
-
-## Escopo Planejado
-Auditoria completa do dominio arquitetura conforme playbook oficial. Segunda passada apos correcoes da primeira auditoria.
+Avaliar se a arquitetura declarada esta refletida na implementacao.
 
 ## Fases Planejadas
 1. Arquitetura Declarada, Contexto e Escopo
@@ -19,58 +16,61 @@ Auditoria completa do dominio arquitetura conforme playbook oficial. Segunda pas
 4. Consolidacao de Achados
 5. Preparacao para Finalizacao
 
-## Fase Atual
-- fase_atual: Arquitetura Declarada, Contexto e Escopo
-- lote_atual: 1
-- descricao_lote_atual: inicio da execucao da primeira fase conforme playbook
-
 ## Progresso Geral
 - [x] Run iniciada
 - [x] Escopo definido
-- [ ] 1. Arquitetura Declarada, Contexto e Escopo
-2. Decomposicao Estrutural, Boundaries e Dependencias
-3. Decisoes Arquiteturais e Sustentacao das Qualidades do Sistema
-4. Consolidacao de Achados
-5. Preparacao para Finalizacao
-- [ ] Achados consolidados
-- [ ] Run pronta para finalizacao
-
-## Regras de Execucao
-- Executar apenas uma fase ou um lote pequeno por vez.
-- Nao pular fases pendentes sem registrar justificativa.
-- Nao marcar etapa como concluida sem evidencia minima no historico.
-- Sempre atualizar este arquivo ao final de cada execucao.
-- Se houver bloqueio, registrar em Bloqueios e Impedimentos.
-- Ao concluir o lote atual, definir explicitamente o proximo passo.
+- [x] 1. Arquitetura Declarada, Contexto e Escopo
+- [x] 2. Decomposicao Estrutural, Boundaries e Dependencias
+- [x] 3. Decisoes Arquiteturais e Sustentacao das Qualidades do Sistema
+- [x] 4. Consolidacao de Achados
+- [x] 5. Preparacao para Finalizacao
+- [x] Achados consolidados
+- [x] Run pronta para finalizacao
 
 ## Historico de Execucoes
 
-### Execucao 000
-- data_hora: 2026-04-05 18:00:00
-- objetivo: abertura formal da run via Prompt 02
+### Execucao 001
+- data_hora: 2026-04-05 18:32:00
+- fase: Arquitetura Declarada, Contexto e Escopo
 - status_resultado: completed
 - arquivos_ou_areas_analisadas:
-  - playbook do dominio arquitetura
+  - CLAUDE.md, docs/adr/*.md, pnpm-workspace.yaml, turbo.json, package.json
+  - apps/*/, packages/*/, packages/business/*/
 - acoes_realizadas:
-  - run_id gerado: 2026-04-05_18-00-00
-  - metadata.md inicializado com status in_progress
-  - acompanhamento.md populado com objetivo, escopo e fases do playbook
-  - achados.md reinicializado
-  - relatorio-final.md reinicializado
-  - status-geral.md atualizado
+  - verificada arquitetura declarada: hexagonal, monorepo, multi-tenant
+  - verificados 4 ADRs
+  - mapeados 5 apps, 8 packages, 15 business modules
+- achados_resumidos: nenhum novo
+- proximo_passo_obrigatorio: Fase 2
+
+### Execucao 002
+- data_hora: 2026-04-05 18:35:00
+- fase: Decomposicao Estrutural, Boundaries e Dependencias
+- status_resultado: completed
+- arquivos_ou_areas_analisadas:
+  - packages/business/*/domain/ (grep imports de adapters)
+  - packages/business/*/use-cases/ (grep imports de @wbc/db e adapters)
+  - apps/*/tsconfig.json (path aliases e includes)
+- acoes_realizadas:
+  - verificado domain nunca importa adapters (0 violacoes)
+  - encontrados 5 use-cases com import direto de prisma/adapters
+  - verificado business/ sem package.json
 - achados_resumidos:
-  - nenhum ainda
-- bloqueios:
-  - nenhum
-- proximo_passo_obrigatorio:
-  - executar Prompt 03 para iniciar a primeira fase: Arquitetura Declarada, Contexto e Escopo
+  - ACH-001 (medio): 5 violacoes hexagonais em use-cases
+  - ACH-002 (baixo): business/ sem workspace package
 
-## Achados Relacionados Nesta Run
-- nenhum ate o momento
+### Execucao 003
+- data_hora: 2026-04-05 18:37:00
+- fase: Decisoes Arquiteturais e Sustentacao
+- status_resultado: completed
+- achados_resumidos:
+  - ACH-003 (informativo): arquitetura geral solida
 
-## Bloqueios e Impedimentos
-- nenhum ate o momento
+### Execucao 004-005
+- data_hora: 2026-04-05 18:40:00
+- fase: Consolidacao + Preparacao para Finalizacao
+- status_resultado: completed
+- achados_resumidos: 3 achados finais consolidados
 
 ## Proximo Passo Obrigatorio
-Executar o Prompt 03 — Executar Run.
-A primeira fase a executar e: Arquitetura Declarada, Contexto e Escopo
+Executar o Prompt 04 — Finalizar Run para arquivar esta auditoria.

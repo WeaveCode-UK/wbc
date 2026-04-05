@@ -22,8 +22,7 @@
 - total_runs: 1
 - playbook_status: completed
 
-### arquitetura
-- status_current: in_progress
+### arquitetura\n- status_current: ready_for_finalize
 - run_id_atual: 2026-04-05_18-00-00
 - ultima_run_finalizada: 2026-03-25_12-45-00
 - total_runs: 1

@@ -22,7 +22,7 @@ export function ProgressBar({ value, max = 100, variant = 'primary', showLabel, 
 
   return (
     <div className={cn('space-y-1', className)}>
-      <div className="h-1.5 w-full overflow-hidden rounded-full bg-[var(--color-bg-secondary)]">
+      <div role="progressbar" aria-valuenow={Math.round(percentage)} aria-valuemin={0} aria-valuemax={100} className="h-1.5 w-full overflow-hidden rounded-full bg-[var(--color-bg-secondary)]">
         <div
           className="h-full rounded-full transition-all duration-500"
           style={{ width: `${percentage}%`, backgroundColor: variantColors[variant] }}

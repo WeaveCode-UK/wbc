@@ -22,8 +22,8 @@ export function ActionSheet({ open, onClose, items, className }: ActionSheetProp
 
   return (
     <>
-      <div className="fixed inset-0 z-50 bg-black/40" onClick={onClose} />
-      <div className={cn('fixed bottom-0 left-0 right-0 z-50 rounded-t-xl bg-[var(--color-bg-primary)] pb-8 transition-transform', className)}>
+      <div className="fixed inset-0 z-50 bg-black/40" onClick={onClose} aria-hidden="true" />
+      <div role="dialog" aria-modal="true" aria-label="Actions" className={cn('fixed bottom-0 left-0 right-0 z-50 rounded-t-xl bg-[var(--color-bg-primary)] pb-8 transition-transform', className)}>
         <div className="flex justify-center py-3">
           <div className="h-1 w-10 rounded-full bg-[var(--color-border-secondary)]" />
         </div>

@@ -37,14 +37,14 @@ export function Toast({ variant = 'info', message, visible, onDismiss, duration 
   if (!visible && !show) return null;
 
   return (
-    <div className={cn(
+    <div role="status" aria-live="polite" className={cn(
       'fixed top-4 left-1/2 z-[100] -translate-x-1/2 flex items-center gap-2 rounded-md px-4 py-2.5 shadow-lg transition-all duration-300',
       variantStyles[variant],
       show ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0',
     )}>
-      <span className="text-lg">{icons[variant]}</span>
+      <span className="text-lg" aria-hidden="true">{icons[variant]}</span>
       <span className="text-body-small font-medium">{message}</span>
-      <button onClick={() => { setShow(false); setTimeout(onDismiss, 300); }} className="ml-2 opacity-70 hover:opacity-100">✕</button>
+      <button onClick={() => { setShow(false); setTimeout(onDismiss, 300); }} aria-label="Dismiss" className="ml-2 opacity-70 hover:opacity-100">✕</button>
     </div>
   );
 }

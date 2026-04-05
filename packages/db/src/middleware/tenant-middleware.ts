@@ -1,4 +1,5 @@
 import type { Prisma } from '@prisma/client';
+import { logSecurityEvent } from '@wbc/shared';
 
 // Tables that require tenantId filtering
 const TENANT_SCOPED_MODELS = new Set([
@@ -21,6 +22,11 @@ export function createTenantMiddleware(
     const tenantId = getTenantId();
 
     if (!tenantId) {
+      logSecurityEvent({
+        event: 'tenant.cross_tenant_blocked',
+        success: false,
+        detail: `${model}.${params.action} without tenantId`,
+      });
       throw new Error(`Tenant context required for ${model}.${params.action} but tenantId is undefined`);
     }
 

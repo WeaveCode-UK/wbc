@@ -7,3 +7,4 @@ export * from './events/event-publisher';
 export * from './events/event-subscriber';
 export * from './theme';
 export * from './prisma-helpers';
+export * from './security-logger';

@@ -1,7 +1,7 @@
 # Achados Não Resolvidos da Auditoria
 
 Gerado em: 2026-04-05
-Total: 53 achados (27 não corrigíveis + 20 não corrigidos + 6 achados positivos)
+Total: 52 pendentes + 1 resolvido (27 não corrigíveis + 19 não corrigidos + 6 achados positivos + 1 resolvido)
 
 ---
 
@@ -16,11 +16,13 @@ Total: 53 achados (27 não corrigíveis + 20 não corrigidos + 6 achados positiv
 
 ## 1. Segurança
 
-### ACH-013 — Sem auditoria de eventos de segurança
+### ACH-013 — Sem auditoria de eventos de segurança ✅ RESOLVIDO
 - severidade: medio
-- classificação: **parcial**
-- o que foi feito: security-logger.ts criado com tipos e interface exportada em `apps/api/src/lib/security-logger.ts`
-- o que falta: integrar nos use-cases individuais de auth, RBAC, login, OTP. Precisa de decisão sobre quais eventos priorizar.
+- classificação: **resolvido**
+- o que foi feito:
+  - `logSecurityEvent()` movido para `packages/shared/src/security-logger.ts` (acessível por todo o monorepo)
+  - Integrado em 5 pontos: `send-otp.ts` (otp.send, otp.send.rate_limited), `verify-otp.ts` (otp.verify.success, otp.verify.failed, otp.verify.locked), `auth.config.ts` (auth.login.success, auth.login.failed para credentials e OAuth), `trpc.ts` (rbac.forbidden), `tenant-middleware.ts` (tenant.cross_tenant_blocked)
+  - 9 tipos de eventos de segurança cobertos com structured JSON logging
 
 ### ACH-014 — Validação Zod excelente
 - severidade: informativo

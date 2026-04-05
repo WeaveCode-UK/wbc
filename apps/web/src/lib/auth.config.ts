@@ -7,6 +7,7 @@ import { PrismaTenantMemberRepository } from '@wbc/business/auth/adapters/prisma
 import { BcryptPasswordHasher } from '@wbc/business/auth/adapters/bcrypt-password-hasher.adapter';
 import { AuthenticateWithCredentials } from '@wbc/business/auth/use-cases/authenticate-with-credentials.use-case';
 import { AuthenticateWithOAuth } from '@wbc/business/auth/use-cases/authenticate-with-oauth.use-case';
+import { logSecurityEvent } from '@wbc/shared';
 
 const accountRepo = new PrismaAccountRepository();
 const oauthRepo = new PrismaOAuthAccountRepository();
@@ -33,8 +34,10 @@ export default {
             email: credentials.email as string,
             password: credentials.password as string,
           });
+          logSecurityEvent({ event: 'auth.login.success', userId: account.id, success: true, detail: 'credentials' });
           return { id: account.id, email: account.email, name: account.name };
         } catch {
+          logSecurityEvent({ event: 'auth.login.failed', success: false, detail: `credentials: ${credentials.email}` });
           return null;
         }
       },
@@ -43,6 +46,7 @@ export default {
   callbacks: {
     async signIn({ user, account: oauthAccount }) {
       if (oauthAccount?.provider === 'google' && user.email && user.name) {
+        logSecurityEvent({ event: 'auth.login.success', userId: user.id, success: true, detail: `oauth:${oauthAccount.provider}` });
         await authWithOAuth.execute({
           email: user.email,
           name: user.name,

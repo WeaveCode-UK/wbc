@@ -2,7 +2,7 @@ import { initTRPC, TRPCError } from '@trpc/server';
 import superjson from 'superjson';
 import type { TRPCContext } from './context';
 import type { Role } from '@wbc/shared';
-import { runWithTenant } from '@wbc/shared';
+import { runWithTenant, logSecurityEvent } from '@wbc/shared';
 import { applyPublicRateLimit, applyProtectedRateLimit } from './rate-limit-middleware';
 import { mapDomainErrorToTRPC } from './error-handler';
 import { Sentry } from '../lib/sentry';
@@ -89,6 +89,13 @@ export function roleProtectedProcedure(minimumRole: Role) {
     const userLevel = ROLE_HIERARCHY[ctx.tenant.role];
     const requiredLevel = ROLE_HIERARCHY[minimumRole];
     if (userLevel < requiredLevel) {
+      logSecurityEvent({
+        event: 'rbac.forbidden',
+        userId: ctx.tenant.userId,
+        tenantId: ctx.tenant.tenantId,
+        success: false,
+        detail: `role ${ctx.tenant.role} < required ${minimumRole}`,
+      });
       throw new TRPCError({ code: 'FORBIDDEN', message: 'Insufficient permissions' });
     }
     return next();

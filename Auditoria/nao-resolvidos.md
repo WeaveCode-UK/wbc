@@ -1,7 +1,7 @@
 # Achados Não Resolvidos da Auditoria
 
 Gerado em: 2026-04-05
-Total: 41 pendentes + 12 resolvidos (24 não corrigíveis + 11 não corrigidos + 6 achados positivos + 12 resolvidos)
+Total: 40 pendentes + 13 resolvidos (24 não corrigíveis + 10 não corrigidos + 6 achados positivos + 13 resolvidos)
 
 ---
 
@@ -286,10 +286,10 @@ Total: 41 pendentes + 12 resolvidos (24 não corrigíveis + 11 não corrigidos +
 - classificação: **não corrigível**
 - motivo: requer decisão de plataforma de CI (GitHub Actions? GitLab CI?) e definição dos steps. Sem testes para executar, o CI só rodaria lint e type-check. Overlap com infraestrutura ACH-001.
 
-### ACH-006 — Sem pre-commit hooks
+### ACH-006 — Sem pre-commit hooks ✅ RESOLVIDO
 - severidade: alto
-- classificação: **não corrigido**
-- motivo: requer instalar husky + lint-staged. É corrigível e relativamente simples. Foi agrupado com os demais achados de testes como "Fase 7", mas poderia ser feito agora.
+- classificação: **resolvido**
+- o que foi feito: husky 9 + lint-staged instalados. Pre-commit roda eslint --fix + prettier --write em *.ts/*.tsx e prettier em *.json/*.md
 
 ### ACH-007 — Sem configuração de coverage
 - severidade: medio

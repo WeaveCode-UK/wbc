@@ -357,10 +357,10 @@ Total: 37 pendentes + 22 resolvidos (20 não corrigíveis + 11 não corrigidos +
 - classificação: **resolvido**
 - o que foi feito: Button sm e xs agora usam `h-11` (44px) em mobile, `md:h-8` / `md:h-7` em desktop. md subiu para `h-11` (44px). Garante 44px touch target em viewport mobile.
 
-### ACH-005 — Modais usam divs ao invés de dialog
+### ACH-005 — Modais usam divs ao invés de dialog ✅ RESOLVIDO
 - severidade: medio
-- classificação: **não corrigido**
-- motivo: migrar modais para `<dialog>` nativo ou Radix UI Dialog. Requer refactor dos componentes de modal e decisão (dialog nativo vs Radix).
+- classificação: **resolvido**
+- o que foi feito: ConfirmModal migrado para `<dialog>` nativo com `showModal()`/`close()`, `backdrop:bg-black/40` via CSS, `aria-labelledby`. Sem dependencia de Radix.
 
 ### ACH-006 — @sentry/nextjs instalado mas não configurado ✅ RESOLVIDO
 - severidade: medio

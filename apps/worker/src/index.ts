@@ -1,11 +1,25 @@
 import { logger } from './lib/logger';
+import * as Sentry from '@sentry/node';
+
+// Initialize Sentry for worker error tracking
+const sentryDsn = process.env.SENTRY_DSN;
+if (sentryDsn) {
+  Sentry.init({
+    dsn: sentryDsn,
+    environment: process.env.NODE_ENV ?? 'development',
+    tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
+  });
+  logger.info('Sentry initialized for worker');
+}
 
 process.on('unhandledRejection', (reason) => {
   logger.fatal({ reason }, 'Unhandled rejection in worker');
+  Sentry.captureException(reason);
 });
 
 process.on('uncaughtException', (error) => {
   logger.fatal({ error }, 'Uncaught exception in worker');
+  Sentry.captureException(error);
   process.exit(1);
 });
 import { applyTenantMiddleware } from '@wbc/db';

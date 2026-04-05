@@ -1,7 +1,7 @@
 # Achados Não Resolvidos da Auditoria
 
 Gerado em: 2026-04-05
-Total: 34 pendentes + 19 resolvidos (24 não corrigíveis + 4 não corrigidos + 6 achados positivos + 19 resolvidos)
+Total: 33 pendentes + 20 resolvidos (24 não corrigíveis + 3 não corrigidos + 6 achados positivos + 20 resolvidos)
 
 ---
 
@@ -249,10 +249,10 @@ Total: 34 pendentes + 19 resolvidos (24 não corrigíveis + 4 não corrigidos + 
 - classificação: **não corrigível**
 - motivo: requer instalar OpenTelemetry (`@opentelemetry/*`), configurar propagação de context entre API e Worker, e ter backend de traces (Jaeger, Tempo). Projeto de infraestrutura+código significativo.
 
-### ACH-004 — Worker sem Sentry
+### ACH-004 — Worker sem Sentry ✅ RESOLVIDO
 - severidade: alto
-- classificação: **não corrigido**
-- motivo: o Sentry foi integrado no error handler da API, mas o worker não inicializa Sentry. Requer `SENTRY_DSN` configurado e `Sentry.init()` no worker. Depende de configuração externa (DSN).
+- classificação: **resolvido**
+- o que foi feito: `@sentry/node` adicionado ao worker, `Sentry.init()` no startup com tracesSampleRate 0.1 em prod. `Sentry.captureException()` nos handlers de unhandledRejection e uncaughtException. Graceful quando SENTRY_DSN não está definido.
 
 ### ACH-006 — Ausência de monitoramento e alerting
 - severidade: alto

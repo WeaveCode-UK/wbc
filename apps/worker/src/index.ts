@@ -24,6 +24,7 @@ import { startScheduleWorker } from './processors/schedule-processor';
 import { startAnalyticsWorker } from './processors/analytics-processor';
 import { startDLQWorker } from './processors/dlq-processor';
 import { cleanupProcessedOutboxEvents } from './processors/outbox-cleanup';
+import { scanFailedForDLQ } from './processors/dlq-scanner';
 import { subscribe, EVENTS } from '@wbc/shared';
 
 // Apply tenant middleware
@@ -83,4 +84,15 @@ setInterval(async () => {
 }, 24 * 60 * 60 * 1000);
 
 logger.info('Outbox cleanup scheduled (24h interval)');
+
+// DLQ scanner: check for permanently failed events every 60s
+setInterval(async () => {
+  try {
+    await scanFailedForDLQ();
+  } catch (error) {
+    logger.error({ error }, 'DLQ scan failed');
+  }
+}, 60_000);
+
+logger.info('DLQ scanner scheduled (60s interval)');
 logger.info('WBC Worker module loaded successfully');

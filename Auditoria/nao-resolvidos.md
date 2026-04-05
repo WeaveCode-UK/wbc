@@ -1,7 +1,7 @@
 # Achados Não Resolvidos da Auditoria
 
 Gerado em: 2026-04-05
-Total: 35 pendentes + 18 resolvidos (24 não corrigíveis + 5 não corrigidos + 6 achados positivos + 18 resolvidos)
+Total: 34 pendentes + 19 resolvidos (24 não corrigíveis + 4 não corrigidos + 6 achados positivos + 19 resolvidos)
 
 ---
 
@@ -221,11 +221,14 @@ Total: 35 pendentes + 18 resolvidos (24 não corrigíveis + 5 não corrigidos + 
   - DeepSeek: 3 falhas → OPEN 60s, fallback texto genérico "[AI indisponível]"
   - Zero dependências externas, configurável por serviço
 
-### ACH-012 — DLQ definida mas sem handler funcional
+### ACH-012 — DLQ definida mas sem handler funcional ✅ RESOLVIDO
 - severidade: medio
-- classificação: **parcial**
-- contexto: DLQ processor existe (criado na auditoria de arquitetura), fila `wbc:dlq` criada
-- o que falta: nenhuma lógica move eventos para a DLQ. Falta o pipeline completo: outbox marca FAILED → após N attempts → move para DLQ → DLQ processor alerta. Depende da implementação do backoff (ACH-008 acima).
+- classificação: **resolvido**
+- o que foi feito:
+  - Adicionado status `DLQ` ao enum OutboxStatus
+  - `getFailedForDLQ()` e `markDLQ()` no outbox repository
+  - `dlq-scanner.ts` — processo que a cada 60s varre eventos FAILED e move para fila BullMQ `wbc:dlq` com log de alerta
+  - Pipeline completo: PENDING → PROCESSING → retry com backoff → FAILED (5x) → DLQ scanner → BullMQ DLQ → DLQ processor loga
 
 ### ACH-015 — Ausência de runbooks
 - severidade: baixo

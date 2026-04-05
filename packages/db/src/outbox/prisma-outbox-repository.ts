@@ -90,4 +90,20 @@ export class PrismaOutboxRepository implements OutboxPort {
       });
     }
   }
+
+  async getFailedForDLQ(limit: number) {
+    return prisma.outboxEvent.findMany({
+      where: { status: 'FAILED' },
+      orderBy: { createdAt: 'asc' },
+      take: limit,
+      select: { id: true, type: true, tenantId: true, payload: true, attempts: true, createdAt: true },
+    });
+  }
+
+  async markDLQ(id: string): Promise<void> {
+    await prisma.outboxEvent.update({
+      where: { id },
+      data: { status: 'DLQ' },
+    });
+  }
 }

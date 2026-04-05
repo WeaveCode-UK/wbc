@@ -1002,6 +1002,7 @@ enum OutboxStatus {
   PROCESSING
   PROCESSED
   FAILED
+  DLQ
 }
 
 // ============================================================

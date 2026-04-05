@@ -1,7 +1,7 @@
 # Achados Não Resolvidos da Auditoria
 
 Gerado em: 2026-04-05
-Total: 42 pendentes + 11 resolvidos (24 não corrigíveis + 12 não corrigidos + 6 achados positivos + 11 resolvidos)
+Total: 41 pendentes + 12 resolvidos (24 não corrigíveis + 11 não corrigidos + 6 achados positivos + 12 resolvidos)
 
 ---
 
@@ -240,10 +240,10 @@ Total: 42 pendentes + 11 resolvidos (24 não corrigíveis + 12 não corrigidos +
 - classificação: **não corrigível**
 - motivo: dashboards e alertas requerem infraestrutura de monitoramento (Grafana, Datadog, PagerDuty). Não é código do repositório.
 
-### ACH-007 — Health checks apenas via tRPC
+### ACH-007 — Health checks apenas via tRPC ✅ RESOLVIDO
 - severidade: medio
-- classificação: **não corrigido**
-- motivo: load balancers e Kubernetes precisam de HTTP GET `/health`. O health router existe como tRPC procedure, mas não como rota HTTP nativa. Corrigir requer criar rota HTTP fora do tRPC — depende de como o server HTTP está montado.
+- classificação: **resolvido**
+- o que foi feito: criado `apps/web/src/app/api/health/route.ts` — HTTP GET `/api/health` com check de banco, retorna 200 (healthy) ou 503 (degraded). Compatível com load balancers e nginx health checks.
 
 ### ACH-008 — Web app usa console.error
 - severidade: medio

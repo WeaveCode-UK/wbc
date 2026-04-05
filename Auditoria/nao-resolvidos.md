@@ -1,7 +1,7 @@
 # Achados Não Resolvidos da Auditoria
 
 Gerado em: 2026-04-05
-Total: 33 pendentes + 20 resolvidos (24 não corrigíveis + 3 não corrigidos + 6 achados positivos + 20 resolvidos)
+Total: 31 pendentes + 22 resolvidos (24 não corrigíveis + 1 não corrigido + 6 achados positivos + 22 resolvidos)
 
 ---
 
@@ -264,10 +264,14 @@ Total: 33 pendentes + 20 resolvidos (24 não corrigíveis + 3 não corrigidos + 
 - classificação: **resolvido**
 - o que foi feito: criado `apps/web/src/app/api/health/route.ts` — HTTP GET `/api/health` com check de banco, retorna 200 (healthy) ou 503 (degraded). Compatível com load balancers e nginx health checks.
 
-### ACH-008 — Web app usa console.error
+### ACH-008 — Web app usa console.error ✅ RESOLVIDO
 - severidade: medio
-- classificação: **não corrigido**
-- motivo: `@sentry/nextjs` está instalado mas não configurado. Requer criar `sentry.client.config.ts`, `sentry.server.config.ts`, envolver `next.config.mjs` com `withSentryConfig()`. Depende do DSN do Sentry (configuração externa).
+- classificação: **resolvido**
+- o que foi feito:
+  - Criados `sentry.client.config.ts`, `sentry.server.config.ts`, `sentry.edge.config.ts`
+  - `next.config.mjs` envolvido com `withSentryConfig()`
+  - `NEXT_PUBLIC_SENTRY_DSN` adicionado ao `.env.production.example`
+  - Graceful quando DSN não definido (dev mode)
 
 ### ACH-009 — Logging sem requestId e userId ✅ RESOLVIDO
 - severidade: medio
@@ -354,10 +358,10 @@ Total: 33 pendentes + 20 resolvidos (24 não corrigíveis + 3 não corrigidos + 
 - classificação: **não corrigido**
 - motivo: migrar modais para `<dialog>` nativo ou Radix UI Dialog. Requer refactor dos componentes de modal e decisão (dialog nativo vs Radix).
 
-### ACH-006 — @sentry/nextjs instalado mas não configurado
+### ACH-006 — @sentry/nextjs instalado mas não configurado ✅ RESOLVIDO
 - severidade: medio
-- classificação: **não corrigido**
-- motivo: mesmo que observabilidade ACH-008. Precisa de SENTRY_DSN (configuração externa) para configurar.
+- classificação: **resolvido**
+- mesmo que observabilidade ACH-008 — Sentry configs criados e withSentryConfig aplicado
 
 ### ACH-007 — Contraste de cores não verificado
 - severidade: baixo

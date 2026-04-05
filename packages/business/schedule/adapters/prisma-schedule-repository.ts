@@ -5,7 +5,7 @@ export class PrismaScheduleRepository implements ScheduleRepository {
   async listAppointments(tenantId: string, dateRange?: { from: Date; to: Date }) {
     const where: Record<string, unknown> = { tenantId };
     if (dateRange) where.startsAt = { gte: dateRange.from, lte: dateRange.to };
-    return prisma.appointment.findMany({ where, orderBy: { startsAt: 'asc' } });
+    return prisma.appointment.findMany({ where, orderBy: { startsAt: 'asc' }, take: 200 });
   }
 
   async createAppointment(tenantId: string, data: { title: string; type: string; clientId?: string; address?: string; notes?: string; startsAt: Date; endsAt?: Date }) {
@@ -30,7 +30,7 @@ export class PrismaScheduleRepository implements ScheduleRepository {
     const where: Record<string, unknown> = { tenantId };
     if (status) where.status = status;
     if (type) where.type = type;
-    return prisma.reminder.findMany({ where, orderBy: { triggerDate: 'asc' } });
+    return prisma.reminder.findMany({ where, orderBy: { triggerDate: 'asc' }, take: 200 });
   }
 
   async dismissReminder(tenantId: string, id: string) {

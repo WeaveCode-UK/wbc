@@ -4,18 +4,29 @@ import { PrismaAnalyticsRepository } from '../../../../packages/business/analyti
 import { getAnalyticsDashboard } from '../../../../packages/business/analytics/use-cases/get-dashboard';
 import { getSalesStats, getProductRanking, getClientEngagement, calculateABCClassification } from '../../../../packages/business/analytics/use-cases/get-stats';
 import { uuidSchema } from '@wbc/validators';
+import { cacheGet, cacheSet } from '../lib/cache';
 
 const analyticsRepo = new PrismaAnalyticsRepository();
 
 export const analyticsRouter = router({
   getDashboard: protectedProcedure.query(async ({ ctx }) => {
-    return getAnalyticsDashboard(ctx.tenant.tenantId, analyticsRepo);
+    const cacheKey = `analytics:dashboard:${ctx.tenant.tenantId}`;
+    const cached = await cacheGet(cacheKey);
+    if (cached) return cached;
+    const result = await getAnalyticsDashboard(ctx.tenant.tenantId, analyticsRepo);
+    await cacheSet(cacheKey, result, 300);
+    return result;
   }),
 
   getSalesStats: protectedProcedure
     .input(z.object({ period: z.string().optional() }))
     .query(async ({ ctx, input }) => {
-      return getSalesStats(ctx.tenant.tenantId, input.period, analyticsRepo);
+      const cacheKey = `analytics:sales:${ctx.tenant.tenantId}:${input.period ?? 'current'}`;
+      const cached = await cacheGet(cacheKey);
+      if (cached) return cached;
+      const result = await getSalesStats(ctx.tenant.tenantId, input.period, analyticsRepo);
+      await cacheSet(cacheKey, result, 180);
+      return result;
     }),
 
   getProductRanking: protectedProcedure

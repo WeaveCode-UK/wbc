@@ -19,10 +19,10 @@ export function ConfirmModal({ open, onClose, onConfirm, title, description, con
 
   return (
     <>
-      <div className="fixed inset-0 z-50 bg-black/40" onClick={onClose} />
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-50 bg-black/40" onClick={onClose} aria-hidden="true" />
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title">
         <div className="w-full max-w-sm rounded-lg bg-[var(--color-bg-primary)] p-6 shadow-lg space-y-4">
-          <h3 className="text-heading-3 text-[var(--color-text-primary)]">{title}</h3>
+          <h3 id="confirm-modal-title" className="text-heading-3 text-[var(--color-text-primary)]">{title}</h3>
           {description && <p className="text-body-small text-[var(--color-text-tertiary)]">{description}</p>}
           <div className="flex gap-3 justify-end">
             <button onClick={onClose} className="h-10 px-4 rounded-md text-body-small font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-secondary)] transition-colors">

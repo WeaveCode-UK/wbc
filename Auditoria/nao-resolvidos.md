@@ -341,10 +341,11 @@ Total: 37 pendentes + 22 resolvidos (20 não corrigíveis + 11 não corrigidos +
 - o que foi feito: `useTranslations()` integrado em 8 telas do dashboard (home, clients, sales, campaigns, finance, inventory, schedule, team, settings). Chaves adicionadas em 12 locale files (pt-BR + en). Telas de auth já usavam i18n.
 - o que falta: componentes compartilhados, modais, mensagens de erro inline, mobile app
 
-### ACH-002 — Acessibilidade limitada: 2 atributos ARIA
+### ACH-002 — Acessibilidade limitada: 2 atributos ARIA ✅ PARCIAL
 - severidade: alto
-- classificação: **não corrigido**
-- motivo: adicionar ARIA roles, labels, descriptions a todos os componentes interativos requer auditoria de acessibilidade completa e decisões de UX. Precisa de expertise em a11y.
+- classificação: **parcial (6 componentes com ARIA)**
+- o que foi feito: Input (aria-invalid, aria-describedby, role=alert no erro), Button (aria-busy), ConfirmModal (role=dialog, aria-modal, aria-labelledby), SearchBar (role=searchbox, aria-label), Alert (role=alert). ToggleSwitch ja tinha role=switch + aria-checked.
+- o que falta: auditoria completa com axe-core/Lighthouse
 
 ### ACH-003 — Sem form library: validação só server-side
 - severidade: alto

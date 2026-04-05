@@ -16,6 +16,8 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
         <input
           ref={ref}
           value={value}
+          role="searchbox"
+          aria-label={props['aria-label'] ?? 'Search'}
           className={cn(
             'h-[38px] w-full rounded-md bg-[var(--color-bg-secondary)] pl-9 pr-8 text-body-small text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]',
             className,
@@ -23,7 +25,7 @@ export const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
           {...props}
         />
         {value && onClear && (
-          <button onClick={onClear} className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)]">
+          <button onClick={onClear} aria-label="Clear search" className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)]">
             ×
           </button>
         )}

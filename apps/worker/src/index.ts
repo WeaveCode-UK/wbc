@@ -1,4 +1,13 @@
 import { logger } from './lib/logger';
+
+process.on('unhandledRejection', (reason) => {
+  logger.fatal({ reason }, 'Unhandled rejection in worker');
+});
+
+process.on('uncaughtException', (error) => {
+  logger.fatal({ error }, 'Uncaught exception in worker');
+  process.exit(1);
+});
 import { applyTenantMiddleware } from '@wbc/db';
 import { getCurrentTenant, setOutboxPort } from '@wbc/shared';
 import { PrismaOutboxRepository } from '@wbc/db';

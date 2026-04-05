@@ -9,5 +9,8 @@
   "adjust": "Adjust",
   "new_order": "New order",
   "receive": "Receive",
-  "sample_roi": "Sample ROI"
+  "sample_roi": "Sample ROI",
+  "add_product": "Add product",
+  "no_stock": "No products in stock",
+  "no_stock_hint": "Add products to your catalog first"
 }

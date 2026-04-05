@@ -1,24 +1,20 @@
+'use client';
+
+import { useTranslations } from 'next-intl';
+
 export default function FinancePage() {
+  const t = useTranslations('finance');
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold text-gray-900">Financeiro</h1>
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-lg border bg-white p-4 shadow-sm">
-          <p className="text-sm text-gray-500">Receita</p>
-          <p className="mt-1 text-2xl font-bold text-green-600">R$ 0,00</p>
-        </div>
-        <div className="rounded-lg border bg-white p-4 shadow-sm">
-          <p className="text-sm text-gray-500">Despesas</p>
-          <p className="mt-1 text-2xl font-bold text-red-600">R$ 0,00</p>
-        </div>
-        <div className="rounded-lg border bg-white p-4 shadow-sm">
-          <p className="text-sm text-gray-500">Lucro</p>
-          <p className="mt-1 text-2xl font-bold">R$ 0,00</p>
-        </div>
-        <div className="rounded-lg border bg-white p-4 shadow-sm">
-          <p className="text-sm text-gray-500">A receber</p>
-          <p className="mt-1 text-2xl font-bold text-orange-600">R$ 0,00</p>
-        </div>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-gray-900">{t('title')}</h1>
+        <button className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+          {t('new_expense')}
+        </button>
+      </div>
+      <div className="mt-6 rounded-lg border bg-white p-8 text-center">
+        <p className="text-gray-500">{t('no_data')}</p>
+        <p className="mt-1 text-sm text-gray-400">{t('no_data_hint')}</p>
       </div>
     </div>
   );

@@ -1,1 +1,10 @@
-{}
+{
+  "title": "Campanhas",
+  "new_campaign": "Nova campanha",
+  "no_campaigns": "Nenhuma campanha criada",
+  "no_campaigns_hint": "Crie sua primeira campanha de mensagens",
+  "recipients": "Destinat\u00e1rios",
+  "status": "Status",
+  "schedule": "Agendar",
+  "send_now": "Enviar agora"
+}

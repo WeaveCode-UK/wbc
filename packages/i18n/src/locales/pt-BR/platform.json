@@ -1,1 +1,11 @@
-{}
+{
+  "settings": "Configura\u00e7\u00f5es",
+  "profile": "Perfil",
+  "profile_hint": "Gerencie suas informa\u00e7\u00f5es pessoais",
+  "plan": "Plano",
+  "plan_hint": "Gerencie sua assinatura",
+  "landing_page": "Landing Page",
+  "landing_page_hint": "Configure sua p\u00e1gina pessoal",
+  "export_data": "Exportar Dados",
+  "export_data_hint": "Exporte seus dados em CSV"
+}

@@ -9,5 +9,8 @@
   "adjust": "Ajustar",
   "new_order": "Novo pedido",
   "receive": "Receber",
-  "sample_roi": "ROI de amostras"
+  "sample_roi": "ROI de amostras",
+  "add_product": "Adicionar produto",
+  "no_stock": "Nenhum produto no estoque",
+  "no_stock_hint": "Adicione produtos ao seu catálogo primeiro"
 }

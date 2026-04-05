@@ -1,1 +1,10 @@
-{}
+{
+  "title": "Schedule",
+  "new_appointment": "New appointment",
+  "no_events": "No appointments scheduled",
+  "no_events_hint": "Schedule visits, demos and beauty days",
+  "my_day": "My day",
+  "calendar": "Calendar",
+  "reminders": "Reminders",
+  "birthdays": "Birthdays"
+}

@@ -1,1 +1,23 @@
-{}
+{
+  "greeting_morning": "Good morning",
+  "greeting_afternoon": "Good afternoon",
+  "greeting_evening": "Good evening",
+  "summary": "Here is your day summary",
+  "sales_month": "Sales this month",
+  "revenue": "Revenue",
+  "clients": "Clients",
+  "reminders": "Reminders",
+  "pending": "pending",
+  "quick_actions": "Quick actions",
+  "new_sale": "New sale",
+  "new_client": "New client",
+  "send_message": "Send message",
+  "ask_ai": "Ask AI",
+  "today": "Today",
+  "pending_billing": "Pending billing",
+  "restock_reminder": "Restock reminder",
+  "birthday_today": "Birthday today",
+  "charge": "Charge",
+  "send": "Send",
+  "congratulate": "Congratulate"
+}

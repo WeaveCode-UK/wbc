@@ -1,1 +1,9 @@
-{}
+{
+  "title": "Equipe",
+  "add_member": "Adicionar membro",
+  "no_members": "Nenhum membro na equipe",
+  "no_members_hint": "Adicione consultoras \u00e0 sua equipe",
+  "ranking": "Ranking",
+  "tasks": "Tarefas",
+  "role": "Cargo"
+}

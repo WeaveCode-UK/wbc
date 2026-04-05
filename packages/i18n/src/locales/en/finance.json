@@ -7,5 +7,7 @@
   "new_expense": "New expense",
   "margin_calculator": "Margin calculator",
   "goal_calculator": "Goal reverse",
-  "cac": "Customer acquisition cost"
+  "cac": "Customer acquisition cost",
+  "no_data": "No financial data",
+  "no_data_hint": "Record sales and expenses to see your finances"
 }

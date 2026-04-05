@@ -1,1 +1,11 @@
-{}
+{
+  "settings": "Settings",
+  "profile": "Profile",
+  "profile_hint": "Manage your personal information",
+  "plan": "Plan",
+  "plan_hint": "Manage your subscription",
+  "landing_page": "Landing Page",
+  "landing_page_hint": "Configure your personal page",
+  "export_data": "Export Data",
+  "export_data_hint": "Export your data as CSV"
+}

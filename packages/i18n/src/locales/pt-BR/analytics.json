@@ -1,1 +1,23 @@
-{}
+{
+  "greeting_morning": "Bom dia",
+  "greeting_afternoon": "Boa tarde",
+  "greeting_evening": "Boa noite",
+  "summary": "Aqui est\u00e1 o resumo do seu dia",
+  "sales_month": "Vendas do m\u00eas",
+  "revenue": "Faturamento",
+  "clients": "Clientes",
+  "reminders": "Lembretes",
+  "pending": "pendentes",
+  "quick_actions": "A\u00e7\u00f5es r\u00e1pidas",
+  "new_sale": "Nova venda",
+  "new_client": "Nova cliente",
+  "send_message": "Enviar mensagem",
+  "ask_ai": "Pedir pra IA",
+  "today": "Hoje",
+  "pending_billing": "Cobran\u00e7a pendente",
+  "restock_reminder": "Lembrete de reposi\u00e7\u00e3o",
+  "birthday_today": "Anivers\u00e1rio hoje",
+  "charge": "Cobrar",
+  "send": "Enviar",
+  "congratulate": "Parabenizar"
+}

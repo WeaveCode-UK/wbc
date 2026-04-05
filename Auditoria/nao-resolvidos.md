@@ -335,10 +335,11 @@ Total: 37 pendentes + 22 resolvidos (20 não corrigíveis + 11 não corrigidos +
 
 ## 10. UI/UX e Fluxos
 
-### ACH-001 — i18n não integrado: strings hardcoded
+### ACH-001 — i18n não integrado: strings hardcoded ✅ PARCIAL→8 telas
 - severidade: critico
-- classificação: **não corrigido**
-- motivo: os arquivos de tradução existem em `packages/i18n/` (16 por locale) mas nenhuma tela usa `useTranslation()`. Integrar requer instalar react-i18next no web e mobile, criar provider, e substituir cada string hardcoded em cada tela por `t('key')`. São dezenas de telas com centenas de strings. Projeto de implementação grande.
+- classificação: **parcial (8 telas do dashboard integradas)**
+- o que foi feito: `useTranslations()` integrado em 8 telas do dashboard (home, clients, sales, campaigns, finance, inventory, schedule, team, settings). Chaves adicionadas em 12 locale files (pt-BR + en). Telas de auth já usavam i18n.
+- o que falta: componentes compartilhados, modais, mensagens de erro inline, mobile app
 
 ### ACH-002 — Acessibilidade limitada: 2 atributos ARIA
 - severidade: alto

@@ -7,5 +7,7 @@
   "new_expense": "Nova despesa",
   "margin_calculator": "Calculadora de margem",
   "goal_calculator": "Meta reversa",
-  "cac": "Custo de aquisição"
+  "cac": "Custo de aquisição",
+  "no_data": "Sem dados financeiros",
+  "no_data_hint": "Registre vendas e despesas para ver seu financeiro"
 }

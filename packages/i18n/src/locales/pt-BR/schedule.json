@@ -1,1 +1,10 @@
-{}
+{
+  "title": "Agenda",
+  "new_appointment": "Novo compromisso",
+  "no_events": "Nenhum compromisso agendado",
+  "no_events_hint": "Agende visitas, demos e beauty days",
+  "my_day": "Meu dia",
+  "calendar": "Calend\u00e1rio",
+  "reminders": "Lembretes",
+  "birthdays": "Anivers\u00e1rios"
+}

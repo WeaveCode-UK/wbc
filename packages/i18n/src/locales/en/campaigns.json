@@ -1,1 +1,10 @@
-{}
+{
+  "title": "Campaigns",
+  "new_campaign": "New campaign",
+  "no_campaigns": "No campaigns created",
+  "no_campaigns_hint": "Create your first messaging campaign",
+  "recipients": "Recipients",
+  "status": "Status",
+  "schedule": "Schedule",
+  "send_now": "Send now"
+}

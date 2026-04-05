@@ -1,1 +1,9 @@
-{}
+{
+  "title": "Team",
+  "add_member": "Add member",
+  "no_members": "No team members",
+  "no_members_hint": "Add consultants to your team",
+  "ranking": "Ranking",
+  "tasks": "Tasks",
+  "role": "Role"
+}

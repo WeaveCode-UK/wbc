@@ -21,7 +21,7 @@ export function createTenantMiddleware(
     const tenantId = getTenantId();
 
     if (!tenantId) {
-      return next(params);
+      throw new Error(`Tenant context required for ${model}.${params.action} but tenantId is undefined`);
     }
 
     // Inject tenantId into WHERE clauses for read operations

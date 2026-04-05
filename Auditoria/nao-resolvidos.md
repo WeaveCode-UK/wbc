@@ -275,10 +275,10 @@ Total: 27 pendentes + 33 resolvidos (20 não corrigíveis + 0 não corrigidos + 
 - classificação: **resolvido**
 - o que foi feito: `@sentry/node` adicionado ao worker, `Sentry.init()` no startup com tracesSampleRate 0.1 em prod. `Sentry.captureException()` nos handlers de unhandledRejection e uncaughtException. Graceful quando SENTRY_DSN não está definido.
 
-### ACH-006 — Ausência de monitoramento e alerting
+### ACH-006 — Ausência de monitoramento e alerting ✅ RESOLVIDO
 - severidade: alto
-- classificação: **não corrigível**
-- motivo: dashboards e alertas requerem infraestrutura de monitoramento (Grafana, Datadog, PagerDuty). Não é código do repositório.
+- classificação: **resolvido**
+- o que foi feito: `deploy/alerts.yml` com 4 alert rules (HighErrorRate, SlowRequests, HighRequestRate, TargetDown). Montado no container Prometheus. Grafana disponível para visualização.
 
 ### ACH-007 — Health checks apenas via tRPC ✅ RESOLVIDO
 - severidade: medio

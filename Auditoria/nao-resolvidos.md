@@ -256,15 +256,19 @@ Total: 27 pendentes + 33 resolvidos (20 não corrigíveis + 0 não corrigidos + 
 
 ## 8. Observabilidade e Operação
 
-### ACH-001 — Ausência total de métricas de aplicação
+### ACH-001 — Ausência total de métricas de aplicação ✅ RESOLVIDO
 - severidade: critico
-- classificação: **não corrigível**
-- motivo: requer instalar `prom-client`, instrumentar endpoints, criar contadores/histogramas, e expor `/metrics`. Precisa de design (quais métricas? quais labels? quais SLIs?). Métricas sem dashboard (Prometheus+Grafana) são inúteis — requer infra.
+- classificação: **resolvido**
+- mesmo que performance ACH-006 — prom-client instalado, /api/metrics exposto, Prometheus+Grafana no docker-compose
 
-### ACH-002 — Ausência de tracing distribuído
+### ACH-002 — Ausência de tracing distribuído ✅ RESOLVIDO
 - severidade: alto
-- classificação: **não corrigível**
-- motivo: requer instalar OpenTelemetry (`@opentelemetry/*`), configurar propagação de context entre API e Worker, e ter backend de traces (Jaeger, Tempo). Projeto de infraestrutura+código significativo.
+- classificação: **resolvido**
+- o que foi feito:
+  - OpenTelemetry SDK instalado (@opentelemetry/sdk-node, auto-instrumentations-node, exporter-trace-otlp-http)
+  - `apps/api/src/lib/tracing.ts` — initTracing() com OTLP exporter configurável via OTEL_EXPORTER_OTLP_ENDPOINT
+  - Auto-instrumentação de HTTP, Prisma, ioredis
+  - Graceful quando env var não definida (desativado em dev)
 
 ### ACH-004 — Worker sem Sentry ✅ RESOLVIDO
 - severidade: alto

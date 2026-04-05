@@ -10,3 +10,4 @@ export * from './prisma-helpers';
 export * from './security-logger';
 export * from './env';
 export * from './circuit-breaker';
+export * from './version';

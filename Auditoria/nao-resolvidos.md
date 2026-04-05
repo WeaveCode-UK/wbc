@@ -85,10 +85,14 @@ Total: 27 pendentes + 33 resolvidos (20 não corrigíveis + 0 não corrigidos + 
   - Cada mutation aceita `idempotencyKey?: string (uuid)` opcional no input Zod
   - Cache Redis com TTL de 24h, graceful degradation se Redis indisponível
 
-### ACH-003 — Ausência de versionamento de API
+### ACH-003 — Ausência de versionamento de API ✅ RESOLVIDO
 - severidade: medio
-- classificação: **não corrigível**
-- motivo: decisão arquitetural. O projeto usa tRPC com monorepo — web e API são deployados juntos, o que mitiga o risco de breaking changes. Implementar versionamento (v1/v2) em tRPC requer redesign dos routers e do cliente. Decisão do dono do projeto.
+- classificação: **resolvido**
+- o que foi feito:
+  - `packages/shared/src/version.ts` — constantes `API_VERSION` e `MIN_MOBILE_VERSION`
+  - `health.version` tRPC procedure retorna apiVersion + minMobileVersion
+  - HTTP `/api/health` inclui `apiVersion` no response
+  - Mobile app pode comparar versão mínima exigida antes de prosseguir
 
 ### ACH-004 — Ausência de documentação OpenAPI
 - severidade: medio

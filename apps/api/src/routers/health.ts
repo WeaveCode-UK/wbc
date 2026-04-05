@@ -2,10 +2,16 @@ import { router, publicProcedure } from '../trpc/trpc';
 import { getRedis } from '../lib/redis';
 import { createLogger } from '../lib/logger';
 import { prisma } from '@wbc/db';
+import { API_VERSION, MIN_MOBILE_VERSION } from '@wbc/shared';
 
 const logger = createLogger('health');
 
 export const healthRouter = router({
+  version: publicProcedure.query(() => ({
+    apiVersion: API_VERSION,
+    minMobileVersion: MIN_MOBILE_VERSION,
+  })),
+
   redis: publicProcedure.query(async () => {
     try {
       const redis = getRedis();

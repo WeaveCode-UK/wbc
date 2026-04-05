@@ -1,7 +1,10 @@
 import { createLogger } from './lib/logger';
 import { initSentry } from './lib/sentry';
 import { applyTenantMiddleware } from '@wbc/db';
-import { getCurrentTenant } from '@wbc/shared';
+import { getCurrentTenant, validateEnv } from '@wbc/shared';
+
+// Validate environment variables
+validateEnv('api');
 
 // Initialize Sentry first
 initSentry();

@@ -1,7 +1,7 @@
 # Achados Não Resolvidos da Auditoria
 
 Gerado em: 2026-04-05
-Total: 43 pendentes + 10 resolvidos (24 não corrigíveis + 13 não corrigidos + 6 achados positivos + 10 resolvidos)
+Total: 42 pendentes + 11 resolvidos (24 não corrigíveis + 12 não corrigidos + 6 achados positivos + 11 resolvidos)
 
 ---
 
@@ -375,10 +375,14 @@ Total: 43 pendentes + 10 resolvidos (24 não corrigíveis + 13 não corrigidos +
 - o que foi feito: CSP headers já foram adicionados na auditoria de segurança (ACH-011 de segurança — X-Frame-Options, HSTS, etc no next.config.mjs)
 - o que falta: CORS na API. Depende de saber quais origens são permitidas em produção.
 
-### ACH-006 — Sem validação de env vars no startup
+### ACH-006 — Sem validação de env vars no startup ✅ RESOLVIDO
 - severidade: alto
-- classificação: **não corrigido**
-- motivo: criar schema Zod para todas as env vars obrigatórias e validar no startup de cada app. Requer listar todas as env vars obrigatórias por app e definir valores default vs obrigatórios. É corrigível e poderia ser feito agora.
+- classificação: **resolvido**
+- o que foi feito:
+  - `packages/shared/src/env.ts` — Schemas Zod para web, api e worker com variáveis obrigatórias/opcionais
+  - `validateEnv('api')` adicionado em `apps/api/src/index.ts`
+  - `validateEnv('worker')` adicionado em `apps/worker/src/index.ts`
+  - Erro claro com lista de variáveis faltantes se validação falhar
 
 ### ACH-007 — Sem dependency vulnerability scanning
 - severidade: medio

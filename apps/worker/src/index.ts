@@ -9,7 +9,10 @@ process.on('uncaughtException', (error) => {
   process.exit(1);
 });
 import { applyTenantMiddleware } from '@wbc/db';
-import { getCurrentTenant, setOutboxPort } from '@wbc/shared';
+import { getCurrentTenant, setOutboxPort, validateEnv } from '@wbc/shared';
+
+// Validate environment variables
+validateEnv('worker');
 import { PrismaOutboxRepository } from '@wbc/db';
 import { processOutbox } from './processors/outbox-processor';
 import { registerInventoryEventHandlers } from '../../../packages/business/inventory/adapters/sale-confirmed-handler';

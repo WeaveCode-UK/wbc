@@ -8,6 +8,9 @@
     "type-check": "tsc --noEmit",
     "lint": "eslint src/"
   },
+  "dependencies": {
+    "zod": "^3.23.0"
+  },
   "devDependencies": {
     "@wbc/config": "workspace:*"
   }

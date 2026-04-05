@@ -3,10 +3,25 @@
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { useForm, FormProvider } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { Button } from '@wbc/ui/components/button';
-import { Input } from '@wbc/ui/components/input';
-import { Label } from '@wbc/ui/components/label';
+import { FormField } from '../form-field';
 import { useTranslations } from 'next-intl';
+
+const loginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8),
+});
+
+const registerSchema = loginSchema.extend({
+  name: z.string().min(2),
+  confirmPassword: z.string().min(8),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: 'Passwords do not match',
+  path: ['confirmPassword'],
+});
 
 interface CredentialsFormProps {
   mode: 'login' | 'register';
@@ -15,104 +30,66 @@ interface CredentialsFormProps {
 export function CredentialsForm({ mode }: CredentialsFormProps) {
   const t = useTranslations('auth');
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [serverError, setServerError] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
+  const methods = useForm({
+    resolver: zodResolver(mode === 'register' ? registerSchema : loginSchema),
+    defaultValues: { email: '', password: '', name: '', confirmPassword: '' },
+  });
+
+  const onSubmit = methods.handleSubmit(async (data) => {
+    setServerError('');
 
     try {
       if (mode === 'register') {
-        if (password !== confirmPassword) {
-          setError(t('register.passwordMismatch'));
-          setLoading(false);
+        const res = await fetch('/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: data.email, password: data.password, name: data.name }),
+        });
+        if (!res.ok) {
+          setServerError(t('register.error'));
           return;
         }
       }
 
       const result = await signIn('credentials', {
-        email,
-        password,
+        email: data.email,
+        password: data.password,
         redirect: false,
       });
 
       if (result?.error) {
-        setError(t('login.invalidCredentials'));
+        setServerError(t('login.invalidCredentials'));
       } else {
         router.push('/dashboard');
         router.refresh();
       }
     } catch {
-      setError(t('login.genericError'));
-    } finally {
-      setLoading(false);
+      setServerError(t('login.genericError'));
     }
-  };
+  });
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      {mode === 'register' && (
-        <div className="space-y-2">
-          <Label htmlFor="name">{t('register.name')}</Label>
-          <Input
-            id="name"
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            minLength={2}
-          />
-        </div>
-      )}
+    <FormProvider {...methods}>
+      <form onSubmit={onSubmit} className="space-y-4">
+        {mode === 'register' && (
+          <FormField name="name" label={t('register.name')} />
+        )}
 
-      <div className="space-y-2">
-        <Label htmlFor="email">{t('login.email')}</Label>
-        <Input
-          id="email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-      </div>
+        <FormField name="email" label={t('login.email')} type="email" />
+        <FormField name="password" label={t('login.password')} type="password" />
 
-      <div className="space-y-2">
-        <Label htmlFor="password">{t('login.password')}</Label>
-        <Input
-          id="password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          minLength={8}
-        />
-      </div>
+        {mode === 'register' && (
+          <FormField name="confirmPassword" label={t('register.confirmPassword')} type="password" />
+        )}
 
-      {mode === 'register' && (
-        <div className="space-y-2">
-          <Label htmlFor="confirmPassword">{t('register.confirmPassword')}</Label>
-          <Input
-            id="confirmPassword"
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-            minLength={8}
-          />
-        </div>
-      )}
+        {serverError && <p className="text-sm text-destructive" role="alert">{serverError}</p>}
 
-      {error && <p className="text-sm text-destructive">{error}</p>}
-
-      <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? '...' : mode === 'login' ? t('login.submit') : t('register.submit')}
-      </Button>
-    </form>
+        <Button type="submit" className="w-full" loading={methods.formState.isSubmitting}>
+          {mode === 'login' ? t('login.submit') : t('register.submit')}
+        </Button>
+      </form>
+    </FormProvider>
   );
 }

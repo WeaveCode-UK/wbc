@@ -352,10 +352,10 @@ Total: 37 pendentes + 22 resolvidos (20 não corrigíveis + 11 não corrigidos +
 - classificação: **não corrigido**
 - motivo: instalar react-hook-form + Zod resolver e reescrever todos os formulários do projeto (10+ telas). Muda a arquitetura do frontend. Requer decisão de design.
 
-### ACH-004 — Botões xs/sm abaixo de 44px touch target
+### ACH-004 — Botões xs/sm abaixo de 44px touch target ✅ RESOLVIDO
 - severidade: medio
-- classificação: **não corrigido**
-- motivo: ajustar alturas mínimas dos botões web para 44px em viewport mobile. É corrigível e pontual. Foi agrupado com os demais achados de UI, mas poderia ser feito agora.
+- classificação: **resolvido**
+- o que foi feito: Button sm e xs agora usam `h-11` (44px) em mobile, `md:h-8` / `md:h-7` em desktop. md subiu para `h-11` (44px). Garante 44px touch target em viewport mobile.
 
 ### ACH-005 — Modais usam divs ao invés de dialog
 - severidade: medio

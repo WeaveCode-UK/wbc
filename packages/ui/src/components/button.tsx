@@ -24,9 +24,9 @@ const variantStyles: Record<ButtonVariant, string> = {
 
 const sizeStyles: Record<ButtonSize, string> = {
   lg: 'h-12 px-6 text-body rounded-md',
-  md: 'h-10 px-4 text-body-small rounded-md',
-  sm: 'h-8 px-3 text-caption rounded-sm',
-  xs: 'h-[26px] px-2 text-caption rounded-sm',
+  md: 'h-11 px-4 text-body-small rounded-md',
+  sm: 'h-11 px-3 text-caption rounded-sm md:h-8',
+  xs: 'h-11 px-2 text-caption rounded-sm md:h-7',
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(

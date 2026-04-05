@@ -52,6 +52,7 @@ export class WhatsAppN2Adapter implements WhatsAppPort {
         clearTimeout(timeout);
 
         if (!response.ok) {
+          console.error(`[WhatsApp] Send failed: status=${response.status} phone=${cleanPhone} type=${type} attempt=${attempt + 1}`);
           if (isRetryable(response.status) && attempt < MAX_RETRIES) {
             await sleep(RETRY_DELAY_MS * (attempt + 1));
             continue;
@@ -61,8 +62,9 @@ export class WhatsAppN2Adapter implements WhatsAppPort {
 
         const data = await response.json() as { messages?: Array<{ id: string }> };
         return { success: true, messageId: data.messages?.[0]?.id };
-      } catch {
+      } catch (error) {
         clearTimeout(timeout);
+        console.error(`[WhatsApp] Send error: phone=${cleanPhone} type=${type} attempt=${attempt + 1}`, error instanceof Error ? error.message : error);
         if (attempt < MAX_RETRIES) {
           await sleep(RETRY_DELAY_MS * (attempt + 1));
           continue;

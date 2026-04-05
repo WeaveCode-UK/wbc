@@ -247,10 +247,10 @@ Total: 27 pendentes + 33 resolvidos (20 não corrigíveis + 0 não corrigidos + 
   - `dlq-scanner.ts` — processo que a cada 60s varre eventos FAILED e move para fila BullMQ `wbc:dlq` com log de alerta
   - Pipeline completo: PENDING → PROCESSING → retry com backoff → FAILED (5x) → DLQ scanner → BullMQ DLQ → DLQ processor loga
 
-### ACH-015 — Ausência de runbooks
+### ACH-015 — Ausência de runbooks ✅ RESOLVIDO
 - severidade: baixo
-- classificação: **não corrigível**
-- motivo: runbooks são documentação operacional que deve ser escrita por quem conhece a infraestrutura de produção (que ainda não existe). Só faz sentido criar depois que a infra estiver definida.
+- classificação: **resolvido**
+- o que foi feito: `deploy/RUNBOOKS.md` com 8 seções: deploy/update, backup/restore, logs, restart, database, Redis, monitoramento, incidentes comuns
 
 ---
 

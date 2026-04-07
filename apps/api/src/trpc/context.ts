@@ -20,6 +20,7 @@ export function createAuthenticatedContext(claims: {
   currency: string;
 }): TRPCContext {
   return {
+    requestId: randomUUID(),
     tenant: {
       tenantId: claims.tid,
       userId: claims.sub,

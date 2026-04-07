@@ -18,7 +18,7 @@ const loginSchema = z.object({
 const registerSchema = loginSchema.extend({
   name: z.string().min(2),
   confirmPassword: z.string().min(8),
-}).refine((data) => data.password === data.confirmPassword, {
+}).refine((data: { password: string; confirmPassword: string }) => data.password === data.confirmPassword, {
   message: 'Passwords do not match',
   path: ['confirmPassword'],
 });
@@ -32,12 +32,13 @@ export function CredentialsForm({ mode }: CredentialsFormProps) {
   const router = useRouter();
   const [serverError, setServerError] = useState('');
 
-  const methods = useForm({
-    resolver: zodResolver(mode === 'register' ? registerSchema : loginSchema),
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const methods = useForm<any>({
+    resolver: zodResolver(mode === 'register' ? registerSchema : loginSchema) as never,
     defaultValues: { email: '', password: '', name: '', confirmPassword: '' },
   });
 
-  const onSubmit = methods.handleSubmit(async (data) => {
+  const onSubmit = methods.handleSubmit(async (data: { email: string; password: string; name?: string; confirmPassword?: string }) => {
     setServerError('');
 
     try {

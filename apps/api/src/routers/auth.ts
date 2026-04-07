@@ -33,6 +33,8 @@ import { UpdateMemberRole } from '@wbc/business/auth/use-cases/update-member-rol
 import { RemoveMember } from '@wbc/business/auth/use-cases/remove-member.use-case';
 import { RevokeSession } from '@wbc/business/auth/use-cases/revoke-session.use-case';
 import { RevokeAllSessions } from '@wbc/business/auth/use-cases/revoke-all-sessions.use-case';
+import { requirePermission, canPromoteTo } from '@wbc/business/auth/guards/permission.guard';
+import type { Role } from '@wbc/business/auth/domain/entities/tenant-member.entity';
 
 // Schemas
 import {

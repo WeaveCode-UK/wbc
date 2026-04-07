@@ -26,7 +26,7 @@ export class PrismaTemplateRepository implements TemplateRepository {
   async listCommunity(filters: { topic?: string; sort?: string; page: number; limit: number }) {
     const where: Record<string, unknown> = {};
     if (filters.topic) where.topic = filters.topic;
-    const orderBy = filters.sort === 'recent' ? { createdAt: 'desc' } : { likesCount: 'desc' };
+    const orderBy: Record<string, string> = filters.sort === 'recent' ? { createdAt: 'desc' } : { likesCount: 'desc' };
     return paginatedQuery(
       prisma.communityTemplate as never,
       where,

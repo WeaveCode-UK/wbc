@@ -3,7 +3,7 @@ export type { AuthenticateWithCredentialsInput } from './authenticate-with-crede
 export { AuthenticateWithOAuth } from './authenticate-with-oauth.use-case';
 export type { AuthenticateWithOAuthInput } from './authenticate-with-oauth.use-case';
 export { CreateSession } from './create-session.use-case';
-export type { CreateSessionInput, CreateSessionOutput } from './create-session.use-case';
+export type { CreateSessionOutput } from './create-session.use-case';
 export { RefreshSession } from './refresh-session.use-case';
 export type { RefreshSessionInput, RefreshSessionOutput } from './refresh-session.use-case';
 export { RevokeSession } from './revoke-session.use-case';
@@ -19,11 +19,9 @@ export type { CompleteOnboardingInput, CompleteOnboardingOutput } from './comple
 export { AcceptInvite } from './accept-invite.use-case';
 export type { AcceptInviteInput, AcceptInviteOutput } from './accept-invite.use-case';
 export { CreateInvite } from './create-invite.use-case';
-export type { CreateInviteInput } from './create-invite.use-case';
 export { CancelInvite } from './cancel-invite.use-case';
 export type { CancelInviteInput } from './cancel-invite.use-case';
 export { UpdateAccount } from './update-account.use-case';
-export type { UpdateAccountInput } from './update-account.use-case';
 export { UpdateMember } from './update-member.use-case';
 export type { UpdateMemberInput } from './update-member.use-case';
 export { DeleteAccount } from './delete-account.use-case';

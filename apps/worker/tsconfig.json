@@ -2,7 +2,12 @@
   "extends": "@wbc/config/tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "noEmit": true
+    "noEmit": true,
+    "paths": {
+      "@wbc/db": ["../../packages/db/src"],
+      "@wbc/shared": ["../../packages/shared/src"],
+      "@wbc/shared/*": ["../../packages/shared/src/*"]
+    }
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "../../packages/business/**/*.ts"]
 }

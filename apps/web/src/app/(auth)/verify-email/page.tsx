@@ -1,11 +1,12 @@
 'use client';
 
+import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@wbc/ui/components/button';
 import { useTranslations } from 'next-intl';
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const t = useTranslations('auth');
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
@@ -30,5 +31,13 @@ export default function VerifyEmailPage() {
         <Button>{t('verifyEmail.continue')}</Button>
       </Link>
     </div>
+  );
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <VerifyEmailContent />
+    </Suspense>
   );
 }

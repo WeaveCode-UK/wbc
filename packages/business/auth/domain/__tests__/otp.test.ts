@@ -11,17 +11,17 @@ describe('OTP Domain', () => {
   });
 
   it('detects expired OTP', () => {
-    const otp: OtpCode = { id: '1', phone: '+5511999', code: '123456', expiresAt: new Date(Date.now() - 1000), usedAt: null, createdAt: new Date() };
+    const otp: OtpCode = { id: '1', accountId: 'a1', code: '123456', purpose: 'TWO_FACTOR', expiresAt: new Date(Date.now() - 1000), usedAt: null, createdAt: new Date() };
     expect(isOtpExpired(otp)).toBe(true);
   });
 
   it('detects non-expired OTP', () => {
-    const otp: OtpCode = { id: '1', phone: '+5511999', code: '123456', expiresAt: new Date(Date.now() + 60000), usedAt: null, createdAt: new Date() };
+    const otp: OtpCode = { id: '1', accountId: 'a1', code: '123456', purpose: 'TWO_FACTOR', expiresAt: new Date(Date.now() + 60000), usedAt: null, createdAt: new Date() };
     expect(isOtpExpired(otp)).toBe(false);
   });
 
   it('detects used OTP', () => {
-    const otp: OtpCode = { id: '1', phone: '+5511999', code: '123456', expiresAt: new Date(Date.now() + 60000), usedAt: new Date(), createdAt: new Date() };
+    const otp: OtpCode = { id: '1', accountId: 'a1', code: '123456', purpose: 'TWO_FACTOR', expiresAt: new Date(Date.now() + 60000), usedAt: new Date(), createdAt: new Date() };
     expect(isOtpUsed(otp)).toBe(true);
   });
 

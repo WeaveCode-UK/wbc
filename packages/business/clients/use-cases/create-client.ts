@@ -54,5 +54,6 @@ export async function createClient(
     source: input.source ?? 'MANUAL',
     isLead: input.isLead ?? false,
     isActive: true,
+    version: 0,
   });
 }

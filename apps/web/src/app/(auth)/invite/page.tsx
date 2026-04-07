@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { Button } from '@wbc/ui/components/button';
@@ -8,7 +8,7 @@ import { Input } from '@wbc/ui/components/input';
 import { Label } from '@wbc/ui/components/label';
 import { useTranslations } from 'next-intl';
 
-export default function InvitePage() {
+function InviteContent() {
   const t = useTranslations('auth');
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -73,5 +73,13 @@ export default function InvitePage() {
         </Button>
       </div>
     </div>
+  );
+}
+
+export default function InvitePage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <InviteContent />
+    </Suspense>
   );
 }

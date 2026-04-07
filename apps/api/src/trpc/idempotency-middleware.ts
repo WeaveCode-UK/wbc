@@ -1,12 +1,10 @@
-import { TRPCError } from '@trpc/server';
-
 let redisClient: { get: (key: string) => Promise<string | null>; set: (key: string, value: string, options: { EX: number }) => Promise<unknown> } | null = null;
 
 async function getRedis() {
   if (redisClient) return redisClient;
   try {
     const { getRedis: getRedisInstance } = await import('../lib/redis');
-    redisClient = getRedisInstance() as typeof redisClient;
+    redisClient = getRedisInstance() as unknown as typeof redisClient;
     return redisClient;
   } catch {
     return null;

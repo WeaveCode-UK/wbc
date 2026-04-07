@@ -21,6 +21,7 @@ export interface Client {
   firstPurchaseAt: Date | null;
   isLead: boolean;
   isActive: boolean;
+  version: number;
   createdAt: Date;
   updatedAt: Date;
 }

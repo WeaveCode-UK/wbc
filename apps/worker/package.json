@@ -10,10 +10,12 @@
   },
   "dependencies": {
     "@sentry/node": "^10.45.0",
+    "@types/bcryptjs": "^3.0.0",
     "@wbc/db": "workspace:*",
     "@wbc/shared": "workspace:*",
+    "bcryptjs": "^3.0.3",
     "bullmq": "^5.0.0",
-    "ioredis": "^5.9.3",
+    "ioredis": "^5.10.1",
     "pino": "^9.0.0"
   },
   "devDependencies": {

@@ -65,6 +65,7 @@ export class PrismaTenantRepository implements TenantRepository {
           tenantId: tenant.id,
           plan: 'ESSENTIAL',
           status: 'TRIAL',
+          startsAt: new Date(),
           expiresAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
         },
       });

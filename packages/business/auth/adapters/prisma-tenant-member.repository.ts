@@ -27,14 +27,12 @@ export class PrismaTenantMemberRepository implements TenantMemberRepository {
       where: { accountId, isActive: true, deletedAt: null },
       include: {
         tenant: {
-          include: {
-            subscriptions: { where: { status: { not: 'CANCELLED' } }, take: 1 },
-          },
+          include: { subscription: true },
         },
       },
     });
     return data.map((d) => {
-      const sub = d.tenant.subscriptions[0];
+      const sub = d.tenant.subscription;
       const member = new TenantMember(d) as TenantMemberWithTenantInfo;
       Object.defineProperty(member, 'tenantName', { value: d.tenant.name, enumerable: true });
       Object.defineProperty(member, 'tenantSlug', { value: d.tenant.slug, enumerable: true });

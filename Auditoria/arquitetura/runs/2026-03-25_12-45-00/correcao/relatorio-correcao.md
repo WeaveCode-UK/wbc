@@ -41,8 +41,16 @@ Refatoração massiva da arquitetura hexagonal: 15 use-cases migrados para ports
 ## Achados Não Corrigíveis
 - ACH-007 (medio) — Deploy config — decisão de infraestrutura do usuário
 
+## Validação de Retomada
+- data: 2026-04-10 11:16:36
+- type_check: passou (`pnpm type-check`)
+- build: passou (`pnpm build`)
+- observacoes: build concluido com avisos existentes do Sentry/Next.js, sem falha.
+
 ## Merge
-- status_merge: pendente
+- status_merge: concluido
 - branch_origem: fix/arquitetura/2026-03-25_12-45-00
 - branch_destino: main
-- aprovado_por_usuario: nao
+- aprovado_por_usuario: sim
+- data_merge: 2026-04-05 00:16:49
+- merge_commit: 402e313

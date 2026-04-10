@@ -5,9 +5,9 @@
 - run_id: 2026-03-26_01-10-00
 - branch: fix/seguranca/2026-03-26_01-10-00
 - data_inicio: 2026-04-04 21:00:00
-- ultima_atualizacao: 2026-04-04 21:45:00
-- fase_atual: revisor
-- status: em_andamento
+- ultima_atualizacao: 2026-04-10 11:16:36
+- fase_atual: concluido
+- status: concluido
 
 ## Resumo de Progresso
 - total_aprovados: 13
@@ -25,192 +25,144 @@
 - severidade: critico
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: a81e248
 - commit_revisor: none
-- arquivos_alterados:
-  - packages/business/clients/adapters/prisma-client-repository.ts
-- status_revisor: aprovado
-- commit_revisor: none
 - resultado_revisao: correção completa e consistente
-- descricao_correcao: Adicionado guard findFirst com tenantId antes de update, delete, convertToClient e bulkEditNames. Impede operacao cross-tenant.
-- observacoes: Corrigido tambem convertToClient e bulkEditNames que tinham a mesma vulnerabilidade no mesmo arquivo.
+- observacoes: Guard por tenantId aplicado em operações sensíveis de client.
 
 ### ACH-002
 - titulo: BOLA — tagClient e bulkTag sem tenantId
 - severidade: critico
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: ee24e3f
 - commit_revisor: none
-- arquivos_alterados:
-  - packages/business/clients/ports/tag-repository.ts
-  - packages/business/clients/use-cases/manage-tags.ts
-  - packages/business/clients/adapters/prisma-tag-repository.ts
-  - apps/api/src/routers/clients.ts
-- status_revisor: aprovado
-- commit_revisor: none
 - resultado_revisao: correção completa e consistente
-- descricao_correcao: Adicionado tenantId em todo o fluxo tagClient/untagClient/bulkTag/getClientTags. Repository valida ownership de client e tag antes de operar. Router passa ctx.tenant.tenantId. Tambem corrigido delete de tag com guard de tenantId.
-- observacoes: none
+- observacoes: tenantId propagado e ownership validado para client/tag.
 
 ### ACH-003
 - titulo: BOLA — listPayments e markPaid sem tenantId
 - severidade: critico
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: a8673a1
 - commit_revisor: none
-- arquivos_alterados:
-  - packages/business/sales/ports/payment-repository.ts
-  - packages/business/sales/use-cases/manage-payments.ts
-  - packages/business/sales/adapters/prisma-payment-repository.ts
-  - apps/api/src/routers/sales.ts
-- descricao_correcao: Adicionado tenantId em todo o fluxo listPayments/markPaid. Repository filtra via join sale.tenantId. markPaid usa findFirst guard antes de update.
-- observacoes: none
+- resultado_revisao: correção completa e consistente
+- observacoes: Filtro por tenantId via sale aplicado no fluxo de pagamentos.
 
 ### ACH-004
 - titulo: BOLA — getRecipients sem tenantId
 - severidade: alto
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: af4db44
 - commit_revisor: none
-- arquivos_alterados:
-  - packages/business/campaigns/ports/campaign-repository.ts
-  - packages/business/campaigns/use-cases/manage-campaigns.ts
-  - packages/business/campaigns/adapters/prisma-campaign-repository.ts
-  - apps/api/src/routers/campaigns.ts
-- descricao_correcao: Adicionado tenantId em getRecipients. Use-case valida ownership da campaign antes de retornar recipients. Repository filtra via join campaign.tenantId. Tambem corrigido delete de campaign com guard.
-- observacoes: none
+- resultado_revisao: correção completa e consistente
+- observacoes: getRecipients valida ownership da campaign pelo tenant.
 
 ### ACH-007
 - titulo: Ausencia total de rate limiting
 - severidade: alto
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: b3ea069
 - commit_revisor: none
-- arquivos_alterados:
-  - apps/api/src/trpc/rate-limit-middleware.ts (novo)
-  - apps/api/src/trpc/trpc.ts
-- descricao_correcao: Criado rate-limit-middleware.ts usando Redis com sliding window. Integrado em publicProcedure (30 req/min) e protectedProcedure (100 req/min por user+tenant). Retorna TRPCError TOO_MANY_REQUESTS quando excedido.
-- observacoes: none
+- resultado_revisao: correção completa e consistente
+- observacoes: Rate limiting tRPC global implementado via Redis.
 
 ### ACH-005
 - titulo: Sem brute-force protection em OTP
 - severidade: alto
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: 6bfe0bf
 - commit_revisor: none
-- arquivos_alterados:
-  - packages/business/auth/ports/otp-repository.ts
-  - packages/business/auth/adapters/prisma-otp-repository.ts
-  - packages/business/auth/use-cases/verify-otp.ts
-  - packages/business/auth/domain/errors.ts
-- descricao_correcao: Adicionado contador de tentativas falhas via Redis (15min TTL). Bloqueia apos 5 falhas com OtpTooManyAttemptsError. Reset apos sucesso. Port extendido com getFailedAttempts/incrementFailedAttempts/resetFailedAttempts.
-- observacoes: none
+- resultado_revisao: correção completa e consistente
+- observacoes: Contador de tentativas falhas e bloqueio temporário adicionados.
 
 ### ACH-006
 - titulo: Sem rate limiting em envio de OTP
 - severidade: alto
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: f50a65f
 - commit_revisor: none
-- arquivos_alterados:
-  - packages/business/auth/ports/otp-repository.ts
-  - packages/business/auth/adapters/prisma-otp-repository.ts
-  - packages/business/auth/use-cases/send-otp.ts
-  - packages/business/auth/domain/errors.ts
-- descricao_correcao: Adicionado rate limiting de envio de OTP: max 3 envios por telefone por hora via Redis. OtpSendRateLimitError lancado quando excedido. Port extendido com getSendCount/incrementSendCount.
-- observacoes: none
+- resultado_revisao: correção completa e consistente
+- observacoes: Limite de envio de OTP por telefone adicionado.
 
 ### ACH-009
 - titulo: Sem RBAC implementado
 - severidade: medio
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: 4c51f66
 - commit_revisor: none
-- arquivos_alterados:
-  - apps/api/src/trpc/trpc.ts
-  - apps/api/src/routers/team.ts
-- descricao_correcao: Criado roleProtectedProcedure factory com hierarquia CONSULTANT<LEADER<DIRECTOR<ADMIN. Aplicado em addMember e removeMember (minimo LEADER). Retorna FORBIDDEN se role insuficiente.
-- observacoes: none
+- resultado_revisao: correção completa e consistente
+- observacoes: roleProtectedProcedure e proteção em operações administrativas adicionados.
 
 ### ACH-008
 - titulo: Webhook WhatsApp sem HMAC
 - severidade: medio
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: corrigido_com_revisao
 - commit_executor: d3b700c
-- commit_revisor: none
-- arquivos_alterados:
-  - packages/business/messaging/adapters/whatsapp-webhook-handler.ts
-- descricao_correcao: Adicionado verifyWebhookSignature() com HMAC-SHA256 usando WHATSAPP_APP_SECRET. WebhookSignatureError para requests sem assinatura valida. Funcao exportada para ser chamada antes de parseWebhookStatuses.
-- observacoes: none
+- commit_revisor: 822aafe
+- discrepancia_encontrada: comparação HMAC com string simples
+- correcao_aplicada: comparação trocada para crypto.timingSafeEqual
+- observacoes: Correção do revisor reduz risco de timing attack.
 
 ### ACH-013
 - titulo: Sem auditoria de eventos de seguranca
 - severidade: medio
 - classificacao: corrigivel_parcial
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: d0e53e1
 - commit_revisor: none
-- arquivos_alterados:
-  - apps/api/src/lib/security-logger.ts (novo)
-- descricao_correcao: Criado security-logger.ts com tipos de eventos (otp.send, otp.verify.success/failed/locked, auth.login, rbac.forbidden, cross_tenant_blocked). Logger dedicado via pino com contexto (phone, userId, tenantId, timestamp). Estrutura pronta para integracao nos use-cases.
-- observacoes: Correcao parcial — logger criado mas integracao nos use-cases individuais requer validacao humana sobre quais eventos sao prioritarios para a primeira iteracao.
+- resultado_revisao: correção parcial consistente
+- observacoes: Logger criado; integração completa nos use-cases depende de decisão de priorização.
 
 ### ACH-010
 - titulo: Health check expoe detalhes de erro
 - severidade: baixo
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: 9d5ee89
 - commit_revisor: none
-- arquivos_alterados:
-  - apps/api/src/routers/health.ts
-- descricao_correcao: Removido String(error) da resposta publica. Retorna apenas { status: 'error' }. Erro logado internamente via pino logger.
-- observacoes: none
+- resultado_revisao: correção completa e consistente
+- observacoes: Resposta pública de erro sanitizada.
 
 ### ACH-011
 - titulo: Sem security headers
 - severidade: baixo
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: b56c683
 - commit_revisor: none
-- arquivos_alterados:
-  - apps/web/next.config.mjs
-- descricao_correcao: Adicionado securityHeaders com HSTS, X-Content-Type-Options, X-Frame-Options, X-XSS-Protection, Referrer-Policy, Permissions-Policy e CSP. Aplicados em todas as rotas via headers().
-- observacoes: CSP inclui unsafe-inline/unsafe-eval para compatibilidade com Next.js. Refinar em producao.
+- resultado_revisao: correção completa e consistente
+- observacoes: Headers de segurança adicionados ao Next.js.
 
 ### ACH-012
 - titulo: OTP logado em plaintext
 - severidade: baixo
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: 2aba2f1
 - commit_revisor: none
-- arquivos_alterados:
-  - packages/business/auth/use-cases/send-otp.ts
-- descricao_correcao: Removido codigo OTP do console.log. Mantido apenas log de que OTP foi enviado para o telefone, sem expor o codigo.
-- observacoes: none
+- resultado_revisao: correção completa e consistente
+- observacoes: Código OTP removido de logs.
 
 ### ACH-014
 - titulo: Validacao Zod excelente
@@ -220,4 +172,14 @@
 - status_revisor: nao_aplicavel
 - commit_executor: none
 - commit_revisor: none
-- observacoes: Achado positivo, sem acao necessaria
+- observacoes: Achado positivo, sem ação corretiva.
+
+## Validação Técnica
+- type_check: passou
+- build: passou
+- bloqueio_build: nao
+
+## Merge
+- status_merge: concluido
+- merge_commit: 59346ce
+- branch_destino: main

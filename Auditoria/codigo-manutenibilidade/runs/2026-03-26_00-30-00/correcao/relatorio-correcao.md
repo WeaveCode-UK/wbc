@@ -20,8 +20,8 @@ Corrigidos 7 achados. 5 totalmente corrigidos, 2 parciais com helpers criados. R
 - falha_total: 0
 
 ## Validação Técnica
-- type_check: passou (erros pré-existentes do auth v2)
-- build: nao_executado
+- type_check: passou
+- build: passou
 - bloqueio_build: nao
 
 ## Achados Corrigidos
@@ -42,6 +42,12 @@ Corrigidos 7 achados. 5 totalmente corrigidos, 2 parciais com helpers criados. R
 ## Não Corrigíveis
 - ACH-008 (info) — achado positivo
 
+## Validação de Retomada
+- data: 2026-04-10 11:16:36
+- type_check: passou (`pnpm type-check`)
+- build: passou (`pnpm build`)
+- observacoes: build concluido com avisos existentes do Sentry/Next.js, sem falha.
+
 ## Commits
 1. c0276ac init | 2. 89f03ef ACH-007 | 3. 86f0777 ACH-001
 4. 073a74b ACH-005 | 5. 468aa25 ACH-006 | 6. b8b91b6 ACH-004
@@ -49,7 +55,9 @@ Corrigidos 7 achados. 5 totalmente corrigidos, 2 parciais com helpers criados. R
 10. 269e267 review-fix ACH-002
 
 ## Merge
-- status_merge: pendente
+- status_merge: concluido
 - branch_origem: fix/codigo-manutenibilidade/2026-03-26_00-30-00
 - branch_destino: main
-- aprovado_por_usuario: nao
+- aprovado_por_usuario: sim
+- data_merge: 2026-04-05 00:32:34
+- merge_commit: f5322da

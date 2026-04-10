@@ -64,6 +64,12 @@ Nenhum.
 ## Achados com Falha Total
 Nenhum.
 
+## Validação de Retomada
+- data: 2026-04-10 11:16:36
+- type_check: passou (`pnpm type-check`)
+- build: passou (`pnpm build`)
+- observacoes: build concluido com avisos existentes do Sentry/Next.js, sem falha.
+
 ## Commits Gerados
 1. 0a96b13 — chore: inicializar correção
 2. a81e248 — fix: ACH-001 (executor)

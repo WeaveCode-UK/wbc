@@ -2,8 +2,8 @@
 
 ## Identificação
 - dominio: arquitetura
-- ultima_atualizacao: 2026-04-05 19:00:00
-- total_runs_registradas: 2
+- ultima_atualizacao: 2026-04-10 14:24:30
+- total_runs_registradas: 3
 
 ## Regras
 - Registrar apenas runs finalizadas.
@@ -12,6 +12,20 @@
 - Cada entrada deve resumir status, escopo, resultado e severidade agregada.
 
 ## Runs Registradas
+
+### RUN 2026-04-10_12-42-00
+- status: completed
+- iniciado_em: 2026-04-10 12:42:00
+- finalizado_em: 2026-04-10 14:24:30
+- escopo: auditoria completa do domínio arquitetura
+- avaliacao_final: critico
+- achados:
+  - critico: 1
+  - alto: 2
+  - medio: 1
+  - baixo: 0
+  - informativo: 0
+- pasta_historica: /Auditoria/arquitetura/runs/2026-04-10_12-42-00/
 
 ### RUN 2026-04-05_18-00-00
 - status: completed

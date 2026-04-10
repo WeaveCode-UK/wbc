@@ -1,11 +1,11 @@
 # Metadata da Run Atual
 
-- dominio: codigo-manutenibilidade
-- run_id: 2026-04-10_14-28-01
-- status: ready_for_finalize
-- iniciado_em: 2026-04-10 14:28:01
-- finalizado_em: none
-- escopo: auditoria completa do domínio codigo-manutenibilidade conforme playbook oficial
+- dominio: arquitetura
+- run_id: 2026-04-10_12-42-00
+- status: completed
+- iniciado_em: 2026-04-10 12:42:00
+- finalizado_em: 2026-04-10 14:24:30
+- escopo: auditoria completa do domínio arquitetura conforme playbook oficial
 - origem: prompt-02-iniciar-run
 - versao_framework: 2.0
 - responsavel_execucao: agente-local

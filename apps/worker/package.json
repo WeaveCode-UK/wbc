@@ -9,12 +9,12 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@sentry/node": "^10.45.0",
+    "@sentry/node": "^10.48.0",
     "@types/bcryptjs": "^3.0.0",
     "@wbc/db": "workspace:*",
     "@wbc/shared": "workspace:*",
     "bcryptjs": "^3.0.3",
-    "bullmq": "^5.0.0",
+    "bullmq": "^5.73.4",
     "ioredis": "^5.10.1",
     "pino": "^9.0.0"
   },

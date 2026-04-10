@@ -1,5 +1,5 @@
 import { TRPCError } from '@trpc/server';
-import { router, publicProcedure, protectedProcedure, roleProtectedProcedure } from '../trpc/trpc';
+import { router, publicProcedure, authedProcedure, protectedProcedure, roleProtectedProcedure } from '../trpc/trpc';
 import { prisma } from '@wbc/db';
 
 // Adapters
@@ -121,12 +121,12 @@ export const authRouter = router({
   // AUTHED (requires accountId, no tenant required)
   // ═══════════════════════════════════════════
 
-  completeOnboarding: protectedProcedure
+  completeOnboarding: authedProcedure
     .input(completeOnboardingSchema)
     .mutation(async ({ input, ctx }) => {
       const uc = new CompleteOnboarding(accountRepo, memberRepo);
       return uc.execute({
-        accountId: ctx.tenant.userId,
+        accountId: ctx.accountId,
         tenantName: input.tenantName,
         slug: input.slug,
         phone: input.phone,
@@ -135,19 +135,19 @@ export const authRouter = router({
       });
     }),
 
-  listWorkspaces: protectedProcedure
+  listWorkspaces: authedProcedure
     .query(async ({ ctx }) => {
       const uc = new ListWorkspaces(memberRepo);
-      const workspaces = await uc.execute({ accountId: ctx.tenant.userId });
+      const workspaces = await uc.execute({ accountId: ctx.accountId });
       return { workspaces };
     }),
 
-  switchWorkspace: protectedProcedure
+  switchWorkspace: authedProcedure
     .input(switchWorkspaceSchema)
     .mutation(async ({ input, ctx }) => {
       const uc = new SwitchWorkspace(memberRepo);
       return uc.execute({
-        accountId: ctx.tenant.userId,
+        accountId: ctx.accountId,
         targetTenantId: input.tenantId,
       });
     }),

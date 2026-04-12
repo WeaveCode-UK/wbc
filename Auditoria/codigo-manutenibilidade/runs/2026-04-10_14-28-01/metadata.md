@@ -1,17 +1,17 @@
 # Metadata da Run Atual
 
 - dominio: codigo-manutenibilidade
-- run_id: none
-- status: not_started
-- iniciado_em: none
-- finalizado_em: none
-- escopo: none
-- origem: reinicializado pelo Prompt 04 apos finalizacao de 2026-04-10_14-28-01
+- run_id: 2026-04-10_14-28-01
+- status: completed
+- iniciado_em: 2026-04-10 14:28:01
+- finalizado_em: 2026-04-10 14:37:51
+- escopo: auditoria completa do domínio codigo-manutenibilidade conforme playbook oficial
+- origem: prompt-02-iniciar-run
 - versao_framework: 2.0
 - responsavel_execucao: agente-local
 - modo_execucao: incremental-por-fase
-- auditoria_anterior_relacionada: 2026-04-10_14-28-01
-- observacoes: current reinicializado em 2026-04-10 14:37:51 apos arquivamento da run 2026-04-10_14-28-01
+- auditoria_anterior_relacionada: 2026-04-05_18-00-00
+- observacoes: nova avaliacao executada via Prompt 03; run pronta para finalizacao via Prompt 04 apos confirmacao do usuario
 
 ## Estados Permitidos
 - not_started

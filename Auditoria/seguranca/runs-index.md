@@ -2,8 +2,8 @@
 
 ## Identificação
 - dominio: seguranca
-- ultima_atualizacao: 2026-04-05 19:00:00
-- total_runs_registradas: 2
+- ultima_atualizacao: 2026-04-12 08:27:12
+- total_runs_registradas: 3
 
 ## Regras
 - Registrar apenas runs finalizadas.
@@ -12,6 +12,20 @@
 - Cada entrada deve resumir status, escopo, resultado e severidade agregada.
 
 ## Runs Registradas
+
+### RUN 2026-04-10_14-39-37
+- status: completed
+- iniciado_em: 2026-04-10 14:39:37
+- finalizado_em: 2026-04-12 08:27:12
+- escopo: auditoria completa do domínio seguranca
+- avaliacao_final: critico
+- achados:
+  - critico: 1
+  - alto: 2
+  - medio: 3
+  - baixo: 0
+  - informativo: 0
+- pasta_historica: /Auditoria/seguranca/runs/2026-04-10_14-39-37/
 
 ### RUN 2026-04-05_18-00-00
 - status: completed

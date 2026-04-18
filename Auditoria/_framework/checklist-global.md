@@ -41,6 +41,10 @@ Garantir que a estrutura do framework foi criada corretamente e que está pronta
 - [x] `testes-qualidade` criado
 - [x] `ui-ux-fluxos` criado
 - [x] `infraestrutura-deploy-config` criado
+- [x] `compliance-privacidade` criado
+- [x] `supply-chain-dependencias` criado
+- [x] `custos-finops` criado
+- [x] `documentacao-runbooks` criado
 
 ## Estrutura por Domínio
 Para cada domínio:
@@ -65,6 +69,10 @@ Para cada domínio:
 - [x] `testes-qualidade.playbook.md` criado
 - [x] `ui-ux-fluxos.playbook.md` criado
 - [x] `infraestrutura-deploy-config.playbook.md` criado
+- [x] `compliance-privacidade.playbook.md` criado
+- [x] `supply-chain-dependencias.playbook.md` criado
+- [x] `custos-finops.playbook.md` criado
+- [x] `documentacao-runbooks.playbook.md` criado
 
 ## Prontidão Operacional
 - [x] Convenções revisadas

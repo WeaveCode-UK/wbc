@@ -38,6 +38,10 @@ A estrutura oficial do framework está sob `/Auditoria`.
 - `/Auditoria/testes-qualidade`
 - `/Auditoria/ui-ux-fluxos`
 - `/Auditoria/infraestrutura-deploy-config`
+- `/Auditoria/compliance-privacidade`
+- `/Auditoria/supply-chain-dependencias`
+- `/Auditoria/custos-finops`
+- `/Auditoria/documentacao-runbooks`
 
 ### Playbooks
 Os playbooks oficiais ficam em:

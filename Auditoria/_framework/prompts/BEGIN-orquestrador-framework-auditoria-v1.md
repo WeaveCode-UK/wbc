@@ -1,3 +1,17 @@
+---
+kind: prompt
+id: begin
+version: 1
+name: orquestrador
+requires:
+  - prompt-01a-v2
+  - prompt-01b-v2
+  - prompt-02-v4
+  - prompt-03-v4
+  - prompt-04-v2
+  - prompt-05-v1
+---
+
 # BEGIN — Orquestrador do Framework de Auditoria WeaveCode
 
 Você é um agente local operando diretamente no repositório.
@@ -203,6 +217,10 @@ Domínios disponíveis:
  9. testes-qualidade
 10. ui-ux-fluxos
 11. infraestrutura-deploy-config
+12. compliance-privacidade
+13. supply-chain-dependencias
+14. custos-finops
+15. documentacao-runbooks
 ```
 
 Pergunte ao usuário:
@@ -211,7 +229,7 @@ Pergunte ao usuário:
 Como deseja prosseguir?
 
 Opções:
-- "todos" → auditar todos os 11 domínios em sequência
+- "todos" → auditar todos os 15 domínios em sequência
 - números separados por vírgula (ex: "1, 3, 5") → auditar apenas os selecionados
 - nome do domínio (ex: "seguranca") → auditar apenas esse domínio
 
@@ -221,7 +239,7 @@ Após cada domínio auditado, você será consultado sobre correção dos achado
 Aguarde a resposta do usuário.
 
 ### Validação
-- Se o usuário escolheu "todos": lista = todos os 11 domínios na ordem oficial
+- Se o usuário escolheu "todos": lista = todos os 15 domínios na ordem oficial
 - Se o usuário escolheu domínios específicos: valide que cada um é um domínio oficial. Se algum for inválido, informe e peça correção.
 
 Armazene a lista de domínios selecionados e prossiga para a Etapa 5 com o primeiro domínio da lista.

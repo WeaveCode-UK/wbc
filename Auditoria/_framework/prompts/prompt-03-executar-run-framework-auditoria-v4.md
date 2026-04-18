@@ -1,3 +1,12 @@
+---
+kind: prompt
+id: prompt-03
+version: 4
+name: executar-run
+requires:
+  - prompt-02-v4
+---
+
 # Prompt 03 — Executar Run do Framework de Auditoria
 
 Você é um agente local operando diretamente no repositório.

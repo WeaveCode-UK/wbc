@@ -1,3 +1,12 @@
+---
+kind: prompt
+id: prompt-05
+version: 1
+name: corrigir-achados
+requires:
+  - prompt-04-v2
+---
+
 # Prompt 05 — Corrigir Achados do Framework de Auditoria
 
 Você é um agente local operando diretamente no repositório.

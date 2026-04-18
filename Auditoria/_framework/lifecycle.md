@@ -41,7 +41,7 @@ O Bootstrap Core não executa auditoria técnica do projeto e não semeia os pla
 ## Etapa 2 — Seed de Playbooks
 
 ### Objetivo
-Criar e preencher o índice oficial dos playbooks e os 11 playbooks canônicos do framework.
+Criar e preencher o índice oficial dos playbooks e os 15 playbooks canônicos do framework.
 
 ### Pré-condições
 - Bootstrap Core concluído

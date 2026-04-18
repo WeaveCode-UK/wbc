@@ -57,6 +57,22 @@ O Prompt 02 — Iniciar Run deve:
     - arquivo: `/Auditoria/_framework/playbooks/infraestrutura-deploy-config.playbook.md`
     - foco: prontidão operacional, configuração e entrega
 
+12. compliance-privacidade
+    - arquivo: `/Auditoria/_framework/playbooks/compliance-privacidade.playbook.md`
+    - foco: aderência a LGPD/GDPR e direitos dos titulares
+
+13. supply-chain-dependencias
+    - arquivo: `/Auditoria/_framework/playbooks/supply-chain-dependencias.playbook.md`
+    - foco: higiene da cadeia de suprimentos de software e CVEs
+
+14. custos-finops
+    - arquivo: `/Auditoria/_framework/playbooks/custos-finops.playbook.md`
+    - foco: eficiência financeira e otimização de consumo cloud
+
+15. documentacao-runbooks
+    - arquivo: `/Auditoria/_framework/playbooks/documentacao-runbooks.playbook.md`
+    - foco: continuidade operacional e conhecimento documentado
+
 ## Regras Operacionais dos Playbooks
 - Cada run deve usar apenas um playbook por vez.
 - O playbook selecionado define objetivo, escopo, fases internas, checks obrigatórios, critérios de bloqueio e critérios de `ready_for_finalize`.

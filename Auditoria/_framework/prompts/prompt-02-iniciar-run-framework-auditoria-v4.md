@@ -1,3 +1,13 @@
+---
+kind: prompt
+id: prompt-02
+version: 4
+name: iniciar-run
+requires:
+  - prompt-01a-v2
+  - prompt-01b-v2
+---
+
 # Prompt 02 — Iniciar Run do Framework de Auditoria
 
 Você é um agente local operando diretamente no repositório.
@@ -8,7 +18,7 @@ Sua tarefa nesta execução é **somente** abrir formalmente uma nova run de aud
 
 # Objetivo
 
-1. Apresentar os 11 domínios de auditoria disponíveis
+1. Apresentar os 15 domínios de auditoria disponíveis
 2. Receber a escolha do usuário
 3. Validar o domínio escolhido
 4. Ler o playbook oficial desse domínio
@@ -55,6 +65,10 @@ Domínios de auditoria disponíveis:
  9. testes-qualidade
 10. ui-ux-fluxos
 11. infraestrutura-deploy-config
+12. compliance-privacidade
+13. supply-chain-dependencias
+14. custos-finops
+15. documentacao-runbooks
 
 Qual domínio você deseja auditar agora?
 ```
@@ -67,7 +81,7 @@ Aguarde a resposta do usuário antes de continuar.
 
 Após receber a resposta, valide:
 
-1. O domínio informado é exatamente um dos 11 domínios oficiais listados acima.
+1. O domínio informado é exatamente um dos 15 domínios oficiais listados acima.
 2. Use o nome canônico exato na forma `nome-com-hifens` (exemplo: `seguranca`, `apis-integracoes`).
 3. Se o usuário informar número, converta para o nome canônico correspondente.
 4. Se o domínio informado for ambíguo, inválido ou não reconhecível, informe claramente e **não avance**.

@@ -2,8 +2,8 @@
 
 ## Identificação
 - dominio: testes-qualidade
-- ultima_atualizacao: 2026-04-05 19:00:00
-- total_runs_registradas: 2
+- ultima_atualizacao: none
+- total_runs_registradas: 0
 
 ## Regras
 - Registrar apenas runs finalizadas.
@@ -12,25 +12,4 @@
 - Cada entrada deve resumir status, escopo, resultado e severidade agregada.
 
 ## Runs Registradas
-
-### RUN 2026-04-05_18-00-00
-- status: completed
-- iniciado_em: 2026-04-05 18:00:00
-- finalizado_em: 2026-04-05 19:00:00
-- escopo: auditoria completa do dominio testes-qualidade (segunda passada)
-- avaliacao_final: aceitavel_com_ressalvas
-- pasta_historica: /Auditoria/testes-qualidade/runs/2026-04-05_18-00-00/
-
-### RUN 2026-03-26_11-30-00
-- status: completed
-- iniciado_em: 2026-03-26 11:30:00
-- finalizado_em: 2026-03-26 11:34:00
-- escopo: auditoria completa do dominio testes-qualidade
-- avaliacao_final: critico
-- achados:
-  - critico: 1
-  - alto: 5
-  - medio: 2
-  - baixo: 0
-  - informativo: 1
-- pasta_historica: /Auditoria/testes-qualidade/runs/2026-03-26_11-30-00/
+Nenhuma run finalizada registrada ate o momento.

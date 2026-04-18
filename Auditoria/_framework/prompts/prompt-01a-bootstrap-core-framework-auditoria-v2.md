@@ -1,3 +1,10 @@
+---
+kind: prompt
+id: prompt-01a
+version: 2
+name: bootstrap-core
+---
+
 # Prompt 01A — Bootstrap Core do Framework de Auditoria
 
 Você é um agente local operando diretamente no repositório.
@@ -212,6 +219,42 @@ Crie exatamente esta estrutura, sem gerar os arquivos completos dos playbooks ne
       relatorio-final.md
     /runs
 
+  /compliance-privacidade
+    runs-index.md
+    /current
+      metadata.md
+      acompanhamento.md
+      achados.md
+      relatorio-final.md
+    /runs
+
+  /supply-chain-dependencias
+    runs-index.md
+    /current
+      metadata.md
+      acompanhamento.md
+      achados.md
+      relatorio-final.md
+    /runs
+
+  /custos-finops
+    runs-index.md
+    /current
+      metadata.md
+      acompanhamento.md
+      achados.md
+      relatorio-final.md
+    /runs
+
+  /documentacao-runbooks
+    runs-index.md
+    /current
+      metadata.md
+      acompanhamento.md
+      achados.md
+      relatorio-final.md
+    /runs
+
 ---
 
 # Convenções obrigatórias
@@ -303,6 +346,10 @@ A estrutura oficial do framework está sob `/Auditoria`.
 - `/Auditoria/testes-qualidade`
 - `/Auditoria/ui-ux-fluxos`
 - `/Auditoria/infraestrutura-deploy-config`
+- `/Auditoria/compliance-privacidade`
+- `/Auditoria/supply-chain-dependencias`
+- `/Auditoria/custos-finops`
+- `/Auditoria/documentacao-runbooks`
 
 ### Playbooks
 Os playbooks oficiais ficam em:
@@ -1024,6 +1071,30 @@ Crie este arquivo com o conteúdo abaixo:
 - Cobre: env vars, CI/CD, deploy, containers, secrets, rollback, ambientes, backups quando aplicável.
 - Não cobre diretamente: UX, arquitetura de domínio, qualidade semântica do código.
 
+## 12. compliance-privacidade
+- Objetivo: verificar aderência a obrigações regulatórias de proteção de dados pessoais (LGPD, GDPR e equivalentes).
+- Aplicabilidade: projetos que coletam, processam ou compartilham dados pessoais de usuários.
+- Cobre: mapeamento de PII, base legal, consentimento, direitos dos titulares, retenção, transferência, resposta a incidentes.
+- Não cobre diretamente: segurança técnica de aplicação (fica em `seguranca`), parecer jurídico formal.
+
+## 13. supply-chain-dependencias
+- Objetivo: verificar higiene e risco da cadeia de suprimentos de software.
+- Aplicabilidade: qualquer projeto com dependências externas ou pipeline de build.
+- Cobre: inventário/SBOM, CVEs conhecidas, licenças, integridade/pinning, riscos qualitativos de libs, segurança do pipeline.
+- Não cobre diretamente: vulnerabilidades de aplicação (fica em `seguranca`), arquitetura interna.
+
+## 14. custos-finops
+- Objetivo: verificar eficiência financeira da operação e identificar desperdícios e oportunidades de otimização.
+- Aplicabilidade: projetos que rodam em cloud ou consomem serviços pagos relevantes.
+- Cobre: inventário de recursos, sizing, anti-padrões de custo, observabilidade de custo, otimização comercial.
+- Não cobre diretamente: arquitetura funcional, performance em si (fica em `performance-escalabilidade` quando for o foco).
+
+## 15. documentacao-runbooks
+- Objetivo: verificar se a documentação permite continuidade operacional, onboarding e resposta a incidentes sem conhecimento tácito.
+- Aplicabilidade: projetos em operação com mais de um mantenedor atual ou potencial.
+- Cobre: README/onboarding, ADRs/arquitetura, runbooks operacionais, incident response, documentação de API e integrações.
+- Não cobre diretamente: qualidade do código em si, correção de bugs; foca em qualidade do conhecimento documentado.
+
 ---
 
 ## 8. `/Auditoria/_framework/checklist-global.md`
@@ -1073,6 +1144,10 @@ Garantir que a estrutura do framework foi criada corretamente e que está pronta
 - [ ] `testes-qualidade` criado
 - [ ] `ui-ux-fluxos` criado
 - [ ] `infraestrutura-deploy-config` criado
+- [ ] `compliance-privacidade` criado
+- [ ] `supply-chain-dependencias` criado
+- [ ] `custos-finops` criado
+- [ ] `documentacao-runbooks` criado
 
 ## Estrutura por Domínio
 Para cada domínio:
@@ -1097,6 +1172,10 @@ Para cada domínio:
 - [ ] `testes-qualidade.playbook.md` criado
 - [ ] `ui-ux-fluxos.playbook.md` criado
 - [ ] `infraestrutura-deploy-config.playbook.md` criado
+- [ ] `compliance-privacidade.playbook.md` criado
+- [ ] `supply-chain-dependencias.playbook.md` criado
+- [ ] `custos-finops.playbook.md` criado
+- [ ] `documentacao-runbooks.playbook.md` criado
 
 ## Prontidão Operacional
 - [ ] Convenções revisadas
@@ -1213,6 +1292,34 @@ Conteúdo base:
 - total_runs: 0
 - playbook_status: pending
 
+### compliance-privacidade
+- status_current: not_started
+- run_id_atual: none
+- ultima_run_finalizada: none
+- total_runs: 0
+- playbook_status: pending
+
+### supply-chain-dependencias
+- status_current: not_started
+- run_id_atual: none
+- ultima_run_finalizada: none
+- total_runs: 0
+- playbook_status: pending
+
+### custos-finops
+- status_current: not_started
+- run_id_atual: none
+- ultima_run_finalizada: none
+- total_runs: 0
+- playbook_status: pending
+
+### documentacao-runbooks
+- status_current: not_started
+- run_id_atual: none
+- ultima_run_finalizada: none
+- total_runs: 0
+- playbook_status: pending
+
 ## Regras de Atualização
 1. Atualizar este arquivo no Bootstrap Core.
 2. Atualizar este arquivo no Seed de Playbooks.
@@ -1277,6 +1384,10 @@ Registrar o resultado da execução do Bootstrap Core que criou ou inicializou a
 - testes-qualidade: nao_registrado
 - ui-ux-fluxos: nao_registrado
 - infraestrutura-deploy-config: nao_registrado
+- compliance-privacidade: nao_registrado
+- supply-chain-dependencias: nao_registrado
+- custos-finops: nao_registrado
+- documentacao-runbooks: nao_registrado
 
 ## Seed de Playbooks
 - status: pending
@@ -1653,6 +1764,10 @@ Domínios oficiais:
 - testes-qualidade
 - ui-ux-fluxos
 - infraestrutura-deploy-config
+- compliance-privacidade
+- supply-chain-dependencias
+- custos-finops
+- documentacao-runbooks
 
 ---
 

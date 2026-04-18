@@ -65,3 +65,27 @@
 - Aplicabilidade: qualquer projeto que rode fora do editor local.
 - Cobre: env vars, CI/CD, deploy, containers, secrets, rollback, ambientes, backups quando aplicável.
 - Não cobre diretamente: UX, arquitetura de domínio, qualidade semântica do código.
+
+## 12. compliance-privacidade
+- Objetivo: verificar aderência a obrigações regulatórias de proteção de dados pessoais (LGPD, GDPR e equivalentes).
+- Aplicabilidade: projetos que coletam, processam ou compartilham dados pessoais de usuários.
+- Cobre: mapeamento de PII, base legal, consentimento, direitos dos titulares, retenção, transferência, resposta a incidentes.
+- Não cobre diretamente: segurança técnica de aplicação (fica em `seguranca`), parecer jurídico formal.
+
+## 13. supply-chain-dependencias
+- Objetivo: verificar higiene e risco da cadeia de suprimentos de software.
+- Aplicabilidade: qualquer projeto com dependências externas ou pipeline de build.
+- Cobre: inventário/SBOM, CVEs conhecidas, licenças, integridade/pinning, riscos qualitativos de libs, segurança do pipeline.
+- Não cobre diretamente: vulnerabilidades de aplicação (fica em `seguranca`), arquitetura interna.
+
+## 14. custos-finops
+- Objetivo: verificar eficiência financeira da operação e identificar desperdícios e oportunidades de otimização.
+- Aplicabilidade: projetos que rodam em cloud ou consomem serviços pagos relevantes.
+- Cobre: inventário de recursos, sizing, anti-padrões de custo, observabilidade de custo, otimização comercial.
+- Não cobre diretamente: arquitetura funcional, performance em si (fica em `performance-escalabilidade` quando for o foco).
+
+## 15. documentacao-runbooks
+- Objetivo: verificar se a documentação permite continuidade operacional, onboarding e resposta a incidentes sem conhecimento tácito.
+- Aplicabilidade: projetos em operação com mais de um mantenedor atual ou potencial.
+- Cobre: README/onboarding, ADRs/arquitetura, runbooks operacionais, incident response, documentação de API e integrações.
+- Não cobre diretamente: qualidade do código em si, correção de bugs; foca em qualidade do conhecimento documentado.

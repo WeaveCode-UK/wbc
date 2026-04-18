@@ -1,103 +1,131 @@
 # Status Geral do Framework
 
-## Identificacao
-- ultima_atualizacao: 2026-04-12 08:34:40
+## Identificação
+- ultima_atualizacao: 2026-04-18 16:25:00
 - versao_framework: 2.0
 - status_bootstrap_core: completed
 - status_playbooks_seed: completed
 
 ## Resumo Geral
-- total_dominios: 11
-- total_playbooks_oficiais: 11
-- dominios_com_run_ativa: 1
-- dominios_com_historico: 11
-- total_runs_historicas: 25
+- total_dominios: 15
+- total_playbooks_oficiais: 15
+- dominios_com_run_ativa: 0
+- dominios_com_historico: 0
+- total_runs_historicas: 0
 
-## Status por Dominio
-
-### seguranca
-- status_current: not_started
-- run_id_atual: none
-- ultima_run_finalizada: 2026-04-10_14-39-37
-- total_runs: 3
-- playbook_status: completed
+## Status por Domínio
 
 ### arquitetura
 - status_current: not_started
 - run_id_atual: none
-- ultima_run_finalizada: 2026-04-10_12-42-00
-- total_runs: 3
+- ultima_run_finalizada: none
+- total_runs: 0
 - playbook_status: completed
 
 ### codigo-manutenibilidade
 - status_current: not_started
 - run_id_atual: none
-- ultima_run_finalizada: 2026-04-10_14-28-01
-- total_runs: 3
+- ultima_run_finalizada: none
+- total_runs: 0
+- playbook_status: completed
+
+### seguranca
+- status_current: not_started
+- run_id_atual: none
+- ultima_run_finalizada: none
+- total_runs: 0
 - playbook_status: completed
 
 ### apis-integracoes
-- status_current: ready_for_finalize
-- run_id_atual: 2026-04-12_08-28-28
-- ultima_run_finalizada: 2026-04-05_18-00-00
-- total_runs: 2
+- status_current: not_started
+- run_id_atual: none
+- ultima_run_finalizada: none
+- total_runs: 0
 - playbook_status: completed
 
 ### dados-persistencia
 - status_current: not_started
 - run_id_atual: none
-- ultima_run_finalizada: 2026-04-05_18-00-00
-- total_runs: 2
+- ultima_run_finalizada: none
+- total_runs: 0
 - playbook_status: completed
 
 ### performance-escalabilidade
 - status_current: not_started
 - run_id_atual: none
-- ultima_run_finalizada: 2026-04-05_18-00-00
-- total_runs: 2
+- ultima_run_finalizada: none
+- total_runs: 0
 - playbook_status: completed
 
 ### confiabilidade-resiliencia
 - status_current: not_started
 - run_id_atual: none
-- ultima_run_finalizada: 2026-04-05_18-00-00
-- total_runs: 2
+- ultima_run_finalizada: none
+- total_runs: 0
 - playbook_status: completed
 
 ### observabilidade-operacao
 - status_current: not_started
 - run_id_atual: none
-- ultima_run_finalizada: 2026-04-05_18-00-00
-- total_runs: 2
+- ultima_run_finalizada: none
+- total_runs: 0
 - playbook_status: completed
 
 ### testes-qualidade
 - status_current: not_started
 - run_id_atual: none
-- ultima_run_finalizada: 2026-04-05_18-00-00
-- total_runs: 2
+- ultima_run_finalizada: none
+- total_runs: 0
 - playbook_status: completed
 
 ### ui-ux-fluxos
 - status_current: not_started
 - run_id_atual: none
-- ultima_run_finalizada: 2026-04-05_18-00-00
-- total_runs: 2
+- ultima_run_finalizada: none
+- total_runs: 0
 - playbook_status: completed
 
 ### infraestrutura-deploy-config
 - status_current: not_started
 - run_id_atual: none
-- ultima_run_finalizada: 2026-04-05_18-00-00
-- total_runs: 2
+- ultima_run_finalizada: none
+- total_runs: 0
 - playbook_status: completed
 
-## Regras de Atualizacao
+### compliance-privacidade
+- status_current: not_started
+- run_id_atual: none
+- ultima_run_finalizada: none
+- total_runs: 0
+- playbook_status: completed
+
+### supply-chain-dependencias
+- status_current: not_started
+- run_id_atual: none
+- ultima_run_finalizada: none
+- total_runs: 0
+- playbook_status: completed
+
+### custos-finops
+- status_current: not_started
+- run_id_atual: none
+- ultima_run_finalizada: none
+- total_runs: 0
+- playbook_status: completed
+
+### documentacao-runbooks
+- status_current: not_started
+- run_id_atual: none
+- ultima_run_finalizada: none
+- total_runs: 0
+- playbook_status: completed
+
+## Regras de Atualização
 1. Atualizar este arquivo no Bootstrap Core.
 2. Atualizar este arquivo no Seed de Playbooks.
 3. Atualizar este arquivo ao iniciar uma run.
 4. Atualizar este arquivo ao finalizar uma run.
-5. Nao usar este arquivo para registrar achados tecnicos detalhados.
+5. Não usar este arquivo para registrar achados técnicos detalhados.
 
 ## Objetivo
-Permitir visao rapida do estado do framework sem precisar abrir cada dominio individualmente.
+Permitir visão rápida do estado do framework sem precisar abrir cada domínio individualmente.

@@ -1,3 +1,12 @@
+---
+kind: prompt
+id: prompt-04
+version: 2
+name: finalizar-run
+requires:
+  - prompt-03-v4
+---
+
 # Prompt 04 — Finalizar Run do Framework de Auditoria
 
 Você é um agente local operando diretamente no repositório.

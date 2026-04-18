@@ -1,7 +1,7 @@
 # Bootstrap Core Report do Framework de Auditoria
 
 ## Identificação
-- data_hora_execucao: 2026-03-25 12:00:00
+- data_hora_execucao: 2026-04-18 16:22:00
 - versao_framework: 2.0
 - status_resultado: completed
 
@@ -9,7 +9,7 @@
 Registrar o resultado da execução do Bootstrap Core que criou ou inicializou a estrutura principal do framework no projeto.
 
 ## Estrutura Criada
-- pasta `/Auditoria`: criada (nao existia previamente)
+- pasta `/Auditoria`: criada
 - pasta `/Auditoria/_framework`: criada
 - pasta `/Auditoria/_framework/templates`: criada
 - pasta `/Auditoria/_framework/playbooks`: criada
@@ -35,48 +35,45 @@ Registrar o resultado da execução do Bootstrap Core que criou ou inicializou a
 - runs-index.template.md: criado
 
 ## Domínios Inicializados
-- arquitetura: criado (runs-index.md + current/ com 4 arquivos + runs/)
-- codigo-manutenibilidade: criado (runs-index.md + current/ com 4 arquivos + runs/)
-- seguranca: criado (runs-index.md + current/ com 4 arquivos + runs/)
-- apis-integracoes: criado (runs-index.md + current/ com 4 arquivos + runs/)
-- dados-persistencia: criado (runs-index.md + current/ com 4 arquivos + runs/)
-- performance-escalabilidade: criado (runs-index.md + current/ com 4 arquivos + runs/)
-- confiabilidade-resiliencia: criado (runs-index.md + current/ com 4 arquivos + runs/)
-- observabilidade-operacao: criado (runs-index.md + current/ com 4 arquivos + runs/)
-- testes-qualidade: criado (runs-index.md + current/ com 4 arquivos + runs/)
-- ui-ux-fluxos: criado (runs-index.md + current/ com 4 arquivos + runs/)
-- infraestrutura-deploy-config: criado (runs-index.md + current/ com 4 arquivos + runs/)
+- arquitetura: criado
+- codigo-manutenibilidade: criado
+- seguranca: criado
+- apis-integracoes: criado
+- dados-persistencia: criado
+- performance-escalabilidade: criado
+- confiabilidade-resiliencia: criado
+- observabilidade-operacao: criado
+- testes-qualidade: criado
+- ui-ux-fluxos: criado
+- infraestrutura-deploy-config: criado
+- compliance-privacidade: criado
+- supply-chain-dependencias: criado
+- custos-finops: criado
+- documentacao-runbooks: criado
 
 ## Seed de Playbooks
 - status: pending
-- observacao: esta etapa nao cria os playbooks canônicos nem o index oficial
+- observacao: etapa 01B ainda nao executada; playbooks canonicos na pasta playbook/ na raiz serao semeados na proxima etapa
 
 ## Conflitos ou Inconsistências Detectadas
-- nenhum conflito detectado
-- pasta `/Auditoria` nao existia previamente, criacao foi limpa do zero
+- pasta `playbook/` preexistente na raiz do repositorio com 15 arquivos `*.playbook.md` (nao no local oficial `/Auditoria/_framework/playbooks/`)
+  - decisao: preservada intacta; sera utilizada como fonte durante a etapa 01B (Seed de Playbooks)
+- backup `.auditoria-backup-20260418-162112/playbook/` criado pelo install.sh do framework para preservar estado anterior
 
 ## Resumo Final
-O Bootstrap Core do framework de auditoria foi inicializado com sucesso no projeto WBC Platform.
+O Bootstrap Core foi concluido com sucesso. A estrutura `/Auditoria/` esta completa:
+- 4 pastas raiz do core (`_framework`, `_framework/templates`, `_framework/playbooks`)
+- 11 arquivos centrais do nucleo
+- 5 templates oficiais
+- 15 dominios oficiais inicializados, cada um com `current/` contendo metadata, acompanhamento, achados e relatorio-final com placeholders do template
 
-Detalhes:
-- nao havia estrutura preexistente — tudo foi criado do zero
-- nao houve conflito estrutural
-- nao houve normalizacao necessaria
-- nao existe pendencia para revisao humana
-- o Seed de Playbooks (etapa 01B) esta pendente como proximo passo
+A estrutura esta integra e nao houve sobrescrita de conteudo historico. A pasta `playbook/` na raiz foi preservada e sera processada pela proxima etapa (Seed de Playbooks). Nao foi executada auditoria tecnica de nenhum dominio nesta etapa.
 
-Totais:
-- 11 arquivos do nucleo criados
-- 5 templates criados
-- 11 dominios inicializados (cada um com runs-index.md, current/ com 4 arquivos, runs/ vazio)
-- 1 pasta de playbooks criada (vazia, aguardando seed)
-- 71 arquivos no total
-
-O framework core esta pronto para receber o Seed de Playbooks na etapa 01B.
+Pronto para avancar para a etapa 01B (Seed de Playbooks).
 
 ## Resultado Esperado
 Ao final do Bootstrap Core, este arquivo deve deixar claro:
-- o que foi criado: toda a estrutura oficial do zero
-- o que já existia: nada
-- se houve conflito: nao
+- o que foi criado: toda a estrutura `_framework/`, templates, dominios e arquivos operacionais iniciais
+- o que ja existia: pasta `playbook/` na raiz (preservada, fonte para 01B); backup `.auditoria-backup-20260418-162112/` (preservado)
+- se houve conflito: nao, ambos preexistentes foram tratados com preservacao
 - se o core ficou pronto para o Seed de Playbooks: sim

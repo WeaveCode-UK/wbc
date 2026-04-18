@@ -6,12 +6,12 @@
 - iniciado_em: none
 - finalizado_em: none
 - escopo: none
-- origem: reinicializado pelo Prompt 04 apos finalizacao de 2026-04-10_14-39-37
+- origem: bootstrap-core
 - versao_framework: 2.0
 - responsavel_execucao: agente-local
 - modo_execucao: incremental-por-fase
-- auditoria_anterior_relacionada: 2026-04-10_14-39-37
-- observacoes: current reinicializado em 2026-04-12 08:27:12 apos arquivamento da run 2026-04-10_14-39-37
+- auditoria_anterior_relacionada: none
+- observacoes: current inicial criado pelo bootstrap core
 
 ## Estados Permitidos
 - not_started
@@ -25,7 +25,13 @@
 - Não alterar o domínio.
 - Não inventar novos status.
 - Não marcar `completed` nesta área de `current`.
-- Em `current`, os estados válidos são: not_started, in_progress, blocked, ready_for_finalize.
+- `completed` e `archived` são estados históricos e devem existir apenas em runs finalizadas.
+- Enquanto a run estiver em `current`, os estados válidos práticos são:
+  - not_started
+  - in_progress
+  - blocked
+  - ready_for_finalize
 
 ## Atualização Esperada
 Atualize este arquivo apenas quando houver mudança real de estado da run.
+Não use este arquivo para registrar achados técnicos ou histórico detalhado de execução.

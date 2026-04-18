@@ -11,4 +11,5 @@ export * from "./security-logger";
 export * from "./env";
 export * from "./circuit-breaker";
 export * from "./resilience";
+export * from "./redis";
 export * from "./version";

@@ -5,18 +5,18 @@
 - run_id: 2026-04-18_18-17-50
 - branch: fix/arquitetura/2026-04-18_18-17-50
 - data_inicio: 2026-04-18 18:48:00
-- ultima_atualizacao: 2026-04-18 19:15:00
+- ultima_atualizacao: 2026-04-18 19:22:00
 - fase_atual: executor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 13
-- corrigidos_executor: 4
+- corrigidos_executor: 5
 - revisados_revisor: 0
 - corrigidos_pelo_revisor: 0
 - nao_corrigiveis: 0
 - nao_aprovados: 0
-- pendentes: 9
+- pendentes: 8
 
 ## Achados
 
@@ -90,11 +90,17 @@
 - titulo: Isolamento multi-tenant em Redis depende apenas de convenção de prefixo manual
 - severidade: medio
 - classificacao: corrigivel
-- status_executor: pendente
+- status_executor: corrigido
 - status_revisor: pendente
-- commit_executor: none
+- commit_executor: pending
 - commit_revisor: none
-- observacoes: none
+- arquivos_alterados:
+  - packages/shared/src/redis/tenant-scoped-redis.ts (novo - classe TenantScopedRedis, TenantScopedRedisBound, TenantContextMissingError)
+  - packages/shared/src/redis/index.ts (novo - barrel)
+  - packages/shared/src/index.ts (re-exporta ./redis)
+  - apps/api/src/lib/cache.ts (adiciona cacheGetForTenant, cacheSetForTenant, cacheDeleteForTenant, cacheInvalidatePatternForTenant)
+- descricao_correcao: TenantScopedRedis wrapper obtem tenantId do AsyncLocalStorage (@wbc/shared tenant-context) e prefixa automaticamente todas as chaves com 'wbc:t:${tenantId}:'. Lanca TenantContextMissingError se operacao e tentada sem contexto, prevenindo vazamento cross-tenant. Metodo .forTenant(tenantId) permite uso fora de contexto (ex: handlers de eventos externos). apps/api/src/lib/cache.ts ganha familia de funcoes *ForTenant que devem ser preferidas para caches por-tenant; funcoes sem sufixo permanecem para caches genuinamente globais.
+- observacoes: migracao completa dos callers atuais de cache para as versoes ForTenant e follow-up — feito apenas a infra neste commit. Handler de TENANT_PLAN_CHANGED em apps/worker (que faz 'wbc:entitlements:${tenantId}') e candidato imediato para migracao no proximo passo de refactor.
 
 ### ACH-011
 - titulo: Health checks mínimos; sem readiness distinto de liveness e sem métricas de lag de worker

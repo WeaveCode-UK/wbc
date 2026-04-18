@@ -11,12 +11,12 @@
 
 ## Resumo de Progresso
 - total_aprovados: 13
-- corrigidos_executor: 11
+- corrigidos_executor: 13
 - revisados_revisor: 0
 - corrigidos_pelo_revisor: 0
 - nao_corrigiveis: 0
 - nao_aprovados: 0
-- pendentes: 2
+- pendentes: 0
 
 ## Achados
 
@@ -190,18 +190,24 @@
 - titulo: Decisão de monorepo Turborepo+pnpm não registrada em ADR
 - severidade: baixo
 - classificacao: corrigivel
-- status_executor: pendente
+- status_executor: corrigido
 - status_revisor: pendente
-- commit_executor: none
+- commit_executor: pending
 - commit_revisor: none
-- observacoes: ADR-005 retroativo
+- arquivos_alterados:
+  - docs/adr/005-monorepo-turborepo-pnpm.md (novo)
+- descricao_correcao: ADR-005 retroativo documenta a escolha de Turborepo + pnpm workspaces. Inclui regras de workspace (apps/, packages/, scope @wbc/), alternativas rejeitadas (polirepo, lerna/nx, npm/yarn workspaces), consequencias (positivas + trade-offs), criterio de migracao futura (CI > 15min com cache).
+- observacoes: classificacao corrigivel — ADR formaliza decisao ja tomada sem exigir validacao de produto.
 
 ### ACH-013
 - titulo: Estratégia de escalabilidade horizontal de workers sem ADR
 - severidade: baixo
 - classificacao: corrigivel_parcial
-- status_executor: pendente
+- status_executor: corrigido
 - status_revisor: pendente
-- commit_executor: none
+- commit_executor: pending
 - commit_revisor: none
-- observacoes: ADR-008; placeholders de decisão para validação humana
+- arquivos_alterados:
+  - docs/adr/008-worker-scaling.md (novo)
+- descricao_correcao: ADR-008 documenta opcoes de escalabilidade horizontal (Opcao A worker pool global vs Opcao B workers especializados), job affinity, connection pool Prisma por worker, particionamento de queue, multi-region. Inclui tabela de cenarios de escala baseline por volume. Status 'proposto' aguardando decisao humana entre A e B.
+- observacoes: classificado corrigivel_parcial porque as decisoes reais (Opcao A vs B, gatilhos de escala) aguardam aprovacao humana.

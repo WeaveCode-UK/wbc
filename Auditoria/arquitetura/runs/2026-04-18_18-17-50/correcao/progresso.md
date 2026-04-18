@@ -11,12 +11,12 @@
 
 ## Resumo de Progresso
 - total_aprovados: 13
-- corrigidos_executor: 7
+- corrigidos_executor: 8
 - revisados_revisor: 0
 - corrigidos_pelo_revisor: 0
 - nao_corrigiveis: 0
 - nao_aprovados: 0
-- pendentes: 6
+- pendentes: 5
 
 ## Achados
 
@@ -138,11 +138,14 @@
 - titulo: Topologia de deploy/runtime de produção não documentada
 - severidade: alto
 - classificacao: corrigivel_parcial
-- status_executor: pendente
+- status_executor: corrigido
 - status_revisor: pendente
-- commit_executor: none
+- commit_executor: pending
 - commit_revisor: none
-- observacoes: RTO/RPO e failover strategy requerem validação humana
+- arquivos_alterados:
+  - docs/DEPLOYMENT.md (novo)
+- descricao_correcao: docs/DEPLOYMENT.md consolida topologia de producao: diagrama Mermaid, componentes e responsabilidades, conexoes/dependencias/healthchecks, graceful shutdown, env vars criticas, observabilidade. Placeholders para RTO/RPO e failover strategy (marcados como 'pendente validacao humana').
+- observacoes: secoes 'Disaster Recovery' e 'Failover' sao placeholders aguardando decisao de produto/ops sobre SLA real.
 
 ### ACH-001
 - titulo: Documentação arquitetural textual mas sem visualização consolidada

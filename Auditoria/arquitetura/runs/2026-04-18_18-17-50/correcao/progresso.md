@@ -11,12 +11,12 @@
 
 ## Resumo de Progresso
 - total_aprovados: 13
-- corrigidos_executor: 10
+- corrigidos_executor: 11
 - revisados_revisor: 0
 - corrigidos_pelo_revisor: 0
 - nao_corrigiveis: 0
 - nao_aprovados: 0
-- pendentes: 3
+- pendentes: 2
 
 ## Achados
 
@@ -177,11 +177,14 @@
 - titulo: Decisões de resiliência (retry, circuit breaker, DLQ, cleanup) sem ADR
 - severidade: medio
 - classificacao: corrigivel_parcial
-- status_executor: pendente
+- status_executor: corrigido
 - status_revisor: pendente
-- commit_executor: none
+- commit_executor: pending
 - commit_revisor: none
-- observacoes: ADR-007; depende de ACH-009 e ACH-008 aplicados
+- arquivos_alterados:
+  - docs/adr/007-resilience-strategies.md (novo)
+- descricao_correcao: ADR-007 documenta as decisoes de resiliencia implementadas nos ACH-008 (centralizacao retry/timeout), ACH-009 (graceful shutdown) e pre-existentes (CircuitBreaker, DLQ, outbox cleanup). Inclui SLOs propostos como placeholder para validacao humana.
+- observacoes: classificado corrigivel_parcial porque SLOs propostos (99% entrega, lag p95 30s, etc.) precisam validacao da operacao.
 
 ### ACH-003
 - titulo: Decisão de monorepo Turborepo+pnpm não registrada em ADR

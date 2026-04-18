@@ -1,0 +1,23 @@
+node_modules
+.next
+.turbo
+dist
+build
+out
+coverage
+.pnpm-store
+pnpm-lock.yaml
+.prisma
+
+# Framework de auditoria — conteudo canonico, nao reformatar
+Auditoria/
+.auditoria-backup-*/
+
+# Configs geradas automaticamente
+*.generated.ts
+*.generated.tsx
+
+# Artifacts de teste
+playwright-report
+test-results
+blob-report

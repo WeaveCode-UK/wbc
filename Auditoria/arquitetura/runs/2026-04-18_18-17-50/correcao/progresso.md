@@ -5,18 +5,18 @@
 - run_id: 2026-04-18_18-17-50
 - branch: fix/arquitetura/2026-04-18_18-17-50
 - data_inicio: 2026-04-18 18:48:00
-- ultima_atualizacao: 2026-04-18 18:48:00
+- ultima_atualizacao: 2026-04-18 18:57:00
 - fase_atual: executor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 13
-- corrigidos_executor: 0
+- corrigidos_executor: 2
 - revisados_revisor: 0
 - corrigidos_pelo_revisor: 0
 - nao_corrigiveis: 0
 - nao_aprovados: 0
-- pendentes: 13
+- pendentes: 11
 
 ## Achados
 
@@ -24,21 +24,30 @@
 - titulo: Worker sem graceful shutdown — risco de perda de jobs em-flight
 - severidade: critico
 - classificacao: corrigivel
-- status_executor: pendente
+- status_executor: corrigido
 - status_revisor: pendente
-- commit_executor: none
+- commit_executor: c8d2310d24ce05dbd5a2a765c374c18f26bd98f7
 - commit_revisor: none
+- arquivos_alterados:
+  - apps/worker/src/index.ts
+- descricao_correcao: Handler de SIGTERM/SIGINT que cancela os 3 setIntervals, pausa os 5 BullMQ workers com .pause(true) drenando in-flight, fecha workers com .close(), desconecta Redis (bullmqRedis.quit()) e Prisma (prisma.$disconnect()), e executa exit(0). Timeout de segurança de 30s (WORKER_SHUTDOWN_TIMEOUT_MS) com force exit(1). Lock previne shutdown duplicado.
 - observacoes: none
 
 ### ACH-007
 - titulo: Ausência de enforcement automatizado para regras hexagonal
 - severidade: medio
 - classificacao: corrigivel
-- status_executor: pendente
+- status_executor: corrigido
 - status_revisor: pendente
-- commit_executor: none
+- commit_executor: pending (sera preenchido apos commit)
 - commit_revisor: none
-- observacoes: inclui instalacao de prettier como devDependency (bug do pre-commit hook atual)
+- arquivos_alterados:
+  - package.json (adiciona prettier e dependency-cruiser em devDependencies; adiciona script arch:check)
+  - pnpm-lock.yaml (atualizado por pnpm add)
+  - .prettierignore (novo - exclui Auditoria/ de reformatacao)
+  - .dependency-cruiser.cjs (novo - regras hexagonais)
+- descricao_correcao: Instalados prettier@3.8.3 (resolve bug do pre-commit hook com ENOENT) e dependency-cruiser@17.3.10 como devDependencies. Criado .dependency-cruiser.cjs com 6 regras arquiteturais: (1-4) hexagonal forbidden imports; (5) no-cross-business-module-imports; (6) no-circular; + no-orphans como warn. Criado .prettierignore excluindo Auditoria/ e .auditoria-backup-*/ para preservar conteudo canonico do framework. Script arch:check adicionado ao package.json root.
+- observacoes: arch:check nao foi executado neste commit para respeitar regra 15 do Prompt 05 (nao rodar lint/testes automaticamente). Sera executado manualmente ou no CI.
 
 ### ACH-005
 - titulo: Lógica de domínio (cálculos de negócio) vazada em adapters Prisma

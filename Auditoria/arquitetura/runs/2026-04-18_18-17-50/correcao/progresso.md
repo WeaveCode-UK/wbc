@@ -11,12 +11,12 @@
 
 ## Resumo de Progresso
 - total_aprovados: 13
-- corrigidos_executor: 9
+- corrigidos_executor: 10
 - revisados_revisor: 0
 - corrigidos_pelo_revisor: 0
 - nao_corrigiveis: 0
 - nao_aprovados: 0
-- pendentes: 4
+- pendentes: 3
 
 ## Achados
 
@@ -164,11 +164,14 @@
 - titulo: Fluxos de eventos inter-módulos não mapeados em catálogo central
 - severidade: medio
 - classificacao: corrigivel_parcial
-- status_executor: pendente
+- status_executor: corrigido
 - status_revisor: pendente
-- commit_executor: none
+- commit_executor: pending
 - commit_revisor: none
-- observacoes: varredura de *.events.ts; humano valida completude
+- arquivos_alterados:
+  - docs/architecture/events.md (novo)
+- descricao_correcao: docs/architecture/events.md cataloga 38 eventos extraidos de packages/shared/src/events/domain-event.ts. Tabela mapeia evento → publisher → consumers → fila BullMQ → descricao. Inclui convencoes de naming, regras para adicionar evento novo, gap conhecido (consumers nao detectados em varredura automatica).
+- observacoes: classificado corrigivel_parcial porque coluna 'Consumers' foi preenchida por varredura estatica e pode ter falsos negativos. Humano deve validar e completar onde necessario.
 
 ### ACH-010
 - titulo: Decisões de resiliência (retry, circuit breaker, DLQ, cleanup) sem ADR

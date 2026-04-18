@@ -1,17 +1,17 @@
 # Metadata da Run Atual
 
 - dominio: dados-persistencia
-- run_id: none
-- status: not_started
-- iniciado_em: none
-- finalizado_em: none
-- escopo: none
-- origem: reinicializado pelo Prompt 04 apos finalizacao de 2026-04-18_23-03-36
+- run_id: 2026-04-18_23-03-36
+- status: completed
+- iniciado_em: 2026-04-18 23:03:36
+- finalizado_em: 2026-04-18 23:20:00
+- escopo: auditoria completa do domínio dados-persistencia conforme playbook oficial
+- origem: prompt-02-iniciar-run
 - versao_framework: 3.3.0
 - responsavel_execucao: agente-local
 - modo_execucao: incremental-por-fase
-- auditoria_anterior_relacionada: 2026-04-18_23-03-36
-- observacoes: current reinicializado em 2026-04-18 23:20:00
+- auditoria_anterior_relacionada: none
+- observacoes: 7 fases concluídas; 22 achados consolidados; avaliacao preocupante
 
 ## Estados Permitidos
 - not_started

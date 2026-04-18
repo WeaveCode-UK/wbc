@@ -1,20 +1,20 @@
 # Relatório Consolidado de Achados — Framework de Auditoria WeaveCode
 
-- gerado_em: 2026-04-18T22:01:43.617Z
-- total_achados: 83
+- gerado_em: 2026-04-18T22:17:49.375Z
+- total_achados: 105
 - dominios_em_progresso: 0
 - dominios_ready_for_finalize: 0
 - dominios_blocked: 0
-- dominios_com_historico: 4
+- dominios_com_historico: 5
 
 ## Distribuição por severidade
 
 | Severidade | Total |
 |---|---|
-| critico | 6 |
-| alto | 29 |
-| medio | 39 |
-| baixo | 8 |
+| critico | 8 |
+| alto | 36 |
+| medio | 48 |
+| baixo | 12 |
 | informativo | 1 |
 
 ## Distribuição por status
@@ -22,7 +22,7 @@
 | Status | Total |
 |---|---|
 | aberto | 13 |
-| confirmado | 70 |
+| confirmado | 79 |
 | mitigado | 0 |
 | resolvido | 0 |
 | aceito | 0 |
@@ -36,6 +36,7 @@
 | codigo-manutenibilidade | 22 |
 | seguranca | 28 |
 | apis-integracoes | 20 |
+| dados-persistencia | 22 |
 
 ## Achados ordenados por severidade
 
@@ -78,6 +79,26 @@
 - resumo: Fluxos de password reset, email verification e request-email-verification geram token mas não persistem no Redis nem validam no consumo; adapter Resend é stub. Bloqueia uso em produção dos fluxos de auth por link.
 - evidencia.arquivo_ou_area: packages/business/auth/use-cases/verify-email.use-case.ts:11; reset-password.use-case.ts:16; request-email-verification.use-case.ts:21; request-password-reset.use-case.ts:22; packages/business/auth/adapters/resend-email-sender.adapter.ts:7
 - impacto.tecnico: Código parece funcional mas não completa o fluxo; depuração difícil porque o caminho feliz emite eventos sem efeito
+
+### [critico] ACH-001 — `confirmSale` publica evento sem validar estoque na mesma transação
+
+- dominio: dados-persistencia
+- run: 2026-04-18_23-03-36 (finalized)
+- categoria: transacao-e-consistencia
+- status: confirmado
+- resumo: O use-case `confirmSale` muda o status da venda e publica `SALE_CONFIRMED` no outbox; o handler assíncrono (`sale-confirmed-handler`) é quem decrementa estoque. Se o handler falhar, a venda fica CONFIRMED sem baixar estoque — overselling garantido.
+- evidencia.arquivo_ou_area: packages/business/sales/use-cases/confirm-sale.ts:9-43; packages/business/inventory/handlers/sale-confirmed-handler.ts
+- impacto.tecnico: Divergência entre Postgres e realidade operacional
+
+### [critico] ACH-002 — `claimPending` do outbox sem `FOR UPDATE SKIP LOCKED`
+
+- dominio: dados-persistencia
+- run: 2026-04-18_23-03-36 (finalized)
+- categoria: transacao-e-consistencia
+- status: confirmado
+- resumo: `PrismaOutboxRepository.claimPending` executa `findMany` seguido de `updateMany`. Dois workers concorrentes podem reclamar o mesmo batch e processar o mesmo evento duas vezes.
+- evidencia.arquivo_ou_area: packages/db/src/outbox/prisma-outbox-repository.ts:35-60
+- impacto.tecnico: Duplicidade de ações
 
 ### [critico] ACH-001 — reset-password e verify-email não implementados — endpoints públicos vulneráveis
 
@@ -238,6 +259,72 @@
 - resumo: `apps/api/src/index.ts` e `apps/worker/src/index.ts` executam `initTracing`, `initSentry`, `applyTenantMiddleware`, abrem conexões Redis e registram `setInterval` no topo do arquivo. Importar qualquer símbolo dispara todo o bootstrap.
 - evidencia.arquivo_ou_area: apps/api/src/index.ts:1-24; apps/worker/src/index.ts:1-74
 - impacto.tecnico: Impede testes de unidade por import direto; dificulta múltiplos modos (ex: CLI sem tracing)
+
+### [alto] ACH-003 — Incrementos concorrentes sem lock nem version field
+
+- dominio: dados-persistencia
+- run: 2026-04-18_23-03-36 (finalized)
+- categoria: concorrencia
+- status: confirmado
+- resumo: `Subscription.aiGenerationsUsed` e `Campaign.stats*` usam `{ increment: 1 }` fora de transação isolada. Validação prévia de limite (ex.: quota ESSENTIAL/PRO) pode ser bypassada.
+- evidencia.arquivo_ou_area: packages/business/auth/adapters/prisma-subscription-repository.ts:44; schema.prisma (Campaign stats)
+- impacto.tecnico: Lost updates e bypass de quota
+
+### [alto] ACH-004 — RLS presente mas sem teste automatizado de isolamento
+
+- dominio: dados-persistencia
+- run: 2026-04-18_23-03-36 (finalized)
+- categoria: multi-tenant
+- status: confirmado
+- resumo: `packages/db/prisma/migrations/manual/001_rls_policies.sql` cria policies restritivas. Não há teste em CI que valide o isolamento — uma regressão silenciosa pode eliminá-lo.
+- evidencia.arquivo_ou_area: packages/db/prisma/migrations/manual/001_rls_policies.sql; .github/workflows/ci.yml
+- impacto.tecnico: Leak cross-tenant sem detecção
+
+### [alto] ACH-005 — 10+ modelos sem índice em caminhos críticos
+
+- dominio: dados-persistencia
+- run: 2026-04-18_23-03-36 (finalized)
+- categoria: indices-e-queries
+- status: confirmado
+- resumo: Modelos sem @@index em campos de tenant ou em FKs frequentes: SaleItem(saleId), Return(saleId), PostSaleFlow(saleId), BrandOrder(tenantId,status), BrandOrderItem(brandOrderId), Sample(tenantId,clientId), CommunityTemplate(tenantId), QuickReply(tenantId), Team(tenantId), TeamMember(teamId,memberId), TeamTask(teamId,memberId), Delivery(tenantId,status), GiftSuggestor(tenantId,clientId).
+- evidencia.arquivo_ou_area: packages/db/prisma/schema.prisma
+- impacto.tecnico: Latência cresce com N
+
+### [alto] ACH-011 — Handlers do outbox não são idempotentes
+
+- dominio: dados-persistencia
+- run: 2026-04-18_23-03-36 (finalized)
+- categoria: transacao-e-consistencia
+- status: desconhecido
+- evidencia.arquivo_ou_area: packages/business/**/handlers/*.ts
+- impacto.tecnico: Dupla execução em retry
+
+### [alto] ACH-012 — Cashback usa Serializable mas sem `idempotencyKey`
+
+- dominio: dados-persistencia
+- run: 2026-04-18_23-03-36 (finalized)
+- categoria: integridade-financeira
+- status: desconhecido
+- evidencia.arquivo_ou_area: packages/business/sales/adapters/prisma-cashback-repository.ts:44-67
+- impacto.tecnico: Consumo duplicado em retry
+
+### [alto] ACH-015 — Migrations em `manual/` não integradas ao workflow Prisma
+
+- dominio: dados-persistencia
+- run: 2026-04-18_23-03-36 (finalized)
+- categoria: evolucao-de-schema
+- status: desconhecido
+- evidencia.arquivo_ou_area: packages/db/prisma/migrations/manual/*; .github/workflows/ci.yml
+- impacto.tecnico: Drift silencioso entre ambientes
+
+### [alto] ACH-018 — Backup existe mas sem cron nem restore drill
+
+- dominio: dados-persistencia
+- run: 2026-04-18_23-03-36 (finalized)
+- categoria: recuperacao
+- status: desconhecido
+- evidencia.arquivo_ou_area: deploy/backup/backup.sh, restore.sh; docs/DEPLOYMENT.md:65-76
+- impacto.tecnico: RPO/RTO desconhecidos
 
 ### [alto] ACH-003 — Autenticação por credenciais sem proteção contra brute-force
 
@@ -679,6 +766,87 @@
 - evidencia.arquivo_ou_area: packages/business/clients/domain/errors.ts; apps/api/src/trpc/trpc.ts:51-61 (domainErrorMiddleware sem mapper explícito por tipo)
 - impacto.tecnico: Difícil testar mapeamento; mudança de mensagem pode afetar consumidores sem aviso
 
+### [medio] ACH-006 — `Sale.total` calculado na aplicação sem CHECK constraint
+
+- dominio: dados-persistencia
+- run: 2026-04-18_23-03-36 (finalized)
+- categoria: integridade
+- status: confirmado
+- evidencia.arquivo_ou_area: packages/business/sales/adapters/prisma-sale-repository.ts:81-82
+- impacto.tecnico: Drift entre `total` e soma dos itens
+
+### [medio] ACH-007 — `Brand` sem `@unique(name)` e sem `@@index`
+
+- dominio: dados-persistencia
+- run: 2026-04-18_23-03-36 (finalized)
+- categoria: integridade
+- status: confirmado
+- evidencia.arquivo_ou_area: schema.prisma (Brand)
+- impacto.tecnico: Duplicatas; relatórios incoerentes
+
+### [medio] ACH-008 — Soft-delete incoerente entre modelos
+
+- dominio: dados-persistencia
+- run: 2026-04-18_23-03-36 (finalized)
+- categoria: integridade-e-evolucao
+- status: confirmado
+- evidencia.arquivo_ou_area: schema.prisma (apenas TenantMember com deletedAt); repositórios
+- impacto.tecnico: Semântica confusa
+
+### [medio] ACH-010 — `PrismaClient` global; adapters não recebem client por construtor
+
+- dominio: dados-persistencia
+- run: 2026-04-18_23-03-36 (finalized)
+- categoria: evolucao-e-testabilidade
+- status: confirmado
+- evidencia.arquivo_ou_area: packages/db/src/index.ts; packages/business/**/adapters/prisma-*.ts
+- impacto.tecnico: Dificulta evolução de schema e testes
+
+### [medio] ACH-013 — Sem `@@index([tenantId, status, createdAt])` em `Sale`
+
+- dominio: dados-persistencia
+- run: 2026-04-18_23-03-36 (finalized)
+- categoria: indices-e-queries
+- status: desconhecido
+- evidencia.arquivo_ou_area: schema.prisma (Sale); analytics adapters
+- impacto.tecnico: Dashboard lento
+
+### [medio] ACH-016 — Baseline migration vazio — schema inicial via `db push`
+
+- dominio: dados-persistencia
+- run: 2026-04-18_23-03-36 (finalized)
+- categoria: evolucao-de-schema
+- status: desconhecido
+- evidencia.arquivo_ou_area: packages/db/prisma/migrations/0_baseline/migration.sql
+- impacto.tecnico: Não reconstruir banco do zero
+
+### [medio] ACH-017 — DLQ do outbox sem rotação nem alerta
+
+- dominio: dados-persistencia
+- run: 2026-04-18_23-03-36 (finalized)
+- categoria: ciclo-de-vida
+- status: desconhecido
+- evidencia.arquivo_ou_area: apps/worker/src/processors/{outbox-cleanup,dlq-scanner}.ts
+- impacto.tecnico: Crescimento silencioso
+
+### [medio] ACH-019 — Sem política de retenção/archive para dados antigos
+
+- dominio: dados-persistencia
+- run: 2026-04-18_23-03-36 (finalized)
+- categoria: ciclo-de-vida
+- status: desconhecido
+- evidencia.arquivo_ou_area: ausência de workers de archive; apenas outbox tem cleanup de PROCESSED
+- impacto.tecnico: Disco cresce; backups maiores; índices degradam
+
+### [medio] ACH-021 — `onDelete` assimétrico em `Referral` (Restrict vs SetNull)
+
+- dominio: dados-persistencia
+- run: 2026-04-18_23-03-36 (finalized)
+- categoria: integridade
+- status: desconhecido
+- evidencia.arquivo_ou_area: schema.prisma (Referral)
+- impacto.tecnico: Queries precisam IS NOT NULL; dangling referrals
+
 ### [medio] ACH-018 — Rate-limit assimétrico e frouxo nos endpoints sensíveis
 
 - dominio: seguranca
@@ -848,6 +1016,42 @@
 - resumo: `packages/business/auth/adapters/prisma-otp-repository.ts:11-16` define `getRedis()` local; `apps/api/src/lib/redis.ts` define outro. Dois singletons Redis potenciais.
 - evidencia.arquivo_ou_area: packages/business/auth/adapters/prisma-otp-repository.ts:11-16; apps/api/src/lib/redis.ts
 - impacto.tecnico: Vazamento de conexão em produção; comportamento inconsistente
+
+### [baixo] ACH-009 — `Opportunity.status` é String livre em vez de enum
+
+- dominio: dados-persistencia
+- run: 2026-04-18_23-03-36 (finalized)
+- categoria: integridade
+- status: desconhecido
+- evidencia.arquivo_ou_area: schema.prisma (Opportunity)
+- impacto.tecnico: Valores malformados possíveis
+
+### [baixo] ACH-014 — Queries redundantes de validação de tenant em repositórios
+
+- dominio: dados-persistencia
+- run: 2026-04-18_23-03-36 (finalized)
+- categoria: performance-de-persistencia
+- status: desconhecido
+- evidencia.arquivo_ou_area: packages/business/clients/adapters/prisma-tag-repository.ts:32-39
+- impacto.tecnico: RTT extra em operações frequentes
+
+### [baixo] ACH-020 — `Decimal(10,2)` em campos de agregação pode estourar
+
+- dominio: dados-persistencia
+- run: 2026-04-18_23-03-36 (finalized)
+- categoria: integridade
+- status: desconhecido
+- evidencia.arquivo_ou_area: schema.prisma (vários Decimal(10,2))
+- impacto.tecnico: Overflow em agregados grandes
+
+### [baixo] ACH-022 — Sem `pg_stat_statements` habilitado
+
+- dominio: dados-persistencia
+- run: 2026-04-18_23-03-36 (finalized)
+- categoria: observabilidade-de-persistencia
+- status: desconhecido
+- evidencia.arquivo_ou_area: docker-compose.prod.yml (Postgres sem extension); ausência de script de coleta
+- impacto.tecnico: Decisões de índice no escuro
 
 ### [baixo] ACH-028 — Ausência de validador forte para números de telefone
 

@@ -1,17 +1,17 @@
 # Metadata da Run Atual
 
 - dominio: apis-integracoes
-- run_id: none
-- status: not_started
-- iniciado_em: none
+- run_id: 2026-04-18_22-30-59
+- status: ready_for_finalize
+- iniciado_em: 2026-04-18 22:30:59
 - finalizado_em: none
-- escopo: none
-- origem: reinicializado pelo Prompt 04 apos finalizacao de 2026-04-18_22-30-59
+- escopo: auditoria completa do domínio apis-integracoes conforme playbook oficial
+- origem: prompt-02-iniciar-run
 - versao_framework: 3.3.0
 - responsavel_execucao: agente-local
 - modo_execucao: incremental-por-fase
-- auditoria_anterior_relacionada: 2026-04-18_22-30-59
-- observacoes: current reinicializado em 2026-04-18 22:40:00 apos arquivamento da run 2026-04-18_22-30-59
+- auditoria_anterior_relacionada: none
+- observacoes: 7 fases concluídas; 20 achados consolidados; avaliacao preocupante
 
 ## Estados Permitidos
 - not_started

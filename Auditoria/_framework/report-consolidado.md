@@ -1,20 +1,20 @@
 # Relatório Consolidado de Achados — Framework de Auditoria WeaveCode
 
-- gerado_em: 2026-04-18T21:30:50.200Z
-- total_achados: 63
+- gerado_em: 2026-04-18T22:01:43.617Z
+- total_achados: 83
 - dominios_em_progresso: 0
 - dominios_ready_for_finalize: 0
 - dominios_blocked: 0
-- dominios_com_historico: 3
+- dominios_com_historico: 4
 
 ## Distribuição por severidade
 
 | Severidade | Total |
 |---|---|
-| critico | 4 |
-| alto | 22 |
-| medio | 29 |
-| baixo | 7 |
+| critico | 6 |
+| alto | 29 |
+| medio | 39 |
+| baixo | 8 |
 | informativo | 1 |
 
 ## Distribuição por status
@@ -22,7 +22,7 @@
 | Status | Total |
 |---|---|
 | aberto | 13 |
-| confirmado | 50 |
+| confirmado | 70 |
 | mitigado | 0 |
 | resolvido | 0 |
 | aceito | 0 |
@@ -35,8 +35,29 @@
 | arquitetura | 13 |
 | codigo-manutenibilidade | 22 |
 | seguranca | 28 |
+| apis-integracoes | 20 |
 
 ## Achados ordenados por severidade
+
+### [critico] ACH-001 — Idempotência é opcional — aplicada apenas em sales e finance; demais mutations vulneráveis a duplicidade
+
+- dominio: apis-integracoes
+- run: 2026-04-18_22-30-59 (finalized)
+- categoria: idempotencia
+- status: confirmado
+- resumo: O wrapper `idempotent()` (TTL 24h no Redis) é aplicado em mutations de `sales.*` e `finance.*`. As demais mutations críticas (`auth.acceptInvite`, `campaigns.sendCampaign`, `messaging.send*`, `clients.create/update`, `catalog.*`, `inventory.*`) não usam a chave, então um retry de rede executa a mutation duas vezes.
+- evidencia.arquivo_ou_area: apps/api/src/routers/sales.ts:36-78; apps/api/src/routers/finance.ts:29-32; apps/api/src/routers/{auth,campaigns,messaging,clients,catalog,inventory}.ts (sem `idempotent()`); apps/api/src/trpc/idempotency-middleware.ts
+- impacto.tecnico: Duplicidade em eventos, cobranças ou notificações em caso de retry do cliente
+
+### [critico] ACH-002 — Sem versionamento de API nem estratégia de breaking-change
+
+- dominio: apis-integracoes
+- run: 2026-04-18_22-30-59 (finalized)
+- categoria: versionamento
+- status: confirmado
+- resumo: Não existe prefixo `/v1/` nem header `wbc-api-version`. A constante `API_VERSION = '1.0.0'` aparece apenas em `health.version`. Consumer (apps/mobile) depende do tipo `AppRouter` gerado em build; uma mudança removendo campo em schema Zod quebra o build do cliente sem aviso.
+- evidencia.arquivo_ou_area: packages/shared/src/version.ts:1-3; apps/api/src/routers/health.ts:22-25; apps/api/src/trpc/router.ts (export type AppRouter)
+- impacto.tecnico: Impossível roll-out gradual; mobile antigo pode ficar broken silenciosamente após breaking change
 
 ### [critico] ACH-009 — Worker sem graceful shutdown — risco de perda de jobs em-flight
 
@@ -77,6 +98,76 @@
 - resumo: Em `send-otp.ts`, o código OTP é emitido por `console.log` quando NODE_ENV não é "production". Se staging ou ambiente compartilhado rodar com env incorreto, códigos OTP vazam para stdout/arquivos de log.
 - evidencia.arquivo_ou_area: packages/business/auth/use-cases/send-otp.ts:37-39
 - impacto.tecnico: OTP persistido em logs (stdout, syslog, agregadores) de longa duração
+
+### [alto] ACH-003 — Webhooks inbound — MercadoPago sem handler e WhatsApp sem rota HTTP declarada
+
+- dominio: apis-integracoes
+- run: 2026-04-18_22-30-59 (finalized)
+- categoria: webhooks
+- status: confirmado
+- resumo: `whatsapp-webhook-handler.ts` implementa verificação HMAC, mas nenhuma rota `/api/webhooks/whatsapp` foi encontrada em apps/api ou apps/web. Além disso, o Prisma schema referencia `mercadopagoId`, mas não há adapter/handler para receber notificações de pagamento do MercadoPago.
+- evidencia.arquivo_ou_area: packages/business/messaging/adapters/whatsapp-webhook-handler.ts; ausência de rota HTTP montando o handler; ausência de adapter `mercadopago-webhook-handler.ts`
+- impacto.tecnico: Status updates do WhatsApp e confirmações de pagamento do MP não chegam ao sistema; sincronização precisa ser manual
+
+### [alto] ACH-004 — Webhook WhatsApp sem proteção contra replay (sem checagem de timestamp e sem cache de request-id)
+
+- dominio: apis-integracoes
+- run: 2026-04-18_22-30-59 (finalized)
+- categoria: webhooks
+- status: confirmado
+- resumo: O handler valida apenas HMAC; não confronta `entry[0].changes[0].value.timestamp` com `now ± 300s` nem armazena `request-id` em Redis para deduplicação.
+- evidencia.arquivo_ou_area: packages/business/messaging/adapters/whatsapp-webhook-handler.ts (verifica apenas HMAC; não faz replay protection)
+- impacto.tecnico: Processa webhook duplicado ou antigo — pode duplicar eventos no outbox e reenviar notificações
+
+### [alto] ACH-005 — Tipo `AppRouter` exportado sem deprecation path — breaking change atinge web e mobile ao mesmo tempo
+
+- dominio: apis-integracoes
+- run: 2026-04-18_22-30-59 (finalized)
+- categoria: compatibilidade
+- status: confirmado
+- resumo: Mobile e web consomem o tipo `AppRouter` exportado de `apps/api/src/trpc/router.ts`. Remover ou renomear campo de input/output quebra build/runtime imediatamente; não há deprecação marcada.
+- evidencia.arquivo_ou_area: apps/api/src/trpc/router.ts:19-36 (export type AppRouter)
+- impacto.tecnico: Sincronização rígida entre backend e clientes
+
+### [alto] ACH-006 — Response shape heterogêneo — ausência de envelope padronizado
+
+- dominio: apis-integracoes
+- run: 2026-04-18_22-30-59 (finalized)
+- categoria: contrato-de-api
+- status: confirmado
+- resumo: Procedures retornam formatos inconsistentes: `{ success: true }`, objetos raw, arrays diretos, objetos com campos ad-hoc (`whatsappLink`, `messageId`, `count`). Consumer precisa lembrar o formato de cada rota.
+- evidencia.arquivo_ou_area: apps/api/src/routers/clients.ts:~90 (`{ success: true }`); sales.ts:~29 (array direto); messaging.ts:~28 ({ success, whatsappLink, messageId }); analytics.ts (objetos agregados)
+- impacto.tecnico: SDK tipado exige múltiplas narrow types; UI precisa conhecer particularidades
+
+### [alto] ACH-011 — Outbox sem schema Zod por tipo de evento, sem namespace e sem versionamento
+
+- dominio: apis-integracoes
+- run: 2026-04-18_22-30-59 (finalized)
+- categoria: contratos-de-eventos
+- status: confirmado
+- resumo: Eventos no outbox viajam com `type: string` e `payload: unknown`. Consumers trabalham à base de fé. Sem namespace (`sales.confirmed`) nem versão (`v1`, `v2`), mudar um payload é breaking global.
+- evidencia.arquivo_ou_area: apps/worker/src/processors/outbox-processor.ts:14-20; packages/shared/src/events/event-publisher.ts
+- impacto.tecnico: Consumers quebram silenciosamente em mudança de payload
+
+### [alto] ACH-015 — Integrações externas sem timeout / retry consistentes — risco de stall em chamada HTTP
+
+- dominio: apis-integracoes
+- run: 2026-04-18_22-30-59 (finalized)
+- categoria: robustez
+- status: confirmado
+- resumo: Adapters `DeepSeek` e `WhatsApp-N2` aplicam `CircuitBreaker` + `AbortSignal.timeout`; porém, adapters auxiliares (`whatsapp-n1`, `resend-email-sender`, futuros MP) usam `fetch` padrão sem `AbortSignal` nem timeout explícito. `fetch` Node.js sem timeout roda indefinidamente.
+- evidencia.arquivo_ou_area: packages/business/messaging/adapters/whatsapp-n2-adapter.ts (ok); packages/business/auth/adapters/resend-email-sender.adapter.ts (stub sem timeout); demais adapters (inferência)
+- impacto.tecnico: Handler BullMQ pode travar segurando conexão e bloqueando outros jobs
+
+### [alto] ACH-016 — Falta de idempotência *outbound* (chave do lado da API externa) ao enviar WhatsApp/Email
+
+- dominio: apis-integracoes
+- run: 2026-04-18_22-30-59 (finalized)
+- categoria: idempotencia
+- status: confirmado
+- resumo: Ao enviar uma mensagem WhatsApp, se o adapter timeout e o outbox tentar novamente, a API externa pode processar a mensagem duas vezes (sem idempotency-key no request). Mesmo comportamento no envio de e-mail.
+- evidencia.arquivo_ou_area: packages/business/messaging/adapters/whatsapp-n2-adapter.ts (sem header de idempotência); packages/business/auth/adapters/resend-email-sender.adapter.ts (stub)
+- impacto.tecnico: Mensagem duplicada em cliente final em caso de retry
 
 ### [alto] ACH-002 — Topologia de deploy/runtime de produção não documentada
 
@@ -297,6 +388,106 @@
 - resumo: Não há arquivo `.github/CODEOWNERS` e não há como verificar branch protection via arquivos. Se a configuração no GitHub estiver ausente, qualquer colaborador com write pode mergear direto.
 - evidencia.arquivo_ou_area: .github/ (sem CODEOWNERS); ci.yml existe com lint/type-check/test
 - impacto.tecnico: Ausência de revisão obrigatória abre caminho para merges arriscados
+
+### [medio] ACH-007 — Paginação sem metadata (`total`, `hasMore`, `nextCursor`)
+
+- dominio: apis-integracoes
+- run: 2026-04-18_22-30-59 (finalized)
+- categoria: contrato-de-api
+- status: confirmado
+- resumo: `paginationSchema` em `@wbc/validators` define `page/limit/max 100`, mas as procedures `*.list` devolvem apenas o array de items sem total e sem cursor. Cliente não consegue renderizar "N de M" ou otimizar para cursor-based.
+- evidencia.arquivo_ou_area: packages/validators/src/common.ts:3-6; apps/api/src/routers/{clients,sales,campaigns,inventory}.ts (queries list)
+- impacto.tecnico: Cliente precisa inferir "fim" por array menor que `limit`
+
+### [medio] ACH-008 — Schemas Zod não totalmente centralizados em `@wbc/validators`
+
+- dominio: apis-integracoes
+- run: 2026-04-18_22-30-59 (finalized)
+- categoria: contrato-de-api
+- status: confirmado
+- resumo: `auth`, `sales` e `finance` importam schemas do pacote `validators`. `clients`, `inventory`, `logistics`, `platform` ainda usam `z.object({ ... })` inline nos routers, duplicando tipos.
+- evidencia.arquivo_ou_area: apps/api/src/routers/clients.ts:20-26 (inline); packages/validators/src/sales.ts:4-22 (ok)
+- impacto.tecnico: Dois pontos de verdade para o mesmo input
+
+### [medio] ACH-010 — Datas/timestamps sem contrato explícito no wire (ISO 8601 UTC + timezone)
+
+- dominio: apis-integracoes
+- run: 2026-04-18_22-30-59 (finalized)
+- categoria: contrato-de-api
+- status: confirmado
+- resumo: `validators` define `z.date()`; tRPC usa `superjson` (serializa Date → ISO). Mas alguns procedures emitem Date cru, e timezone do tenant não é considerada em responses.
+- evidencia.arquivo_ou_area: apps/api/src/routers/auth.ts:229 (Date em response); packages/validators/src/clients.ts:44 (z.date())
+- impacto.tecnico: Mobile recebe ISO string; UI precisa convert para timezone local sem saber a oficial do tenant
+
+### [medio] ACH-012 — Payloads de job BullMQ sem schema Zod nem validação no worker
+
+- dominio: apis-integracoes
+- run: 2026-04-18_22-30-59 (finalized)
+- categoria: contratos-de-jobs
+- status: confirmado
+- resumo: Jobs adicionados a `wbc:analytics`, `wbc:campaigns` e `wbc:messaging` chegam ao worker como `any`. Nenhum `z.parse(job.data)` antes de executar. Mudança na forma do payload quebra worker silenciosamente.
+- evidencia.arquivo_ou_area: apps/api/src/lib/queues.ts:14,21,28; apps/worker/src/processors/*.ts
+- impacto.tecnico: Worker cresce DLQ sem clareza do motivo
+
+### [medio] ACH-013 — Mapper domain → TRPCError incompleto — cai em `throw error` genérico
+
+- dominio: apis-integracoes
+- run: 2026-04-18_22-30-59 (finalized)
+- categoria: erros
+- status: confirmado
+- resumo: `mapDomainErrorToTRPC()` cobre ~25 tipos mas não trata `InsufficientPermissionError`, `ExternalServiceError`, `RateLimitExceededError` etc. Casos não mapeados viram 500 Internal Server Error sem detalhes.
+- evidencia.arquivo_ou_area: apps/api/src/trpc/error-handler.ts:3-50; ramo final `throw error`
+- impacto.tecnico: Clientes recebem 500 genérico; dev usa Sentry para investigar
+
+### [medio] ACH-014 — Sem OpenAPI/contrato externo — consumo só via SDK tipado `AppRouter`
+
+- dominio: apis-integracoes
+- run: 2026-04-18_22-30-59 (finalized)
+- categoria: documentacao-de-api
+- status: confirmado
+- resumo: tRPC não gera OpenAPI automaticamente. Sem `trpc-openapi` nem geração de `schema.json`, parceiros externos só consomem via Node.js com tipos.
+- evidencia.arquivo_ou_area: ausência de `trpc-openapi` em package.json; sem `docs/API_SPEC.md`
+- impacto.tecnico: Integrações externas não TypeScript (mobile iOS nativo, parceiros de marketplace) precisam de trabalho manual
+
+### [medio] ACH-017 — `event-publisher` falha hard se `OutboxPort` não inicializado
+
+- dominio: apis-integracoes
+- run: 2026-04-18_22-30-59 (finalized)
+- categoria: robustez
+- status: confirmado
+- resumo: `event-publisher.ts` lança erro se `setOutboxPort()` não foi chamado no startup. Não há fallback, log estruturado ou gate de saúde. Um desenvolvedor que esquece de chamar `setOutboxPort` quebra toda mutation que publica evento.
+- evidencia.arquivo_ou_area: packages/shared/src/events/event-publisher.ts:16-17
+- impacto.tecnico: Falha silenciosa até o primeiro evento emitido
+
+### [medio] ACH-018 — Paginação permite `page` arbitrariamente alto (OFFSET gigante é aceito)
+
+- dominio: apis-integracoes
+- run: 2026-04-18_22-30-59 (finalized)
+- categoria: protecao-operacional
+- status: confirmado
+- resumo: `paginationSchema` limita `limit ≤ 100`, mas `page` só tem `min(1)` — `page: 1_000_000` passa. `prisma-helpers.ts` calcula `skip = (page-1)*limit`, resultando em OFFSET massivo e query degradada.
+- evidencia.arquivo_ou_area: packages/validators/src/common.ts:3-6; packages/shared/src/prisma-helpers.ts:23-27
+- impacto.tecnico: DoS barato via OFFSET gigante em tabelas grandes
+
+### [medio] ACH-019 — Adapters não validam shape de respostas externas (falha em `data.messages[0].id`)
+
+- dominio: apis-integracoes
+- run: 2026-04-18_22-30-59 (finalized)
+- categoria: robustez
+- status: confirmado
+- resumo: Em `whatsapp-n2-adapter.ts`, o parser assume `data.messages[0].id`. Se a Meta devolver `messages: null` ou alterar o shape, TypeError não tratado quebra o worker.
+- evidencia.arquivo_ou_area: packages/business/messaging/adapters/whatsapp-n2-adapter.ts:85-88
+- impacto.tecnico: Erro não-tratado mata worker; evento vai para DLQ
+
+### [medio] ACH-020 — DLQ consumer apenas loga — sem alerta, retry controlado ou replay
+
+- dominio: apis-integracoes
+- run: 2026-04-18_22-30-59 (finalized)
+- categoria: webhooks-e-eventos
+- status: confirmado
+- resumo: `apps/worker/src/processors/dlq-processor.ts` registra um `warn` e libera o job. Não existe alerta para Slack/e-mail/Sentry; não há ferramenta de replay; ops não descobre falhas crônicas.
+- evidencia.arquivo_ou_area: apps/worker/src/processors/dlq-processor.ts:12-19
+- impacto.tecnico: Falhas silenciosas em integrações externas
 
 ### [medio] ACH-001 — Documentação arquitetural textual mas sem visualização consolidada
 
@@ -587,6 +778,16 @@
 - resumo: O arquivo `.env` local contém `AUTH_SECRET="wbc-dev-secret-change-in-production-2026"`. Embora `.env` não esteja em `git ls-files` (verificado), o hábito de usar segredos fracos em dev tende a vazar para staging.
 - evidencia.arquivo_ou_area: .env:3 (AUTH_SECRET)
 - impacto.tecnico: Compartilhamento acidental com staging/prod cria backdoor de assinatura JWT
+
+### [baixo] ACH-009 — Filtros e ordenação sem convenção de nomenclatura entre routers
+
+- dominio: apis-integracoes
+- run: 2026-04-18_22-30-59 (finalized)
+- categoria: contrato-de-api
+- status: confirmado
+- resumo: Clients usa `search`, `classification`, `tagIds`, `isLead`; sales usa `status`, `clientId`; finance usa `category`. Nenhum tem `sort`. Não há convenção documentada.
+- evidencia.arquivo_ou_area: apps/api/src/routers/clients.ts:22; sales.ts:27; finance.ts:25
+- impacto.tecnico: SDK precisa hardcode por rota
 
 ### [baixo] ACH-003 — Decisão de monorepo Turborepo + pnpm workspaces não registrada em ADR
 

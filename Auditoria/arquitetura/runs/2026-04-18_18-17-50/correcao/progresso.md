@@ -11,12 +11,12 @@
 
 ## Resumo de Progresso
 - total_aprovados: 13
-- corrigidos_executor: 6
+- corrigidos_executor: 7
 - revisados_revisor: 0
 - corrigidos_pelo_revisor: 0
 - nao_corrigiveis: 0
 - nao_aprovados: 0
-- pendentes: 7
+- pendentes: 6
 
 ## Achados
 
@@ -122,11 +122,17 @@
 - titulo: Módulo `ai/` diverge do padrão hexagonal (sem `domain/`)
 - severidade: medio
 - classificacao: corrigivel_parcial
-- status_executor: pendente
+- status_executor: corrigido
 - status_revisor: pendente
-- commit_executor: none
+- commit_executor: pending
 - commit_revisor: none
-- observacoes: skeleton + ADR; decisão final requer validação humana
+- arquivos_alterados:
+  - packages/business/ai/domain/entities.ts (novo - AIModel, AIUsage, AILimit)
+  - packages/business/ai/domain/value-objects.ts (novo - totalTokensInWindow, isWithinLimit)
+  - packages/business/ai/domain/errors.ts (novo - AILimitExceededError, AIProviderUnavailableError)
+  - docs/adr/006-ai-module-model.md (novo - ADR propondo Opcao A vs Opcao B)
+- descricao_correcao: Skeleton de domain/ no modulo ai/ disponivel para adocao gradual caso evolua para hexagonal completo. ADR-006 documenta duas opcoes (anemico vs hexagonal completo) e aguarda decisao humana. Codigo atual de ai/ nao depende do skeleton ainda — e cria opcional ate decisao tomada.
+- observacoes: classificado corrigivel_parcial — requer decisao de produto/arquiteto entre Opcao A e B antes da materializacao completa.
 
 ### ACH-002
 - titulo: Topologia de deploy/runtime de produção não documentada

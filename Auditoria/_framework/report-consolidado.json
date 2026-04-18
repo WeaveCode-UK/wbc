@@ -1,6 +1,6 @@
 {
   "schema_version": "2.0",
-  "generated_at": "2026-04-18T17:42:01.190Z",
+  "generated_at": "2026-04-18T19:13:24.090Z",
   "total": 13,
   "distribution": {
     "by_severity": {
@@ -17,7 +17,7 @@
     }
   },
   "progress": {
-    "last_updated": "2026-04-18T17:42:01.176Z",
+    "last_updated": "2026-04-18T19:13:24.084Z",
     "domains": {
       "arquitetura": {
         "domain": "arquitetura",

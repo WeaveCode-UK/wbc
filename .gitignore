@@ -10,3 +10,9 @@ dist/
 coverage/
 .prisma/
 .mcp.json
+
+# Framework de auditoria — backups temporários e settings locais
+.auditoria-backup-*/
+.claude/settings.local.json
+.claude/.credentials.json
+.claude/memory/

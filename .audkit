@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Wrapper gerado por install.sh do Framework-Auditoria. Não edite manualmente.
+# Delega para a CLI audkit que mora no repo do framework.
+# Regenere rodando install.sh do framework novamente.
+exec node "/Users/robsonmacpro/WeaveCode/Sistemas/Framework-Auditoria/cli/src/index.mjs" "$@"

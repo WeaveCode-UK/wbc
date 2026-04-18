@@ -1,0 +1,340 @@
+# Achados da Auditoria
+
+## Identificação
+- dominio: arquitetura
+- run_id: 2026-04-18_18-17-50
+- ultima_atualizacao: 2026-04-18 18:35:49
+
+## Regras de Registro
+- Registrar apenas achados reais com evidência observável.
+- Não registrar opinião vaga sem base no repositório.
+- Cada achado deve ter ID único dentro da run.
+- Cada achado deve ter severidade definida.
+- Se o item não for confirmado, registrar como hipótese com justificativa.
+
+## Severidades Permitidas
+- critico
+- alto
+- medio
+- baixo
+- informativo
+
+## Status Permitidos
+- aberto
+- confirmado
+- mitigado
+- resolvido
+- aceito
+- nao_aplicavel
+
+## Achados Registrados
+
+### ACH-001
+- titulo: Documentação arquitetural textual mas sem visualização consolidada
+- severidade: medio
+- categoria: documentacao
+- status: aberto
+- resumo: Projeto tem ADRs formais (hexagonal, multi-tenant, outbox+BullMQ, OTP-only), orquestrador detalhado e regras invioláveis, mas falta um artefato único de visão arquitetural consolidada. Não há diagrama de contexto (C4 Nível 1), mapa de containers (C4 Nível 2), matriz de dados (quem lê/escreve quais tabelas) nem overview executivo de 1-2 páginas. Todo conhecimento arquitetural é textual e disperso entre `docs/adr/`, `begin/`, `CLAUDE.md` e arquivos estruturais.
+
+#### Evidencia
+- arquivo_ou_area: wbc/docs/adr/, wbc/begin/, wbc/CLAUDE.md, wbc/README.md
+- detalhe: Nenhum arquivo `.drawio`, `.png`, `.svg` ou bloco Mermaid com representação estruturada. O `README.md` raiz do wbc é mínimo (sem overview arquitetural). ADRs cobrem decisões individuais mas não se consolidam em uma visão única. Não há `docs/ARCHITECTURE.md` ou equivalente. A visão de contexto (atores: consultora, admin, cliente final; sistemas externos: PostgreSQL, Redis, BullMQ, NextAuth, Resend, WhatsApp, MercadoPago, DeepSeek, Sentry, OpenTelemetry, Prometheus) só existe como conhecimento tácito derivável do `package.json`, `docker-compose.yml` e `deploy/`.
+
+#### Impacto
+- tecnico: Onboarding lento — novos desenvolvedores precisam reconstruir a visão arquitetural lendo múltiplos arquivos. Discussões de escopo e impacto ficam mais longas por falta de referência visual compartilhada. Risco de escolhas de design incoerentes por ausência de ancoragem visual da arquitetura.
+- negocio: Discussões com stakeholders não-técnicos (produto, comercial) prejudicadas. Fricção em priorização e pitch arquitetural para clientes enterprise ou investidores. Barreira extra para contribuidores externos.
+
+#### Recomendacao
+- acao_sugerida: Criar `docs/ARCHITECTURE.md` consolidando: (a) diagrama C4 Nível 1 em Mermaid (sistema WBC como caixa central, atores principais, sistemas externos); (b) diagrama C4 Nível 2 (containers: web, api, worker, mobile, landing, db, cache, queue); (c) matriz resumida de quem lê/escreve quais agregados de dados; (d) overview executivo de 1-2 páginas linkando ADRs e playbook de construção.
+- prioridade: alta
+
+#### Observacoes
+- Achado de documentação com impacto arquitetural direto por afetar a compreensão estrutural compartilhada do sistema.
+
+---
+
+### ACH-002
+- titulo: Topologia de deploy/runtime de produção não documentada
+- severidade: alto
+- categoria: contexto
+- status: aberto
+- resumo: Existem artefatos de deploy (`Dockerfile.web`, `Dockerfile.worker`, `deploy/nginx.conf`, Prometheus alerts, `docker-compose.prod.yml`, scripts de backup), mas nenhum documento arquitetural explica a topologia em produção: quantas réplicas, recursos alocados, dependências de ordem de boot, estratégia de failover, localização (host único vs cluster), RTO/RPO para disaster recovery, estratégia de reconnect do Redis, procedimento de restore de backup.
+
+#### Evidencia
+- arquivo_ou_area: wbc/deploy/, wbc/docker-compose.yml, wbc/docker-compose.prod.yml
+- detalhe: `docker-compose.yml` cobre só desenvolvimento local. `docker-compose.prod.yml` existe mas descreve serviços sem contextualizar topologia completa. `deploy/` contém Dockerfiles, nginx.conf, Prometheus alerts e scripts, mas não há um `docs/DEPLOYMENT.md` com visão arquitetural da produção. Novo operador precisa ler ~5 arquivos de infraestrutura para reconstruir mentalmente o runtime.
+
+#### Impacto
+- tecnico: Incerteza sobre pontos únicos de falha, latência inter-app, escalabilidade horizontal. Troubleshooting em incidente fica lento por falta de visão consolidada. Dificuldade de validar coerência entre o que foi configurado (nginx, BullMQ workers, réplicas) e o que foi intencionado arquiteturalmente.
+- negocio: Risco operacional alto em rollout e incidentes. SLA incerto por falta de targets de RTO/RPO declarados. Dificuldade de provar disponibilidade para clientes enterprise. Onboarding de operação lento.
+
+#### Recomendacao
+- acao_sugerida: Criar `docs/DEPLOYMENT.md` consolidando: (a) diagrama de topologia em produção (infra + runtime + relacionamentos); (b) descrição de cada app com número de réplicas, resources, dependências e ordem de boot; (c) estratégia de failover e recuperação; (d) RPO/RTO targets declarados; (e) matriz de disponibilidade por serviço; (f) fluxo de rollback e procedimento de restore de backup.
+- prioridade: alta
+
+#### Observacoes
+- Parte deste conteúdo também alimenta o domínio `infraestrutura-deploy-config`; registrado aqui como problema arquitetural por afetar a compreensão estrutural do sistema em runtime.
+
+---
+
+### ACH-003
+- titulo: Decisão de monorepo Turborepo + pnpm workspaces não registrada em ADR
+- severidade: baixo
+- categoria: arquitetura-declarada
+- status: aberto
+- resumo: O projeto usa pnpm workspaces + Turborepo (visível em `package.json`, `pnpm-workspace.yaml`, `turbo.json`), mas não há ADR justificando a escolha, documentando os trade-offs frente a polirepo/multirepo, nem as regras de workspace (quando criar novo package, quando promover código compartilhado, convenção de nomes).
+
+#### Evidencia
+- arquivo_ou_area: wbc/turbo.json, wbc/package.json, wbc/pnpm-workspace.yaml, wbc/docs/adr/
+- detalhe: ADRs existentes (001 hexagonal, 002 multi-tenant, 003 outbox+BullMQ, 004 OTP-only) cobrem decisões importantes mas não a estrutura do próprio monorepo. Decisão estruturante sem registro formal dificulta evolução futura consistente.
+
+#### Impacto
+- tecnico: Novos devs desconhecem a razão da estrutura; risco de decisões incoerentes de build/deploy/versionamento por falta de referência. Pode dificultar justificativa técnica em revisão arquitetural.
+- negocio: Custo potencial de refatoração se a estrutura não sustentar crescimento; baixo, mas contribui para dívida de contexto.
+
+#### Recomendacao
+- acao_sugerida: Criar `docs/adr/005-monorepo-turborepo-pnpm.md`. Justificar: monolito modular simples, pnpm reduz duplicação de node_modules, Turborepo acelera CI com cache. Trade-offs: vs polirepo (complexidade de CI/CD, visibilidade cruzada); vs multirepo (perda de coesão). Regras: quando criar `apps/` vs `packages/`, convenção de nomes, policy de versionamento interno.
+- prioridade: baixa
+
+#### Observacoes
+- Decisão já tomada; ADR é retroativo mas útil para preservação de contexto.
+
+---
+
+### ACH-004
+- titulo: Fluxos de eventos inter-módulos não mapeados em catálogo central
+- severidade: medio
+- categoria: arquitetura-declarada
+- status: aberto
+- resumo: Eventos de domínio existem em cada módulo business (SaleConfirmed, CashbackGenerated, ClientCreated, etc.) e há implementação outbox + BullMQ (ADR-003), mas não há documentação única consolidada mostrando quais eventos existem, quem publica, quem consome, em qual fila BullMQ cada um roda e qual é o payload canônico. Conhecimento só é reconstrutível lendo arquivos `*.events.ts` e subscribers espalhados.
+
+#### Evidencia
+- arquivo_ou_area: wbc/packages/business/*/domain/events.ts (presumido), wbc/packages/business/*/subscribers/ (presumido), wbc/apps/worker/
+- detalhe: Eventos existem dentro de cada módulo mas sem índice central. ADR-003 declara a arquitetura de outbox+BullMQ mas não lista os eventos concretos. Handlers em módulos consumidores são descobertos apenas por leitura caso-a-caso. A relação publisher→consumer exige busca manual em todo o monorepo.
+
+#### Impacto
+- tecnico: Mudanças em eventos (adicionar campo, renomear, remover) exigem busca manual em todo o monorepo; alto risco de subscribers órfãos após refatorações; acoplamento oculto entre módulos que deveriam ser autônomos.
+- negocio: Evolução de fluxos transversais (ex: adicionar novo handler após venda) torna-se lenta e arriscada; bugs de integração difíceis de rastrear em produção por falta de rastreabilidade explícita entre publisher e consumer.
+
+#### Recomendacao
+- acao_sugerida: Criar `docs/architecture/events.md` com tabela canônica (nome do evento | publisher | consumers | fila BullMQ | payload schema | versão). Idealmente derivada de um catálogo tipado no código (`packages/shared/events/index.ts` com registry tipado). Manter sincronizado via code review ou hook.
+- prioridade: alta
+
+#### Observacoes
+- Relaciona-se também à Fase 2 (análise de direção de dependências entre módulos). Registrado aqui porque reflete lacuna estrutural na documentação da arquitetura event-driven declarada no ADR-003.
+
+---
+
+### ACH-005
+- titulo: Lógica de domínio (cálculos de negócio) vazada em adapters Prisma
+- severidade: alto
+- categoria: hexagonal-violation
+- status: aberto
+- resumo: Adapters Prisma (que deveriam apenas traduzir Prisma ↔ domínio) contêm cálculos de regras de negócio: subtotal, total, desconto, cashback em `sales`; classificação ABC e engagement score em `analytics`; teto/piso de cashback em `sales/cashback`. Isso viola o princípio hexagonal declarado no ADR-001: regras de negócio devem residir em `domain/entities` ou `domain/services`, não em adapters.
+
+#### Evidencia
+- arquivo_ou_area: wbc/packages/business/sales/adapters/prisma-sale-repository.ts, wbc/packages/business/analytics/adapters/prisma-analytics-repository.ts, wbc/packages/business/sales/adapters/prisma-cashback-repository.ts
+- detalhe: Trechos observados (aproximados, conforme relatório do agente): `prisma-sale-repository.ts` linhas ~51-52 executa `const subtotal = data.items.reduce(...); const total = Math.max(0, subtotal - discount - cashback);`. `prisma-analytics-repository.ts` executa cálculos de classificação ABC e engagement via `Math.floor/Math.min` e função `calculateABCClassification()`. `prisma-cashback-repository.ts` executa tetos/pisos via `Math.ceil/Math.min`. Domain/ e use-cases/ dos respectivos módulos não expõem esses cálculos.
+
+#### Impacto
+- tecnico: Cálculos críticos residem onde mudam com schema Prisma; lógica não testável isoladamente (exige setup de DB); difícil mover de Prisma para outro ORM; duplicação potencial se outro adapter precisar da mesma regra.
+- negocio: Risco alto de inconsistência nos cálculos mais sensíveis (total financeiro, cashback, engagement); reuso limitado da regra em outros contextos (ex: relatórios via worker, simulações via AI); regras de negócio não documentadas como tal, só inferíveis do código de persistência.
+
+#### Recomendacao
+- acao_sugerida: Extrair cálculos para `packages/business/sales/domain/value-objects.ts` (Subtotal, Discount, Cashback, Total) e `packages/business/analytics/domain/` (ABCClassification, EngagementScore). Adapters passam a apenas mapear Prisma ↔ entidades de domínio, sem fazer `reduce/Math.*` de valores de negócio. Cobrir cada regra com teste unitário puro (sem Prisma).
+- prioridade: alta
+
+#### Observacoes
+- Este é o achado estrutural mais relevante da auditoria de arquitetura até aqui. Corrigir primeiro na ordem de priorização porque afeta regras financeiras diretas.
+
+---
+
+### ACH-006
+- titulo: Módulo `ai/` diverge do padrão hexagonal (sem `domain/`)
+- severidade: medio
+- categoria: decomposicao
+- status: aberto
+- resumo: Dos 16 módulos em `packages/business/*`, 15 seguem o shape hexagonal canônico (`domain/`, `ports/`, `adapters/`, `use-cases/`). O módulo `ai/` diverge: não possui pasta `domain/`. Use-cases de AI (geração de texto, etc.) são procedurais, chamam `AIProvider` e `AIRepository` via ports sem encapsular regras de domínio (limites de tokens, políticas de modelo, métricas de uso) em entidades.
+
+#### Evidencia
+- arquivo_ou_area: wbc/packages/business/ai/
+- detalhe: Estrutura do módulo é apenas `adapters/`, `ports/`, `use-cases/` (sem `domain/`). Nos 15 outros módulos há pelo menos `domain/entities.ts` ou `domain/value-objects.ts` populados.
+
+#### Impacto
+- tecnico: Ambiguidade sobre se o módulo é deliberadamente anêmico (gateway puro para provider externo) ou se está incompleto. Regras sobre rate limit de tokens, política de modelo escolhido, quotas, acumulação de uso ficam inline nos use-cases — dificulta teste unitário puro e evolução.
+- negocio: Se o custo/uso de AI tornar-se relevante (cobrança por tokens, quotas por tenant, modelos premium), será necessário ter essa lógica em domain; hoje não está modelada.
+
+#### Recomendacao
+- acao_sugerida: Deliberar em ADR se `ai/` deve permanecer anêmico (apenas gateway) ou evoluir. Se evoluir, criar `packages/business/ai/domain/` com entidades como `AIGenerationLog`, `TokenUsagePolicy`, `AIModelPolicy` e value-objects relevantes. Se permanecer anêmico, documentar explicitamente a exceção à convenção e a justificativa.
+- prioridade: media
+
+#### Observacoes
+- Achado de consistência de decomposição. Também atinge Fase 3 (decisão arquitetural sem registro explícito).
+
+---
+
+### ACH-007
+- titulo: Ausência de enforcement automatizado para regras hexagonal
+- severidade: medio
+- categoria: hexagonal-violation
+- status: aberto
+- resumo: As regras hexagonal (`domain/` não importa de `adapters/`; `use-cases/` importam apenas de `ports/`, não de `adapters/` diretamente; comunicação inter-módulo apenas via eventos) existem apenas como convenção textual em CLAUDE.md e ADRs. Não há linter rule, teste arquitetural automatizado ou hook que previna violação em code review.
+
+#### Evidencia
+- arquivo_ou_area: wbc/package.json, wbc/.eslintrc.*, wbc/.husky/ (pre-commit), wbc/docs/adr/001-hexagonal-architecture.md
+- detalhe: Presença confirmada de husky e lint-staged no pré-commit (experiência do push anterior), mas nenhuma regra específica para proibir imports proibidos por arquitetura (ex: `eslint-plugin-boundaries`, `eslint-plugin-import no-restricted-paths`, ou `dependency-cruiser`). ACH-005 mostra que violações existem no código sem terem sido bloqueadas.
+
+#### Impacto
+- tecnico: Violações arquiteturais passam por code review sem alerta automático; a arquitetura declarada depende exclusivamente de disciplina manual; cada novo dev precisa internalizar as regras antes de contribuir com segurança.
+- negocio: Dívida técnica arquitetural cresce silenciosamente entre releases; retrabalho futuro cada vez maior para re-alinhar quando regras forem enforçadas.
+
+#### Recomendacao
+- acao_sugerida: Adicionar linter arquitetural (ex: `eslint-plugin-boundaries` ou `dependency-cruiser`) configurado com regras: (a) `domain/` não pode importar de `adapters/` nem `use-cases/`; (b) `use-cases/` não pode importar de `adapters/` diretamente; (c) `packages/business/X` não pode importar de `packages/business/Y` (comunicação só via eventos). Rodar no CI como gate obrigatório.
+- prioridade: alta
+
+#### Observacoes
+- Corrige a raiz de ACH-005 e previne futuras violações similares.
+
+---
+
+### ACH-008
+- titulo: Políticas de retry, timeout e circuit breaker hardcoded em cada adapter externo
+- severidade: medio
+- categoria: cross-cutting
+- status: aberto
+- resumo: Cada adapter que chama serviço externo (WhatsApp N2, DeepSeek, e potencialmente outros) define constantes próprias de `MAX_RETRIES`, `TIMEOUT_MS`, `RETRY_DELAY_MS` e instancia seu próprio `CircuitBreaker` com thresholds locais. Não há política centralizada em `@wbc/shared` ou `config` que padronize ou permita ajuste global.
+
+#### Evidencia
+- arquivo_ou_area: wbc/packages/business/messaging/adapters/whatsapp-n2-adapter.ts, wbc/packages/business/ai/adapters/deepseek-adapter.ts
+- detalhe: `whatsapp-n2-adapter.ts` define MAX_RETRIES=2, TIMEOUT_MS=10000, RETRY_DELAY_MS=1000 com `isRetryable()` local e `CircuitBreaker` failureThreshold=5. `deepseek-adapter.ts` define constantes similares com valores diferentes (TIMEOUT_MS=30000, RETRY_DELAY_MS=2000, failureThreshold=3). Sem base compartilhada.
+
+#### Impacto
+- tecnico: Ajustar política de retry globalmente exige alterar N adapters; inconsistência entre providers impede observabilidade operacional consolidada; novas integrações tendem a copiar o padrão errado.
+- negocio: Se um provider externo tiver incidente prolongado, não há botão único para aumentar tolerância; operação precisa mexer em múltiplos arquivos e deployar.
+
+#### Recomendacao
+- acao_sugerida: Extrair `RetryPolicy`, `TimeoutPolicy` e `CircuitBreakerPolicy` para `packages/shared/resilience/` com fábrica configurável (por env var ou por provider). Adapters recebem a policy via constructor. Permite override por provider mas com default coerente.
+- prioridade: media
+
+#### Observacoes
+- Relaciona-se com ACH-010 (falta ADR de resiliência) — ambos ficam consistentes quando aplicados juntos.
+
+---
+
+### ACH-009
+- titulo: Worker sem graceful shutdown — risco de perda de jobs em-flight
+- severidade: critico
+- categoria: operabilidade
+- status: aberto
+- resumo: O worker em `apps/worker/src/index.ts` inicia 5 workers BullMQ (messaging, campaign, schedule, analytics, dlq) e usa `setInterval` para polling de outbox (5s), cleanup (24h) e DLQ (60s), mas não trata `SIGTERM`/`SIGINT`. Em container restart ou deploy, jobs em-flight são abortados abruptamente, violando a garantia at-least-once declarada no ADR-003 (outbox + BullMQ).
+
+#### Evidencia
+- arquivo_ou_area: wbc/apps/worker/src/index.ts, wbc/docker-compose.prod.yml
+- detalhe: Worker não registra handlers de shutdown, não drena BullMQ workers, não cancela `setInterval`, não aguarda jobs em execução finalizarem. `docker-compose.prod.yml` usa `restart: unless-stopped` que mascara o problema em desenvolvimento mas agrava em produção (SIGTERM é enviado, job morre, restart começa novo ciclo).
+
+#### Impacto
+- tecnico: Perda silenciosa da garantia "at-least-once" — jobs podem morrer entre `take` e `ack`. Outbox pode ficar inconsistente (evento publicado sem processamento completo). Cleanup e DLQ interrompidos no meio podem deixar estado intermediário.
+- negocio: Risco alto de mensagens WhatsApp, notificações de venda, campanhas, cashback não entregues silenciosamente. Auditoria/rastreabilidade prometida pelo outbox quebra em qualquer deploy/restart de worker.
+
+#### Recomendacao
+- acao_sugerida: Implementar graceful shutdown em `apps/worker/src/index.ts`: `process.on('SIGTERM'|'SIGINT', handler)` que (a) para de aceitar novos jobs (`.pause()` nos BullMQ workers), (b) cancela os `setInterval`, (c) aguarda jobs em-flight terminarem com timeout configurável (ex: 30s), (d) chama `.close()` nos workers, (e) chama `.disconnect()` do Redis e `.$disconnect()` do Prisma, (f) só então `process.exit(0)`. Adicionar teste manual de deploy para validar.
+- prioridade: alta
+
+#### Observacoes
+- Achado crítico. Deve ser corrigido antes de qualquer uso de produção real. Também é input para o domínio `confiabilidade-resiliencia` e `infraestrutura-deploy-config`.
+
+---
+
+### ACH-010
+- titulo: Decisões de resiliência (retry, circuit breaker, DLQ, cleanup) sem ADR
+- severidade: medio
+- categoria: decisao-sem-adr
+- status: aberto
+- resumo: `CircuitBreaker` é usado em adapters externos, DLQ processor existe em `apps/worker`, cleanup de outbox roda diariamente — mas não há ADR documentando a estratégia de resiliência: por que circuit breaker com thresholds X, por que DLQ apenas loga (sem API de resgate), por que cleanup é diário.
+
+#### Evidencia
+- arquivo_ou_area: wbc/docs/adr/ (não há ADR-005+ de resiliência), wbc/apps/worker/src/processors/dlq-processor.ts, wbc/packages/shared/ (CircuitBreaker)
+- detalhe: Thresholds variam entre adapters (ACH-008) sem documentação de por quê. DLQ processor apenas loga eventos mortos, sem estratégia de retry manual ou interface administrativa. Cleanup cadence (24h) sem justificativa.
+
+#### Impacto
+- tecnico: Novas integrações repetem o padrão ou divergem sem orientação; não há baseline para discussão de SLO; retrabalho caso a estratégia precise mudar.
+- negocio: SLO de entrega e recuperação difícil de prometer sem política documentada; troubleshooting lento em incidente por falta de expectativa declarada.
+
+#### Recomendacao
+- acao_sugerida: Criar `docs/adr/005-resilience-strategies.md` documentando: circuit breaker thresholds padrão e overrides por provider; política DLQ (retenção, retry manual, alerting); cleanup cadence e justificativa; contrato de graceful shutdown (alinhado ao ACH-009). Complementar com ADR-006 de escalabilidade horizontal (ACH-013).
+- prioridade: media
+
+#### Observacoes
+- ADR deve ser escrito depois da correção do ACH-009 para documentar a política efetivamente implementada.
+
+---
+
+### ACH-011
+- titulo: Health checks mínimos; sem readiness distinto de liveness e sem métricas de lag de worker
+- severidade: medio
+- categoria: operabilidade
+- status: aberto
+- resumo: Endpoint de health em `apps/api` verifica apenas ping de DB e Redis. Não há distinção entre readiness (pronto para receber tráfego) e liveness (processo vivo). Worker não expõe endpoint de health nem métricas de lag (profundidade de filas BullMQ, idade do outbox mais antigo, contagem de DLQ). Docker Compose tem healthcheck para Postgres/Redis mas não para web/worker.
+
+#### Evidencia
+- arquivo_ou_area: wbc/apps/api/src/routers/health.ts (presumido, conforme agente), wbc/apps/worker/src/index.ts, wbc/docker-compose.prod.yml
+- detalhe: Health da API só retorna status de DB/Redis. Worker não escuta HTTP. Sem métrica Prometheus exposta de queue depth ou lag. `docker-compose.prod.yml` usa `depends_on` com condition mas sem healthcheck para containers de aplicação.
+
+#### Impacto
+- tecnico: Orchestrator (Docker/Kubernetes) não consegue detectar worker travado ou faminto; Prometheus alertas não disparam para starvation; incidente só aparece quando usuário reclama.
+- negocio: Outages silenciosos; SLA degradado sem alerta; reputação de entrega afetada por falhas não detectadas.
+
+#### Recomendacao
+- acao_sugerida: (a) Criar `/health/live` (processo vivo — responde sempre 200) e `/health/ready` (verifica DB, Redis, outbox lag < threshold). (b) Worker escuta HTTP mínimo em porta secundária com endpoint `/health` expondo queue depths, idade do outbox mais antigo, contagem DLQ. (c) Adicionar healthcheck para web/worker em `docker-compose.prod.yml`. (d) Métricas Prometheus dedicadas para lag.
+- prioridade: media
+
+#### Observacoes
+- Relaciona-se diretamente com `observabilidade-operacao`; registrado aqui como problema arquitetural porque estrutura operacional sustenta (ou não) as qualidades do sistema.
+
+---
+
+### ACH-012
+- titulo: Isolamento multi-tenant em Redis depende apenas de convenção de prefixo manual
+- severidade: medio
+- categoria: seguranca-estrutural
+- status: aberto
+- resumo: Redis único compartilhado entre todos os tenants para cache (entitlements), BullMQ queues e outbox sub. O isolamento por tenant depende de cada código cliente incluir manualmente o `tenantId` no prefixo de chave (ex: `wbc:entitlements:${tenantId}`), sem enforcement automatizado. O ADR-002 declara multi-tenant com tenantId obrigatório em queries Prisma, mas essa disciplina não é replicada em Redis via infra.
+
+#### Evidencia
+- arquivo_ou_area: wbc/docker-compose.prod.yml (único Redis), wbc/apps/api/src/lib/cache.ts, wbc/apps/api/src/lib/queues.ts, wbc/apps/worker/src/index.ts
+- detalhe: Sem middleware ou wrapper que prefixe chaves automaticamente; novos usos de cache ou fila podem esquecer o prefixo sem erro em build/test; possível interferência cross-tenant em job priority, rate limit por chave, invalidação de cache.
+
+#### Impacto
+- tecnico: Possível vazamento cruzado acidental se um desenvolvedor esquecer o prefixo; padrões de latência de fila de um tenant podem ser inferidos por outro (baixo risco mas existe).
+- negocio: Risco de compliance em multi-tenant SaaS se houver auditoria de isolamento; mitigação hoje depende de code review disciplinar.
+
+#### Recomendacao
+- acao_sugerida: Criar wrapper `TenantScopedRedis` (ou `TenantScopedCache`) em `packages/shared/` que recebe `tenantId` do AsyncLocalStorage e prefixa automaticamente todas as chaves, recusando operações sem contexto de tenant. Padrão similar para BullMQ (queue namespace por tenant ou enforcement de job.data.tenantId). Em escala maior, considerar Redis dedicado por tenant crítico.
+- prioridade: media
+
+#### Observacoes
+- Relaciona-se com ACH-002 (multi-tenant declarado) e com `seguranca` e `dados-persistencia` para auditorias futuras.
+
+---
+
+### ACH-013
+- titulo: Estratégia de escalabilidade horizontal de workers sem ADR
+- severidade: baixo
+- categoria: decisao-sem-adr
+- status: aberto
+- resumo: A separação API/Worker em containers distintos (evidenciada em `docker-compose.prod.yml`) permite deploy independente e suporta múltiplos workers BullMQ. Porém, não há ADR documentando estratégia de escalabilidade horizontal: escalar 1 worker pool único vs workers especializados por tipo de job, job affinity, particionamento de queue por tenant, limites de pool Prisma por worker.
+
+#### Evidencia
+- arquivo_ou_area: wbc/apps/worker/, wbc/docker-compose.prod.yml, wbc/docs/adr/
+- detalhe: Apps separados e config de Prisma com `connection_limit` diferente para web (20) e worker (5) sugerem consideração de recursos, mas sem documentação da estratégia. Nenhum ADR cobre como crescer de 1→N workers sem rebalanceamento manual.
+
+#### Impacto
+- tecnico: Escalar hoje é possível mas exige engenharia manual; decisões improvisadas podem diluir throughput (ex: 2 workers no mesmo queue sem particionamento).
+- negocio: Baixo hoje; relevante quando volume de eventos crescer >100k/dia ou quando houver expansão multi-region.
+
+#### Recomendacao
+- acao_sugerida: Criar `docs/adr/006-worker-scaling-and-affinity.md` documentando: (a) modelo de worker pool (global vs especializado); (b) estratégia de particionamento de queue (prefixo por tenant? sharding por hash?); (c) quando introduzir novo worker type; (d) limites de pool Prisma por worker e racional; (e) cenários para multi-region.
+- prioridade: baixa
+
+#### Observacoes
+- Decisão de roadmap. Útil mesmo se a implementação só vier em fase futura — documenta a intenção e evita implementação caótica sob pressão.

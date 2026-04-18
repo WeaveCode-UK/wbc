@@ -5,7 +5,7 @@
 
 ## Contexto
 
-O projeto WBC Platform é um CRM multi-tenant composto por múltiplos apps (web, mobile, worker, landing, api) e pelo menos 23 packages internos (16 business/\* + 7 compartilhados). A escolha de como organizar esse código no Git e no sistema de build foi tomada no início do projeto mas não havia sido registrada em ADR.
+O projeto WBC Platform é um CRM multi-tenant composto por múltiplos apps (web, mobile, worker, landing, api) e pelo menos 22 packages internos (15 business/\* + 7 compartilhados). A escolha de como organizar esse código no Git e no sistema de build foi tomada no início do projeto mas não havia sido registrada em ADR.
 
 A auditoria de arquitetura (run `2026-04-18_18-17-50`) identificou o gap como ACH-003.
 
@@ -24,7 +24,7 @@ Adotar **monorepo único** com **Turborepo** como orquestrador de build/test/lin
 
 1. **Apps em `apps/`** — aplicações executáveis (Next.js, Expo, worker Node).
 2. **Packages em `packages/`** — código reutilizável entre apps. Categorias:
-   - `packages/business/*` — lógica de domínio (16 módulos hexagonais).
+   - `packages/business/*` — lógica de domínio (15 módulos hexagonais).
    - `packages/db/` — Prisma schema + helpers.
    - `packages/shared/` — utilities cross-cutting.
    - `packages/ui/`, `packages/ui-native/` — componentes visuais.

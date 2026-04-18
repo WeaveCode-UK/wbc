@@ -1,20 +1,20 @@
 # Relatório Consolidado de Achados — Framework de Auditoria WeaveCode
 
-- gerado_em: 2026-04-18T21:05:39.447Z
-- total_achados: 35
+- gerado_em: 2026-04-18T21:30:50.200Z
+- total_achados: 63
 - dominios_em_progresso: 0
 - dominios_ready_for_finalize: 0
 - dominios_blocked: 0
-- dominios_com_historico: 2
+- dominios_com_historico: 3
 
 ## Distribuição por severidade
 
 | Severidade | Total |
 |---|---|
-| critico | 2 |
-| alto | 7 |
-| medio | 19 |
-| baixo | 6 |
+| critico | 4 |
+| alto | 22 |
+| medio | 29 |
+| baixo | 7 |
 | informativo | 1 |
 
 ## Distribuição por status
@@ -22,7 +22,7 @@
 | Status | Total |
 |---|---|
 | aberto | 13 |
-| confirmado | 22 |
+| confirmado | 50 |
 | mitigado | 0 |
 | resolvido | 0 |
 | aceito | 0 |
@@ -34,6 +34,7 @@
 |---|---|
 | arquitetura | 13 |
 | codigo-manutenibilidade | 22 |
+| seguranca | 28 |
 
 ## Achados ordenados por severidade
 
@@ -56,6 +57,26 @@
 - resumo: Fluxos de password reset, email verification e request-email-verification geram token mas não persistem no Redis nem validam no consumo; adapter Resend é stub. Bloqueia uso em produção dos fluxos de auth por link.
 - evidencia.arquivo_ou_area: packages/business/auth/use-cases/verify-email.use-case.ts:11; reset-password.use-case.ts:16; request-email-verification.use-case.ts:21; request-password-reset.use-case.ts:22; packages/business/auth/adapters/resend-email-sender.adapter.ts:7
 - impacto.tecnico: Código parece funcional mas não completa o fluxo; depuração difícil porque o caminho feliz emite eventos sem efeito
+
+### [critico] ACH-001 — reset-password e verify-email não implementados — endpoints públicos vulneráveis
+
+- dominio: seguranca
+- run: 2026-04-18_22-06-18 (finalized)
+- categoria: autenticacao
+- status: confirmado
+- resumo: Os use-cases `ResetPassword` e `VerifyEmail` lançam "not yet implemented". Sem persistência de token (Redis) e sem validação de expiração, o endpoint público aceita qualquer token e pode ser iterado ou, na implementação apressada, aceitar valores inválidos. Fluxos de recuperação e verificação não funcionam em produção.
+- evidencia.arquivo_ou_area: packages/business/auth/use-cases/reset-password.use-case.ts:15-19; packages/business/auth/use-cases/verify-email.use-case.ts:10-11; packages/business/auth/use-cases/request-password-reset.use-case.ts:21-23; packages/business/auth/use-cases/request-email-verification.use-case.ts:21
+- impacto.tecnico: Fluxo de reset quebrado; se ativado sem validação, permite account takeover com token arbitrário
+
+### [critico] ACH-002 — OTP registrado em console.log em ambiente não-produção
+
+- dominio: seguranca
+- run: 2026-04-18_22-06-18 (finalized)
+- categoria: exposicao-de-credenciais
+- status: confirmado
+- resumo: Em `send-otp.ts`, o código OTP é emitido por `console.log` quando NODE_ENV não é "production". Se staging ou ambiente compartilhado rodar com env incorreto, códigos OTP vazam para stdout/arquivos de log.
+- evidencia.arquivo_ou_area: packages/business/auth/use-cases/send-otp.ts:37-39
+- impacto.tecnico: OTP persistido em logs (stdout, syslog, agregadores) de longa duração
 
 ### [alto] ACH-002 — Topologia de deploy/runtime de produção não documentada
 
@@ -126,6 +147,156 @@
 - resumo: `apps/api/src/index.ts` e `apps/worker/src/index.ts` executam `initTracing`, `initSentry`, `applyTenantMiddleware`, abrem conexões Redis e registram `setInterval` no topo do arquivo. Importar qualquer símbolo dispara todo o bootstrap.
 - evidencia.arquivo_ou_area: apps/api/src/index.ts:1-24; apps/worker/src/index.ts:1-74
 - impacto.tecnico: Impede testes de unidade por import direto; dificulta múltiplos modos (ex: CLI sem tracing)
+
+### [alto] ACH-003 — Autenticação por credenciais sem proteção contra brute-force
+
+- dominio: seguranca
+- run: 2026-04-18_22-06-18 (finalized)
+- categoria: autenticacao
+- status: confirmado
+- resumo: `AuthenticateWithCredentials` valida email/senha via bcrypt sem contador de falhas por conta ou IP. O rate-limit genérico (100 req/min protected / 30 req/min public) é alto demais para autenticação.
+- evidencia.arquivo_ou_area: packages/business/auth/use-cases/authenticate-with-credentials.use-case.ts; apps/api/src/trpc/rate-limit-middleware.ts:9-10
+- impacto.tecnico: Força bruta online viável para senhas fracas
+
+### [alto] ACH-004 — Enumeração de contas por mensagens de erro distintas
+
+- dominio: seguranca
+- run: 2026-04-18_22-06-18 (finalized)
+- categoria: autenticacao
+- status: confirmado
+- resumo: `AuthenticateWithCredentials` retorna mensagens distintas para "conta não encontrada" vs "senha incorreta". Permite enumerar e-mails válidos no sistema.
+- evidencia.arquivo_ou_area: packages/business/auth/use-cases/authenticate-with-credentials.use-case.ts:18-26
+- impacto.tecnico: Enumeração simplifica ataques dirigidos
+
+### [alto] ACH-005 — `findByToken` de invites sem validação de status e expiração
+
+- dominio: seguranca
+- run: 2026-04-18_22-06-18 (finalized)
+- categoria: autorizacao
+- status: confirmado
+- resumo: Em `prisma-invite.repository.ts`, `findByToken` não filtra `status = 'PENDING'` nem `expiresAt > now`. Invites EXPIRED ou ACCEPTED podem ser reusados se o token vazar.
+- evidencia.arquivo_ou_area: packages/business/auth/adapters/prisma-invite.repository.ts:16-20
+- impacto.tecnico: Reuso de invites antigos; inclusão em tenant errado
+
+### [alto] ACH-006 — Sessão JWT de 15 min sem revogação e sem rotation explícita
+
+- dominio: seguranca
+- run: 2026-04-18_22-06-18 (finalized)
+- categoria: sessao-e-tokens
+- status: confirmado
+- resumo: `apps/web/src/lib/auth.config.ts` usa NextAuth JWT strategy com `maxAge: 15*60`. Não há blacklist no logout nem rotation de token em `jwt update`. Usuário removido do workspace mantém acesso até o token expirar.
+- evidencia.arquivo_ou_area: apps/web/src/lib/auth.config.ts:131-134; packages/business/auth/use-cases/revoke-session.use-case.ts; apps/web/src/lib/auth.ts
+- impacto.tecnico: Janela de até 15 min com sessão ativa após logout ou remoção do usuário
+
+### [alto] ACH-007 — Ausência de MFA/TOTP
+
+- dominio: seguranca
+- run: 2026-04-18_22-06-18 (finalized)
+- categoria: autenticacao
+- status: confirmado
+- resumo: Não há implementação de MFA (TOTP, WebAuthn, SMS) para contas humanas. Autenticação restringe-se a e-mail+senha e OAuth Google.
+- evidencia.arquivo_ou_area: packages/business/auth/ (sem use-cases de TOTP/WebAuthn); packages/shared/src/security-logger.ts (sem eventos MFA)
+- impacto.tecnico: Senha comprometida = acesso total ao tenant
+
+### [alto] ACH-008 — Mass assignment potencial em updates — repositórios aceitam `Partial<Entity>` inteiro
+
+- dominio: seguranca
+- run: 2026-04-18_22-06-18 (finalized)
+- categoria: validacao-de-entrada
+- status: confirmado
+- resumo: `PrismaClientRepository.update` e outros repos recebem `Partial<Entity>` completo. A proteção depende integralmente do Zod inline no router. Se o schema drift e um campo sensível (ex.: `classification`, `accountId`) entrar no input, é gravado sem cerca adicional.
+- evidencia.arquivo_ou_area: packages/business/clients/adapters/prisma-client-repository.ts:39-48 (e padrões equivalentes em sales/messaging/finance); apps/api/src/routers/clients.ts (Zod inline)
+- impacto.tecnico: Campos administrativos ou versioning podem ser atualizados por input externo se validador for enfraquecido
+
+### [alto] ACH-009 — Validação de URLs aceitas para avatar permite SSRF
+
+- dominio: seguranca
+- run: 2026-04-18_22-06-18 (finalized)
+- categoria: validacao-de-entrada
+- status: confirmado
+- resumo: Schemas em `@wbc/validators` permitem `z.string().url()` para avatar/display sem allowlist de domínio. Qualquer URL válida é aceita — inclusive `http://localhost:8080` ou metadata endpoints cloud se o servidor baixar a imagem no backend.
+- evidencia.arquivo_ou_area: packages/validators/src/auth.ts:10,30,44
+- impacto.tecnico: Se algum componente server-side baixar a imagem (ex.: para gerar og-image), atacante acessa recursos internos
+
+### [alto] ACH-010 — Cookies de sessão sem `secure`/`httpOnly`/`sameSite` explícitos no NextAuth config
+
+- dominio: seguranca
+- run: 2026-04-18_22-06-18 (finalized)
+- categoria: sessao-e-tokens
+- status: confirmado
+- resumo: O config em `apps/web/src/lib/auth.config.ts` não define `cookies.sessionToken.options.{secure,httpOnly,sameSite}` explicitamente. NextAuth aplica defaults seguros em produção, mas sem validação, uma mudança de env ou versão pode relaxá-los silenciosamente.
+- evidencia.arquivo_ou_area: apps/web/src/lib/auth.config.ts:131-134
+- impacto.tecnico: MITM captura cookies se HTTPS falhar; XSS lê cookie se httpOnly falhar
+
+### [alto] ACH-011 — CSP de produção permite `'unsafe-inline'` para scripts e estilos
+
+- dominio: seguranca
+- run: 2026-04-18_22-06-18 (finalized)
+- categoria: headers-de-seguranca
+- status: confirmado
+- resumo: `apps/web/next.config.mjs` define CSP com `'unsafe-inline'` em produção (linhas 7-18). Em dev adiciona `'unsafe-eval'`. Isso reduz drasticamente a mitigação contra XSS.
+- evidencia.arquivo_ou_area: apps/web/next.config.mjs:7-18
+- impacto.tecnico: Exploração de XSS se material injetado contornar escaping do React
+
+### [alto] ACH-012 — Credenciais externas (DeepSeek, WhatsApp) com fallback silencioso `?? ""`
+
+- dominio: seguranca
+- run: 2026-04-18_22-06-18 (finalized)
+- categoria: configuracao-sensivel
+- status: confirmado
+- resumo: Adapters carregam `process.env.DEEPSEEK_API_KEY ?? ""` e similares sem validação. Se variável ausente, serviço falha silenciosamente no runtime; ausência não é detectada no startup.
+- evidencia.arquivo_ou_area: packages/business/ai/adapters/deepseek-adapter.ts:35; packages/business/messaging/adapters/whatsapp-n2-adapter.ts:36-37
+- impacto.tecnico: Deploy sobe com integração quebrada; erros intermitentes em produção
+
+### [alto] ACH-013 — `WHATSAPP_APP_SECRET` não documentado em `.env.example` / `.env.production.example`
+
+- dominio: seguranca
+- run: 2026-04-18_22-06-18 (finalized)
+- categoria: configuracao-sensivel
+- status: confirmado
+- resumo: O handler de webhook WhatsApp exige `WHATSAPP_APP_SECRET` para verificação HMAC, mas a variável não aparece em `.env.example` nem em `.env.production.example`, nem em `turbo.json globalEnv`.
+- evidencia.arquivo_ou_area: packages/business/messaging/adapters/whatsapp-webhook-handler.ts (usa APP_SECRET); .env.example; .env.production.example; turbo.json:3-13
+- impacto.tecnico: Webhook cai em fallback (assinatura inválida) silenciosamente
+
+### [alto] ACH-014 — Grafana exposto sem autenticação de aplicação (default `admin:admin`)
+
+- dominio: seguranca
+- run: 2026-04-18_22-06-18 (finalized)
+- categoria: protecao-operacional
+- status: confirmado
+- resumo: `deploy/nginx.conf` e `docker-compose.prod.yml` expõem Grafana em `/grafana/`; senha do admin usa `GRAFANA_PASSWORD:-admin` como fallback. Nenhum reverse-proxy-auth visível.
+- evidencia.arquivo_ou_area: deploy/nginx.conf:68-75; docker-compose.prod.yml:137-150
+- impacto.tecnico: Qualquer um com URL pode ver dashboards, métricas e datasources
+
+### [alto] ACH-015 — Ausência de secret scanning em pre-commit e em CI
+
+- dominio: seguranca
+- run: 2026-04-18_22-06-18 (finalized)
+- categoria: supply-chain
+- status: confirmado
+- resumo: `lint-staged` só roda `prettier --write`. `.github/workflows/` não possui job de secret scanning (gitleaks/trufflehog) nem dependency scanning (Trivy/Snyk). Secret scanning nativo do GitHub depende de ativação.
+- evidencia.arquivo_ou_area: package.json:56-59; .github/workflows/ci.yml
+- impacto.tecnico: Um segredo commitado por engano não é detectado automaticamente
+
+### [alto] ACH-016 — Sem Secret Manager nem política de rotação de credenciais
+
+- dominio: seguranca
+- run: 2026-04-18_22-06-18 (finalized)
+- categoria: gestao-de-credenciais
+- status: confirmado
+- resumo: Todas as credenciais vivem em `.env` em produção, sem AWS Secrets Manager / GCP SM / Vault / Doppler. Não há documento de rotação (SECURITY.md, SECRET-ROTATION.md).
+- evidencia.arquivo_ou_area: .env.production.example; ausência de SECURITY.md ou similar
+- impacto.tecnico: Comprometimento exige troca manual sob pressão; sem auditoria de acesso a segredos
+
+### [alto] ACH-017 — Branch protection / CODEOWNERS não visíveis no repositório
+
+- dominio: seguranca
+- run: 2026-04-18_22-06-18 (finalized)
+- categoria: iam
+- status: confirmado
+- resumo: Não há arquivo `.github/CODEOWNERS` e não há como verificar branch protection via arquivos. Se a configuração no GitHub estiver ausente, qualquer colaborador com write pode mergear direto.
+- evidencia.arquivo_ou_area: .github/ (sem CODEOWNERS); ci.yml existe com lint/type-check/test
+- impacto.tecnico: Ausência de revisão obrigatória abre caminho para merges arriscados
 
 ### [medio] ACH-001 — Documentação arquitetural textual mas sem visualização consolidada
 
@@ -317,6 +488,106 @@
 - evidencia.arquivo_ou_area: packages/business/clients/domain/errors.ts; apps/api/src/trpc/trpc.ts:51-61 (domainErrorMiddleware sem mapper explícito por tipo)
 - impacto.tecnico: Difícil testar mapeamento; mudança de mensagem pode afetar consumidores sem aviso
 
+### [medio] ACH-018 — Rate-limit assimétrico e frouxo nos endpoints sensíveis
+
+- dominio: seguranca
+- run: 2026-04-18_22-06-18 (finalized)
+- categoria: protecao-operacional
+- status: confirmado
+- resumo: `PUBLIC_LIMIT = 30/min`, `PROTECTED_LIMIT = 100/min`, sem limites específicos por rota sensível (login, reset, invite accept). Identificador público cai para `'anonymous'` — todos os anônimos compartilham a mesma bucket.
+- evidencia.arquivo_ou_area: apps/api/src/trpc/rate-limit-middleware.ts:9-37; apps/api/src/trpc/trpc.ts:67
+- impacto.tecnico: Brute-force e enumeração continuam viáveis
+
+### [medio] ACH-019 — Email do usuário registrado em logs de falha de autenticação
+
+- dominio: seguranca
+- run: 2026-04-18_22-06-18 (finalized)
+- categoria: exposicao-de-dados
+- status: confirmado
+- resumo: `apps/web/src/lib/auth.config.ts:40` inclui o email bruto no campo `detail` do evento de login falho.
+- evidencia.arquivo_ou_area: apps/web/src/lib/auth.config.ts:40
+- impacto.tecnico: PII em logs estruturados
+
+### [medio] ACH-020 — `security-logger` sem redaction de `phone`, `userId`, `tenantId`
+
+- dominio: seguranca
+- run: 2026-04-18_22-06-18 (finalized)
+- categoria: exposicao-de-dados
+- status: confirmado
+- resumo: `packages/shared/src/security-logger.ts` serializa os campos inteiros para stdout.
+- evidencia.arquivo_ou_area: packages/shared/src/security-logger.ts:22-44
+- impacto.tecnico: PII aparecendo em logs centralizados
+
+### [medio] ACH-021 — Sentry captura erros sem `beforeSend` para redactar PII
+
+- dominio: seguranca
+- run: 2026-04-18_22-06-18 (finalized)
+- categoria: exposicao-de-dados
+- status: confirmado
+- resumo: `apps/api/src/lib/sentry.ts` inicializa Sentry com sampling, mas sem hook `beforeSend` que redacte e-mails, tokens JWT e payloads.
+- evidencia.arquivo_ou_area: apps/api/src/lib/sentry.ts:10-14; apps/web/sentry.server.config.ts:6
+- impacto.tecnico: PII e possivelmente segredos saem para serviço terceiro
+
+### [medio] ACH-022 — `console.error` em adapter WhatsApp pode logar headers/payloads
+
+- dominio: seguranca
+- run: 2026-04-18_22-06-18 (finalized)
+- categoria: exposicao-de-dados
+- status: confirmado
+- resumo: `whatsapp-n2-adapter.ts` usa `console.error` com detalhes de requisição/resposta em vez do logger central. Risco de escapar tokens.
+- evidencia.arquivo_ou_area: packages/business/messaging/adapters/whatsapp-n2-adapter.ts:75,91
+- impacto.tecnico: Dados sensíveis podem vazar em stdout
+
+### [medio] ACH-023 — Endpoint `health.ready` público expõe estado interno detalhado
+
+- dominio: seguranca
+- run: 2026-04-18_22-06-18 (finalized)
+- categoria: protecao-operacional
+- status: confirmado
+- resumo: `apps/api/src/routers/health.ts:35-89` devolve detalhes de DB, Redis e outbox-lag sem autenticação. Útil para K8s, mas expõe informação a reconhecedor externo.
+- evidencia.arquivo_ou_area: apps/api/src/routers/health.ts:35-89
+- impacto.tecnico: Facilita mapeamento de arquitetura e estimativa de alvos para DoS
+
+### [medio] ACH-024 — Trilha de auditoria limitada — eventos críticos não persistidos em banco
+
+- dominio: seguranca
+- run: 2026-04-18_22-06-18 (finalized)
+- categoria: auditoria
+- status: confirmado
+- resumo: O `security-logger` cobre OTP e alguns eventos RBAC, mas não persiste login bem-sucedido (IP/UA), mudança de senha, aceitação de invite, remoção de membro, mudança de role, criação/revogação de token. Saída vai apenas para stdout.
+- evidencia.arquivo_ou_area: packages/shared/src/security-logger.ts; ausência de modelo `AuditLog` em `packages/db/prisma/schema.prisma`
+- impacto.tecnico: Forense inviável após incidente
+
+### [medio] ACH-025 — Postgres sem separação de roles (app vs admin vs migrations)
+
+- dominio: seguranca
+- run: 2026-04-18_22-06-18 (finalized)
+- categoria: iam
+- status: confirmado
+- resumo: `docker-compose.prod.yml` usa `POSTGRES_USER=wbc` para app web, worker e provavelmente migrations. Não há role `wbc_app` limitada a SELECT/INSERT/UPDATE/DELETE em tabelas da aplicação.
+- evidencia.arquivo_ou_area: docker-compose.prod.yml:8,48,77; .env.production.example:5-6
+- impacto.tecnico: SQL injection ou vulnerabilidade na app leva a acesso total ao banco
+
+### [medio] ACH-026 — Containers Docker sem `--read-only`/cap-drop e sem chown final
+
+- dominio: seguranca
+- run: 2026-04-18_22-06-18 (finalized)
+- categoria: hardening-runtime
+- status: confirmado
+- resumo: `deploy/Dockerfile.web` e `Dockerfile.worker` criam usuário não-root (bom), mas `docker-compose.prod.yml` não define `read_only: true`, `cap_drop: [ALL]` ou `security_opt: [no-new-privileges]`. Diretórios do app não têm `chown` final garantido.
+- evidencia.arquivo_ou_area: deploy/Dockerfile.web:36-42; deploy/Dockerfile.worker:36-42; docker-compose.prod.yml
+- impacto.tecnico: Containers comprometidos retêm mais capacidade do que o necessário
+
+### [medio] ACH-027 — `.env` de desenvolvimento usa `AUTH_SECRET` fraco e previsível
+
+- dominio: seguranca
+- run: 2026-04-18_22-06-18 (finalized)
+- categoria: configuracao-sensivel
+- status: confirmado
+- resumo: O arquivo `.env` local contém `AUTH_SECRET="wbc-dev-secret-change-in-production-2026"`. Embora `.env` não esteja em `git ls-files` (verificado), o hábito de usar segredos fracos em dev tende a vazar para staging.
+- evidencia.arquivo_ou_area: .env:3 (AUTH_SECRET)
+- impacto.tecnico: Compartilhamento acidental com staging/prod cria backdoor de assinatura JWT
+
 ### [baixo] ACH-003 — Decisão de monorepo Turborepo + pnpm workspaces não registrada em ADR
 
 - dominio: arquitetura
@@ -376,6 +647,16 @@
 - resumo: `packages/business/auth/adapters/prisma-otp-repository.ts:11-16` define `getRedis()` local; `apps/api/src/lib/redis.ts` define outro. Dois singletons Redis potenciais.
 - evidencia.arquivo_ou_area: packages/business/auth/adapters/prisma-otp-repository.ts:11-16; apps/api/src/lib/redis.ts
 - impacto.tecnico: Vazamento de conexão em produção; comportamento inconsistente
+
+### [baixo] ACH-028 — Ausência de validador forte para números de telefone
+
+- dominio: seguranca
+- run: 2026-04-18_22-06-18 (finalized)
+- categoria: validacao-de-entrada
+- status: confirmado
+- resumo: Schemas aceitam `z.string().min(10).max(15)` sem formato E.164 nem regex; strings como `"0000000000"` ou não-numéricas passam.
+- evidencia.arquivo_ou_area: packages/validators/src/auth.ts:8,16,28; packages/validators/src/clients.ts
+- impacto.tecnico: Dados lixo em base; integrações com WhatsApp/SMS falham
 
 ### [informativo] ACH-021 — Importações relativas profundas em vez dos aliases `@wbc/*`
 

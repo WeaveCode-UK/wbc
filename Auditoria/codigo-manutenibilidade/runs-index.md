@@ -2,8 +2,8 @@
 
 ## Identificação
 - dominio: codigo-manutenibilidade
-- ultima_atualizacao: none
-- total_runs_registradas: 0
+- ultima_atualizacao: 2026-04-18 22:04:40
+- total_runs_registradas: 1
 
 ## Regras
 - Registrar apenas runs finalizadas.
@@ -12,4 +12,17 @@
 - Cada entrada deve resumir status, escopo, resultado e severidade agregada.
 
 ## Runs Registradas
-Nenhuma run finalizada registrada ate o momento.
+
+### RUN 2026-04-18_21-45-58
+- status: completed
+- iniciado_em: 2026-04-18 21:45:58
+- finalizado_em: 2026-04-18 22:04:40
+- escopo: auditoria completa do domínio codigo-manutenibilidade
+- avaliacao_final: preocupante
+- achados:
+  - critico: 1
+  - alto: 5
+  - medio: 11
+  - baixo: 4
+  - informativo: 1
+- pasta_historica: /Auditoria/codigo-manutenibilidade/runs/2026-04-18_21-45-58/

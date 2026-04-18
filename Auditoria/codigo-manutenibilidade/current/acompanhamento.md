@@ -4,19 +4,16 @@
 - dominio: codigo-manutenibilidade
 - run_id: none
 - status_atual: not_started
-- ultima_atualizacao: none
+- ultima_atualizacao: 2026-04-18 22:04:40
 
 ## Objetivo da Run
-Descrever de forma curta o objetivo desta run de auditoria para o domínio atual.
+A definir no início da próxima run.
 
 ## Escopo Planejado
-Listar as fases planejadas desta auditoria de forma objetiva e ordenada.
+A definir no início da próxima run.
 
-Exemplo:
-1. Fase 1 do playbook
-2. Fase 2 do playbook
-3. Consolidação de achados
-4. Preparação para finalização
+## Fases Planejadas
+A definir no início da próxima run com base no playbook do domínio.
 
 ## Fase Atual
 - fase_atual: none
@@ -35,45 +32,34 @@ Exemplo:
 - Não pular fases pendentes sem registrar justificativa.
 - Não marcar etapa como concluída sem evidência mínima no histórico.
 - Sempre atualizar este arquivo ao final de cada execução.
-- Se houver bloqueio, registrar em `Bloqueios e Impedimentos`.
-- Ao concluir o lote atual, definir explicitamente o próximo passo.
+- Arquivos fora de /Auditoria são somente leitura durante toda a run.
 
 ## Histórico de Execuções
 
 ### Execução 000
-- data_hora: none
-- objetivo: inicializacao via bootstrap core
-- status_resultado: pending
+- data_hora: 2026-04-18 22:04:40
+- objetivo: reinicializacao do current apos finalizacao da run 2026-04-18_21-45-58
+- status_resultado: completed
 - arquivos_ou_areas_analisadas:
   - none
 - acoes_realizadas:
-  - estrutura current inicial criada
+  - current reinicializado pelo Prompt 04
+  - run 2026-04-18_21-45-58 arquivada em /Auditoria/codigo-manutenibilidade/runs/2026-04-18_21-45-58/
 - achados_resumidos:
   - none
 - bloqueios:
   - none
 - proximo_passo_obrigatorio:
-  - aguardar seed de playbooks e inicio formal da run
+  - executar Prompt 02 para iniciar nova run quando necessario
 
 ## Achados Relacionados Nesta Run
-Referenciar de forma resumida os principais achados registrados em `achados.md`.
-
 - nenhum ate o momento
 
 ## Bloqueios e Impedimentos
-Registrar aqui qualquer impedimento que impeça a continuidade normal.
-
 - nenhum ate o momento
 
 ## Proximo Passo Obrigatorio
-Descrever exatamente a próxima ação que o agente deve executar.
-Este campo nunca deve ficar ambíguo.
-
-- aguardar seed de playbooks e inicio formal da run
+Executar Prompt 02 — Iniciar Run para abrir uma nova auditoria deste domínio quando necessário.
 
 ## Critério para Marcar `ready_for_finalize`
-A run só pode ser marcada como `ready_for_finalize` quando:
-- todas as fases planejadas aplicáveis estiverem concluídas ou justificadamente marcadas como não aplicáveis
-- os achados estiverem consolidados em `achados.md`
-- o `relatorio-final.md` estiver preenchido em versão final da run
-- não houver bloqueios abertos sem registro de decisão
+A definir com base no playbook do domínio na próxima run.

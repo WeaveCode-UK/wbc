@@ -1,7 +1,12 @@
-import { prisma } from '@wbc/db';
-import { buildTenantWhere, paginatedQuery } from '@wbc/shared';
-import type { SaleRepository } from '../ports/sale-repository';
-import type { Sale, SaleItem } from '../domain/entities';
+import { prisma } from "@wbc/db";
+import { buildTenantWhere, paginatedQuery } from "@wbc/shared";
+import type { SaleRepository } from "../ports/sale-repository";
+import type { Sale, SaleItem } from "../domain/entities";
+import {
+  computeItemSubtotal,
+  computeSaleSubtotal,
+  computeSaleTotal,
+} from "../domain/value-objects";
 
 function mapSaleFromPrisma(sale: Record<string, unknown>): Sale {
   return {
@@ -22,7 +27,10 @@ function mapSaleItemFromPrisma(item: Record<string, unknown>): SaleItem {
 }
 
 export class PrismaSaleRepository implements SaleRepository {
-  async findById(tenantId: string, id: string): Promise<(Sale & { items: SaleItem[] }) | null> {
+  async findById(
+    tenantId: string,
+    id: string,
+  ): Promise<(Sale & { items: SaleItem[] }) | null> {
     const sale = await prisma.sale.findFirst({
       where: { id, tenantId },
       include: { items: true },
@@ -30,12 +38,25 @@ export class PrismaSaleRepository implements SaleRepository {
     if (!sale) return null;
     return {
       ...mapSaleFromPrisma(sale as unknown as Record<string, unknown>),
-      items: sale.items.map((i) => mapSaleItemFromPrisma(i as unknown as Record<string, unknown>)),
+      items: sale.items.map((i) =>
+        mapSaleItemFromPrisma(i as unknown as Record<string, unknown>),
+      ),
     } as Sale & { items: SaleItem[] };
   }
 
-  async list(tenantId: string, filters: { status?: string; clientId?: string; page: number; limit: number }) {
-    const where = buildTenantWhere(tenantId, { status: filters.status, clientId: filters.clientId });
+  async list(
+    tenantId: string,
+    filters: {
+      status?: string;
+      clientId?: string;
+      page: number;
+      limit: number;
+    },
+  ) {
+    const where = buildTenantWhere(tenantId, {
+      status: filters.status,
+      clientId: filters.clientId,
+    });
     const result = await paginatedQuery<Record<string, unknown>>(
       prisma.sale as never,
       where,
@@ -47,15 +68,32 @@ export class PrismaSaleRepository implements SaleRepository {
     };
   }
 
-  async create(data: { tenantId: string; clientId: string; items: Array<{ productId: string; quantity: number; unitPrice: number }>; paymentMethod?: string; discount?: number; cashbackUsed?: number; campaignId?: string; notes?: string }): Promise<Sale> {
-    const subtotal = data.items.reduce((sum, i) => sum + i.quantity * i.unitPrice, 0);
-    const total = Math.max(0, subtotal - (data.discount ?? 0) - (data.cashbackUsed ?? 0));
+  async create(data: {
+    tenantId: string;
+    clientId: string;
+    items: Array<{ productId: string; quantity: number; unitPrice: number }>;
+    paymentMethod?: string;
+    discount?: number;
+    cashbackUsed?: number;
+    campaignId?: string;
+    notes?: string;
+  }): Promise<Sale> {
+    const subtotal = computeSaleSubtotal(data.items);
+    const total = computeSaleTotal(subtotal, data.discount, data.cashbackUsed);
 
     const sale = await prisma.sale.create({
       data: {
         tenantId: data.tenantId,
         clientId: data.clientId,
-        paymentMethod: data.paymentMethod as 'CASH' | 'PIX' | 'CREDIT_CARD' | 'DEBIT_CARD' | 'INSTALLMENT' | 'BANK_TRANSFER' | 'OTHER' | undefined,
+        paymentMethod: data.paymentMethod as
+          | "CASH"
+          | "PIX"
+          | "CREDIT_CARD"
+          | "DEBIT_CARD"
+          | "INSTALLMENT"
+          | "BANK_TRANSFER"
+          | "OTHER"
+          | undefined,
         discount: data.discount ?? 0,
         total,
         cashbackUsed: data.cashbackUsed ?? 0,
@@ -66,7 +104,7 @@ export class PrismaSaleRepository implements SaleRepository {
             productId: i.productId,
             quantity: i.quantity,
             unitPrice: i.unitPrice,
-            subtotal: i.quantity * i.unitPrice,
+            subtotal: computeItemSubtotal(i.quantity, i.unitPrice),
           })),
         },
       },
@@ -75,10 +113,22 @@ export class PrismaSaleRepository implements SaleRepository {
     return mapSaleFromPrisma(sale as unknown as Record<string, unknown>);
   }
 
-  async updateStatus(tenantId: string, id: string, status: string): Promise<Sale> {
+  async updateStatus(
+    tenantId: string,
+    id: string,
+    status: string,
+  ): Promise<Sale> {
     const sale = await prisma.sale.update({
       where: { id },
-      data: { status: status as 'DRAFT' | 'CONFIRMED' | 'SEPARATED' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED' },
+      data: {
+        status: status as
+          | "DRAFT"
+          | "CONFIRMED"
+          | "SEPARATED"
+          | "SHIPPED"
+          | "DELIVERED"
+          | "CANCELLED",
+      },
     });
     return mapSaleFromPrisma(sale as unknown as Record<string, unknown>);
   }

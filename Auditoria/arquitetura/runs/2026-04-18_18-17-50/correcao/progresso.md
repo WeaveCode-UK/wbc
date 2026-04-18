@@ -5,18 +5,18 @@
 - run_id: 2026-04-18_18-17-50
 - branch: fix/arquitetura/2026-04-18_18-17-50
 - data_inicio: 2026-04-18 18:48:00
-- ultima_atualizacao: 2026-04-18 18:57:00
+- ultima_atualizacao: 2026-04-18 19:05:00
 - fase_atual: executor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 13
-- corrigidos_executor: 2
+- corrigidos_executor: 3
 - revisados_revisor: 0
 - corrigidos_pelo_revisor: 0
 - nao_corrigiveis: 0
 - nao_aprovados: 0
-- pendentes: 11
+- pendentes: 10
 
 ## Achados
 
@@ -53,11 +53,19 @@
 - titulo: Lógica de domínio (cálculos de negócio) vazada em adapters Prisma
 - severidade: alto
 - classificacao: corrigivel
-- status_executor: pendente
+- status_executor: corrigido
 - status_revisor: pendente
-- commit_executor: none
+- commit_executor: pending
 - commit_revisor: none
-- observacoes: none
+- arquivos_alterados:
+  - packages/business/sales/domain/value-objects.ts (adiciona computeItemSubtotal, computeSaleSubtotal, computeSaleTotal)
+  - packages/business/sales/domain/cashback.ts (novo - computeAvailableCashback, daysUntilExpiry, isCashbackExpiringSoon, computeCashbackAllocation)
+  - packages/business/analytics/domain/value-objects.ts (novo - computeAvgTicket, computeDaysSince, computeRecencyBonus, computeEngagementScore, classifyABC)
+  - packages/business/sales/adapters/prisma-sale-repository.ts (usa funcoes puras)
+  - packages/business/sales/adapters/prisma-cashback-repository.ts (usa funcoes puras)
+  - packages/business/analytics/adapters/prisma-analytics-repository.ts (usa funcoes puras)
+- descricao_correcao: Extracao de regras de negocio de adapters para domain/. Funcoes puras: calculo de subtotal/total de venda (sales), saldo e alocacao de cashback (sales/cashback), ticket medio + engagement score + classificacao ABC (analytics). Adapters agora apenas delegam para domain/ e persistem via Prisma. Invariantes explicitas: total nunca negativo, alocacao de cashback nunca excede available/remaining, recency bonus zero para clientes sem compra.
+- observacoes: mantida compatibilidade de comportamento — cada funcao pura reproduz exatamente o calculo que estava inline nos adapters. Nenhum cenario de negocio alterado, apenas deslocamento de responsabilidade para a camada correta.
 
 ### ACH-008
 - titulo: Políticas de retry, timeout e circuit breaker hardcoded em cada adapter externo

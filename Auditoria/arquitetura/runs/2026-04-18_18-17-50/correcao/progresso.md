@@ -5,18 +5,18 @@
 - run_id: 2026-04-18_18-17-50
 - branch: fix/arquitetura/2026-04-18_18-17-50
 - data_inicio: 2026-04-18 18:48:00
-- ultima_atualizacao: 2026-04-18 19:22:00
+- ultima_atualizacao: 2026-04-18 19:30:00
 - fase_atual: executor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 13
-- corrigidos_executor: 5
+- corrigidos_executor: 6
 - revisados_revisor: 0
 - corrigidos_pelo_revisor: 0
 - nao_corrigiveis: 0
 - nao_aprovados: 0
-- pendentes: 8
+- pendentes: 7
 
 ## Achados
 
@@ -106,11 +106,17 @@
 - titulo: Health checks mínimos; sem readiness distinto de liveness e sem métricas de lag de worker
 - severidade: medio
 - classificacao: corrigivel
-- status_executor: pendente
+- status_executor: corrigido
 - status_revisor: pendente
-- commit_executor: none
+- commit_executor: pending
 - commit_revisor: none
-- observacoes: none
+- arquivos_alterados:
+  - apps/api/src/routers/health.ts (adiciona procedures live e ready; ready checa DB, Redis e lag do outbox)
+  - apps/worker/src/health-server.ts (novo - HTTP server minimo node:http com /health/live, /health/ready, queue depths e outbox lag)
+  - apps/worker/src/index.ts (inicia health server e integra ao graceful shutdown)
+  - docker-compose.prod.yml (healthcheck para web via /api/trpc/health.live e para worker via :9100/health/ready)
+- descricao_correcao: Separacao clara liveness/readiness conforme convencao Kubernetes. API ganha procedures tRPC live (sempre 200) e ready (DB+Redis+outbox_lag < threshold). Worker ganha HTTP server dedicado em porta configuravel (default 9100) com /health/live, /health/ready e queue depths. Integrado ao graceful shutdown (ACH-009) para fechar limpo. docker-compose.prod.yml ganha healthcheck para web e worker com start_period 30s e 3 retries.
+- observacoes: threshold de lag do outbox e configuravel via OUTBOX_READY_LAG_THRESHOLD_MS (default 60000ms); porta do worker health via WORKER_HEALTH_PORT.
 
 ### ACH-006
 - titulo: Módulo `ai/` diverge do padrão hexagonal (sem `domain/`)

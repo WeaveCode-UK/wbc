@@ -53,6 +53,13 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    healthcheck:
+      # Readiness check via tRPC endpoint. Next.js serve em 3000.
+      test: ["CMD-SHELL", "wget --spider -q http://localhost:3000/api/trpc/health.live || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
     networks:
       - internal
 
@@ -75,6 +82,13 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    healthcheck:
+      # Health server do worker em porta dedicada (ACH-011).
+      test: ["CMD-SHELL", "wget --spider -q http://localhost:9100/health/ready || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
     networks:
       - internal
 

@@ -5,18 +5,18 @@
 - run_id: 2026-04-18_18-17-50
 - branch: fix/arquitetura/2026-04-18_18-17-50
 - data_inicio: 2026-04-18 18:48:00
-- ultima_atualizacao: 2026-04-18 19:05:00
+- ultima_atualizacao: 2026-04-18 19:15:00
 - fase_atual: executor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 13
-- corrigidos_executor: 3
+- corrigidos_executor: 4
 - revisados_revisor: 0
 - corrigidos_pelo_revisor: 0
 - nao_corrigiveis: 0
 - nao_aprovados: 0
-- pendentes: 10
+- pendentes: 9
 
 ## Achados
 
@@ -71,11 +71,20 @@
 - titulo: Políticas de retry, timeout e circuit breaker hardcoded em cada adapter externo
 - severidade: medio
 - classificacao: corrigivel
-- status_executor: pendente
+- status_executor: corrigido
 - status_revisor: pendente
-- commit_executor: none
+- commit_executor: pending
 - commit_revisor: none
-- observacoes: none
+- arquivos_alterados:
+  - packages/shared/src/resilience/retry.ts (novo - RetryPolicy, withRetry, RetryExhaustedError)
+  - packages/shared/src/resilience/timeout.ts (novo - TimeoutPolicy, createTimeoutSignal)
+  - packages/shared/src/resilience/policies.ts (novo - whatsapp/deepseek policies configuraveis por env var)
+  - packages/shared/src/resilience/index.ts (novo - barrel)
+  - packages/shared/src/index.ts (re-exporta ./resilience)
+  - packages/business/messaging/adapters/whatsapp-n2-adapter.ts (recebe policies via constructor)
+  - packages/business/ai/adapters/deepseek-adapter.ts (recebe policies via constructor)
+- descricao_correcao: Centralizacao de resiliencia em packages/shared/src/resilience/. RetryPolicy e TimeoutPolicy como tipos padrao; funcoes utilitarias (withRetry/createTimeoutSignal) para casos simples; policies por provider (whatsappRetryPolicy, deepseekRetryPolicy, etc.) configuraveis via env vars (WHATSAPP_MAX_RETRIES, DEEPSEEK_TIMEOUT_MS, etc.). Adapters refatorados para receber policies via constructor com fallback para defaults. Comportamento preservado (mesmos thresholds padrao).
+- observacoes: CircuitBreaker existente mantido intacto em packages/shared/src/circuit-breaker.ts; thresholds de CB continuam locais aos adapters por enquanto (5 para WhatsApp, 3 para DeepSeek — sao semanticos do provider, nao parametros operacionais), mas podem ser movidos para policies.ts em iteracao futura sem breaking change.
 
 ### ACH-012
 - titulo: Isolamento multi-tenant em Redis depende apenas de convenção de prefixo manual

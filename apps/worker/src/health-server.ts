@@ -8,14 +8,15 @@
 import {
   createServer,
   type IncomingMessage,
+  type Server as HttpServer,
   type ServerResponse,
 } from "node:http";
-import type { Server, Worker as BullMQWorker } from "bullmq";
+import type { Worker as BullMQWorker } from "bullmq";
 import { prisma } from "@wbc/db";
 import { logger } from "./lib/logger";
 
 interface ServerHandles {
-  server: Server;
+  server: HttpServer;
   stop: () => Promise<void>;
 }
 
@@ -33,22 +34,24 @@ function sendJson(res: ServerResponse, status: number, body: unknown): void {
   res.end(JSON.stringify(body));
 }
 
-async function collectQueueDepths(
+/**
+ * Reporta status basico dos workers BullMQ (running/paused). A profundidade
+ * real de cada fila requer um Queue object separado (o Worker do BullMQ nao
+ * expoe queue depth diretamente). Melhoria planejada: instanciar Queues em
+ * paralelo aos Workers e passa-las aqui para reportar waiting/active/delayed.
+ */
+async function collectWorkerStatus(
   workers: BullMQWorker[],
-): Promise<Record<string, number>> {
-  const depths: Record<string, number> = {};
+): Promise<Record<string, { paused: boolean }>> {
+  const status: Record<string, { paused: boolean }> = {};
   for (const w of workers) {
     try {
-      const counts = await w.getMetrics("completed");
-      // Metrics retornam contagem de completados; melhor seria depth via Queue,
-      // mas Worker so tem getJobCounts implicitamente. Usamos o count como
-      // aproximacao e expomos o nome da fila para monitoramento separado.
-      depths[w.name] = counts?.count ?? -1;
+      status[w.name] = { paused: await w.isPaused() };
     } catch {
-      depths[w.name] = -1;
+      status[w.name] = { paused: false };
     }
   }
-  return depths;
+  return status;
 }
 
 async function outboxLagMs(): Promise<number> {
@@ -92,17 +95,18 @@ export function startWorkerHealthServer(
 
       if (url === "/health/ready" || url === "/health") {
         const lagMs = await outboxLagMs();
-        const depths = await collectQueueDepths(config.workers);
+        const workerStatus = await collectWorkerStatus(config.workers);
         const withinThreshold =
           lagMs >= 0 && lagMs <= config.outboxLagThresholdMs;
-        const ready = withinThreshold;
+        const anyPaused = Object.values(workerStatus).some((w) => w.paused);
+        const ready = withinThreshold && !anyPaused;
         sendJson(res, ready ? 200 : 503, {
           status: ready ? "ok" : "degraded",
           checks: {
             outboxLagMs: lagMs,
             outboxLagThresholdMs: config.outboxLagThresholdMs,
             outboxWithinThreshold: withinThreshold ? "ok" : "error",
-            queueDepths: depths,
+            workers: workerStatus,
           },
           timestamp: new Date().toISOString(),
         });

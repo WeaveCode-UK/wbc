@@ -70,7 +70,7 @@ flowchart TB
 
 ## Módulos de negócio (`packages/business/*`)
 
-Todos os 16 módulos seguem o shape hexagonal (`domain/`, `ports/`, `adapters/`, `use-cases/`), com 1 exceção documentada (`ai/`, ADR-006).
+Todos os 15 módulos seguem o shape hexagonal (`domain/`, `ports/`, `adapters/`, `use-cases/`), com 1 exceção em análise (`ai/`, ADR-006 — skeleton de `domain/` criado; decisão final pendente).
 
 | Módulo      | Responsabilidade core                     |
 | ----------- | ----------------------------------------- |

@@ -23,6 +23,7 @@ process.on('uncaughtException', (error) => {
   process.exit(1);
 });
 import { applyTenantMiddleware } from '@wbc/db';
+import { prisma } from '@wbc/db';
 import { getCurrentTenant, setOutboxPort, validateEnv } from '@wbc/shared';
 
 // Validate environment variables
@@ -42,6 +43,7 @@ import { startDLQWorker } from './processors/dlq-processor';
 import { cleanupProcessedOutboxEvents } from './processors/outbox-cleanup';
 import { scanFailedForDLQ } from './processors/dlq-scanner';
 import { subscribe, EVENTS } from '@wbc/shared';
+import { connection as bullmqRedis } from './lib/redis';
 
 // Apply tenant middleware
 applyTenantMiddleware(() => getCurrentTenant()?.tenantId);
@@ -58,7 +60,7 @@ logger.info('WBC Worker starting...');
 logger.info('Domain event handlers registered');
 
 // Process outbox every 5 seconds
-setInterval(async () => {
+const outboxInterval = setInterval(async () => {
   try {
     await processOutbox();
   } catch (error) {
@@ -69,11 +71,13 @@ setInterval(async () => {
 logger.info('Outbox processor started (5s interval)');
 
 // Start BullMQ workers
-startMessagingWorker();
-startCampaignWorker();
-startScheduleWorker();
-startAnalyticsWorker();
-startDLQWorker();
+const workers = [
+  startMessagingWorker(),
+  startCampaignWorker(),
+  startScheduleWorker(),
+  startAnalyticsWorker(),
+  startDLQWorker(),
+];
 
 logger.info('BullMQ workers started (messaging, campaigns, schedule, analytics, dlq)');
 // Cache invalidation handlers
@@ -91,7 +95,7 @@ subscribe(EVENTS.TENANT_PLAN_CHANGED, async (event) => {
 });
 
 // Outbox cleanup: run daily (every 24h)
-setInterval(async () => {
+const cleanupInterval = setInterval(async () => {
   try {
     await cleanupProcessedOutboxEvents();
   } catch (error) {
@@ -102,7 +106,7 @@ setInterval(async () => {
 logger.info('Outbox cleanup scheduled (24h interval)');
 
 // DLQ scanner: check for permanently failed events every 60s
-setInterval(async () => {
+const dlqScanInterval = setInterval(async () => {
   try {
     await scanFailedForDLQ();
   } catch (error) {
@@ -112,3 +116,69 @@ setInterval(async () => {
 
 logger.info('DLQ scanner scheduled (60s interval)');
 logger.info('WBC Worker module loaded successfully');
+
+// Graceful shutdown
+// On SIGTERM/SIGINT: stop accepting new jobs, cancel timers, drain in-flight
+// jobs, close BullMQ workers, disconnect Redis and Prisma, then exit.
+// Honors the at-least-once guarantee declared in ADR-003 (outbox + BullMQ).
+const SHUTDOWN_TIMEOUT_MS = Number(process.env.WORKER_SHUTDOWN_TIMEOUT_MS ?? 30_000);
+let shuttingDown = false;
+
+async function gracefulShutdown(signal: NodeJS.Signals): Promise<void> {
+  if (shuttingDown) {
+    logger.warn({ signal }, 'Shutdown already in progress, ignoring additional signal');
+    return;
+  }
+  shuttingDown = true;
+
+  logger.info({ signal, timeout_ms: SHUTDOWN_TIMEOUT_MS }, 'Graceful shutdown requested');
+
+  const forceExit = setTimeout(() => {
+    logger.fatal(
+      { signal, timeout_ms: SHUTDOWN_TIMEOUT_MS },
+      'Graceful shutdown exceeded timeout; forcing exit(1)',
+    );
+    process.exit(1);
+  }, SHUTDOWN_TIMEOUT_MS);
+  forceExit.unref();
+
+  try {
+    clearInterval(outboxInterval);
+    clearInterval(cleanupInterval);
+    clearInterval(dlqScanInterval);
+    logger.info('Polling intervals cleared (outbox, cleanup, DLQ scan)');
+
+    // Pause stops consumption of new jobs; pass true to wait for in-flight
+    // jobs to finish their current iteration.
+    await Promise.all(workers.map((w) => w.pause(true)));
+    logger.info('BullMQ workers paused (in-flight jobs drained)');
+
+    await Promise.all(workers.map((w) => w.close()));
+    logger.info('BullMQ workers closed');
+
+    await bullmqRedis.quit();
+    logger.info('Redis connection closed');
+
+    await prisma.$disconnect();
+    logger.info('Prisma disconnected');
+
+    logger.info({ signal }, 'Graceful shutdown complete');
+    clearTimeout(forceExit);
+    process.exit(0);
+  } catch (error) {
+    logger.fatal({ error, signal }, 'Error during graceful shutdown');
+    Sentry.captureException(error);
+    clearTimeout(forceExit);
+    process.exit(1);
+  }
+}
+
+process.on('SIGTERM', () => {
+  void gracefulShutdown('SIGTERM');
+});
+
+process.on('SIGINT', () => {
+  void gracefulShutdown('SIGINT');
+});
+
+logger.info('Graceful shutdown handlers registered (SIGTERM, SIGINT)');

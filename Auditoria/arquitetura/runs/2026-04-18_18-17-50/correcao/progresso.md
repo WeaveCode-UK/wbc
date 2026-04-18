@@ -11,12 +11,12 @@
 
 ## Resumo de Progresso
 - total_aprovados: 13
-- corrigidos_executor: 8
+- corrigidos_executor: 9
 - revisados_revisor: 0
 - corrigidos_pelo_revisor: 0
 - nao_corrigiveis: 0
 - nao_aprovados: 0
-- pendentes: 5
+- pendentes: 4
 
 ## Achados
 
@@ -151,11 +151,14 @@
 - titulo: Documentação arquitetural textual mas sem visualização consolidada
 - severidade: medio
 - classificacao: corrigivel_parcial
-- status_executor: pendente
+- status_executor: corrigido
 - status_revisor: pendente
-- commit_executor: none
+- commit_executor: pending
 - commit_revisor: none
-- observacoes: C4 diagram em Mermaid; validação humana do conteúdo
+- arquivos_alterados:
+  - docs/ARCHITECTURE.md (novo)
+- descricao_correcao: docs/ARCHITECTURE.md consolida visao arquitetural: overview 1 pagina, C4 L1 (System Context em Mermaid C4Context), C4 L2 (Containers em flowchart), tabela dos 16 modulos business com responsabilidade, packages compartilhados, regras arquiteturais enforced, matriz de dados (agregado/dono/leitores), filas BullMQ ativas, indice de ADRs. Linka para DEPLOYMENT.md e events.md.
+- observacoes: classificado corrigivel_parcial porque conteudo do diagrama foi inferido do codigo/ADRs — humano valida fidelidade antes de virar fonte oficial.
 
 ### ACH-004
 - titulo: Fluxos de eventos inter-módulos não mapeados em catálogo central

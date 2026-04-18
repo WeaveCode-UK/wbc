@@ -108,7 +108,9 @@ Nenhum.
 - `3a6b27d` chore(auditoria): fase revisor concluida — 13/13 revisados
 
 ## Merge
-- status_merge: pendente
+- status_merge: concluido
 - branch_origem: fix/arquitetura/2026-04-18_18-17-50
 - branch_destino: main
-- aprovado_por_usuario: nao
+- aprovado_por_usuario: sim
+- data_merge: 2026-04-18 20:52:00
+- commit_merge: ce113a3

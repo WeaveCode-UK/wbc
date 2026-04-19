@@ -1,20 +1,21 @@
 {
   "schema_version": "2.1",
-  "generated_at": "2026-04-19T07:47:16.397Z",
-  "total": 183,
-  "total_runs": 9,
+  "generated_at": "2026-04-19T08:03:00.585Z",
+  "total": 208,
+  "total_runs": 10,
   "distribution": {
     "by_severity": {
       "critico": 10,
-      "alto": 66,
-      "medio": 82,
-      "baixo": 24,
+      "alto": 71,
+      "medio": 96,
+      "baixo": 30,
       "informativo": 1
     },
     "by_status": {
-      "confirmado": 157,
+      "confirmado": 181,
       "aberto": 13,
-      "null": 13
+      "null": 13,
+      "hipotese": 1
     },
     "by_domain": {
       "apis-integracoes": 20,
@@ -25,11 +26,12 @@
       "seguranca": 28,
       "observabilidade-operacao": 15,
       "performance-escalabilidade": 30,
-      "testes-qualidade": 16
+      "testes-qualidade": 16,
+      "ui-ux-fluxos": 25
     }
   },
   "progress": {
-    "last_updated": "2026-04-19T07:47:16.393Z",
+    "last_updated": "2026-04-19T08:03:00.584Z",
     "domains": {
       "arquitetura": {
         "domain": "arquitetura",
@@ -145,11 +147,11 @@
         "run_id_atual": null,
         "fase_atual": "none",
         "fases_concluidas": 0,
-        "fases_totais": 5,
+        "fases_totais": 1,
         "percentual": 0,
-        "ultima_atualizacao": "none",
-        "ultima_run_finalizada": null,
-        "total_runs": 0
+        "ultima_atualizacao": "2026-04-19",
+        "ultima_run_finalizada": "2026-04-19_08-47-24",
+        "total_runs": 1
       },
       "infraestrutura-deploy-config": {
         "domain": "infraestrutura-deploy-config",
@@ -217,7 +219,7 @@
       "dominios_blocked": 0,
       "dominios_ready_for_finalize": 0,
       "dominios_not_started": 15,
-      "dominios_com_historico": 9
+      "dominios_com_historico": 10
     }
   },
   "runs_history": [
@@ -380,6 +382,24 @@
       },
       "distribution_by_status": {
         "confirmado": 16
+      }
+    },
+    {
+      "domain": "ui-ux-fluxos",
+      "run_id": "2026-04-19_08-47-24",
+      "run_state": "finalized",
+      "iniciado_em": "2026-04-19 08:47:24",
+      "finalizado_em": "2026-04-19 08:55:00",
+      "avaliacao": null,
+      "total_achados": 25,
+      "distribution_by_severity": {
+        "alto": 5,
+        "medio": 14,
+        "baixo": 6
+      },
+      "distribution_by_status": {
+        "confirmado": 24,
+        "hipotese": 1
       }
     }
   ],
@@ -1947,6 +1967,107 @@
         "negocio": "Sequestro de conta"
       },
       "acao_sugerida": "Cobrir fluxo completo ao sair do stub (token storage, validação, expiração, consumo único)",
+      "prioridade": "alta"
+    },
+    {
+      "domain": "ui-ux-fluxos",
+      "runId": "2026-04-19_08-47-24",
+      "runState": "finalized",
+      "id": "ACH-001",
+      "titulo": "Mobile — rotas de Finance/Inventory/Campaigns/Team/Settings inacessíveis pela bottom nav",
+      "severidade": "alto",
+      "categoria": "navegacao",
+      "status": "confirmado",
+      "resumo": "`apps/web/src/components/sidebar.tsx` expõe 9 rotas, mas `bottom-nav.tsx` só tem 4 (My Day, Clients, Sales, Schedule). Em mobile não há menu hamburger; as demais features ficam inacessíveis.",
+      "evidencia": {
+        "arquivo_ou_area": "apps/web/src/components/sidebar.tsx; apps/web/src/components/bottom-nav.tsx",
+        "detalhe": "Sem fallback de menu para mobile"
+      },
+      "impacto": {
+        "tecnico": "Rotas críticas ocultas em viewport `<md`",
+        "negocio": "Consultora em campo sem acesso a Finance/Inventory"
+      },
+      "acao_sugerida": "Menu hamburger com as 9 rotas ou sub-menu \"Mais\"; ou revisão do bottom-nav para incluir itens essenciais",
+      "prioridade": "alta"
+    },
+    {
+      "domain": "ui-ux-fluxos",
+      "runId": "2026-04-19_08-47-24",
+      "runState": "finalized",
+      "id": "ACH-002",
+      "titulo": "Dashboard não reflow para viewport `<md` — layout desktop-first",
+      "severidade": "alto",
+      "categoria": "responsividade",
+      "status": "confirmado",
+      "resumo": "`apps/web/src/app/(dashboard)/layout.tsx` mantém sidebar `hidden md:flex`; grid principal `grid-cols-2 lg:grid-cols-4` reduz cards ilegíveis em 375px. Sem breakpoint `sm:` nem padding/fonte adaptados.",
+      "evidencia": {
+        "arquivo_ou_area": "apps/web/src/app/(dashboard)/layout.tsx:37; apps/web/src/app/(dashboard)/page.tsx:17,37"
+      },
+      "impacto": {
+        "tecnico": "Layout inutilizável em mobile browser",
+        "negocio": "Consultoras em campo sem acesso usável"
+      },
+      "acao_sugerida": "Stack vertical em `<md`; fontes reduzidas (12-14px); padding 12px; teste em iPhone SE (375px)",
+      "prioridade": "alta"
+    },
+    {
+      "domain": "ui-ux-fluxos",
+      "runId": "2026-04-19_08-47-24",
+      "runState": "finalized",
+      "id": "ACH-003",
+      "titulo": "Ações de dashboard não possuem handlers nem feedback (`onClick` vazios)",
+      "severidade": "alto",
+      "categoria": "feedback",
+      "status": "confirmado",
+      "resumo": "Quick actions em `apps/web/src/app/(dashboard)/page.tsx:41-56` são botões sem `onClick`. Mobile `new-sale-screen.tsx:187-195` tem callbacks `() => {}`.",
+      "evidencia": {
+        "arquivo_ou_area": "apps/web/src/app/(dashboard)/page.tsx; apps/mobile/src/screens/new-sale-screen.tsx:187-195"
+      },
+      "impacto": {
+        "tecnico": "Consultora clica e nada acontece",
+        "negocio": "Percepção de produto quebrado"
+      },
+      "acao_sugerida": "Wire-up dos handlers (navigation + mutations) com toast (sonner) para sucesso/erro; skeletons durante espera",
+      "prioridade": "alta"
+    },
+    {
+      "domain": "ui-ux-fluxos",
+      "runId": "2026-04-19_08-47-24",
+      "runState": "finalized",
+      "id": "ACH-004",
+      "titulo": "Touch targets abaixo de 44×44 px em mobile",
+      "severidade": "alto",
+      "categoria": "acessibilidade-mobile",
+      "status": "confirmado",
+      "resumo": "`apps/mobile/src/screens/new-sale-screen.tsx:25` (back button 36×36) e itens do grid de delivery têm altura efetiva ~32-36 px. Apple HIG e Material recomendam 44-48 px.",
+      "evidencia": {
+        "arquivo_ou_area": "apps/mobile/src/screens/new-sale-screen.tsx:25,115-139"
+      },
+      "impacto": {
+        "tecnico": "Erros de toque em contexto de uso realista",
+        "negocio": "Frustração, abandono de fluxo"
+      },
+      "acao_sugerida": "`minHeight: 44` e `minWidth: 44`; padding maior em botões pequenos; hit slops quando necessário",
+      "prioridade": "alta"
+    },
+    {
+      "domain": "ui-ux-fluxos",
+      "runId": "2026-04-19_08-47-24",
+      "runState": "finalized",
+      "id": "ACH-005",
+      "titulo": "i18n parcial — validações e mensagens hardcoded em pt",
+      "severidade": "alto",
+      "categoria": "i18n",
+      "status": "confirmado",
+      "resumo": "`useTranslations('auth')` está presente, porém mensagens de validação (`minLength`, `pattern`), loading (\"...\") e empty states \"Sem clientes\" aparecem em português hardcoded. Suporte a EN não é real.",
+      "evidencia": {
+        "arquivo_ou_area": "apps/web/src/app/(auth)/onboarding/page.tsx:67-72,110; apps/web/src/app/(dashboard)/{clients,sales}/page.tsx"
+      },
+      "impacto": {
+        "tecnico": "`messages/en.json` pode ficar incompleto/imperceptível",
+        "negocio": "Promessa multi-idioma não cumprida"
+      },
+      "acao_sugerida": "Consolidar strings em `messages/{pt,en}.json`; validar Zod com mensagens localizadas (map de erro por código); regra ESLint para barrar strings inline em JSX",
       "prioridade": "alta"
     },
     {
@@ -3628,6 +3749,286 @@
       "prioridade": "media"
     },
     {
+      "domain": "ui-ux-fluxos",
+      "runId": "2026-04-19_08-47-24",
+      "runState": "finalized",
+      "id": "ACH-006",
+      "titulo": "Ausência de loading skeletons em listas",
+      "severidade": "medio",
+      "categoria": "feedback",
+      "status": "confirmado",
+      "resumo": "Pages de clients/sales não usam `Suspense` + `Skeleton`. Tailwind `animate-pulse` não aparece.",
+      "evidencia": {
+        "arquivo_ou_area": "apps/web/src/app/(dashboard)/clients/page.tsx; apps/web/src/app/(dashboard)/sales/page.tsx"
+      },
+      "impacto": {
+        "tecnico": "Usuário não sabe se está carregando ou vazio",
+        "negocio": "Ansiedade em redes lentas"
+      },
+      "acao_sugerida": "Skeleton por item (card/list) via `Suspense` ou estado local; helper `<ListSkeleton count={N} />`",
+      "prioridade": "media"
+    },
+    {
+      "domain": "ui-ux-fluxos",
+      "runId": "2026-04-19_08-47-24",
+      "runState": "finalized",
+      "id": "ACH-007",
+      "titulo": "Empty state com `<div>Sem clientes</div>` — não usa `EmptyState` pronto",
+      "severidade": "medio",
+      "categoria": "consistencia",
+      "status": "confirmado",
+      "resumo": "Existe componente `EmptyState` em `packages/ui/src/components/empty-state.tsx`, mas as listagens inline renderizam divs simples sem CTA (\"Adicionar primeiro cliente\").",
+      "evidencia": {
+        "arquivo_ou_area": "apps/web/src/app/(dashboard)/{clients,sales}/page.tsx; packages/ui/src/components/empty-state.tsx"
+      },
+      "impacto": {
+        "tecnico": "Inconsistência visual",
+        "negocio": "Sem CTA para primeira ação"
+      },
+      "acao_sugerida": "Substituir por `<EmptyState icon=\"…\" title=\"…\" action={<Button>…</Button>} />`",
+      "prioridade": "media"
+    },
+    {
+      "domain": "ui-ux-fluxos",
+      "runId": "2026-04-19_08-47-24",
+      "runState": "finalized",
+      "id": "ACH-008",
+      "titulo": "`aria-label` ausente em botões só com ícone/emoji",
+      "severidade": "medio",
+      "categoria": "acessibilidade",
+      "status": "confirmado",
+      "resumo": "Quick actions usam emoji sem rótulo acessível; FAB \"+\" tem `aria-label` genérico (\"create\").",
+      "evidencia": {
+        "arquivo_ou_area": "apps/web/src/app/(dashboard)/page.tsx:41-56; apps/web/src/components/bottom-nav.tsx"
+      },
+      "impacto": {
+        "tecnico": "Leitor de tela descreve apenas o ícone",
+        "negocio": "Acessibilidade reduzida"
+      },
+      "acao_sugerida": "`aria-label={t('action_new_sale')}` e congêneres; substituir emoji por `lucide-react` com `aria-hidden` + texto",
+      "prioridade": "media"
+    },
+    {
+      "domain": "ui-ux-fluxos",
+      "runId": "2026-04-19_08-47-24",
+      "runState": "finalized",
+      "id": "ACH-009",
+      "titulo": "Hierarquia de `h1`/`h2`/`h3` quebrada no dashboard",
+      "severidade": "medio",
+      "categoria": "acessibilidade-e-semantica",
+      "status": "confirmado",
+      "resumo": "Dashboard usa `<h1>` para saudação e `<h2>` para cards, sem `<h1>` por página após navegação. Hierarquia desordenada atrapalha navegação assistida.",
+      "evidencia": {
+        "arquivo_ou_area": "apps/web/src/app/(dashboard)/page.tsx:13,39,61"
+      },
+      "impacto": {
+        "tecnico": "Outline do leitor de tela confuso",
+        "negocio": "Acessibilidade AA comprometida"
+      },
+      "acao_sugerida": "Um `<h1>` por página; `<h2>` só em seções principais; `<h3>` em subsecções",
+      "prioridade": "media"
+    },
+    {
+      "domain": "ui-ux-fluxos",
+      "runId": "2026-04-19_08-47-24",
+      "runState": "finalized",
+      "id": "ACH-010",
+      "titulo": "Contraste marginal em `--color-text-tertiary`",
+      "severidade": "medio",
+      "categoria": "acessibilidade-visual",
+      "status": "confirmado",
+      "resumo": "Cor `#6B7280` sobre `#FFFFFF` ≈ 5.3:1. Passa WCAG AA (4.5:1) por pouco; falha AAA (7:1); pior no tema rose-dark.",
+      "evidencia": {
+        "arquivo_ou_area": "WBC-UI-UX-Design-System-v1.0.md:52; apps/web/src/app/(dashboard)/page.tsx:14,33"
+      },
+      "impacto": {
+        "tecnico": "Leitura prejudicada para baixa visão",
+        "negocio": "Público-alvo 50+ afetado"
+      },
+      "acao_sugerida": "Ajustar para `#5A6370` ou mais escuro; revalidar temas dark/rose-dark",
+      "prioridade": "media"
+    },
+    {
+      "domain": "ui-ux-fluxos",
+      "runId": "2026-04-19_08-47-24",
+      "runState": "finalized",
+      "id": "ACH-011",
+      "titulo": "Forms sem `aria-live` em erros; feedback só após submit",
+      "severidade": "medio",
+      "categoria": "formularios-e-acessibilidade",
+      "status": "confirmado",
+      "resumo": "`FormField` wrapper não expõe erro com `aria-live=\"polite\"`; inputs têm `aria-describedby`, mas erro aparece sem anúncio auditivo.",
+      "evidencia": {
+        "arquivo_ou_area": "apps/web/src/components/form-field.tsx:19-26; packages/ui/src/components/input.tsx:24-25"
+      },
+      "impacto": {
+        "tecnico": "Usuário descobre erro tarde",
+        "negocio": "Re-submissões aumentam"
+      },
+      "acao_sugerida": "Container de erro com `aria-live=\"polite\"` e `aria-atomic=\"true\"`",
+      "prioridade": "media"
+    },
+    {
+      "domain": "ui-ux-fluxos",
+      "runId": "2026-04-19_08-47-24",
+      "runState": "finalized",
+      "id": "ACH-012",
+      "titulo": "Ausência de máscaras de entrada (telefone, CPF, CNPJ)",
+      "severidade": "medio",
+      "categoria": "prevencao-de-erro",
+      "status": "confirmado",
+      "resumo": "Onboarding usa `minLength={10}` sem `react-input-mask`. Dados ruins podem chegar ao DB; UX pior.",
+      "evidencia": {
+        "arquivo_ou_area": "apps/web/src/app/(auth)/onboarding/page.tsx:84"
+      },
+      "impacto": {
+        "tecnico": "Dados inconsistentes",
+        "negocio": "Integrações (WhatsApp/SMS) falham silenciosamente"
+      },
+      "acao_sugerida": "`react-input-mask` ou `imask` com padrões BR; validar E.164 no submit (cross-ref seguranca/ACH-028)",
+      "prioridade": "media"
+    },
+    {
+      "domain": "ui-ux-fluxos",
+      "runId": "2026-04-19_08-47-24",
+      "runState": "finalized",
+      "id": "ACH-013",
+      "titulo": "Confirmação/cancelamento e ações destrutivas sem auto-focus e focus trap",
+      "severidade": "medio",
+      "categoria": "acessibilidade",
+      "status": "confirmado",
+      "resumo": "`packages/ui/src/components/confirm-modal.tsx` usa `<dialog>` nativo, sem `autoFocus` em confirmar/cancelar nem focus trap garantido para tab cycling.",
+      "evidencia": {
+        "arquivo_ou_area": "packages/ui/src/components/confirm-modal.tsx:31-55"
+      },
+      "impacto": {
+        "tecnico": "Teclado pode sair do modal",
+        "negocio": "Experiência ruim em ações críticas"
+      },
+      "acao_sugerida": "Usar Radix Dialog (já disponível via shadcn) com trap/autoFocus; se manter `<dialog>`, acoplar `focus-trap-react`",
+      "prioridade": "media"
+    },
+    {
+      "domain": "ui-ux-fluxos",
+      "runId": "2026-04-19_08-47-24",
+      "runState": "finalized",
+      "id": "ACH-014",
+      "titulo": "Reset-password / Magic-link sem AlertDialog de confirmação",
+      "severidade": "medio",
+      "categoria": "prevencao-de-erro",
+      "status": "confirmado",
+      "resumo": "Links \"Esqueci senha\" e \"Criar conta\" não têm modal de confirmação antes de disparar fluxo; `ConfirmModal` está disponível mas não integrado.",
+      "evidencia": {
+        "arquivo_ou_area": "apps/web/src/app/(auth)/login/page.tsx; apps/web/src/app/(auth)/register/page.tsx; packages/ui/src/components/confirm-modal.tsx"
+      },
+      "impacto": {
+        "tecnico": "Ação acidental dispara fluxo de e-mail",
+        "negocio": "Custo de suporte"
+      },
+      "acao_sugerida": "AlertDialog explicando \"Vamos enviar um link...\" + botões \"Sim/Não",
+      "prioridade": "media"
+    },
+    {
+      "domain": "ui-ux-fluxos",
+      "runId": "2026-04-19_08-47-24",
+      "runState": "finalized",
+      "id": "ACH-016",
+      "titulo": "Onboarding desktop sem `StepIndicator` visual (existente)",
+      "severidade": "medio",
+      "categoria": "navegacao",
+      "status": "confirmado",
+      "resumo": "Onboarding desktop exibe \"Step 1 of 3\" como texto; `StepIndicator` já existe em packages/ui e é usado em mobile.",
+      "evidencia": {
+        "arquivo_ou_area": "apps/web/src/app/(auth)/onboarding/page.tsx:59; apps/mobile/src/screens/new-sale-screen.tsx:37"
+      },
+      "impacto": {
+        "tecnico": "Sem feedback visual de progresso",
+        "negocio": "Taxa de abandono no onboarding"
+      },
+      "acao_sugerida": "Usar `StepIndicator` no onboarding desktop; sincronizar visual entre web e mobile",
+      "prioridade": "media"
+    },
+    {
+      "domain": "ui-ux-fluxos",
+      "runId": "2026-04-19_08-47-24",
+      "runState": "finalized",
+      "id": "ACH-017",
+      "titulo": "Settings é stub — sem formulários nem persistência",
+      "severidade": "medio",
+      "categoria": "fluxo",
+      "status": "confirmado",
+      "resumo": "`apps/web/src/app/(dashboard)/settings/page.tsx` lista seções como texto sem inputs; nenhuma ação funcional.",
+      "evidencia": {
+        "arquivo_ou_area": "apps/web/src/app/(dashboard)/settings/page.tsx:1-30"
+      },
+      "impacto": {
+        "tecnico": "Experiência inacabada",
+        "negocio": "Consultora não altera perfil/plano"
+      },
+      "acao_sugerida": "Implementar tabs: Profile / Plan / Landing / Data Export; cada tab com form + submit (react-hook-form + Zod)",
+      "prioridade": "media"
+    },
+    {
+      "domain": "ui-ux-fluxos",
+      "runId": "2026-04-19_08-47-24",
+      "runState": "finalized",
+      "id": "ACH-018",
+      "titulo": "`ConfirmModal` sem loading state no botão destrutivo",
+      "severidade": "medio",
+      "categoria": "feedback",
+      "status": "confirmado",
+      "resumo": "Após clicar \"Confirmar\", modal não mostra spinner nem desabilita botão — consultora pode clicar múltiplas vezes.",
+      "evidencia": {
+        "arquivo_ou_area": "packages/ui/src/components/confirm-modal.tsx:41-52"
+      },
+      "impacto": {
+        "tecnico": "Mutações duplicadas (cross-ref apis-integracoes/ACH-001)",
+        "negocio": "Ações indevidas"
+      },
+      "acao_sugerida": "Prop `isLoading`; botão confirm com spinner + `aria-busy`; desabilitar durante promise",
+      "prioridade": "media"
+    },
+    {
+      "domain": "ui-ux-fluxos",
+      "runId": "2026-04-19_08-47-24",
+      "runState": "finalized",
+      "id": "ACH-020",
+      "titulo": "Typography no mobile com `fontFamily`/tamanhos hardcoded",
+      "severidade": "medio",
+      "categoria": "design-system-mobile",
+      "status": "confirmado",
+      "resumo": "`apps/mobile/src/screens/new-sale-screen.tsx` define fontes Epilogue/Sora/Manrope em StyleSheet; sem tokens centralizados em packages/ui-native.",
+      "evidencia": {
+        "arquivo_ou_area": "apps/mobile/src/screens/new-sale-screen.tsx:200-277"
+      },
+      "impacto": {
+        "tecnico": "Manutenção difícil",
+        "negocio": "Inconsistência entre telas mobile"
+      },
+      "acao_sugerida": "`packages/ui-native/src/typography.ts` com tokens (heading1..caption) e helpers `styles(theme).text.headingN`",
+      "prioridade": "media"
+    },
+    {
+      "domain": "ui-ux-fluxos",
+      "runId": "2026-04-19_08-47-24",
+      "runState": "finalized",
+      "id": "ACH-024",
+      "titulo": "Labels de inputs desassociadas por id dinâmico no onboarding",
+      "severidade": "medio",
+      "categoria": "acessibilidade",
+      "status": "confirmado",
+      "resumo": "`Label htmlFor={…}` depende de id auto-gerado; com caracteres especiais/i18n o match pode quebrar.",
+      "evidencia": {
+        "arquivo_ou_area": "apps/web/src/app/(auth)/onboarding/page.tsx:66,70,83"
+      },
+      "impacto": {
+        "tecnico": "Associação label↔input pode falhar; leitores de tela não informam",
+        "negocio": "Acessibilidade reduzida"
+      },
+      "acao_sugerida": "Usar `FormField` que injeta `id` explícito; ou gerar via `useId()` do React e passar manualmente",
+      "prioridade": "media"
+    },
+    {
       "domain": "apis-integracoes",
       "runId": "2026-04-18_22-30-59",
       "runState": "finalized",
@@ -4110,6 +4511,126 @@
         "negocio": "Downtime em manutenção"
       },
       "acao_sugerida": "Matrix com Node 20 + 22; `fail-fast: false`",
+      "prioridade": "baixa"
+    },
+    {
+      "domain": "ui-ux-fluxos",
+      "runId": "2026-04-19_08-47-24",
+      "runState": "finalized",
+      "id": "ACH-015",
+      "titulo": "Inputs de senha sem toggle de visibilidade",
+      "severidade": "baixo",
+      "categoria": "formularios",
+      "status": "confirmado",
+      "resumo": "`CredentialsForm` usa `type=\"password\"` sem opção de mostrar/ocultar; usuários com senhas complexas digitam às cegas.",
+      "evidencia": {
+        "arquivo_ou_area": "apps/web/src/components/auth/credentials-form.tsx:82,85; packages/ui/src/components/input.tsx"
+      },
+      "impacto": {
+        "tecnico": "Aumenta taxa de erro",
+        "negocio": "Mais \"esqueci senha"
+      },
+      "acao_sugerida": "Ícone olho em `Input` quando `type === 'password'`; a11y com `aria-pressed`",
+      "prioridade": "baixa"
+    },
+    {
+      "domain": "ui-ux-fluxos",
+      "runId": "2026-04-19_08-47-24",
+      "runState": "finalized",
+      "id": "ACH-019",
+      "titulo": "Temas `default-dark` e `rose-dark` parcialmente implementados",
+      "severidade": "baixo",
+      "categoria": "design-system",
+      "status": "confirmado",
+      "resumo": "Design System declara 4 combinações (default light/dark, rose light/dark), mas `apps/web/src/app/(dashboard)/layout.tsx:21-24` só alterna default↔rose sem persistir dark mode.",
+      "evidencia": {
+        "arquivo_ou_area": "apps/web/src/app/(dashboard)/layout.tsx:21-24; WBC-UI-UX-Design-System-v1.0.md:2.1-2.4"
+      },
+      "impacto": {
+        "tecnico": "Preferência não persiste",
+        "negocio": "Frustração"
+      },
+      "acao_sugerida": "Persistir em `localStorage` e enviar cookie para SSR; usar `next-themes` ou abordagem equivalente; `data-theme` consistente entre web e mobile",
+      "prioridade": "baixa"
+    },
+    {
+      "domain": "ui-ux-fluxos",
+      "runId": "2026-04-19_08-47-24",
+      "runState": "finalized",
+      "id": "ACH-021",
+      "titulo": "Falta `type=\"button\"` em botões de ação dentro de páginas com formulários",
+      "severidade": "baixo",
+      "categoria": "acessibilidade",
+      "status": "confirmado",
+      "resumo": "Quick actions em dashboard e itens em bottom-nav são `<button>` sem `type=\"button\"`, risco de comportamento imprevisível em forms.",
+      "evidencia": {
+        "arquivo_ou_area": "apps/web/src/app/(dashboard)/page.tsx:41-56; apps/web/src/components/bottom-nav.tsx:36"
+      },
+      "impacto": {
+        "tecnico": "Possível submit acidental",
+        "negocio": "Bugs estranhos em certos navegadores"
+      },
+      "acao_sugerida": "`type=\"button\"` explícito ou `<Link>` quando a intenção é navegar",
+      "prioridade": "baixa"
+    },
+    {
+      "domain": "ui-ux-fluxos",
+      "runId": "2026-04-19_08-47-24",
+      "runState": "finalized",
+      "id": "ACH-022",
+      "titulo": "Feedback `hover/active` pouco expressivo em cards/botões de ação",
+      "severidade": "baixo",
+      "categoria": "feedback",
+      "status": "confirmado",
+      "resumo": "Dashboard define `hover:bg-[--color-primary-surface-hover]` mas não usa `active:scale-95` ou ripple. Sem retorno tátil.",
+      "evidencia": {
+        "arquivo_ou_area": "apps/web/src/app/(dashboard)/page.tsx:41-56"
+      },
+      "impacto": {
+        "tecnico": "Sensação de \"nada aconteceu",
+        "negocio": "Dúvida se clicou"
+      },
+      "acao_sugerida": "`transition + active:scale-98 + opacity-90`; consistência entre cards/botões",
+      "prioridade": "baixa"
+    },
+    {
+      "domain": "ui-ux-fluxos",
+      "runId": "2026-04-19_08-47-24",
+      "runState": "finalized",
+      "id": "ACH-023",
+      "titulo": "Feedback de aplicação de desconto VIP ausente",
+      "severidade": "baixo",
+      "categoria": "fluxo-e-feedback",
+      "status": "confirmado",
+      "resumo": "Mobile `new-sale-screen.tsx` menciona \"Cliente VIP\" mas não exibe toast/alert com \"Desconto VIP (5%) aplicado\" ao confirmar.",
+      "evidencia": {
+        "arquivo_ou_area": "apps/mobile/src/screens/new-sale-screen.tsx:56-59"
+      },
+      "impacto": {
+        "tecnico": "Consultora não vê benefício aplicado",
+        "negocio": "Menor percepção de valor"
+      },
+      "acao_sugerida": "Toast contextual ou destaque visual no total (\"VIP -5%\")",
+      "prioridade": "baixa"
+    },
+    {
+      "domain": "ui-ux-fluxos",
+      "runId": "2026-04-19_08-47-24",
+      "runState": "finalized",
+      "id": "ACH-025",
+      "titulo": "Ausência de empty/error state padronizado para upload (se/ quando houver)",
+      "severidade": "baixo",
+      "categoria": "fluxo",
+      "status": "hipotese",
+      "resumo": "Não encontramos upload ativo; se feature de foto/documento aparecer, será necessário tratamento de tamanho/tipo com feedback inline.",
+      "evidencia": {
+        "arquivo_ou_area": "não encontrado em análise (hipótese)"
+      },
+      "impacto": {
+        "tecnico": "Se ativado sem validação, timeouts e erros obscuros",
+        "negocio": "Experiência ruim"
+      },
+      "acao_sugerida": "Implementar upload com validação (max 5 MB; image/*) e mensagens inline quando a feature for introduzida",
       "prioridade": "baixa"
     },
     {

@@ -1,20 +1,20 @@
 # Relatório Consolidado de Achados — Framework de Auditoria WeaveCode
 
-- gerado_em: 2026-04-19T07:47:16.396Z
-- total_achados: 183
+- gerado_em: 2026-04-19T08:03:00.584Z
+- total_achados: 208
 - dominios_em_progresso: 0
 - dominios_ready_for_finalize: 0
 - dominios_blocked: 0
-- dominios_com_historico: 9
+- dominios_com_historico: 10
 
 ## Distribuição por severidade
 
 | Severidade | Total |
 |---|---|
 | critico | 10 |
-| alto | 66 |
-| medio | 82 |
-| baixo | 24 |
+| alto | 71 |
+| medio | 96 |
+| baixo | 30 |
 | informativo | 1 |
 
 ## Distribuição por status
@@ -22,7 +22,7 @@
 | Status | Total |
 |---|---|
 | aberto | 13 |
-| confirmado | 157 |
+| confirmado | 181 |
 | mitigado | 0 |
 | resolvido | 0 |
 | aceito | 0 |
@@ -41,6 +41,7 @@
 | confiabilidade-resiliencia | 17 |
 | observabilidade-operacao | 15 |
 | testes-qualidade | 16 |
+| ui-ux-fluxos | 25 |
 
 ## Achados ordenados por severidade
 
@@ -799,6 +800,56 @@
 - resumo: Apesar de já serem stubs (seguranca/ACH-001), nem os stubs estão testados; quando saírem de stub precisam cobertura imediata.
 - evidencia.arquivo_ou_area: packages/business/auth/use-cases/__tests__ (sem reset/forgot-password)
 - impacto.tecnico: Fluxo de recuperação sem proteção
+
+### [alto] ACH-001 — Mobile — rotas de Finance/Inventory/Campaigns/Team/Settings inacessíveis pela bottom nav
+
+- dominio: ui-ux-fluxos
+- run: 2026-04-19_08-47-24 (finalized)
+- categoria: navegacao
+- status: confirmado
+- resumo: `apps/web/src/components/sidebar.tsx` expõe 9 rotas, mas `bottom-nav.tsx` só tem 4 (My Day, Clients, Sales, Schedule). Em mobile não há menu hamburger; as demais features ficam inacessíveis.
+- evidencia.arquivo_ou_area: apps/web/src/components/sidebar.tsx; apps/web/src/components/bottom-nav.tsx
+- impacto.tecnico: Rotas críticas ocultas em viewport `<md`
+
+### [alto] ACH-002 — Dashboard não reflow para viewport `<md` — layout desktop-first
+
+- dominio: ui-ux-fluxos
+- run: 2026-04-19_08-47-24 (finalized)
+- categoria: responsividade
+- status: confirmado
+- resumo: `apps/web/src/app/(dashboard)/layout.tsx` mantém sidebar `hidden md:flex`; grid principal `grid-cols-2 lg:grid-cols-4` reduz cards ilegíveis em 375px. Sem breakpoint `sm:` nem padding/fonte adaptados.
+- evidencia.arquivo_ou_area: apps/web/src/app/(dashboard)/layout.tsx:37; apps/web/src/app/(dashboard)/page.tsx:17,37
+- impacto.tecnico: Layout inutilizável em mobile browser
+
+### [alto] ACH-003 — Ações de dashboard não possuem handlers nem feedback (`onClick` vazios)
+
+- dominio: ui-ux-fluxos
+- run: 2026-04-19_08-47-24 (finalized)
+- categoria: feedback
+- status: confirmado
+- resumo: Quick actions em `apps/web/src/app/(dashboard)/page.tsx:41-56` são botões sem `onClick`. Mobile `new-sale-screen.tsx:187-195` tem callbacks `() => {}`.
+- evidencia.arquivo_ou_area: apps/web/src/app/(dashboard)/page.tsx; apps/mobile/src/screens/new-sale-screen.tsx:187-195
+- impacto.tecnico: Consultora clica e nada acontece
+
+### [alto] ACH-004 — Touch targets abaixo de 44×44 px em mobile
+
+- dominio: ui-ux-fluxos
+- run: 2026-04-19_08-47-24 (finalized)
+- categoria: acessibilidade-mobile
+- status: confirmado
+- resumo: `apps/mobile/src/screens/new-sale-screen.tsx:25` (back button 36×36) e itens do grid de delivery têm altura efetiva ~32-36 px. Apple HIG e Material recomendam 44-48 px.
+- evidencia.arquivo_ou_area: apps/mobile/src/screens/new-sale-screen.tsx:25,115-139
+- impacto.tecnico: Erros de toque em contexto de uso realista
+
+### [alto] ACH-005 — i18n parcial — validações e mensagens hardcoded em pt
+
+- dominio: ui-ux-fluxos
+- run: 2026-04-19_08-47-24 (finalized)
+- categoria: i18n
+- status: confirmado
+- resumo: `useTranslations('auth')` está presente, porém mensagens de validação (`minLength`, `pattern`), loading ("...") e empty states "Sem clientes" aparecem em português hardcoded. Suporte a EN não é real.
+- evidencia.arquivo_ou_area: apps/web/src/app/(auth)/onboarding/page.tsx:67-72,110; apps/web/src/app/(dashboard)/{clients,sales}/page.tsx
+- impacto.tecnico: `messages/en.json` pode ficar incompleto/imperceptível
 
 ### [medio] ACH-007 — Paginação sem metadata (`total`, `hasMore`, `nextCursor`)
 
@@ -1604,6 +1655,146 @@
 - evidencia.arquivo_ou_area: packages/business/{analytics,ai,campaigns,landing,schedule,team}/
 - impacto.tecnico: Risco heterogêneo
 
+### [medio] ACH-006 — Ausência de loading skeletons em listas
+
+- dominio: ui-ux-fluxos
+- run: 2026-04-19_08-47-24 (finalized)
+- categoria: feedback
+- status: confirmado
+- resumo: Pages de clients/sales não usam `Suspense` + `Skeleton`. Tailwind `animate-pulse` não aparece.
+- evidencia.arquivo_ou_area: apps/web/src/app/(dashboard)/clients/page.tsx; apps/web/src/app/(dashboard)/sales/page.tsx
+- impacto.tecnico: Usuário não sabe se está carregando ou vazio
+
+### [medio] ACH-007 — Empty state com `<div>Sem clientes</div>` — não usa `EmptyState` pronto
+
+- dominio: ui-ux-fluxos
+- run: 2026-04-19_08-47-24 (finalized)
+- categoria: consistencia
+- status: confirmado
+- resumo: Existe componente `EmptyState` em `packages/ui/src/components/empty-state.tsx`, mas as listagens inline renderizam divs simples sem CTA ("Adicionar primeiro cliente").
+- evidencia.arquivo_ou_area: apps/web/src/app/(dashboard)/{clients,sales}/page.tsx; packages/ui/src/components/empty-state.tsx
+- impacto.tecnico: Inconsistência visual
+
+### [medio] ACH-008 — `aria-label` ausente em botões só com ícone/emoji
+
+- dominio: ui-ux-fluxos
+- run: 2026-04-19_08-47-24 (finalized)
+- categoria: acessibilidade
+- status: confirmado
+- resumo: Quick actions usam emoji sem rótulo acessível; FAB "+" tem `aria-label` genérico ("create").
+- evidencia.arquivo_ou_area: apps/web/src/app/(dashboard)/page.tsx:41-56; apps/web/src/components/bottom-nav.tsx
+- impacto.tecnico: Leitor de tela descreve apenas o ícone
+
+### [medio] ACH-009 — Hierarquia de `h1`/`h2`/`h3` quebrada no dashboard
+
+- dominio: ui-ux-fluxos
+- run: 2026-04-19_08-47-24 (finalized)
+- categoria: acessibilidade-e-semantica
+- status: confirmado
+- resumo: Dashboard usa `<h1>` para saudação e `<h2>` para cards, sem `<h1>` por página após navegação. Hierarquia desordenada atrapalha navegação assistida.
+- evidencia.arquivo_ou_area: apps/web/src/app/(dashboard)/page.tsx:13,39,61
+- impacto.tecnico: Outline do leitor de tela confuso
+
+### [medio] ACH-010 — Contraste marginal em `--color-text-tertiary`
+
+- dominio: ui-ux-fluxos
+- run: 2026-04-19_08-47-24 (finalized)
+- categoria: acessibilidade-visual
+- status: confirmado
+- resumo: Cor `#6B7280` sobre `#FFFFFF` ≈ 5.3:1. Passa WCAG AA (4.5:1) por pouco; falha AAA (7:1); pior no tema rose-dark.
+- evidencia.arquivo_ou_area: WBC-UI-UX-Design-System-v1.0.md:52; apps/web/src/app/(dashboard)/page.tsx:14,33
+- impacto.tecnico: Leitura prejudicada para baixa visão
+
+### [medio] ACH-011 — Forms sem `aria-live` em erros; feedback só após submit
+
+- dominio: ui-ux-fluxos
+- run: 2026-04-19_08-47-24 (finalized)
+- categoria: formularios-e-acessibilidade
+- status: confirmado
+- resumo: `FormField` wrapper não expõe erro com `aria-live="polite"`; inputs têm `aria-describedby`, mas erro aparece sem anúncio auditivo.
+- evidencia.arquivo_ou_area: apps/web/src/components/form-field.tsx:19-26; packages/ui/src/components/input.tsx:24-25
+- impacto.tecnico: Usuário descobre erro tarde
+
+### [medio] ACH-012 — Ausência de máscaras de entrada (telefone, CPF, CNPJ)
+
+- dominio: ui-ux-fluxos
+- run: 2026-04-19_08-47-24 (finalized)
+- categoria: prevencao-de-erro
+- status: confirmado
+- resumo: Onboarding usa `minLength={10}` sem `react-input-mask`. Dados ruins podem chegar ao DB; UX pior.
+- evidencia.arquivo_ou_area: apps/web/src/app/(auth)/onboarding/page.tsx:84
+- impacto.tecnico: Dados inconsistentes
+
+### [medio] ACH-013 — Confirmação/cancelamento e ações destrutivas sem auto-focus e focus trap
+
+- dominio: ui-ux-fluxos
+- run: 2026-04-19_08-47-24 (finalized)
+- categoria: acessibilidade
+- status: confirmado
+- resumo: `packages/ui/src/components/confirm-modal.tsx` usa `<dialog>` nativo, sem `autoFocus` em confirmar/cancelar nem focus trap garantido para tab cycling.
+- evidencia.arquivo_ou_area: packages/ui/src/components/confirm-modal.tsx:31-55
+- impacto.tecnico: Teclado pode sair do modal
+
+### [medio] ACH-014 — Reset-password / Magic-link sem AlertDialog de confirmação
+
+- dominio: ui-ux-fluxos
+- run: 2026-04-19_08-47-24 (finalized)
+- categoria: prevencao-de-erro
+- status: confirmado
+- resumo: Links "Esqueci senha" e "Criar conta" não têm modal de confirmação antes de disparar fluxo; `ConfirmModal` está disponível mas não integrado.
+- evidencia.arquivo_ou_area: apps/web/src/app/(auth)/login/page.tsx; apps/web/src/app/(auth)/register/page.tsx; packages/ui/src/components/confirm-modal.tsx
+- impacto.tecnico: Ação acidental dispara fluxo de e-mail
+
+### [medio] ACH-016 — Onboarding desktop sem `StepIndicator` visual (existente)
+
+- dominio: ui-ux-fluxos
+- run: 2026-04-19_08-47-24 (finalized)
+- categoria: navegacao
+- status: confirmado
+- resumo: Onboarding desktop exibe "Step 1 of 3" como texto; `StepIndicator` já existe em packages/ui e é usado em mobile.
+- evidencia.arquivo_ou_area: apps/web/src/app/(auth)/onboarding/page.tsx:59; apps/mobile/src/screens/new-sale-screen.tsx:37
+- impacto.tecnico: Sem feedback visual de progresso
+
+### [medio] ACH-017 — Settings é stub — sem formulários nem persistência
+
+- dominio: ui-ux-fluxos
+- run: 2026-04-19_08-47-24 (finalized)
+- categoria: fluxo
+- status: confirmado
+- resumo: `apps/web/src/app/(dashboard)/settings/page.tsx` lista seções como texto sem inputs; nenhuma ação funcional.
+- evidencia.arquivo_ou_area: apps/web/src/app/(dashboard)/settings/page.tsx:1-30
+- impacto.tecnico: Experiência inacabada
+
+### [medio] ACH-018 — `ConfirmModal` sem loading state no botão destrutivo
+
+- dominio: ui-ux-fluxos
+- run: 2026-04-19_08-47-24 (finalized)
+- categoria: feedback
+- status: confirmado
+- resumo: Após clicar "Confirmar", modal não mostra spinner nem desabilita botão — consultora pode clicar múltiplas vezes.
+- evidencia.arquivo_ou_area: packages/ui/src/components/confirm-modal.tsx:41-52
+- impacto.tecnico: Mutações duplicadas (cross-ref apis-integracoes/ACH-001)
+
+### [medio] ACH-020 — Typography no mobile com `fontFamily`/tamanhos hardcoded
+
+- dominio: ui-ux-fluxos
+- run: 2026-04-19_08-47-24 (finalized)
+- categoria: design-system-mobile
+- status: confirmado
+- resumo: `apps/mobile/src/screens/new-sale-screen.tsx` define fontes Epilogue/Sora/Manrope em StyleSheet; sem tokens centralizados em packages/ui-native.
+- evidencia.arquivo_ou_area: apps/mobile/src/screens/new-sale-screen.tsx:200-277
+- impacto.tecnico: Manutenção difícil
+
+### [medio] ACH-024 — Labels de inputs desassociadas por id dinâmico no onboarding
+
+- dominio: ui-ux-fluxos
+- run: 2026-04-19_08-47-24 (finalized)
+- categoria: acessibilidade
+- status: confirmado
+- resumo: `Label htmlFor={…}` depende de id auto-gerado; com caracteres especiais/i18n o match pode quebrar.
+- evidencia.arquivo_ou_area: apps/web/src/app/(auth)/onboarding/page.tsx:66,70,83
+- impacto.tecnico: Associação label↔input pode falhar; leitores de tela não informam
+
 ### [baixo] ACH-009 — Filtros e ordenação sem convenção de nomenclatura entre routers
 
 - dominio: apis-integracoes
@@ -1835,6 +2026,66 @@
 - status: confirmado
 - evidencia.arquivo_ou_area: .github/workflows/ci.yml (sem `strategy.matrix`)
 - impacto.tecnico: Falha em upgrade de Node
+
+### [baixo] ACH-015 — Inputs de senha sem toggle de visibilidade
+
+- dominio: ui-ux-fluxos
+- run: 2026-04-19_08-47-24 (finalized)
+- categoria: formularios
+- status: confirmado
+- resumo: `CredentialsForm` usa `type="password"` sem opção de mostrar/ocultar; usuários com senhas complexas digitam às cegas.
+- evidencia.arquivo_ou_area: apps/web/src/components/auth/credentials-form.tsx:82,85; packages/ui/src/components/input.tsx
+- impacto.tecnico: Aumenta taxa de erro
+
+### [baixo] ACH-019 — Temas `default-dark` e `rose-dark` parcialmente implementados
+
+- dominio: ui-ux-fluxos
+- run: 2026-04-19_08-47-24 (finalized)
+- categoria: design-system
+- status: confirmado
+- resumo: Design System declara 4 combinações (default light/dark, rose light/dark), mas `apps/web/src/app/(dashboard)/layout.tsx:21-24` só alterna default↔rose sem persistir dark mode.
+- evidencia.arquivo_ou_area: apps/web/src/app/(dashboard)/layout.tsx:21-24; WBC-UI-UX-Design-System-v1.0.md:2.1-2.4
+- impacto.tecnico: Preferência não persiste
+
+### [baixo] ACH-021 — Falta `type="button"` em botões de ação dentro de páginas com formulários
+
+- dominio: ui-ux-fluxos
+- run: 2026-04-19_08-47-24 (finalized)
+- categoria: acessibilidade
+- status: confirmado
+- resumo: Quick actions em dashboard e itens em bottom-nav são `<button>` sem `type="button"`, risco de comportamento imprevisível em forms.
+- evidencia.arquivo_ou_area: apps/web/src/app/(dashboard)/page.tsx:41-56; apps/web/src/components/bottom-nav.tsx:36
+- impacto.tecnico: Possível submit acidental
+
+### [baixo] ACH-022 — Feedback `hover/active` pouco expressivo em cards/botões de ação
+
+- dominio: ui-ux-fluxos
+- run: 2026-04-19_08-47-24 (finalized)
+- categoria: feedback
+- status: confirmado
+- resumo: Dashboard define `hover:bg-[--color-primary-surface-hover]` mas não usa `active:scale-95` ou ripple. Sem retorno tátil.
+- evidencia.arquivo_ou_area: apps/web/src/app/(dashboard)/page.tsx:41-56
+- impacto.tecnico: Sensação de "nada aconteceu
+
+### [baixo] ACH-023 — Feedback de aplicação de desconto VIP ausente
+
+- dominio: ui-ux-fluxos
+- run: 2026-04-19_08-47-24 (finalized)
+- categoria: fluxo-e-feedback
+- status: confirmado
+- resumo: Mobile `new-sale-screen.tsx` menciona "Cliente VIP" mas não exibe toast/alert com "Desconto VIP (5%) aplicado" ao confirmar.
+- evidencia.arquivo_ou_area: apps/mobile/src/screens/new-sale-screen.tsx:56-59
+- impacto.tecnico: Consultora não vê benefício aplicado
+
+### [baixo] ACH-025 — Ausência de empty/error state padronizado para upload (se/ quando houver)
+
+- dominio: ui-ux-fluxos
+- run: 2026-04-19_08-47-24 (finalized)
+- categoria: fluxo
+- status: hipotese
+- resumo: Não encontramos upload ativo; se feature de foto/documento aparecer, será necessário tratamento de tamanho/tipo com feedback inline.
+- evidencia.arquivo_ou_area: não encontrado em análise (hipótese)
+- impacto.tecnico: Se ativado sem validação, timeouts e erros obscuros
 
 ### [informativo] ACH-021 — Importações relativas profundas em vez dos aliases `@wbc/*`
 

@@ -7,6 +7,7 @@ import {
   createTimeoutSignal,
   whatsappRetryPolicy,
   whatsappTimeoutPolicy,
+  requireEnv,
 } from "@wbc/shared";
 
 const WHATSAPP_API_URL = "https://graph.facebook.com/v18.0";
@@ -33,8 +34,16 @@ export class WhatsAppN2Adapter implements WhatsAppPort {
   private readonly timeoutPolicy: TimeoutPolicy;
 
   constructor(policies: { retry?: RetryPolicy; timeout?: TimeoutPolicy } = {}) {
-    this.apiToken = process.env.WHATSAPP_API_TOKEN ?? "";
-    this.phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID ?? "";
+    // In production, fail fast if credentials are missing rather than letting
+    // requests reach Meta with empty Bearer tokens (which return 401 silently
+    // and look like flaky integration).
+    if (process.env.NODE_ENV === "production") {
+      this.apiToken = requireEnv("WHATSAPP_API_TOKEN");
+      this.phoneNumberId = requireEnv("WHATSAPP_PHONE_NUMBER_ID");
+    } else {
+      this.apiToken = process.env.WHATSAPP_API_TOKEN ?? "";
+      this.phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID ?? "";
+    }
     this.retryPolicy = policies.retry ?? whatsappRetryPolicy;
     this.timeoutPolicy = policies.timeout ?? whatsappTimeoutPolicy;
   }

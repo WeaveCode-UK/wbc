@@ -1,18 +1,18 @@
 {
   "schema_version": "2.1",
-  "generated_at": "2026-04-19T08:03:00.585Z",
-  "total": 208,
-  "total_runs": 10,
+  "generated_at": "2026-04-19T20:00:03.564Z",
+  "total": 224,
+  "total_runs": 11,
   "distribution": {
     "by_severity": {
       "critico": 10,
-      "alto": 71,
-      "medio": 96,
-      "baixo": 30,
-      "informativo": 1
+      "alto": 77,
+      "medio": 102,
+      "baixo": 33,
+      "informativo": 2
     },
     "by_status": {
-      "confirmado": 181,
+      "confirmado": 197,
       "aberto": 13,
       "null": 13,
       "hipotese": 1
@@ -24,6 +24,7 @@
       "confiabilidade-resiliencia": 17,
       "dados-persistencia": 22,
       "seguranca": 28,
+      "infraestrutura-deploy-config": 16,
       "observabilidade-operacao": 15,
       "performance-escalabilidade": 30,
       "testes-qualidade": 16,
@@ -31,7 +32,7 @@
     }
   },
   "progress": {
-    "last_updated": "2026-04-19T08:03:00.584Z",
+    "last_updated": "2026-04-19T20:00:03.560Z",
     "domains": {
       "arquitetura": {
         "domain": "arquitetura",
@@ -159,11 +160,11 @@
         "run_id_atual": null,
         "fase_atual": "none",
         "fases_concluidas": 0,
-        "fases_totais": 5,
+        "fases_totais": 1,
         "percentual": 0,
-        "ultima_atualizacao": "none",
-        "ultima_run_finalizada": null,
-        "total_runs": 0
+        "ultima_atualizacao": "2026-04-19",
+        "ultima_run_finalizada": "2026-04-19_09-03-12",
+        "total_runs": 1
       },
       "compliance-privacidade": {
         "domain": "compliance-privacidade",
@@ -219,7 +220,7 @@
       "dominios_blocked": 0,
       "dominios_ready_for_finalize": 0,
       "dominios_not_started": 15,
-      "dominios_com_historico": 10
+      "dominios_com_historico": 11
     }
   },
   "runs_history": [
@@ -313,6 +314,24 @@
       "distribution_by_status": {
         "confirmado": 9,
         "null": 13
+      }
+    },
+    {
+      "domain": "infraestrutura-deploy-config",
+      "run_id": "2026-04-19_09-03-12",
+      "run_state": "finalized",
+      "iniciado_em": "2026-04-19 09:03:12",
+      "finalizado_em": "2026-04-19 09:15:00",
+      "avaliacao": null,
+      "total_achados": 16,
+      "distribution_by_severity": {
+        "alto": 6,
+        "medio": 6,
+        "baixo": 3,
+        "informativo": 1
+      },
+      "distribution_by_status": {
+        "confirmado": 16
       }
     },
     {
@@ -1170,6 +1189,126 @@
         "negocio": "Continuidade em incidente comprometida"
       },
       "acao_sugerida": "Cron; upload remoto; drill mensal; documentar RPO≤1h e RTO≤4h",
+      "prioridade": "alta"
+    },
+    {
+      "domain": "infraestrutura-deploy-config",
+      "runId": "2026-04-19_09-03-12",
+      "runState": "finalized",
+      "id": "ACH-001",
+      "titulo": "Pipeline CI/CD não constrói nem publica imagens OCI",
+      "severidade": "alto",
+      "categoria": "pipeline",
+      "status": "confirmado",
+      "resumo": "`.github/workflows/ci.yml` roda apenas lint e testes. Imagens `web` e `worker` são construídas manualmente na VM via `docker compose build`. Não há build reprodutível em CI, sem SBOM nem scanning automático.",
+      "evidencia": {
+        "arquivo_ou_area": ".github/workflows/ci.yml"
+      },
+      "impacto": {
+        "tecnico": "Sem trilha de auditoria das imagens; sem registro de quem buildou; sem imagens imutáveis versionadas",
+        "negocio": "Deploy inconsistente; rollback difícil"
+      },
+      "acao_sugerida": "Adicionar job que faz `docker buildx` com tags `sha`, `semver` e push para GHCR; rodar Trivy/Grype; exportar SBOM (CycloneDX/Syft); assinar com Sigstore (cosign) opcionalmente",
+      "prioridade": "alta"
+    },
+    {
+      "domain": "infraestrutura-deploy-config",
+      "runId": "2026-04-19_09-03-12",
+      "runState": "finalized",
+      "id": "ACH-002",
+      "titulo": "Sem Infrastructure-as-Code — deploy via bash imperativo",
+      "severidade": "alto",
+      "categoria": "infraestrutura",
+      "status": "confirmado",
+      "resumo": "`deploy/deploy.sh` e Docker Compose estático cumprem o papel, mas não há Terraform/Pulumi nem estado versionado. Reconstrução do ambiente depende de manual + ordem correta de comandos.",
+      "evidencia": {
+        "arquivo_ou_area": "deploy/deploy.sh; ausência de `infra/terraform`, `infra/pulumi`"
+      },
+      "impacto": {
+        "tecnico": "Onboarding de novo ambiente trabalhoso e sujeito a drift",
+        "negocio": "DR caro; migração de provedor custosa"
+      },
+      "acao_sugerida": "Migrar para Terraform (se cloud homogêneo) ou Pulumi; versionar no repo; CI de `plan` em PR",
+      "prioridade": "alta"
+    },
+    {
+      "domain": "infraestrutura-deploy-config",
+      "runId": "2026-04-19_09-03-12",
+      "runState": "finalized",
+      "id": "ACH-003",
+      "titulo": "Backups apenas locais — sem replicação off-host/off-site",
+      "severidade": "alto",
+      "categoria": "dr",
+      "status": "confirmado",
+      "resumo": "`deploy/backup/backup.sh` grava dumps em `/backups/` na mesma VM. Se o host falhar (disco, SO, acesso), todos os backups são perdidos.",
+      "evidencia": {
+        "arquivo_ou_area": "deploy/backup/backup.sh:10; docs/DEPLOYMENT.md"
+      },
+      "impacto": {
+        "tecnico": "DR inviável para falha total de host",
+        "negocio": "Perda permanente de dados possível"
+      },
+      "acao_sugerida": "Ao final do backup, `aws s3 cp` (ou `mc cp`) para bucket remoto com versionamento e lifecycle; chaves IAM com escopo mínimo (cross-ref seguranca/ACH-016)",
+      "prioridade": "alta"
+    },
+    {
+      "domain": "infraestrutura-deploy-config",
+      "runId": "2026-04-19_09-03-12",
+      "runState": "finalized",
+      "id": "ACH-004",
+      "titulo": "DR documentado em placeholder — RTO/RPO sem validação nem runbook",
+      "severidade": "alto",
+      "categoria": "dr",
+      "status": "confirmado",
+      "resumo": "`docs/DEPLOYMENT.md` sugere RTO ≤ 4 h e RPO ≤ 15 min como \"pendente validação humana\". Não há runbook por cenário (disk full, DB corruption, VM down, Redis loss).",
+      "evidencia": {
+        "arquivo_ou_area": "docs/DEPLOYMENT.md:65-75"
+      },
+      "impacto": {
+        "tecnico": "Tempo de resposta a incidente indeterminado",
+        "negocio": "Sem contrato de continuidade"
+      },
+      "acao_sugerida": "Formalizar RTO/RPO com stakeholders; criar `docs/dr/{disk-full,db-corrupt,vm-down,redis-loss}.md`; validar em drill mensal (cross-ref dados-persistencia/ACH-018)",
+      "prioridade": "alta"
+    },
+    {
+      "domain": "infraestrutura-deploy-config",
+      "runId": "2026-04-19_09-03-12",
+      "runState": "finalized",
+      "id": "ACH-005",
+      "titulo": "Sem `required_status_checks` / branch protection no main",
+      "severidade": "alto",
+      "categoria": "pipeline-e-governanca",
+      "status": "confirmado",
+      "resumo": "CI roda, mas nenhum gate impede merge com CI falhando. Sem `.github/CODEOWNERS` nem required reviews (cross-ref seguranca/ACH-017).",
+      "evidencia": {
+        "arquivo_ou_area": ".github/ (sem CODEOWNERS); GitHub branch protection não verificável estaticamente, mas ausência de artefatos aponta para desativação"
+      },
+      "impacto": {
+        "tecnico": "Código com erro entra em main",
+        "negocio": "Risco operacional direto"
+      },
+      "acao_sugerida": "Habilitar branch protection: `required_status_checks` (lint, type-check, test, arch:check), ≥1 review, dismiss stale; criar CODEOWNERS",
+      "prioridade": "alta"
+    },
+    {
+      "domain": "infraestrutura-deploy-config",
+      "runId": "2026-04-19_09-03-12",
+      "runState": "finalized",
+      "id": "ACH-012",
+      "titulo": "Migrations manuais (`packages/db/prisma/migrations/manual/*`) fora do workflow Prisma (cross-ref dados-persistencia/ACH-015)",
+      "severidade": "alto",
+      "categoria": "deploy-e-dados",
+      "status": "confirmado",
+      "resumo": "`001_rls_policies.sql`, `auth_v2_schema.sql` etc. não entram em `prisma migrate deploy`. Um ambiente novo pode subir sem RLS.",
+      "evidencia": {
+        "arquivo_ou_area": "packages/db/prisma/migrations/manual/*; deploy/deploy.sh (chama `prisma migrate deploy`)"
+      },
+      "impacto": {
+        "tecnico": "Drift de schema entre ambientes",
+        "negocio": "Segurança reduzida em produção nova"
+      },
+      "acao_sugerida": "Converter manuais para migrations Prisma nomeadas; ou executar `psql -f manual/*.sql` explicitamente em `deploy.sh`; gate de CI que falhe se `prisma migrate status` detectar drift",
       "prioridade": "alta"
     },
     {
@@ -2998,6 +3137,126 @@
       "prioridade": "baixa"
     },
     {
+      "domain": "infraestrutura-deploy-config",
+      "runId": "2026-04-19_09-03-12",
+      "runState": "finalized",
+      "id": "ACH-006",
+      "titulo": "Imagens de observabilidade usando tag `:latest`",
+      "severidade": "medio",
+      "categoria": "container",
+      "status": "confirmado",
+      "resumo": "`docker-compose.prod.yml` declara `prom/prometheus:latest` e `grafana/grafana:latest`. Sem pinagem, deploys futuros podem puxar versões incompatíveis.",
+      "evidencia": {
+        "arquivo_ou_area": "docker-compose.prod.yml:125,138"
+      },
+      "impacto": {
+        "tecnico": "Drift entre ambientes",
+        "negocio": "Incidente após upgrade silencioso"
+      },
+      "acao_sugerida": "Fixar versões semver (`prom/prometheus:v2.52.0`, `grafana/grafana:11.1.0`); Dependabot para docker (já suporta)",
+      "prioridade": "media"
+    },
+    {
+      "domain": "infraestrutura-deploy-config",
+      "runId": "2026-04-19_09-03-12",
+      "runState": "finalized",
+      "id": "ACH-008",
+      "titulo": "Sem sistema de feature flags — rollouts binários",
+      "severidade": "medio",
+      "categoria": "deploy-e-evolucao",
+      "status": "confirmado",
+      "resumo": "Nenhuma integração com Unleash/Growthbook/LaunchDarkly nem mecanismo env-based estruturado. Features entram \"all or nothing\".",
+      "evidencia": {
+        "arquivo_ou_area": "ausência em package.json; sem `feature-flag.ts` no packages/shared"
+      },
+      "impacto": {
+        "tecnico": "Rollback = redeploy",
+        "negocio": "Risco maior em experimentos"
+      },
+      "acao_sugerida": "Avaliar Growthbook (open-source) ou Unleash; wrapper em `packages/shared/src/feature-flags.ts` com fallback para env",
+      "prioridade": "media"
+    },
+    {
+      "domain": "infraestrutura-deploy-config",
+      "runId": "2026-04-19_09-03-12",
+      "runState": "finalized",
+      "id": "ACH-009",
+      "titulo": "Health check pós-deploy não é automatizado",
+      "severidade": "medio",
+      "categoria": "deploy-e-operacao",
+      "status": "confirmado",
+      "resumo": "`deploy/deploy.sh` termina com `docker compose ps`. Não aguarda readiness real (`/api/trpc/health.ready`) antes de declarar sucesso.",
+      "evidencia": {
+        "arquivo_ou_area": "deploy/deploy.sh:120-130"
+      },
+      "impacto": {
+        "tecnico": "Deploy pode parecer ok com app degradado",
+        "negocio": "Incidente silencioso"
+      },
+      "acao_sugerida": "Adicionar polling `for i in {1..30}; do curl -fsS http://localhost:3000/api/trpc/health.ready && break; sleep 2; done`; falhar script se não ficar ready",
+      "prioridade": "media"
+    },
+    {
+      "domain": "infraestrutura-deploy-config",
+      "runId": "2026-04-19_09-03-12",
+      "runState": "finalized",
+      "id": "ACH-010",
+      "titulo": "Restauração de backup não é testada automaticamente (sem drill)",
+      "severidade": "medio",
+      "categoria": "dr",
+      "status": "confirmado",
+      "resumo": "`restore.sh` existe mas sem job periódico que restaure um dump em container isolado para validar integridade.",
+      "evidencia": {
+        "arquivo_ou_area": "deploy/backup/restore.sh; ausência de workflow `.github/workflows/dr-drill.yml`"
+      },
+      "impacto": {
+        "tecnico": "Corrupção só é descoberta em incidente real",
+        "negocio": "DR pode falhar quando mais precisa"
+      },
+      "acao_sugerida": "Workflow GitHub Actions semanal: baixar último backup, restaurar em Postgres efêmero, comparar row counts contra snapshot esperado",
+      "prioridade": "media"
+    },
+    {
+      "domain": "infraestrutura-deploy-config",
+      "runId": "2026-04-19_09-03-12",
+      "runState": "finalized",
+      "id": "ACH-011",
+      "titulo": "Ambientes dev/staging/prod não têm compose overlay (`docker-compose.override.yml`)",
+      "severidade": "medio",
+      "categoria": "ambientes",
+      "status": "confirmado",
+      "resumo": "`docker-compose.yml` (dev) e `docker-compose.prod.yml` (prod). Staging inexistente. Sem overlays (`-f base -f staging.yml`) dificultando variações e aumentando drift entre dev/prod.",
+      "evidencia": {
+        "arquivo_ou_area": "docker-compose.yml; docker-compose.prod.yml"
+      },
+      "impacto": {
+        "tecnico": "Drift silencioso entre ambientes",
+        "negocio": "works on dev\" rotineiro"
+      },
+      "acao_sugerida": "Adotar `docker-compose.base.yml` + overlays por ambiente; criar ambiente `staging` com dados sintéticos e deploy automático",
+      "prioridade": "media"
+    },
+    {
+      "domain": "infraestrutura-deploy-config",
+      "runId": "2026-04-19_09-03-12",
+      "runState": "finalized",
+      "id": "ACH-015",
+      "titulo": "Secrets de build podem aparecer em cache de imagem (ARG DATABASE_URL)",
+      "severidade": "medio",
+      "categoria": "seguranca-de-build",
+      "status": "confirmado",
+      "resumo": "Dockerfiles recebem `DATABASE_URL` via `ARG` para `prisma generate`. Ainda que não persista na camada final, fica exposto no histórico de build-kit se não usar `--secret`.",
+      "evidencia": {
+        "arquivo_ou_area": "deploy/Dockerfile.web, deploy/Dockerfile.worker (ARG + ENV no builder)"
+      },
+      "impacto": {
+        "tecnico": "Credenciais em layer cache",
+        "negocio": "Leakage em mirror de registry"
+      },
+      "acao_sugerida": "Migrar para `RUN --mount=type=secret,id=database_url`; passar via buildx `--secret id=database_url,src=...`",
+      "prioridade": "media"
+    },
+    {
       "domain": "observabilidade-operacao",
       "runId": "2026-04-19_07-51-34",
       "runState": "finalized",
@@ -4293,6 +4552,66 @@
       "prioridade": "baixa"
     },
     {
+      "domain": "infraestrutura-deploy-config",
+      "runId": "2026-04-19_09-03-12",
+      "runState": "finalized",
+      "id": "ACH-007",
+      "titulo": "`turbo.json globalEnv` incompleto — SENTRY_DSN, GOOGLE_*, WHATSAPP_APP_SECRET ausentes",
+      "severidade": "baixo",
+      "categoria": "config",
+      "status": "confirmado",
+      "resumo": "Lista declarada em `turbo.json` não inclui variáveis críticas; cache Turbo pode ficar inválido silenciosamente ao trocar SDR_DSN/OAuth.",
+      "evidencia": {
+        "arquivo_ou_area": "turbo.json:4-14"
+      },
+      "impacto": {
+        "tecnico": "Cache divergência",
+        "negocio": "Baixo"
+      },
+      "acao_sugerida": "Adicionar `SENTRY_DSN`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `WHATSAPP_APP_SECRET`, `OTEL_EXPORTER_OTLP_ENDPOINT`",
+      "prioridade": "baixa"
+    },
+    {
+      "domain": "infraestrutura-deploy-config",
+      "runId": "2026-04-19_09-03-12",
+      "runState": "finalized",
+      "id": "ACH-013",
+      "titulo": "SSL/Certbot automation sem retry-safe idempotência",
+      "severidade": "baixo",
+      "categoria": "deploy",
+      "status": "confirmado",
+      "resumo": "`deploy/deploy.sh` chama certbot em runs subsequentes; se certificado já existe pode falhar. Sem flag `--keep-until-expiring`.",
+      "evidencia": {
+        "arquivo_ou_area": "deploy/deploy.sh (seção ssl)"
+      },
+      "impacto": {
+        "tecnico": "Deploy repetido falha; operador precisa ignorar manualmente",
+        "negocio": "Fricção operacional"
+      },
+      "acao_sugerida": "`certbot certonly --keep-until-expiring` ou check prévio com `certbot certificates`",
+      "prioridade": "baixa"
+    },
+    {
+      "domain": "infraestrutura-deploy-config",
+      "runId": "2026-04-19_09-03-12",
+      "runState": "finalized",
+      "id": "ACH-014",
+      "titulo": "Sem monitoramento de deploy (deployment events no Sentry/Grafana)",
+      "severidade": "baixo",
+      "categoria": "deploy-e-observabilidade",
+      "status": "confirmado",
+      "resumo": "Cada deploy não envia evento a Sentry (`release:create`) nem marker de Grafana (`/api/annotations`), dificultando correlação entre deploy e incidente.",
+      "evidencia": {
+        "arquivo_ou_area": "deploy/deploy.sh (sem integração)"
+      },
+      "impacto": {
+        "tecnico": "Regressões difíceis de correlacionar",
+        "negocio": "MTTR alto"
+      },
+      "acao_sugerida": "Adicionar `curl -X POST $SENTRY_RELEASE_URL` após build; `/api/annotations` Grafana com tag `deploy`",
+      "prioridade": "baixa"
+    },
+    {
       "domain": "observabilidade-operacao",
       "runId": "2026-04-19_07-51-34",
       "runState": "finalized",
@@ -4653,6 +4972,26 @@
       },
       "acao_sugerida": "Regra ESLint `no-restricted-imports` barrando `../../../..`; normalizar para `@wbc/*`",
       "prioridade": "baixa"
+    },
+    {
+      "domain": "infraestrutura-deploy-config",
+      "runId": "2026-04-19_09-03-12",
+      "runState": "finalized",
+      "id": "ACH-016",
+      "titulo": "Cross-ref reforços não duplicados",
+      "severidade": "informativo",
+      "categoria": "cross-ref",
+      "status": "confirmado",
+      "resumo": "Achados registrados em outros domínios que impactam diretamente este domínio e que não foram duplicados aqui: seguranca/ACH-013 (WHATSAPP_APP_SECRET), seguranca/ACH-014 (Grafana fallback admin), seguranca/ACH-015 (secret scanning), seguranca/ACH-016 (secret manager), seguranca/ACH-025 (role Postgres), seguranca/ACH-026 (hardening runtime), confiabilidade/ACH-005 (stop_grace_period). Todos são itens de infra/deploy a considerar na execução de remediação.",
+      "evidencia": {
+        "arquivo_ou_area": "cross-ref com Auditoria/seguranca/runs/2026-04-18_22-06-18/achados.md e Auditoria/confiabilidade-resiliencia/runs/2026-04-19_07-38-46/achados.md"
+      },
+      "impacto": {
+        "tecnico": "Priorização conjunta no backlog de infra",
+        "negocio": "Não criar débito por esquecer itens já documentados"
+      },
+      "acao_sugerida": "Incluir no plano de remediação junto com ACH-001..015 deste domínio",
+      "prioridade": "informativo"
     }
   ]
 }

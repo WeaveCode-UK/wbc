@@ -1,28 +1,28 @@
 # Relatório Consolidado de Achados — Framework de Auditoria WeaveCode
 
-- gerado_em: 2026-04-19T08:03:00.584Z
-- total_achados: 208
+- gerado_em: 2026-04-19T20:00:03.564Z
+- total_achados: 224
 - dominios_em_progresso: 0
 - dominios_ready_for_finalize: 0
 - dominios_blocked: 0
-- dominios_com_historico: 10
+- dominios_com_historico: 11
 
 ## Distribuição por severidade
 
 | Severidade | Total |
 |---|---|
 | critico | 10 |
-| alto | 71 |
-| medio | 96 |
-| baixo | 30 |
-| informativo | 1 |
+| alto | 77 |
+| medio | 102 |
+| baixo | 33 |
+| informativo | 2 |
 
 ## Distribuição por status
 
 | Status | Total |
 |---|---|
 | aberto | 13 |
-| confirmado | 181 |
+| confirmado | 197 |
 | mitigado | 0 |
 | resolvido | 0 |
 | aceito | 0 |
@@ -42,6 +42,7 @@
 | observabilidade-operacao | 15 |
 | testes-qualidade | 16 |
 | ui-ux-fluxos | 25 |
+| infraestrutura-deploy-config | 16 |
 
 ## Achados ordenados por severidade
 
@@ -410,6 +411,66 @@
 - status: desconhecido
 - evidencia.arquivo_ou_area: deploy/backup/backup.sh, restore.sh; docs/DEPLOYMENT.md:65-76
 - impacto.tecnico: RPO/RTO desconhecidos
+
+### [alto] ACH-001 — Pipeline CI/CD não constrói nem publica imagens OCI
+
+- dominio: infraestrutura-deploy-config
+- run: 2026-04-19_09-03-12 (finalized)
+- categoria: pipeline
+- status: confirmado
+- resumo: `.github/workflows/ci.yml` roda apenas lint e testes. Imagens `web` e `worker` são construídas manualmente na VM via `docker compose build`. Não há build reprodutível em CI, sem SBOM nem scanning automático.
+- evidencia.arquivo_ou_area: .github/workflows/ci.yml
+- impacto.tecnico: Sem trilha de auditoria das imagens; sem registro de quem buildou; sem imagens imutáveis versionadas
+
+### [alto] ACH-002 — Sem Infrastructure-as-Code — deploy via bash imperativo
+
+- dominio: infraestrutura-deploy-config
+- run: 2026-04-19_09-03-12 (finalized)
+- categoria: infraestrutura
+- status: confirmado
+- resumo: `deploy/deploy.sh` e Docker Compose estático cumprem o papel, mas não há Terraform/Pulumi nem estado versionado. Reconstrução do ambiente depende de manual + ordem correta de comandos.
+- evidencia.arquivo_ou_area: deploy/deploy.sh; ausência de `infra/terraform`, `infra/pulumi`
+- impacto.tecnico: Onboarding de novo ambiente trabalhoso e sujeito a drift
+
+### [alto] ACH-003 — Backups apenas locais — sem replicação off-host/off-site
+
+- dominio: infraestrutura-deploy-config
+- run: 2026-04-19_09-03-12 (finalized)
+- categoria: dr
+- status: confirmado
+- resumo: `deploy/backup/backup.sh` grava dumps em `/backups/` na mesma VM. Se o host falhar (disco, SO, acesso), todos os backups são perdidos.
+- evidencia.arquivo_ou_area: deploy/backup/backup.sh:10; docs/DEPLOYMENT.md
+- impacto.tecnico: DR inviável para falha total de host
+
+### [alto] ACH-004 — DR documentado em placeholder — RTO/RPO sem validação nem runbook
+
+- dominio: infraestrutura-deploy-config
+- run: 2026-04-19_09-03-12 (finalized)
+- categoria: dr
+- status: confirmado
+- resumo: `docs/DEPLOYMENT.md` sugere RTO ≤ 4 h e RPO ≤ 15 min como "pendente validação humana". Não há runbook por cenário (disk full, DB corruption, VM down, Redis loss).
+- evidencia.arquivo_ou_area: docs/DEPLOYMENT.md:65-75
+- impacto.tecnico: Tempo de resposta a incidente indeterminado
+
+### [alto] ACH-005 — Sem `required_status_checks` / branch protection no main
+
+- dominio: infraestrutura-deploy-config
+- run: 2026-04-19_09-03-12 (finalized)
+- categoria: pipeline-e-governanca
+- status: confirmado
+- resumo: CI roda, mas nenhum gate impede merge com CI falhando. Sem `.github/CODEOWNERS` nem required reviews (cross-ref seguranca/ACH-017).
+- evidencia.arquivo_ou_area: .github/ (sem CODEOWNERS); GitHub branch protection não verificável estaticamente, mas ausência de artefatos aponta para desativação
+- impacto.tecnico: Código com erro entra em main
+
+### [alto] ACH-012 — Migrations manuais (`packages/db/prisma/migrations/manual/*`) fora do workflow Prisma (cross-ref dados-persistencia/ACH-015)
+
+- dominio: infraestrutura-deploy-config
+- run: 2026-04-19_09-03-12 (finalized)
+- categoria: deploy-e-dados
+- status: confirmado
+- resumo: `001_rls_policies.sql`, `auth_v2_schema.sql` etc. não entram em `prisma migrate deploy`. Um ambiente novo pode subir sem RLS.
+- evidencia.arquivo_ou_area: packages/db/prisma/migrations/manual/*; deploy/deploy.sh (chama `prisma migrate deploy`)
+- impacto.tecnico: Drift de schema entre ambientes
 
 ### [alto] ACH-001 — Prometheus coleta apenas `web:3000` — API e Worker sem `/metrics` expostos
 
@@ -1292,6 +1353,66 @@
 - evidencia.arquivo_ou_area: schema.prisma (Referral)
 - impacto.tecnico: Queries precisam IS NOT NULL; dangling referrals
 
+### [medio] ACH-006 — Imagens de observabilidade usando tag `:latest`
+
+- dominio: infraestrutura-deploy-config
+- run: 2026-04-19_09-03-12 (finalized)
+- categoria: container
+- status: confirmado
+- resumo: `docker-compose.prod.yml` declara `prom/prometheus:latest` e `grafana/grafana:latest`. Sem pinagem, deploys futuros podem puxar versões incompatíveis.
+- evidencia.arquivo_ou_area: docker-compose.prod.yml:125,138
+- impacto.tecnico: Drift entre ambientes
+
+### [medio] ACH-008 — Sem sistema de feature flags — rollouts binários
+
+- dominio: infraestrutura-deploy-config
+- run: 2026-04-19_09-03-12 (finalized)
+- categoria: deploy-e-evolucao
+- status: confirmado
+- resumo: Nenhuma integração com Unleash/Growthbook/LaunchDarkly nem mecanismo env-based estruturado. Features entram "all or nothing".
+- evidencia.arquivo_ou_area: ausência em package.json; sem `feature-flag.ts` no packages/shared
+- impacto.tecnico: Rollback = redeploy
+
+### [medio] ACH-009 — Health check pós-deploy não é automatizado
+
+- dominio: infraestrutura-deploy-config
+- run: 2026-04-19_09-03-12 (finalized)
+- categoria: deploy-e-operacao
+- status: confirmado
+- resumo: `deploy/deploy.sh` termina com `docker compose ps`. Não aguarda readiness real (`/api/trpc/health.ready`) antes de declarar sucesso.
+- evidencia.arquivo_ou_area: deploy/deploy.sh:120-130
+- impacto.tecnico: Deploy pode parecer ok com app degradado
+
+### [medio] ACH-010 — Restauração de backup não é testada automaticamente (sem drill)
+
+- dominio: infraestrutura-deploy-config
+- run: 2026-04-19_09-03-12 (finalized)
+- categoria: dr
+- status: confirmado
+- resumo: `restore.sh` existe mas sem job periódico que restaure um dump em container isolado para validar integridade.
+- evidencia.arquivo_ou_area: deploy/backup/restore.sh; ausência de workflow `.github/workflows/dr-drill.yml`
+- impacto.tecnico: Corrupção só é descoberta em incidente real
+
+### [medio] ACH-011 — Ambientes dev/staging/prod não têm compose overlay (`docker-compose.override.yml`)
+
+- dominio: infraestrutura-deploy-config
+- run: 2026-04-19_09-03-12 (finalized)
+- categoria: ambientes
+- status: confirmado
+- resumo: `docker-compose.yml` (dev) e `docker-compose.prod.yml` (prod). Staging inexistente. Sem overlays (`-f base -f staging.yml`) dificultando variações e aumentando drift entre dev/prod.
+- evidencia.arquivo_ou_area: docker-compose.yml; docker-compose.prod.yml
+- impacto.tecnico: Drift silencioso entre ambientes
+
+### [medio] ACH-015 — Secrets de build podem aparecer em cache de imagem (ARG DATABASE_URL)
+
+- dominio: infraestrutura-deploy-config
+- run: 2026-04-19_09-03-12 (finalized)
+- categoria: seguranca-de-build
+- status: confirmado
+- resumo: Dockerfiles recebem `DATABASE_URL` via `ARG` para `prisma generate`. Ainda que não persista na camada final, fica exposto no histórico de build-kit se não usar `--secret`.
+- evidencia.arquivo_ou_area: deploy/Dockerfile.web, deploy/Dockerfile.worker (ARG + ENV no builder)
+- impacto.tecnico: Credenciais em layer cache
+
 ### [medio] ACH-008 — Grafana sem datasources/dashboards provisionados
 
 - dominio: observabilidade-operacao
@@ -1921,6 +2042,36 @@
 - evidencia.arquivo_ou_area: docker-compose.prod.yml (Postgres sem extension); ausência de script de coleta
 - impacto.tecnico: Decisões de índice no escuro
 
+### [baixo] ACH-007 — `turbo.json globalEnv` incompleto — SENTRY_DSN, GOOGLE_*, WHATSAPP_APP_SECRET ausentes
+
+- dominio: infraestrutura-deploy-config
+- run: 2026-04-19_09-03-12 (finalized)
+- categoria: config
+- status: confirmado
+- resumo: Lista declarada em `turbo.json` não inclui variáveis críticas; cache Turbo pode ficar inválido silenciosamente ao trocar SDR_DSN/OAuth.
+- evidencia.arquivo_ou_area: turbo.json:4-14
+- impacto.tecnico: Cache divergência
+
+### [baixo] ACH-013 — SSL/Certbot automation sem retry-safe idempotência
+
+- dominio: infraestrutura-deploy-config
+- run: 2026-04-19_09-03-12 (finalized)
+- categoria: deploy
+- status: confirmado
+- resumo: `deploy/deploy.sh` chama certbot em runs subsequentes; se certificado já existe pode falhar. Sem flag `--keep-until-expiring`.
+- evidencia.arquivo_ou_area: deploy/deploy.sh (seção ssl)
+- impacto.tecnico: Deploy repetido falha; operador precisa ignorar manualmente
+
+### [baixo] ACH-014 — Sem monitoramento de deploy (deployment events no Sentry/Grafana)
+
+- dominio: infraestrutura-deploy-config
+- run: 2026-04-19_09-03-12 (finalized)
+- categoria: deploy-e-observabilidade
+- status: confirmado
+- resumo: Cada deploy não envia evento a Sentry (`release:create`) nem marker de Grafana (`/api/annotations`), dificultando correlação entre deploy e incidente.
+- evidencia.arquivo_ou_area: deploy/deploy.sh (sem integração)
+- impacto.tecnico: Regressões difíceis de correlacionar
+
 ### [baixo] ACH-013 — Nível de log `info` em produção amplifica volume
 
 - dominio: observabilidade-operacao
@@ -2096,3 +2247,13 @@
 - resumo: Alguns routers importam via `../../../../packages/business/...` enquanto `tsconfig.json` define aliases `@wbc/*`.
 - evidencia.arquivo_ou_area: apps/api/src/routers/clients.ts:4-5 (imports relativos profundos)
 - impacto.tecnico: Baixo; quebra só em moves agressivos
+
+### [informativo] ACH-016 — Cross-ref reforços não duplicados
+
+- dominio: infraestrutura-deploy-config
+- run: 2026-04-19_09-03-12 (finalized)
+- categoria: cross-ref
+- status: confirmado
+- resumo: Achados registrados em outros domínios que impactam diretamente este domínio e que não foram duplicados aqui: seguranca/ACH-013 (WHATSAPP_APP_SECRET), seguranca/ACH-014 (Grafana fallback admin), seguranca/ACH-015 (secret scanning), seguranca/ACH-016 (secret manager), seguranca/ACH-025 (role Postgres), seguranca/ACH-026 (hardening runtime), confiabilidade/ACH-005 (stop_grace_period). Todos são itens de infra/deploy a considerar na execução de remediação.
+- evidencia.arquivo_ou_area: cross-ref com Auditoria/seguranca/runs/2026-04-18_22-06-18/achados.md e Auditoria/confiabilidade-resiliencia/runs/2026-04-19_07-38-46/achados.md
+- impacto.tecnico: Priorização conjunta no backlog de infra

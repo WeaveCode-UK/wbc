@@ -1,20 +1,20 @@
 # Relatório Consolidado de Achados — Framework de Auditoria WeaveCode
 
-- gerado_em: 2026-04-19T06:45:10.131Z
-- total_achados: 152
+- gerado_em: 2026-04-19T06:59:11.368Z
+- total_achados: 167
 - dominios_em_progresso: 0
 - dominios_ready_for_finalize: 0
 - dominios_blocked: 0
-- dominios_com_historico: 7
+- dominios_com_historico: 8
 
 ## Distribuição por severidade
 
 | Severidade | Total |
 |---|---|
 | critico | 10 |
-| alto | 54 |
-| medio | 69 |
-| baixo | 18 |
+| alto | 61 |
+| medio | 75 |
+| baixo | 20 |
 | informativo | 1 |
 
 ## Distribuição por status
@@ -22,7 +22,7 @@
 | Status | Total |
 |---|---|
 | aberto | 13 |
-| confirmado | 126 |
+| confirmado | 141 |
 | mitigado | 0 |
 | resolvido | 0 |
 | aceito | 0 |
@@ -39,6 +39,7 @@
 | dados-persistencia | 22 |
 | performance-escalabilidade | 30 |
 | confiabilidade-resiliencia | 17 |
+| observabilidade-operacao | 15 |
 
 ## Achados ordenados por severidade
 
@@ -407,6 +408,76 @@
 - status: desconhecido
 - evidencia.arquivo_ou_area: deploy/backup/backup.sh, restore.sh; docs/DEPLOYMENT.md:65-76
 - impacto.tecnico: RPO/RTO desconhecidos
+
+### [alto] ACH-001 — Prometheus coleta apenas `web:3000` — API e Worker sem `/metrics` expostos
+
+- dominio: observabilidade-operacao
+- run: 2026-04-19_07-51-34 (finalized)
+- categoria: metricas
+- status: confirmado
+- resumo: `deploy/prometheus.yml` tem apenas um scrape para a web. `apps/api/src/lib/metrics.ts` declara métricas mas não há rota `/metrics` servindo-as; o worker também não expõe. Resultado: zero observabilidade real sobre backend e processamento assíncrono.
+- evidencia.arquivo_ou_area: deploy/prometheus.yml; apps/api/src/lib/metrics.ts; apps/worker/src/* (sem `/metrics`)
+- impacto.tecnico: Alertas baseados em métricas são cegos para backend e worker
+
+### [alto] ACH-002 — OpenTelemetry e Sentry desacoplados — `traceId` não flui para logs/errors
+
+- dominio: observabilidade-operacao
+- run: 2026-04-19_07-51-34 (finalized)
+- categoria: correlacao
+- status: confirmado
+- resumo: `apps/api/src/lib/tracing.ts` faz auto-instrumentação, mas não injeta `traceId`/`spanId` no logger Pino e nem no contexto do Sentry. Logs emitem `requestId` próprio; Sentry não tem baggage. Correlação entre traces, logs e erros não funciona.
+- evidencia.arquivo_ou_area: apps/api/src/lib/{tracing,sentry}.ts; apps/api/src/trpc/trpc.ts; packages/shared logger
+- impacto.tecnico: Investigação de incidente exige triagem manual entre sistemas
+
+### [alto] ACH-003 — Logs contêm PII sem redação (phone, userId, email)
+
+- dominio: observabilidade-operacao
+- run: 2026-04-19_07-51-34 (finalized)
+- categoria: logs-e-pii
+- status: confirmado
+- resumo: `packages/shared/src/security-logger.ts` serializa `phone`, `userId` e `tenantId`. `apps/api/src/trpc/logging-middleware.ts` loga `tenantId`/`userId`/path. `apps/web/src/lib/auth.config.ts` loga email em falhas de login (cross-ref seguranca/ACH-019 e ACH-020).
+- evidencia.arquivo_ou_area: packages/shared/src/security-logger.ts; apps/api/src/trpc/logging-middleware.ts; apps/web/src/lib/auth.config.ts
+- impacto.tecnico: Retenção de PII em logs (Docker, Prometheus exemplars, Sentry)
+
+### [alto] ACH-004 — DLQ sem dashboard, alerta ou retry automático (reflexo em operação)
+
+- dominio: observabilidade-operacao
+- run: 2026-04-19_07-51-34 (finalized)
+- categoria: alerting-e-toil
+- status: confirmado
+- resumo: `apps/worker/src/processors/dlq-processor.ts` apenas loga. Sem métrica `dlq_depth`, sem alerta, sem retry exponencial. Toil manual para replay (cross-ref confiabilidade/ACH-006 e apis-integracoes/ACH-020).
+- evidencia.arquivo_ou_area: apps/worker/src/processors/dlq-processor.ts
+- impacto.tecnico: Falhas acumulam sem ação
+
+### [alto] ACH-005 — Sem métricas de infra (Prisma pool, Redis, BullMQ queue depth)
+
+- dominio: observabilidade-operacao
+- run: 2026-04-19_07-51-34 (finalized)
+- categoria: metricas
+- status: confirmado
+- resumo: `apps/api/src/lib/metrics.ts` registra apenas métricas de tRPC e erros de domínio. Falta `wbc_prisma_pool_size`, `wbc_redis_active_connections`, `wbc_bullmq_queue_depth{queue}`, `wbc_outbox_lag_ms`.
+- evidencia.arquivo_ou_area: apps/api/src/lib/metrics.ts; apps/worker/src/health-server.ts
+- impacto.tecnico: Detecção de saturação tardia
+
+### [alto] ACH-006 — Alertas Prometheus genéricos e sem Alertmanager / canais (Slack/PagerDuty)
+
+- dominio: observabilidade-operacao
+- run: 2026-04-19_07-51-34 (finalized)
+- categoria: alerting-e-toil
+- status: confirmado
+- resumo: `deploy/alerts.yml` define regras simples (HighErrorRate, SlowRequests, HighRequestRate) mas não há `alertmanager` no compose nem webhook/Slack/PagerDuty. Ninguém é notificado.
+- evidencia.arquivo_ou_area: deploy/alerts.yml; docker-compose.prod.yml (sem alertmanager); ausência de integrações
+- impacto.tecnico: Alertas disparam no vazio
+
+### [alto] ACH-007 — Sem SLIs/SLOs formais; alertas não são vinculados a contratos de SLA
+
+- dominio: observabilidade-operacao
+- run: 2026-04-19_07-51-34 (finalized)
+- categoria: slos
+- status: confirmado
+- resumo: Projeto carece de `docs/SLO.md` declarando latência-alvo, error budget, availability. Alertas são thresholds soltos. Cross-ref performance/ACH-001.
+- evidencia.arquivo_ou_area: ausência de docs/SLO.md; alerts.yml sem referência a SLA
+- impacto.tecnico: Priorização reativa
 
 ### [alto] ACH-001 — SLOs/SLIs não documentados; alertas Prometheus ausentes
 
@@ -1119,6 +1190,66 @@
 - evidencia.arquivo_ou_area: schema.prisma (Referral)
 - impacto.tecnico: Queries precisam IS NOT NULL; dangling referrals
 
+### [medio] ACH-008 — Grafana sem datasources/dashboards provisionados
+
+- dominio: observabilidade-operacao
+- run: 2026-04-19_07-51-34 (finalized)
+- categoria: dashboards
+- status: confirmado
+- resumo: Compose inclui container Grafana, mas sem `deploy/grafana/provisioning/` com datasources e JSON de dashboards. Mesmo problema já visto em performance/ACH-002; aqui reiterado pelo ângulo de operação.
+- evidencia.arquivo_ou_area: docker-compose.prod.yml; ausência de deploy/grafana/provisioning
+- impacto.tecnico: Onboarding e operação manuais
+
+### [medio] ACH-009 — Fluxos críticos (create/confirm sale, campanha, messaging) sem spans manuais
+
+- dominio: observabilidade-operacao
+- run: 2026-04-19_07-51-34 (finalized)
+- categoria: traces
+- status: confirmado
+- resumo: Apenas auto-instrumentação (http/db). Sem `tracer.startActiveSpan('createSale', ...)` em use-cases nem em handlers do worker. Diagnóstico de latência de domínio fica cego.
+- evidencia.arquivo_ou_area: apps/api/src/routers/sales.ts; apps/worker/src/processors/*.ts
+- impacto.tecnico: Traces cobrem borda, não domínio
+
+### [medio] ACH-010 — Health checks inconsistentes entre `api`, `web` e `worker`
+
+- dominio: observabilidade-operacao
+- run: 2026-04-19_07-51-34 (finalized)
+- categoria: health
+- status: confirmado
+- resumo: `apps/api/src/routers/health.ts` tem `live`/`ready` com checks de DB/Redis/outbox (bom). `apps/web/src/app/api/health/route.ts` faz apenas `SELECT 1` e não checa Redis. `apps/worker/src/health-server.ts` checa outbox lag mas não DLQ depth nem workers pausados.
+- evidencia.arquivo_ou_area: apps/api/src/routers/health.ts; apps/web/src/app/api/health/route.ts; apps/worker/src/health-server.ts
+- impacto.tecnico: Orquestrador recebe sinais divergentes
+
+### [medio] ACH-011 — `requestId` não propaga para outbox events nem para jobs BullMQ
+
+- dominio: observabilidade-operacao
+- run: 2026-04-19_07-51-34 (finalized)
+- categoria: correlacao
+- status: confirmado
+- resumo: tRPC middleware cria `requestId` e loga, mas o evento do outbox e os jobs BullMQ não carregam esse id. Correlação request → outbox → job é perdida.
+- evidencia.arquivo_ou_area: apps/api/src/trpc/logging-middleware.ts; apps/worker/src/processors/outbox-processor.ts; campaign-processor; packages/shared/src/events/event-publisher.ts
+- impacto.tecnico: Minha venda foi processada?" exige junção por timestamp
+
+### [medio] ACH-012 — Sentry sem `beforeSend` e sampling desbalanceado entre apps
+
+- dominio: observabilidade-operacao
+- run: 2026-04-19_07-51-34 (finalized)
+- categoria: exposicao-e-observabilidade
+- status: confirmado
+- resumo: `apps/api/src/lib/sentry.ts` com `tracesSampleRate=0.3`, worker com `0.1`, sem `beforeSend` removendo PII/auth headers (cross-ref seguranca/ACH-021).
+- evidencia.arquivo_ou_area: apps/api/src/lib/sentry.ts; apps/worker/src/index.ts; apps/web/src/lib/sentry.server.config.ts
+- impacto.tecnico: Sample inconsistente quebra correlação
+
+### [medio] ACH-015 — Sem runbooks por alerta nem playbooks de incidente
+
+- dominio: observabilidade-operacao
+- run: 2026-04-19_07-51-34 (finalized)
+- categoria: alerting-e-toil
+- status: confirmado
+- resumo: `deploy/RUNBOOKS.md` é checklist operacional genérico; sem playbooks por alerta (link `runbook_url` em cada alerta não existe).
+- evidencia.arquivo_ou_area: deploy/RUNBOOKS.md; deploy/alerts.yml
+- impacto.tecnico: On-call depende de conhecimento tácito
+
 ### [medio] ACH-002 — Grafana sem dashboards provisionados
 
 - dominio: performance-escalabilidade
@@ -1484,6 +1615,26 @@
 - status: desconhecido
 - evidencia.arquivo_ou_area: docker-compose.prod.yml (Postgres sem extension); ausência de script de coleta
 - impacto.tecnico: Decisões de índice no escuro
+
+### [baixo] ACH-013 — Nível de log `info` em produção amplifica volume
+
+- dominio: observabilidade-operacao
+- run: 2026-04-19_07-51-34 (finalized)
+- categoria: logs
+- status: confirmado
+- resumo: Outbox processor, campaign dispatch e messaging emitem `info` por operação. Volume cresce linear com carga; sem sampling.
+- evidencia.arquivo_ou_area: apps/api/src/lib/logger.ts (level info em prod); apps/worker/src/processors/*.ts
+- impacto.tecnico: Custo de stdout/Docker logs; cache/agregador saturado
+
+### [baixo] ACH-014 — Nginx sem access/error log estruturado
+
+- dominio: observabilidade-operacao
+- run: 2026-04-19_07-51-34 (finalized)
+- categoria: logs
+- status: confirmado
+- resumo: `deploy/nginx.conf` não define `log_format json_combined` nem volume de logs. Sem visibilidade de 4xx/5xx por rota, TLS handshake, latência Nginx.
+- evidencia.arquivo_ou_area: deploy/nginx.conf; docker-compose.prod.yml (sem volume para logs nginx)
+- impacto.tecnico: Abuso não detectado; latência de borda invisível
 
 ### [baixo] ACH-008 — Superjson em toda resposta sem limite de tamanho ou streaming
 

@@ -1,20 +1,20 @@
 # Relatório Consolidado de Achados — Framework de Auditoria WeaveCode
 
-- gerado_em: 2026-04-19T20:11:38.806Z
-- total_achados: 246
+- gerado_em: 2026-04-19T20:19:05.156Z
+- total_achados: 262
 - dominios_em_progresso: 0
 - dominios_ready_for_finalize: 0
 - dominios_blocked: 0
-- dominios_com_historico: 12
+- dominios_com_historico: 13
 
 ## Distribuição por severidade
 
 | Severidade | Total |
 |---|---|
-| critico | 15 |
-| alto | 87 |
-| medio | 107 |
-| baixo | 35 |
+| critico | 16 |
+| alto | 92 |
+| medio | 113 |
+| baixo | 39 |
 | informativo | 2 |
 
 ## Distribuição por status
@@ -22,7 +22,7 @@
 | Status | Total |
 |---|---|
 | aberto | 13 |
-| confirmado | 219 |
+| confirmado | 235 |
 | mitigado | 0 |
 | resolvido | 0 |
 | aceito | 0 |
@@ -44,6 +44,7 @@
 | ui-ux-fluxos | 25 |
 | infraestrutura-deploy-config | 16 |
 | compliance-privacidade | 22 |
+| supply-chain-dependencias | 16 |
 
 ## Achados ordenados por severidade
 
@@ -196,6 +197,16 @@
 - resumo: Em `send-otp.ts`, o código OTP é emitido por `console.log` quando NODE_ENV não é "production". Se staging ou ambiente compartilhado rodar com env incorreto, códigos OTP vazam para stdout/arquivos de log.
 - evidencia.arquivo_ou_area: packages/business/auth/use-cases/send-otp.ts:37-39
 - impacto.tecnico: OTP persistido em logs (stdout, syslog, agregadores) de longa duração
+
+### [critico] ACH-001 — Vulnerabilidade crítica (RCE) em `protobufjs < 7.5.5` via OpenTelemetry
+
+- dominio: supply-chain-dependencias
+- run: 2026-04-19_21-11-51 (finalized)
+- categoria: cve
+- status: confirmado
+- resumo: `@opentelemetry/auto-instrumentations-node@0.72.0` puxa `protobufjs@7.5.4`, versão com RCE conhecida em serialização gRPC. Propaga-se pela pipeline de telemetria do apps/api.
+- evidencia.arquivo_ou_area: apps/api/package.json; pnpm-lock.yaml (entrada `protobufjs 7.5.4`)
+- impacto.tecnico: Execução de código arbitrário via payload gRPC malformado
 
 ### [alto] ACH-003 — Webhooks inbound — MercadoPago sem handler e WhatsApp sem rota HTTP declarada
 
@@ -962,6 +973,56 @@
 - resumo: Não há arquivo `.github/CODEOWNERS` e não há como verificar branch protection via arquivos. Se a configuração no GitHub estiver ausente, qualquer colaborador com write pode mergear direto.
 - evidencia.arquivo_ou_area: .github/ (sem CODEOWNERS); ci.yml existe com lint/type-check/test
 - impacto.tecnico: Ausência de revisão obrigatória abre caminho para merges arriscados
+
+### [alto] ACH-002 — `next-auth` em versão beta (5.0.0-beta.30) em autenticação de produção
+
+- dominio: supply-chain-dependencias
+- run: 2026-04-19_21-11-51 (finalized)
+- categoria: pinagem-de-versao
+- status: confirmado
+- resumo: `apps/web/package.json` fixa `next-auth: "5.0.0-beta.30"`. Pre-release com breaking changes frequentes, risco em auth crítico.
+- evidencia.arquivo_ou_area: apps/web/package.json
+- impacto.tecnico: Breaking changes silenciosos; falhas de auth em minor upgrade
+
+### [alto] ACH-003 — Sem `pnpm audit` (ou scanner equivalente) no CI
+
+- dominio: supply-chain-dependencias
+- run: 2026-04-19_21-11-51 (finalized)
+- categoria: pipeline-e-governanca
+- status: confirmado
+- resumo: `.github/workflows/ci.yml` roda lint/type-check/test, mas não há job de vulnerability scanning. CVEs como ACH-001 não são detectadas em PR. Cross-ref seguranca/ACH-015 (secret scanning) + testes-qualidade/ACH-007 (arch:check).
+- evidencia.arquivo_ou_area: .github/workflows/ci.yml
+- impacto.tecnico: Regressões de segurança entram em main sem alerta
+
+### [alto] ACH-004 — Imagens Docker base sem digest pinning
+
+- dominio: supply-chain-dependencias
+- run: 2026-04-19_21-11-51 (finalized)
+- categoria: supply-chain-de-containers
+- status: confirmado
+- resumo: `docker-compose.prod.yml` usa tags flutuantes (`postgres:16-alpine`, `prom/prometheus:latest`, etc.) sem `@sha256:…`. Reforça infra/ACH-006 (prom/grafana `:latest`).
+- evidencia.arquivo_ou_area: docker-compose.prod.yml; deploy/Dockerfile.*
+- impacto.tecnico: Build não reprodutível; supply-chain attack por image swap
+
+### [alto] ACH-005 — Sem SBOM (CycloneDX/Syft) nem attestations de build
+
+- dominio: supply-chain-dependencias
+- run: 2026-04-19_21-11-51 (finalized)
+- categoria: sbom-e-integridade
+- status: confirmado
+- resumo: Nenhum arquivo SBOM no repositório; nenhum job em CI que gere/publique. Sem assinatura de imagens (cosign/sigstore). Sem attestations SLSA.
+- evidencia.arquivo_ou_area: ausência em .github/workflows/; ausência de `sbom.json`
+- impacto.tecnico: Rastreabilidade de dependências inviável
+
+### [alto] ACH-006 — Dependabot NPM cobre apenas root e sem docker-ecosystem
+
+- dominio: supply-chain-dependencias
+- run: 2026-04-19_21-11-51 (finalized)
+- categoria: politica-de-atualizacao
+- status: confirmado
+- resumo: `.github/dependabot.yml` só tem `package-ecosystem: npm` em `/`. Não cobre `docker`, e não há major-bump channel separado.
+- evidencia.arquivo_ou_area: .github/dependabot.yml
+- impacto.tecnico: Imagens Docker não auditadas automaticamente
 
 ### [alto] ACH-001 — Adapters Prisma sem testes — camada crítica de persistência descoberta
 
@@ -1914,6 +1975,66 @@
 - evidencia.arquivo_ou_area: .env:3 (AUTH_SECRET)
 - impacto.tecnico: Compartilhamento acidental com staging/prod cria backdoor de assinatura JWT
 
+### [medio] ACH-007 — Sem política de licenças — risco de copyleft incompatível
+
+- dominio: supply-chain-dependencias
+- run: 2026-04-19_21-11-51 (finalized)
+- categoria: licencas
+- status: confirmado
+- resumo: Nenhum `docs/LICENSING.md`, nenhum scan de licenças em CI. Transitivas podem trazer GPL/AGPL incompatíveis com modelo SaaS.
+- evidencia.arquivo_ou_area: docs/ (sem LICENSING); .github/workflows (sem `license-checker`)
+- impacto.tecnico: Possível contaminação de licença
+
+### [medio] ACH-008 — Overrides de React 19 / React Native 0.81 / ioredis sem matriz de compatibilidade
+
+- dominio: supply-chain-dependencias
+- run: 2026-04-19_21-11-51 (finalized)
+- categoria: overrides
+- status: confirmado
+- resumo: `pnpm.overrides` força versões global (react 19.1.0, react-native 0.81.5, ioredis 5.10.1, @types/react ~19.1.17) sem documentação por package consumidor.
+- evidencia.arquivo_ou_area: package.json (pnpm.overrides)
+- impacto.tecnico: Peer-dep mismatch silencioso
+
+### [medio] ACH-009 — Ausência de verificação de integridade de lockfile no CI
+
+- dominio: supply-chain-dependencias
+- run: 2026-04-19_21-11-51 (finalized)
+- categoria: reprodutibilidade
+- status: confirmado
+- resumo: CI usa `pnpm install --frozen-lockfile`, mas sem verificação extra (hash comparativo, assinatura). Se lockfile for adulterado em branch, instalação é aceita.
+- evidencia.arquivo_ou_area: .github/workflows/ci.yml
+- impacto.tecnico: Tampering indetectável em CI
+
+### [medio] ACH-010 — Picomatch vulnerável em tooling (tailwind/vite/expo)
+
+- dominio: supply-chain-dependencias
+- run: 2026-04-19_21-11-51 (finalized)
+- categoria: cve-em-tooling
+- status: confirmado
+- resumo: Lockfile traz versões vulneráveis de `picomatch` em dependências transitivas de tailwindcss/@vitejs/plugin-react/expo. Impacto dev-time; em CI/build.
+- evidencia.arquivo_ou_area: pnpm-lock.yaml (múltiplos registros picomatch)
+- impacto.tecnico: Injeção em patterns de glob
+
+### [medio] ACH-011 — Vulnerabilidade moderada em Vite 8.0.x — path traversal em sourcemaps
+
+- dominio: supply-chain-dependencias
+- run: 2026-04-19_21-11-51 (finalized)
+- categoria: cve
+- status: confirmado
+- resumo: `@vitejs/plugin-react@6.0.1 -> vite@8.0.1` tem janela de vulnerabilidade (≤ 8.0.4). Dev-time mas pode afetar pipelines.
+- evidencia.arquivo_ou_area: package.json; pnpm-lock.yaml
+- impacto.tecnico: Exposição de arquivos via `.map`
+
+### [medio] ACH-012 — Vulnerabilidade em `next-intl@3.26.5` (open redirect)
+
+- dominio: supply-chain-dependencias
+- run: 2026-04-19_21-11-51 (finalized)
+- categoria: cve
+- status: confirmado
+- resumo: `apps/web/package.json` fixa `next-intl@3.26.5`. Versões pré-4.9.1 sofrem open redirect em locale param.
+- evidencia.arquivo_ou_area: apps/web/package.json
+- impacto.tecnico: Redirect para URL controlada pelo atacante
+
 ### [medio] ACH-006 — CI executa testes mas sem enforcement de coverage threshold
 
 - dominio: testes-qualidade
@@ -2362,6 +2483,46 @@
 - resumo: Schemas aceitam `z.string().min(10).max(15)` sem formato E.164 nem regex; strings como `"0000000000"` ou não-numéricas passam.
 - evidencia.arquivo_ou_area: packages/validators/src/auth.ts:8,16,28; packages/validators/src/clients.ts
 - impacto.tecnico: Dados lixo em base; integrações com WhatsApp/SMS falham
+
+### [baixo] ACH-013 — Deprecated packages (stub types, uuid<7, rimraf<4, glob antigo)
+
+- dominio: supply-chain-dependencias
+- run: 2026-04-19_21-11-51 (finalized)
+- categoria: higienizacao
+- status: confirmado
+- resumo: Lockfile contém avisos deprecated em `@types/bcryptjs`, `@types/ioredis`, `node-uuid`, `rimraf<4`, `uuid<7`, `old glob`. Stubs redundantes e EOL.
+- evidencia.arquivo_ou_area: pnpm-lock.yaml
+- impacto.tecnico: Aumento de superfície de ataque; tipos imprecisos
+
+### [baixo] ACH-014 — `.nvmrc` e Dockerfile usam tag `20` (floating) em vez de versão minor
+
+- dominio: supply-chain-dependencias
+- run: 2026-04-19_21-11-51 (finalized)
+- categoria: reprodutibilidade
+- status: confirmado
+- resumo: `.nvmrc=20` e `FROM node:20-alpine` puxam qualquer 20.x LTS. Pode mudar patch level entre builds.
+- evidencia.arquivo_ou_area: .nvmrc; deploy/Dockerfile.web; deploy/Dockerfile.worker
+- impacto.tecnico: Build drift entre patches
+
+### [baixo] ACH-015 — `prepare: husky` roda em `pnpm install` — risco teórico de supply chain em dev
+
+- dominio: supply-chain-dependencias
+- run: 2026-04-19_21-11-51 (finalized)
+- categoria: postinstall
+- status: confirmado
+- resumo: O script `prepare` do root executa `husky` em cada install. Se `.husky/` for alterado maliciosamente, hooks disparam em máquinas de dev.
+- evidencia.arquivo_ou_area: package.json:27; .husky/
+- impacto.tecnico: Execução de hooks manipulados em clones ou CI
+
+### [baixo] ACH-016 — Ausência de transparência/matriz de peer-dependencies
+
+- dominio: supply-chain-dependencias
+- run: 2026-04-19_21-11-51 (finalized)
+- categoria: peer-deps
+- status: confirmado
+- resumo: Em monorepo com múltiplos apps, peer deps não são verificadas estritamente no CI. `autoInstallPeers` implícito evita erros de instalação mas pode mascarar incompatibilidades.
+- evidencia.arquivo_ou_area: pnpm-lock.yaml (sem relatório strict-peer); .npmrc ausente
+- impacto.tecnico: Peer mismatch visível só em runtime
 
 ### [baixo] ACH-013 — Pre-commit não roda testes
 

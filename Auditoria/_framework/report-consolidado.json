@@ -1,18 +1,18 @@
 {
   "schema_version": "2.1",
-  "generated_at": "2026-04-19T20:11:38.807Z",
-  "total": 246,
-  "total_runs": 12,
+  "generated_at": "2026-04-19T20:19:05.157Z",
+  "total": 262,
+  "total_runs": 13,
   "distribution": {
     "by_severity": {
-      "critico": 15,
-      "alto": 87,
-      "medio": 107,
-      "baixo": 35,
+      "critico": 16,
+      "alto": 92,
+      "medio": 113,
+      "baixo": 39,
       "informativo": 2
     },
     "by_status": {
-      "confirmado": 219,
+      "confirmado": 235,
       "aberto": 13,
       "null": 13,
       "hipotese": 1
@@ -25,6 +25,7 @@
       "confiabilidade-resiliencia": 17,
       "dados-persistencia": 22,
       "seguranca": 28,
+      "supply-chain-dependencias": 16,
       "infraestrutura-deploy-config": 16,
       "observabilidade-operacao": 15,
       "performance-escalabilidade": 30,
@@ -33,7 +34,7 @@
     }
   },
   "progress": {
-    "last_updated": "2026-04-19T20:11:38.803Z",
+    "last_updated": "2026-04-19T20:19:05.153Z",
     "domains": {
       "arquitetura": {
         "domain": "arquitetura",
@@ -185,11 +186,11 @@
         "run_id_atual": null,
         "fase_atual": "none",
         "fases_concluidas": 0,
-        "fases_totais": 5,
+        "fases_totais": 1,
         "percentual": 0,
-        "ultima_atualizacao": "none",
-        "ultima_run_finalizada": null,
-        "total_runs": 0
+        "ultima_atualizacao": "2026-04-19",
+        "ultima_run_finalizada": "2026-04-19_21-11-51",
+        "total_runs": 1
       },
       "custos-finops": {
         "domain": "custos-finops",
@@ -221,7 +222,7 @@
       "dominios_blocked": 0,
       "dominios_ready_for_finalize": 0,
       "dominios_not_started": 15,
-      "dominios_com_historico": 12
+      "dominios_com_historico": 13
     }
   },
   "runs_history": [
@@ -403,6 +404,24 @@
       },
       "distribution_by_status": {
         "confirmado": 28
+      }
+    },
+    {
+      "domain": "supply-chain-dependencias",
+      "run_id": "2026-04-19_21-11-51",
+      "run_state": "finalized",
+      "iniciado_em": "2026-04-19 21:11:51",
+      "finalizado_em": "2026-04-19 21:25:00",
+      "avaliacao": null,
+      "total_achados": 16,
+      "distribution_by_severity": {
+        "critico": 1,
+        "alto": 5,
+        "medio": 6,
+        "baixo": 4
+      },
+      "distribution_by_status": {
+        "confirmado": 16
       }
     },
     {
@@ -749,6 +768,26 @@
         "negocio": "Bypass de MFA em caso de leak de logs"
       },
       "acao_sugerida": "Remover log do OTP por completo; em dev, emitir apenas um evento \"otp-sent\" sem o valor; usar provedor de e-mail/SMS mockado local",
+      "prioridade": "alta"
+    },
+    {
+      "domain": "supply-chain-dependencias",
+      "runId": "2026-04-19_21-11-51",
+      "runState": "finalized",
+      "id": "ACH-001",
+      "titulo": "Vulnerabilidade crítica (RCE) em `protobufjs < 7.5.5` via OpenTelemetry",
+      "severidade": "critico",
+      "categoria": "cve",
+      "status": "confirmado",
+      "resumo": "`@opentelemetry/auto-instrumentations-node@0.72.0` puxa `protobufjs@7.5.4`, versão com RCE conhecida em serialização gRPC. Propaga-se pela pipeline de telemetria do apps/api.",
+      "evidencia": {
+        "arquivo_ou_area": "apps/api/package.json; pnpm-lock.yaml (entrada `protobufjs 7.5.4`)"
+      },
+      "impacto": {
+        "tecnico": "Execução de código arbitrário via payload gRPC malformado",
+        "negocio": "Comprometimento de container em produção"
+      },
+      "acao_sugerida": "Atualizar `@opentelemetry/auto-instrumentations-node` para versão que puxe `protobufjs ≥ 7.5.5`; alternativamente, `pnpm.overrides: { \"protobufjs\": \">=7.5.5\" }`; validar pelo `pnpm audit`",
       "prioridade": "alta"
     },
     {
@@ -2325,6 +2364,106 @@
         "negocio": "Código malicioso ou acidental chegando à main sem revisão"
       },
       "acao_sugerida": "Criar `.github/CODEOWNERS`; configurar branch protection (required reviews ≥1, status checks obrigatórios, dismiss stale, admin included); registrar política em `CONTRIBUTING.md`",
+      "prioridade": "alta"
+    },
+    {
+      "domain": "supply-chain-dependencias",
+      "runId": "2026-04-19_21-11-51",
+      "runState": "finalized",
+      "id": "ACH-002",
+      "titulo": "`next-auth` em versão beta (5.0.0-beta.30) em autenticação de produção",
+      "severidade": "alto",
+      "categoria": "pinagem-de-versao",
+      "status": "confirmado",
+      "resumo": "`apps/web/package.json` fixa `next-auth: \"5.0.0-beta.30\"`. Pre-release com breaking changes frequentes, risco em auth crítico.",
+      "evidencia": {
+        "arquivo_ou_area": "apps/web/package.json"
+      },
+      "impacto": {
+        "tecnico": "Breaking changes silenciosos; falhas de auth em minor upgrade",
+        "negocio": "Logins/logout/sessão instáveis; suporte oficial limitado"
+      },
+      "acao_sugerida": "Aguardar GA de `next-auth@5`; ou rollback para `4.x` LTS se estabilidade é prioridade imediata",
+      "prioridade": "alta"
+    },
+    {
+      "domain": "supply-chain-dependencias",
+      "runId": "2026-04-19_21-11-51",
+      "runState": "finalized",
+      "id": "ACH-003",
+      "titulo": "Sem `pnpm audit` (ou scanner equivalente) no CI",
+      "severidade": "alto",
+      "categoria": "pipeline-e-governanca",
+      "status": "confirmado",
+      "resumo": "`.github/workflows/ci.yml` roda lint/type-check/test, mas não há job de vulnerability scanning. CVEs como ACH-001 não são detectadas em PR. Cross-ref seguranca/ACH-015 (secret scanning) + testes-qualidade/ACH-007 (arch:check).",
+      "evidencia": {
+        "arquivo_ou_area": ".github/workflows/ci.yml"
+      },
+      "impacto": {
+        "tecnico": "Regressões de segurança entram em main sem alerta",
+        "negocio": "Exposição não detectada"
+      },
+      "acao_sugerida": "Passo `pnpm audit --audit-level high --production=true`; opcional Trivy filesystem/Grype em modo `fail-on high`; Snyk ou GitHub Dependency Review Action como gate",
+      "prioridade": "alta"
+    },
+    {
+      "domain": "supply-chain-dependencias",
+      "runId": "2026-04-19_21-11-51",
+      "runState": "finalized",
+      "id": "ACH-004",
+      "titulo": "Imagens Docker base sem digest pinning",
+      "severidade": "alto",
+      "categoria": "supply-chain-de-containers",
+      "status": "confirmado",
+      "resumo": "`docker-compose.prod.yml` usa tags flutuantes (`postgres:16-alpine`, `prom/prometheus:latest`, etc.) sem `@sha256:…`. Reforça infra/ACH-006 (prom/grafana `:latest`).",
+      "evidencia": {
+        "arquivo_ou_area": "docker-compose.prod.yml; deploy/Dockerfile.*"
+      },
+      "impacto": {
+        "tecnico": "Build não reprodutível; supply-chain attack por image swap",
+        "negocio": "Forense pós-incidente inviável"
+      },
+      "acao_sugerida": "Pin por digest (`image@sha256:...`); Dependabot (`package-ecosystem: docker`) para manter atualizado com PR automatizado",
+      "prioridade": "alta"
+    },
+    {
+      "domain": "supply-chain-dependencias",
+      "runId": "2026-04-19_21-11-51",
+      "runState": "finalized",
+      "id": "ACH-005",
+      "titulo": "Sem SBOM (CycloneDX/Syft) nem attestations de build",
+      "severidade": "alto",
+      "categoria": "sbom-e-integridade",
+      "status": "confirmado",
+      "resumo": "Nenhum arquivo SBOM no repositório; nenhum job em CI que gere/publique. Sem assinatura de imagens (cosign/sigstore). Sem attestations SLSA.",
+      "evidencia": {
+        "arquivo_ou_area": "ausência em .github/workflows/; ausência de `sbom.json`"
+      },
+      "impacto": {
+        "tecnico": "Rastreabilidade de dependências inviável",
+        "negocio": "Compliance (SLSA, NIST SSDF) não atendido"
+      },
+      "acao_sugerida": "Gerar SBOM CycloneDX com Syft em CI; publicar artefato e assinar imagens com cosign; habilitar `actions/attest-build-provenance`",
+      "prioridade": "alta"
+    },
+    {
+      "domain": "supply-chain-dependencias",
+      "runId": "2026-04-19_21-11-51",
+      "runState": "finalized",
+      "id": "ACH-006",
+      "titulo": "Dependabot NPM cobre apenas root e sem docker-ecosystem",
+      "severidade": "alto",
+      "categoria": "politica-de-atualizacao",
+      "status": "confirmado",
+      "resumo": "`.github/dependabot.yml` só tem `package-ecosystem: npm` em `/`. Não cobre `docker`, e não há major-bump channel separado.",
+      "evidencia": {
+        "arquivo_ou_area": ".github/dependabot.yml"
+      },
+      "impacto": {
+        "tecnico": "Imagens Docker não auditadas automaticamente",
+        "negocio": "CVEs em base images passam despercebidas"
+      },
+      "acao_sugerida": "Adicionar `docker` e `docker-compose`; agendar 2x/semana; grupo separado para major updates com reviewer humano",
       "prioridade": "alta"
     },
     {
@@ -4287,6 +4426,126 @@
       "prioridade": "media"
     },
     {
+      "domain": "supply-chain-dependencias",
+      "runId": "2026-04-19_21-11-51",
+      "runState": "finalized",
+      "id": "ACH-007",
+      "titulo": "Sem política de licenças — risco de copyleft incompatível",
+      "severidade": "medio",
+      "categoria": "licencas",
+      "status": "confirmado",
+      "resumo": "Nenhum `docs/LICENSING.md`, nenhum scan de licenças em CI. Transitivas podem trazer GPL/AGPL incompatíveis com modelo SaaS.",
+      "evidencia": {
+        "arquivo_ou_area": "docs/ (sem LICENSING); .github/workflows (sem `license-checker`)"
+      },
+      "impacto": {
+        "tecnico": "Possível contaminação de licença",
+        "negocio": "Risco jurídico"
+      },
+      "acao_sugerida": "Política (allowlist MIT/Apache/BSD/ISC); `license-checker` em CI com fail em GPL/AGPL; SBOM inclui campo license",
+      "prioridade": "media"
+    },
+    {
+      "domain": "supply-chain-dependencias",
+      "runId": "2026-04-19_21-11-51",
+      "runState": "finalized",
+      "id": "ACH-008",
+      "titulo": "Overrides de React 19 / React Native 0.81 / ioredis sem matriz de compatibilidade",
+      "severidade": "medio",
+      "categoria": "overrides",
+      "status": "confirmado",
+      "resumo": "`pnpm.overrides` força versões global (react 19.1.0, react-native 0.81.5, ioredis 5.10.1, @types/react ~19.1.17) sem documentação por package consumidor.",
+      "evidencia": {
+        "arquivo_ou_area": "package.json (pnpm.overrides)"
+      },
+      "impacto": {
+        "tecnico": "Peer-dep mismatch silencioso",
+        "negocio": "Bugs de integração dormentes"
+      },
+      "acao_sugerida": "`docs/OVERRIDES.md` com rationale por override; rodar `pnpm install --strict-peer-dependencies` em CI opcional",
+      "prioridade": "media"
+    },
+    {
+      "domain": "supply-chain-dependencias",
+      "runId": "2026-04-19_21-11-51",
+      "runState": "finalized",
+      "id": "ACH-009",
+      "titulo": "Ausência de verificação de integridade de lockfile no CI",
+      "severidade": "medio",
+      "categoria": "reprodutibilidade",
+      "status": "confirmado",
+      "resumo": "CI usa `pnpm install --frozen-lockfile`, mas sem verificação extra (hash comparativo, assinatura). Se lockfile for adulterado em branch, instalação é aceita.",
+      "evidencia": {
+        "arquivo_ou_area": ".github/workflows/ci.yml"
+      },
+      "impacto": {
+        "tecnico": "Tampering indetectável em CI",
+        "negocio": "Supply-chain attack via branch adulterada"
+      },
+      "acao_sugerida": "Signed commits; hook pre-push que recalcula hash do `pnpm-lock.yaml`; GitHub Advanced Security (Dependency Review) para analisar diffs",
+      "prioridade": "media"
+    },
+    {
+      "domain": "supply-chain-dependencias",
+      "runId": "2026-04-19_21-11-51",
+      "runState": "finalized",
+      "id": "ACH-010",
+      "titulo": "Picomatch vulnerável em tooling (tailwind/vite/expo)",
+      "severidade": "medio",
+      "categoria": "cve-em-tooling",
+      "status": "confirmado",
+      "resumo": "Lockfile traz versões vulneráveis de `picomatch` em dependências transitivas de tailwindcss/@vitejs/plugin-react/expo. Impacto dev-time; em CI/build.",
+      "evidencia": {
+        "arquivo_ou_area": "pnpm-lock.yaml (múltiplos registros picomatch)"
+      },
+      "impacto": {
+        "tecnico": "Injeção em patterns de glob",
+        "negocio": "Risco em builds que processam input externo (landing CMS, etc.)"
+      },
+      "acao_sugerida": "Atualizar tooling; `pnpm dedupe` após; validar com `pnpm audit`",
+      "prioridade": "media"
+    },
+    {
+      "domain": "supply-chain-dependencias",
+      "runId": "2026-04-19_21-11-51",
+      "runState": "finalized",
+      "id": "ACH-011",
+      "titulo": "Vulnerabilidade moderada em Vite 8.0.x — path traversal em sourcemaps",
+      "severidade": "medio",
+      "categoria": "cve",
+      "status": "confirmado",
+      "resumo": "`@vitejs/plugin-react@6.0.1 -> vite@8.0.1` tem janela de vulnerabilidade (≤ 8.0.4). Dev-time mas pode afetar pipelines.",
+      "evidencia": {
+        "arquivo_ou_area": "package.json; pnpm-lock.yaml"
+      },
+      "impacto": {
+        "tecnico": "Exposição de arquivos via `.map`",
+        "negocio": "Vazamento de código-fonte em builds mal-configurados"
+      },
+      "acao_sugerida": "Atualizar para `@vitejs/plugin-react@6.0.2+`; garantir que sourcemaps não vão para produção",
+      "prioridade": "media"
+    },
+    {
+      "domain": "supply-chain-dependencias",
+      "runId": "2026-04-19_21-11-51",
+      "runState": "finalized",
+      "id": "ACH-012",
+      "titulo": "Vulnerabilidade em `next-intl@3.26.5` (open redirect)",
+      "severidade": "medio",
+      "categoria": "cve",
+      "status": "confirmado",
+      "resumo": "`apps/web/package.json` fixa `next-intl@3.26.5`. Versões pré-4.9.1 sofrem open redirect em locale param.",
+      "evidencia": {
+        "arquivo_ou_area": "apps/web/package.json"
+      },
+      "impacto": {
+        "tecnico": "Redirect para URL controlada pelo atacante",
+        "negocio": "Phishing direcionado"
+      },
+      "acao_sugerida": "Atualizar para `next-intl@4.x`; validar redirects no middleware; testar fluxos de i18n",
+      "prioridade": "media"
+    },
+    {
       "domain": "testes-qualidade",
       "runId": "2026-04-19_07-59-20",
       "runState": "finalized",
@@ -5209,6 +5468,86 @@
         "negocio": "Mensagens não entregues; poluição de DB"
       },
       "acao_sugerida": "Usar `libphonenumber-js` (`parsePhoneNumberFromString`) com país padrão BR; armazenar em formato E.164",
+      "prioridade": "baixa"
+    },
+    {
+      "domain": "supply-chain-dependencias",
+      "runId": "2026-04-19_21-11-51",
+      "runState": "finalized",
+      "id": "ACH-013",
+      "titulo": "Deprecated packages (stub types, uuid<7, rimraf<4, glob antigo)",
+      "severidade": "baixo",
+      "categoria": "higienizacao",
+      "status": "confirmado",
+      "resumo": "Lockfile contém avisos deprecated em `@types/bcryptjs`, `@types/ioredis`, `node-uuid`, `rimraf<4`, `uuid<7`, `old glob`. Stubs redundantes e EOL.",
+      "evidencia": {
+        "arquivo_ou_area": "pnpm-lock.yaml"
+      },
+      "impacto": {
+        "tecnico": "Aumento de superfície de ataque; tipos imprecisos",
+        "negocio": "Pequeno, mas cumulativo"
+      },
+      "acao_sugerida": "Remover @types redundantes; atualizar glob/rimraf/uuid; `pnpm dedupe`",
+      "prioridade": "baixa"
+    },
+    {
+      "domain": "supply-chain-dependencias",
+      "runId": "2026-04-19_21-11-51",
+      "runState": "finalized",
+      "id": "ACH-014",
+      "titulo": "`.nvmrc` e Dockerfile usam tag `20` (floating) em vez de versão minor",
+      "severidade": "baixo",
+      "categoria": "reprodutibilidade",
+      "status": "confirmado",
+      "resumo": "`.nvmrc=20` e `FROM node:20-alpine` puxam qualquer 20.x LTS. Pode mudar patch level entre builds.",
+      "evidencia": {
+        "arquivo_ou_area": ".nvmrc; deploy/Dockerfile.web; deploy/Dockerfile.worker"
+      },
+      "impacto": {
+        "tecnico": "Build drift entre patches",
+        "negocio": "Baixo"
+      },
+      "acao_sugerida": "Pinar minor (ex.: `20.13.0`) e alinhar em todos; Dependabot atualiza",
+      "prioridade": "baixa"
+    },
+    {
+      "domain": "supply-chain-dependencias",
+      "runId": "2026-04-19_21-11-51",
+      "runState": "finalized",
+      "id": "ACH-015",
+      "titulo": "`prepare: husky` roda em `pnpm install` — risco teórico de supply chain em dev",
+      "severidade": "baixo",
+      "categoria": "postinstall",
+      "status": "confirmado",
+      "resumo": "O script `prepare` do root executa `husky` em cada install. Se `.husky/` for alterado maliciosamente, hooks disparam em máquinas de dev.",
+      "evidencia": {
+        "arquivo_ou_area": "package.json:27; .husky/"
+      },
+      "impacto": {
+        "tecnico": "Execução de hooks manipulados em clones ou CI",
+        "negocio": "Menor em CI com `--ignore-scripts`, maior em máquinas locais"
+      },
+      "acao_sugerida": "Revisar `.husky/` regularmente; code review obrigatório para mudanças; em CI ignorar scripts não necessários (`pnpm install --ignore-scripts` onde cabível)",
+      "prioridade": "baixa"
+    },
+    {
+      "domain": "supply-chain-dependencias",
+      "runId": "2026-04-19_21-11-51",
+      "runState": "finalized",
+      "id": "ACH-016",
+      "titulo": "Ausência de transparência/matriz de peer-dependencies",
+      "severidade": "baixo",
+      "categoria": "peer-deps",
+      "status": "confirmado",
+      "resumo": "Em monorepo com múltiplos apps, peer deps não são verificadas estritamente no CI. `autoInstallPeers` implícito evita erros de instalação mas pode mascarar incompatibilidades.",
+      "evidencia": {
+        "arquivo_ou_area": "pnpm-lock.yaml (sem relatório strict-peer); .npmrc ausente"
+      },
+      "impacto": {
+        "tecnico": "Peer mismatch visível só em runtime",
+        "negocio": "Debug adicional"
+      },
+      "acao_sugerida": "`pnpm install --strict-peer-dependencies` em job não bloqueante; relatório mensal",
       "prioridade": "baixa"
     },
     {

@@ -1,20 +1,20 @@
 # Relatório Consolidado de Achados — Framework de Auditoria WeaveCode
 
-- gerado_em: 2026-04-19T20:00:03.564Z
-- total_achados: 224
+- gerado_em: 2026-04-19T20:11:38.806Z
+- total_achados: 246
 - dominios_em_progresso: 0
 - dominios_ready_for_finalize: 0
 - dominios_blocked: 0
-- dominios_com_historico: 11
+- dominios_com_historico: 12
 
 ## Distribuição por severidade
 
 | Severidade | Total |
 |---|---|
-| critico | 10 |
-| alto | 77 |
-| medio | 102 |
-| baixo | 33 |
+| critico | 15 |
+| alto | 87 |
+| medio | 107 |
+| baixo | 35 |
 | informativo | 2 |
 
 ## Distribuição por status
@@ -22,7 +22,7 @@
 | Status | Total |
 |---|---|
 | aberto | 13 |
-| confirmado | 197 |
+| confirmado | 219 |
 | mitigado | 0 |
 | resolvido | 0 |
 | aceito | 0 |
@@ -43,6 +43,7 @@
 | testes-qualidade | 16 |
 | ui-ux-fluxos | 25 |
 | infraestrutura-deploy-config | 16 |
+| compliance-privacidade | 22 |
 
 ## Achados ordenados por severidade
 
@@ -85,6 +86,56 @@
 - resumo: Fluxos de password reset, email verification e request-email-verification geram token mas não persistem no Redis nem validam no consumo; adapter Resend é stub. Bloqueia uso em produção dos fluxos de auth por link.
 - evidencia.arquivo_ou_area: packages/business/auth/use-cases/verify-email.use-case.ts:11; reset-password.use-case.ts:16; request-email-verification.use-case.ts:21; request-password-reset.use-case.ts:22; packages/business/auth/adapters/resend-email-sender.adapter.ts:7
 - impacto.tecnico: Código parece funcional mas não completa o fluxo; depuração difícil porque o caminho feliz emite eventos sem efeito
+
+### [critico] ACH-001 — Ausência de endpoints para direitos do titular (acesso, correção, portabilidade, exclusão)
+
+- dominio: compliance-privacidade
+- run: 2026-04-19_21-00-11 (finalized)
+- categoria: direitos-do-titular
+- status: confirmado
+- resumo: Não há endpoints para cumprir os direitos previstos nos arts. 18-22 da LGPD (acesso, correção, portabilidade, exclusão/esquecimento). Grep por "export", "portability", "delete_account", "forget", "lgpd", "gdpr" retorna zero em routers/handlers.
+- evidencia.arquivo_ou_area: apps/api/src/routers/*; packages/business/*/use-cases/*; ausência de módulo `privacy`/`gdpr`
+- impacto.tecnico: Impossível atender solicitação regulatória no prazo
+
+### [critico] ACH-002 — Ausência de política de privacidade pública e acessível
+
+- dominio: compliance-privacidade
+- run: 2026-04-19_21-00-11 (finalized)
+- categoria: transparencia
+- status: confirmado
+- resumo: Não há `PRIVACY_POLICY.md`, nem link em apps/web / apps/landing / apps/mobile. Onboarding não solicita aceite de termos.
+- evidencia.arquivo_ou_area: docs/ (sem POLICY); apps/web/src/app/(auth)/onboarding/page.tsx (sem checkbox de termos)
+- impacto.tecnico: Sem basis legal documentada (LGPD art. 7-8)
+
+### [critico] ACH-003 — Sem mecanismo formal de consentimento (LGPD art. 7.I)
+
+- dominio: compliance-privacidade
+- run: 2026-04-19_21-00-11 (finalized)
+- categoria: consentimento
+- status: confirmado
+- resumo: Onboarding coleta dados sem checkbox de aceite. Não há tabela `ConsentLog` nem campo `consentedAt`/`marketingConsent` em Client ou Account.
+- evidencia.arquivo_ou_area: packages/db/prisma/schema.prisma (sem ConsentLog); apps/web/src/app/(auth)/onboarding/page.tsx
+- impacto.tecnico: Envio de campanhas sem base legal apropriada
+
+### [critico] ACH-004 — Dados sensíveis em campo livre (`notes`) e `allergies` sem classificação
+
+- dominio: compliance-privacidade
+- run: 2026-04-19_21-00-11 (finalized)
+- categoria: categorias-especiais
+- status: confirmado
+- resumo: `Client.allergies` (dado de saúde) e `Client.notes`/`preferences` em texto livre possibilitam coleta de categorias especiais sem consentimento reforçado (LGPD art. 5.II + art. 11).
+- evidencia.arquivo_ou_area: packages/db/prisma/schema.prisma (modelo Client)
+- impacto.tecnico: Sem marcação de sensibilidade; mascaramento não ocorre em logs
+
+### [critico] ACH-005 — Transferência internacional de dados (USA/China) sem safeguards documentados
+
+- dominio: compliance-privacidade
+- run: 2026-04-19_21-00-11 (finalized)
+- categoria: transferencia-internacional
+- status: confirmado
+- resumo: Stack envia dados a Sentry (USA), DeepSeek (China), GitHub (USA), Resend (USA), WhatsApp (Meta, global), MercadoPago (Argentina/regional). LGPD art. 33 exige safeguards (SCC, BCR, consentimento específico, decisão de adequação) e GDPR art. 44-49 exige mecanismo equivalente.
+- evidencia.arquivo_ou_area: apps/api/src/lib/sentry.ts; packages/business/ai/adapters/deepseek-adapter.ts; ausência de DPAs/SCCs em docs/
+- impacto.tecnico: Dados pessoais e sensíveis expostos a jurisdições não-adequadas
 
 ### [critico] ACH-001 — `event-subscriber` usa `Promise.allSettled` e marca `processedAt` mesmo com handler falhando
 
@@ -285,6 +336,106 @@
 - resumo: `apps/api/src/index.ts` e `apps/worker/src/index.ts` executam `initTracing`, `initSentry`, `applyTenantMiddleware`, abrem conexões Redis e registram `setInterval` no topo do arquivo. Importar qualquer símbolo dispara todo o bootstrap.
 - evidencia.arquivo_ou_area: apps/api/src/index.ts:1-24; apps/worker/src/index.ts:1-74
 - impacto.tecnico: Impede testes de unidade por import direto; dificulta múltiplos modos (ex: CLI sem tracing)
+
+### [alto] ACH-006 — DPIA/RIPD (relatório de impacto à proteção de dados) inexistente
+
+- dominio: compliance-privacidade
+- run: 2026-04-19_21-00-11 (finalized)
+- categoria: governanca
+- status: confirmado
+- resumo: LGPD art. 38 e GDPR art. 35 exigem DPIA para tratamento de larga escala/dados sensíveis. Nenhum documento `docs/DPIA.md`/`RIPD.md` existe.
+- evidencia.arquivo_ou_area: docs/ (sem DPIA/RIPD)
+- impacto.tecnico: Sem análise de risco formal
+
+### [alto] ACH-007 — Sub-processadores não documentados (sem DPA)
+
+- dominio: compliance-privacidade
+- run: 2026-04-19_21-00-11 (finalized)
+- categoria: terceiros
+- status: confirmado
+- resumo: Integrações com Sentry, WhatsApp, MercadoPago, Resend, DeepSeek, Google OAuth e GitHub não têm DPA listado nem relação pública. Requerido pela LGPD art. 6.VIII e GDPR art. 28.
+- evidencia.arquivo_ou_area: docs/ (sem SUB_PROCESSORS/DPA)
+- impacto.tecnico: Responsabilidade compartilhada não definida
+
+### [alto] ACH-008 — Sentry sem `beforeSend` — PII e segredos podem vazar
+
+- dominio: compliance-privacidade
+- run: 2026-04-19_21-00-11 (finalized)
+- categoria: minimizacao-logs
+- status: confirmado
+- resumo: `apps/api/src/lib/sentry.ts` e `apps/web/sentry.*.config.ts` não implementam `beforeSend`/`beforeBreadcrumb`, deixando emails, tokens, stack frames com PII serem enviados (cross-ref seguranca/ACH-021).
+- evidencia.arquivo_ou_area: apps/api/src/lib/sentry.ts; apps/web/sentry.server.config.ts
+- impacto.tecnico: Exposição de PII em serviço terceiro (USA)
+
+### [alto] ACH-009 — Security-logger e logs gerais sem redaction de PII
+
+- dominio: compliance-privacidade
+- run: 2026-04-19_21-00-11 (finalized)
+- categoria: minimizacao-logs
+- status: confirmado
+- resumo: `packages/shared/src/security-logger.ts` serializa `phone`/`userId`/`tenantId` em claro; logging-middleware loga tenant/user sem máscara (cross-ref seguranca/ACH-019/020).
+- evidencia.arquivo_ou_area: packages/shared/src/security-logger.ts:22-44; apps/api/src/trpc/logging-middleware.ts
+- impacto.tecnico: PII em stdout e pipelines de agregação
+
+### [alto] ACH-010 — Política de retenção ausente — dados podem persistir indefinidamente
+
+- dominio: compliance-privacidade
+- run: 2026-04-19_21-00-11 (finalized)
+- categoria: retencao
+- status: confirmado
+- resumo: Sem `docs/DATA_RETENTION_POLICY.md`; apenas outbox-cleanup remove eventos PROCESSED. Clients, Sessions, Sales, OTP expirado crescem infinitamente.
+- evidencia.arquivo_ou_area: docs/ (sem retention); apps/worker/src/processors/outbox-cleanup.ts
+- impacto.tecnico: Storage cresce, backup também; risco de vazamento em histórico
+
+### [alto] ACH-011 — Direito ao esquecimento depende de hard-delete + propagação em backups
+
+- dominio: compliance-privacidade
+- run: 2026-04-19_21-00-11 (finalized)
+- categoria: direito-ao-esquecimento
+- status: confirmado
+- resumo: Soft-delete parcial (`TenantMember.deletedAt`), sem pipeline de anonimização. Backups retêm dados 30 dias após exclusão. Não atende LGPD art. 18.IV adequadamente.
+- evidencia.arquivo_ou_area: packages/db/prisma/schema.prisma; deploy/backup/backup.sh; cross-ref dados-persistencia/ACH-008, dados-persistencia/ACH-019
+- impacto.tecnico: Exclusão não é irreversível
+
+### [alto] ACH-012 — Campanhas de marketing sem confirmação de opt-in registrado
+
+- dominio: compliance-privacidade
+- run: 2026-04-19_21-00-11 (finalized)
+- categoria: marketing-e-consentimento
+- status: confirmado
+- resumo: Não há `marketingConsent` em Client; `CampaignRecipient` entra em PENDING→SENT sem verificação. Ausência de "unsubscribe" padronizado nos templates.
+- evidencia.arquivo_ou_area: packages/db/prisma/schema.prisma (Campaign, Client); templates (não localizados)
+- impacto.tecnico: Envio sem base legal
+
+### [alto] ACH-013 — DPO (encarregado de dados) não nomeado e canal de contato ausente
+
+- dominio: compliance-privacidade
+- run: 2026-04-19_21-00-11 (finalized)
+- categoria: governanca
+- status: confirmado
+- resumo: LGPD art. 41 recomenda DPO e canal explícito; GDPR obriga para certos casos. Sem `dpo@weavecode.co.uk` publicado; sem entrada em docs/.
+- evidencia.arquivo_ou_area: ausência em docs/, README, landing
+- impacto.tecnico: Canal de resposta não existe
+
+### [alto] ACH-014 — Criptografia em repouso não confirmada (Postgres/backup)
+
+- dominio: compliance-privacidade
+- run: 2026-04-19_21-00-11 (finalized)
+- categoria: seguranca-de-dados
+- status: confirmado
+- resumo: `docker-compose.prod.yml` usa `postgres:16-alpine` sem encryption-at-rest explícito; `backup.sh` gera `pg_dump | gzip` sem GPG. Volumes não têm indicação de LUKS/EBS.
+- evidencia.arquivo_ou_area: docker-compose.prod.yml; deploy/backup/backup.sh
+- impacto.tecnico: Dados em disco/backup em claro
+
+### [alto] ACH-015 — Plano de resposta a incidente inexistente (LGPD art. 48)
+
+- dominio: compliance-privacidade
+- run: 2026-04-19_21-00-11 (finalized)
+- categoria: incidentes
+- status: confirmado
+- resumo: Sem `docs/INCIDENT_RESPONSE.md` com procedimento de detecção, contenção, notificação ANPD (prazo de até 2 dias úteis), comunicação a titulares.
+- evidencia.arquivo_ou_area: docs/ (sem runbook de incidente de privacidade)
+- impacto.tecnico: Resposta lenta
 
 ### [alto] ACH-003 — Fila BullMQ sem limite de profundidade; Redis 256 MB pode saturar
 
@@ -1202,6 +1353,56 @@
 - evidencia.arquivo_ou_area: packages/business/clients/domain/errors.ts; apps/api/src/trpc/trpc.ts:51-61 (domainErrorMiddleware sem mapper explícito por tipo)
 - impacto.tecnico: Difícil testar mapeamento; mudança de mensagem pode afetar consumidores sem aviso
 
+### [medio] ACH-016 — Cookie consent / Preferences Center ausentes em web e landing
+
+- dominio: compliance-privacidade
+- run: 2026-04-19_21-00-11 (finalized)
+- categoria: cookies
+- status: confirmado
+- resumo: NextAuth usa cookies de sessão; analytics podem entrar no futuro. Sem banner/seletor de consentimento nem documentação (LGPD art. 7, GDPR art. 7).
+- evidencia.arquivo_ou_area: apps/web, apps/landing (sem cookie-consent banner/plug-in)
+- impacto.tecnico: Rastreamento sem consentimento
+
+### [medio] ACH-017 — RLS habilitado mas sem teste automatizado (cross-ref dados-persistencia/ACH-004)
+
+- dominio: compliance-privacidade
+- run: 2026-04-19_21-00-11 (finalized)
+- categoria: controle-tecnico
+- status: confirmado
+- resumo: Isolamento multi-tenant via RLS é defesa crítica para compliance; porém não há teste em CI que impeça regressão.
+- evidencia.arquivo_ou_area: packages/db/prisma/migrations/manual/001_rls_policies.sql; ausência de suíte de teste
+- impacto.tecnico: Regressão silenciosa = vazamento cross-tenant
+
+### [medio] ACH-018 — Consultora (tenant) sem clareza sobre papel (controlador x operador)
+
+- dominio: compliance-privacidade
+- run: 2026-04-19_21-00-11 (finalized)
+- categoria: governanca
+- status: confirmado
+- resumo: Consultora cadastra e gerencia clientes finais; WBC é operador (processor). Sem contrato DPA ou termos claros definindo responsabilidades, direitos e obrigações.
+- evidencia.arquivo_ou_area: docs/ (sem TERMOS_DE_SERVICO/DPA consultora); PRIVACY_POLICY ausente
+- impacto.tecnico: Responsabilidades legais difusas
+
+### [medio] ACH-019 — Onboarding e registros não informam transferência internacional
+
+- dominio: compliance-privacidade
+- run: 2026-04-19_21-00-11 (finalized)
+- categoria: transparencia
+- status: confirmado
+- resumo: Consultora não é avisada de que dados serão processados por Sentry (USA), DeepSeek (China), GitHub (USA), etc. Sem checkbox consentindo com transferência internacional.
+- evidencia.arquivo_ou_area: apps/web/src/app/(auth)/onboarding/page.tsx
+- impacto.tecnico: Sem informação adequada
+
+### [medio] ACH-020 — Sem auditoria de acessos a dados pessoais (AuditLog)
+
+- dominio: compliance-privacidade
+- run: 2026-04-19_21-00-11 (finalized)
+- categoria: auditabilidade
+- status: confirmado
+- resumo: Não há tabela `AuditLog`/`AccessLog` registrando quem acessou/alterou dados pessoais. LGPD art. 37 exige capacidade de demonstrar tratamento.
+- evidencia.arquivo_ou_area: packages/db/prisma/schema.prisma (sem AuditLog); cross-ref observabilidade/ACH-024
+- impacto.tecnico: Impossível responder "quem acessou meus dados?
+
 ### [medio] ACH-009 — Dois mecanismos de retry desalinhados (adapter x outbox)
 
 - dominio: confiabilidade-resiliencia
@@ -1985,6 +2186,26 @@
 - resumo: `packages/business/auth/adapters/prisma-otp-repository.ts:11-16` define `getRedis()` local; `apps/api/src/lib/redis.ts` define outro. Dois singletons Redis potenciais.
 - evidencia.arquivo_ou_area: packages/business/auth/adapters/prisma-otp-repository.ts:11-16; apps/api/src/lib/redis.ts
 - impacto.tecnico: Vazamento de conexão em produção; comportamento inconsistente
+
+### [baixo] ACH-021 — Falta processo de revisão/atualização periódica das políticas
+
+- dominio: compliance-privacidade
+- run: 2026-04-19_21-00-11 (finalized)
+- categoria: governanca
+- status: confirmado
+- resumo: Sem definição de cadência de revisão (mínimo anual ou após mudança material). Mesmo quando houver política, processo não se automantém.
+- evidencia.arquivo_ou_area: docs/ (sem seção "last reviewed")
+- impacto.tecnico: Documentos ficam obsoletos
+
+### [baixo] ACH-022 — Formulários não possuem link rápido para "Direitos do Titular
+
+- dominio: compliance-privacidade
+- run: 2026-04-19_21-00-11 (finalized)
+- categoria: transparencia
+- status: confirmado
+- resumo: Onboarding/auth/forms não exibem link pequeno "conheça seus direitos" apontando para PRIVACY_POLICY.
+- evidencia.arquivo_ou_area: apps/web/src/app/(auth)/onboarding/page.tsx; apps/web/src/components/form-field.tsx
+- impacto.tecnico: Baixa visibilidade dos direitos
 
 ### [baixo] ACH-016 — Rate-limit por rota, sem load shedding adaptativo sob degradação
 

@@ -1,20 +1,20 @@
 # Relatório Consolidado de Achados — Framework de Auditoria WeaveCode
 
-- gerado_em: 2026-04-19T20:19:05.156Z
-- total_achados: 262
+- gerado_em: 2026-04-19T20:25:48.605Z
+- total_achados: 276
 - dominios_em_progresso: 0
 - dominios_ready_for_finalize: 0
 - dominios_blocked: 0
-- dominios_com_historico: 13
+- dominios_com_historico: 14
 
 ## Distribuição por severidade
 
 | Severidade | Total |
 |---|---|
 | critico | 16 |
-| alto | 92 |
-| medio | 113 |
-| baixo | 39 |
+| alto | 97 |
+| medio | 119 |
+| baixo | 42 |
 | informativo | 2 |
 
 ## Distribuição por status
@@ -22,7 +22,7 @@
 | Status | Total |
 |---|---|
 | aberto | 13 |
-| confirmado | 235 |
+| confirmado | 249 |
 | mitigado | 0 |
 | resolvido | 0 |
 | aceito | 0 |
@@ -45,6 +45,7 @@
 | infraestrutura-deploy-config | 16 |
 | compliance-privacidade | 22 |
 | supply-chain-dependencias | 16 |
+| custos-finops | 14 |
 
 ## Achados ordenados por severidade
 
@@ -507,6 +508,56 @@
 - resumo: Soma do `claimPending` racy (cross-ref dados-persistencia/ACH-002) com handlers não idempotentes (ACH-002) produz, em cenário de multi-worker ou crash-during-processing, efeitos duplicados garantidos.
 - evidencia.arquivo_ou_area: packages/db/src/outbox/prisma-outbox-repository.ts:35-60; packages/shared/src/events/event-subscriber.ts; dados-persistencia/ACH-002
 - impacto.tecnico: Reprocessamento com efeito colateral; estado divergente
+
+### [alto] ACH-001 — Sem kill-switch financeiro por tenant para integrações pagas (DeepSeek, WhatsApp)
+
+- dominio: custos-finops
+- run: 2026-04-19_21-19-13 (finalized)
+- categoria: controle-de-consumo
+- status: confirmado
+- resumo: Não há `CostBudgetService` consultado antes de chamar DeepSeek ou WhatsApp. Adapter DeepSeek só checa contador `aiGenerationsUsed < limit` (ACH-001 dados-persistencia identifica que esse incremento é racy). Nada em USD; nenhum circuit-breaker financeiro.
+- evidencia.arquivo_ou_area: packages/business/ai/adapters/deepseek-adapter.ts; packages/shared/src/circuit-breaker.ts (apenas rede)
+- impacto.tecnico: Tenant pode gerar grande volume de chamadas caras sem freio
+
+### [alto] ACH-002 — Limites de IA iguais para ESSENTIAL e PRO
+
+- dominio: custos-finops
+- run: 2026-04-19_21-19-13 (finalized)
+- categoria: pricing-e-unit-economics
+- status: confirmado
+- resumo: Schema trata `aiGenerationsLimit` como valor fixo (30) sem distinção por plano. PRO não oferece quota maior. Não há campos `aiGenerationsLimitEssential`/`aiGenerationsLimitPRO` nem `tenantAiCostQuotaUSD`.
+- evidencia.arquivo_ou_area: packages/db/prisma/schema.prisma (Subscription); packages/business/auth/adapters/prisma-subscription-repository.ts
+- impacto.tecnico: Pricing descasado dos custos
+
+### [alto] ACH-003 — WhatsApp sem métrica de custo por tenant (impossibilita unit economics)
+
+- dominio: custos-finops
+- run: 2026-04-19_21-19-13 (finalized)
+- categoria: alocacao-de-custo
+- status: confirmado
+- resumo: Nenhum modelo registra `WhatsappMessageCost` por tenant. `whatsapp-n2-adapter.ts` envia mensagens sem produzir evento com custo unitário. WhatsApp cobra por categoria (utility, marketing, service); WBC não conseguiria ratear fatura.
+- evidencia.arquivo_ou_area: packages/business/messaging/adapters/whatsapp-n2-adapter.ts; schema.prisma (sem MessageCost)
+- impacto.tecnico: Sem alocação de custo por tenant
+
+### [alto] ACH-004 — Observabilidade de custo ausente — sem métricas Prometheus, sem dashboards, sem alerta
+
+- dominio: custos-finops
+- run: 2026-04-19_21-19-13 (finalized)
+- categoria: observabilidade-finops
+- status: confirmado
+- resumo: `deploy/alerts.yml` não define alertas financeiros. `deploy/prometheus.yml` não coleta métricas de custo. Grafana sem dashboard de "spend por provider/tenant" (cross-ref observabilidade/ACH-002).
+- evidencia.arquivo_ou_area: deploy/alerts.yml; deploy/prometheus.yml
+- impacto.tecnico: Descoberta de overspend só via fatura
+
+### [alto] ACH-005 — Sentry com sampling generoso sem `beforeSend` (potencial excesso no free tier)
+
+- dominio: custos-finops
+- run: 2026-04-19_21-19-13 (finalized)
+- categoria: custo-observabilidade
+- status: confirmado
+- resumo: Client replays 100% em erros, traces 0.3 API e 0.1 worker; sem filtro/beforeSend. Em produção com carga, pode estourar free tier Sentry rapidamente (além do risco de PII já registrado em seguranca/ACH-021).
+- evidencia.arquivo_ou_area: apps/web/sentry.{client,server}.config.ts; apps/api/src/lib/sentry.ts
+- impacto.tecnico: Upgrade forçado ou perda de eventos
 
 ### [alto] ACH-003 — Incrementos concorrentes sem lock nem version field
 
@@ -1534,6 +1585,66 @@
 - evidencia.arquivo_ou_area: packages/business/messaging/adapters/whatsapp-n2-adapter.ts:42-104 (timeout por tentativa)
 - impacto.tecnico: Requests pendurados
 
+### [medio] ACH-006 — DeepSeek sem fallback de custo — indisponibilidade ⇒ perda de feature sem alternativa barata
+
+- dominio: custos-finops
+- run: 2026-04-19_21-19-13 (finalized)
+- categoria: otimizacao
+- status: confirmado
+- resumo: Circuit breaker abre e fallback é string estática ou erro; sem cache de resposta anterior nem template offline. Perda de feature (e receita) sem fallback.
+- evidencia.arquivo_ou_area: packages/business/ai/adapters/deepseek-adapter.ts
+- impacto.tecnico: Feature degrada para erro duro
+
+### [medio] ACH-007 — Postgres/Redis sem política de retenção global; disco cresce indefinidamente
+
+- dominio: custos-finops
+- run: 2026-04-19_21-19-13 (finalized)
+- categoria: storage-e-custo
+- status: confirmado
+- resumo: Sem `docs/DATA_RETENTION_POLICY.md`. Apenas outbox cleanup de PROCESSED. Clients inativos, Sales antigas, logs e OTP consumidos permanecem. Redis 256 MB com LRU (contenção).
+- evidencia.arquivo_ou_area: docker-compose.prod.yml; apps/worker/src/processors/outbox-cleanup.ts; cross-ref dados-persistencia/ACH-017/019
+- impacto.tecnico: Storage cresce; backup cresce
+
+### [medio] ACH-008 — Sem `docs/PRICING.md` nem documentação de COGS/unit economics
+
+- dominio: custos-finops
+- run: 2026-04-19_21-19-13 (finalized)
+- categoria: governanca-financeira
+- status: confirmado
+- resumo: Planos ESSENTIAL/PRO existem no schema, mas sem documento público/interno explicando custos, margens, diferenciação e incentivos.
+- evidencia.arquivo_ou_area: docs/ (vazio quanto a pricing)
+- impacto.tecnico: Decisões de produto sem base financeira
+
+### [medio] ACH-009 — GitHub Actions não usa cache robusto; build pode exceder minutos do free tier
+
+- dominio: custos-finops
+- run: 2026-04-19_21-19-13 (finalized)
+- categoria: ci-cost
+- status: confirmado
+- resumo: `ci.yml` usa pnpm/action-setup mas não cacheia `.next`, `node_modules` em nível de job, nem Turborepo remote cache. Instalações repetidas consomem minutos.
+- evidencia.arquivo_ou_area: .github/workflows/ci.yml
+- impacto.tecnico: Minutos mensais podem estourar
+
+### [medio] ACH-010 — Sem `CostSnapshot` table nem processo de reconciliação com faturas externas
+
+- dominio: custos-finops
+- run: 2026-04-19_21-19-13 (finalized)
+- categoria: governanca-financeira
+- status: confirmado
+- resumo: Não há tabela que armazene snapshot mensal do custo por provider/tenant; sem reconciliação com faturas (WhatsApp, DeepSeek, Sentry, Resend). Impossível confirmar billing dos providers.
+- evidencia.arquivo_ou_area: schema.prisma (sem CostSnapshot/ProviderInvoice)
+- impacto.tecnico: Sem auditoria financeira
+
+### [medio] ACH-011 — Sem estratégia de backup/DR documentada com custo
+
+- dominio: custos-finops
+- run: 2026-04-19_21-19-13 (finalized)
+- categoria: dr-e-custo
+- status: confirmado
+- resumo: Backups locais (`deploy/backup/backup.sh`) sem política de retenção versus custo off-site; RPO/RTO não documentados (cross-ref infra/ACH-003, dados-persistencia/ACH-018).
+- evidencia.arquivo_ou_area: deploy/backup/backup.sh; docs/DEPLOYMENT.md
+- impacto.tecnico: Restore custoso/arriscado
+
 ### [medio] ACH-006 — `Sale.total` calculado na aplicação sem CHECK constraint
 
 - dominio: dados-persistencia
@@ -2347,6 +2458,36 @@
 - resumo: Cada adapter mantém seu `CircuitBreaker`. Em crise em múltiplos providers, não há mecanismo para priorizar (ex.: abaixar DeepSeek para priorizar WhatsApp).
 - evidencia.arquivo_ou_area: packages/business/messaging/adapters/whatsapp-n2-adapter.ts:16; packages/business/ai/adapters/deepseek-adapter.ts:15
 - impacto.tecnico: Coordenação impossível automaticamente
+
+### [baixo] ACH-012 — Sem feature flags para desligar integrações pagas em emergência
+
+- dominio: custos-finops
+- run: 2026-04-19_21-19-13 (finalized)
+- categoria: otimizacao
+- status: confirmado
+- resumo: Sem mecanismo de kill switch global para DeepSeek, WhatsApp ou Sentry em caso de custos estourando (cross-ref infra/ACH-008).
+- evidencia.arquivo_ou_area: ausência de packages/shared/src/feature-flags.ts; sem Unleash/Growthbook
+- impacto.tecnico: Redução de custo exige redeploy
+
+### [baixo] ACH-013 — Sem controle de consumo de CI/Actions por branch/feature
+
+- dominio: custos-finops
+- run: 2026-04-19_21-19-13 (finalized)
+- categoria: ci-cost
+- status: confirmado
+- resumo: CI roda em qualquer push sem filtros; sem `paths-filter`/`paths-ignore` para docs/markdown; múltiplos workflows podem duplicar builds em monorepo.
+- evidencia.arquivo_ou_area: .github/workflows/ci.yml
+- impacto.tecnico: Minutos consumidos em mudanças não-funcionais
+
+### [baixo] ACH-014 — Dev stack rodando 24/7 sem auto-shutdown em não-produção
+
+- dominio: custos-finops
+- run: 2026-04-19_21-19-13 (finalized)
+- categoria: otimizacao
+- status: confirmado
+- resumo: `docker-compose.yml` (dev) não define `restart: "no"` nem shutdown agendado. VPS ou devs locais rodam serviços noite/fim de semana.
+- evidencia.arquivo_ou_area: docker-compose.yml
+- impacto.tecnico: CPU/RAM desperdiçados
 
 ### [baixo] ACH-009 — `Opportunity.status` é String livre em vez de enum
 

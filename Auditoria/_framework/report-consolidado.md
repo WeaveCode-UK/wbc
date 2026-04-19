@@ -1,20 +1,20 @@
 # Relatório Consolidado de Achados — Framework de Auditoria WeaveCode
 
-- gerado_em: 2026-04-19T06:38:35.264Z
-- total_achados: 135
+- gerado_em: 2026-04-19T06:45:10.131Z
+- total_achados: 152
 - dominios_em_progresso: 0
 - dominios_ready_for_finalize: 0
 - dominios_blocked: 0
-- dominios_com_historico: 6
+- dominios_com_historico: 7
 
 ## Distribuição por severidade
 
 | Severidade | Total |
 |---|---|
-| critico | 8 |
-| alto | 48 |
-| medio | 62 |
-| baixo | 16 |
+| critico | 10 |
+| alto | 54 |
+| medio | 69 |
+| baixo | 18 |
 | informativo | 1 |
 
 ## Distribuição por status
@@ -22,7 +22,7 @@
 | Status | Total |
 |---|---|
 | aberto | 13 |
-| confirmado | 109 |
+| confirmado | 126 |
 | mitigado | 0 |
 | resolvido | 0 |
 | aceito | 0 |
@@ -38,6 +38,7 @@
 | apis-integracoes | 20 |
 | dados-persistencia | 22 |
 | performance-escalabilidade | 30 |
+| confiabilidade-resiliencia | 17 |
 
 ## Achados ordenados por severidade
 
@@ -80,6 +81,26 @@
 - resumo: Fluxos de password reset, email verification e request-email-verification geram token mas não persistem no Redis nem validam no consumo; adapter Resend é stub. Bloqueia uso em produção dos fluxos de auth por link.
 - evidencia.arquivo_ou_area: packages/business/auth/use-cases/verify-email.use-case.ts:11; reset-password.use-case.ts:16; request-email-verification.use-case.ts:21; request-password-reset.use-case.ts:22; packages/business/auth/adapters/resend-email-sender.adapter.ts:7
 - impacto.tecnico: Código parece funcional mas não completa o fluxo; depuração difícil porque o caminho feliz emite eventos sem efeito
+
+### [critico] ACH-001 — `event-subscriber` usa `Promise.allSettled` e marca `processedAt` mesmo com handler falhando
+
+- dominio: confiabilidade-resiliencia
+- run: 2026-04-19_07-38-46 (finalized)
+- categoria: recuperacao-e-consistencia
+- status: confirmado
+- resumo: `dispatch()` em `packages/shared/src/events/event-subscriber.ts` executa `Promise.allSettled(handlers...)` e, no fim, chama `markProcessed()` do outbox sempre. Se um handler (ex.: `sale-confirmed-handler`) falhar, o evento é considerado processado — estado fica inconsistente sem replay automático.
+- evidencia.arquivo_ou_area: packages/shared/src/events/event-subscriber.ts:34-44; packages/business/inventory/adapters/sale-confirmed-handler.ts:8-11
+- impacto.tecnico: Invariantes violadas silenciosamente (venda confirmada sem baixa de estoque)
+
+### [critico] ACH-002 — Handlers do outbox não são idempotentes — retry duplica efeitos
+
+- dominio: confiabilidade-resiliencia
+- run: 2026-04-19_07-38-46 (finalized)
+- categoria: idempotencia
+- status: confirmado
+- resumo: Handlers (inventory, messaging, analytics) não recebem chave de idempotência nem persistem "já processado". Cruzado com ACH-002 de `dados-persistencia` (claimPending racy) e ACH-001 de `apis-integracoes` (idempotência opcional).
+- evidencia.arquivo_ou_area: packages/business/**/handlers/*.ts; packages/shared/src/events/event-subscriber.ts
+- impacto.tecnico: Dupla execução em retry
 
 ### [critico] ACH-001 — `confirmSale` publica evento sem validar estoque na mesma transação
 
@@ -260,6 +281,66 @@
 - resumo: `apps/api/src/index.ts` e `apps/worker/src/index.ts` executam `initTracing`, `initSentry`, `applyTenantMiddleware`, abrem conexões Redis e registram `setInterval` no topo do arquivo. Importar qualquer símbolo dispara todo o bootstrap.
 - evidencia.arquivo_ou_area: apps/api/src/index.ts:1-24; apps/worker/src/index.ts:1-74
 - impacto.tecnico: Impede testes de unidade por import direto; dificulta múltiplos modos (ex: CLI sem tracing)
+
+### [alto] ACH-003 — Fila BullMQ sem limite de profundidade; Redis 256 MB pode saturar
+
+- dominio: confiabilidade-resiliencia
+- run: 2026-04-19_07-38-46 (finalized)
+- categoria: overload-e-backpressure
+- status: confirmado
+- resumo: As queues (`messaging`, `campaigns`, `analytics`, `schedule`) são criadas sem `defaultJobOptions.removeOnComplete`/`removeOnFail` nem limite máximo. Com falha prolongada, a fila cresce até estourar o `maxmemory` (256 MB) definido no `docker-compose.prod.yml`.
+- evidencia.arquivo_ou_area: apps/api/src/lib/queues.ts; apps/worker/src/queues/*; docker-compose.prod.yml (redis `--maxmemory 256mb`)
+- impacto.tecnico: Redis OOM derruba cache e BullMQ
+
+### [alto] ACH-004 — Outbox-processor sem timeout por handler — um handler lento trava a loop inteira
+
+- dominio: confiabilidade-resiliencia
+- run: 2026-04-19_07-38-46 (finalized)
+- categoria: bulkhead
+- status: confirmado
+- resumo: `dispatch(event)` não impõe timeout por handler. Handler travado consome o tempo da iteração e pode exceder o `HANDLER_TIMEOUT_MS` global, elevando o lag e acionando readiness failure.
+- evidencia.arquivo_ou_area: apps/worker/src/processors/outbox-processor.ts:13-20
+- impacto.tecnico: Cascata de restarts; outbox cresce
+
+### [alto] ACH-005 — Graceful shutdown de worker (30s) sem `stop_grace_period` no Docker Compose
+
+- dominio: confiabilidade-resiliencia
+- run: 2026-04-19_07-38-46 (finalized)
+- categoria: recuperacao
+- status: confirmado
+- resumo: O worker implementa shutdown longo (30 s) para drenar jobs; mas `docker-compose.prod.yml` usa default (10 s). Docker envia SIGKILL após 10 s, interrompendo jobs em-flight e deixando eventos `PROCESSING` órfãos.
+- evidencia.arquivo_ou_area: apps/worker/src/index.ts:151-222; docker-compose.prod.yml (sem `stop_grace_period`)
+- impacto.tecnico: Eventos presos em PROCESSING; reprocessamento manual
+
+### [alto] ACH-006 — DLQ sem replay automático/semi-automático — requer SQL manual
+
+- dominio: confiabilidade-resiliencia
+- run: 2026-04-19_07-38-46 (finalized)
+- categoria: recuperacao
+- status: confirmado
+- resumo: `dlq-processor.ts` apenas loga; nenhum endpoint/CLI expõe replay. Reinjetar um evento crítico exige UPDATE SQL direto na tabela outbox.
+- evidencia.arquivo_ou_area: apps/worker/src/processors/dlq-processor.ts:12-16; ausência de rota admin ou comando audkit
+- impacto.tecnico: MTTR alto em incidente com DLQ
+
+### [alto] ACH-007 — Ausência de backpressure entre tRPC e outbox (API aceita novos eventos mesmo com lag alto)
+
+- dominio: confiabilidade-resiliencia
+- run: 2026-04-19_07-38-46 (finalized)
+- categoria: overload-e-backpressure
+- status: confirmado
+- resumo: `health/ready` detecta `outboxLagMs > 60s` e retira do balanceador, mas o tRPC segue aceitando `publish()` até ser removido. Clientes continuam gerando eventos que enchem a fila.
+- evidencia.arquivo_ou_area: apps/worker/src/health-server.ts:57-70; apps/api/src/trpc/trpc.ts (sem middleware que rejeite com base em lag)
+- impacto.tecnico: Degradação amplificada até orquestrador reagir
+
+### [alto] ACH-008 — Outbox sem idempotência de "claim" + handlers repetíveis — combinação racy+duplicação
+
+- dominio: confiabilidade-resiliencia
+- run: 2026-04-19_07-38-46 (finalized)
+- categoria: consistencia-e-recuperacao
+- status: confirmado
+- resumo: Soma do `claimPending` racy (cross-ref dados-persistencia/ACH-002) com handlers não idempotentes (ACH-002) produz, em cenário de multi-worker ou crash-during-processing, efeitos duplicados garantidos.
+- evidencia.arquivo_ou_area: packages/db/src/outbox/prisma-outbox-repository.ts:35-60; packages/shared/src/events/event-subscriber.ts; dados-persistencia/ACH-002
+- impacto.tecnico: Reprocessamento com efeito colateral; estado divergente
 
 ### [alto] ACH-003 — Incrementos concorrentes sem lock nem version field
 
@@ -887,6 +968,76 @@
 - evidencia.arquivo_ou_area: packages/business/clients/domain/errors.ts; apps/api/src/trpc/trpc.ts:51-61 (domainErrorMiddleware sem mapper explícito por tipo)
 - impacto.tecnico: Difícil testar mapeamento; mudança de mensagem pode afetar consumidores sem aviso
 
+### [medio] ACH-009 — Dois mecanismos de retry desalinhados (adapter x outbox)
+
+- dominio: confiabilidade-resiliencia
+- run: 2026-04-19_07-38-46 (finalized)
+- categoria: retries
+- status: confirmado
+- resumo: Adapters (WhatsApp/DeepSeek) retentam linearmente em ~1–2 s; outbox retenta com backoff exponencial ~10/40/90 s. Interação composta não é documentada e pode multiplicar carga.
+- evidencia.arquivo_ou_area: packages/shared/src/resilience/retry.ts; packages/db/src/outbox/prisma-outbox-repository.ts:69-92
+- impacto.tecnico: Carga de retry imprevisível
+
+### [medio] ACH-010 — Backoff do outbox sem jitter — risco de thundering herd
+
+- dominio: confiabilidade-resiliencia
+- run: 2026-04-19_07-38-46 (finalized)
+- categoria: retries
+- status: confirmado
+- resumo: `backoffMs` é determinístico (10/40/90 s). Se muitos eventos falharem no mesmo instante, todos retentam exatamente no mesmo segundo.
+- evidencia.arquivo_ou_area: packages/db/src/outbox/prisma-outbox-repository.ts:82
+- impacto.tecnico: Pico súbito de carga
+
+### [medio] ACH-011 — Isolamento fraco por tenant no worker — um tenant pode monopolizar a fila
+
+- dominio: confiabilidade-resiliencia
+- run: 2026-04-19_07-38-46 (finalized)
+- categoria: bulkhead
+- status: confirmado
+- resumo: `claimPending` não considera tenant; um tenant gerando 10k eventos consome todo o batch, deixando outros tenants starving.
+- evidencia.arquivo_ou_area: apps/worker/src/processors/outbox-processor.ts:8-28; docs/adr/008-worker-scaling.md
+- impacto.tecnico: SLA heterogêneo entre tenants
+
+### [medio] ACH-012 — Thresholds de circuit breaker WhatsApp hardcoded, sem ajuste em runtime
+
+- dominio: confiabilidade-resiliencia
+- run: 2026-04-19_07-38-46 (finalized)
+- categoria: retries-e-circuit
+- status: confirmado
+- resumo: `whatsapp-n2-adapter.ts` define thresholds (5 falhas / 60 s) em constantes. Sem env/override, operação não pode abrir circuito mais cedo durante um incidente.
+- evidencia.arquivo_ou_area: packages/business/messaging/adapters/whatsapp-n2-adapter.ts:16-18
+- impacto.tecnico: Resposta lenta a incidentes
+
+### [medio] ACH-013 — Cleanup do outbox pode remover histórico relevante para auditoria
+
+- dominio: confiabilidade-resiliencia
+- run: 2026-04-19_07-38-46 (finalized)
+- categoria: recuperacao-e-auditoria
+- status: confirmado
+- resumo: `outbox-cleanup` remove `processedAt != null`; ADR-007 marca "janela a definir". Se a janela for < 30 d, auditoria/compliance perde trilha.
+- evidencia.arquivo_ou_area: apps/worker/src/index.ts:109-119; apps/worker/src/processors/outbox-cleanup.ts
+- impacto.tecnico: Perda de histórico
+
+### [medio] ACH-014 — `MercadoPago` e `Resend` são stubs — não trazem padrão de resiliência aplicado
+
+- dominio: confiabilidade-resiliencia
+- run: 2026-04-19_07-38-46 (finalized)
+- categoria: resiliencia
+- status: confirmado
+- resumo: Integrações críticas estão stubadas; quando reais, precisam herdar padrão (timeout+retry+circuit+fallback). Sem template formal, risco de divergência.
+- evidencia.arquivo_ou_area: packages/business/auth/adapters/resend-email-sender.adapter.ts; ausência de adapter MP real
+- impacto.tecnico: Novos adapters podem omitir cobertura de falha
+
+### [medio] ACH-015 — Cascata de timeouts não definida — sem orçamento ponta-a-ponta
+
+- dominio: confiabilidade-resiliencia
+- run: 2026-04-19_07-38-46 (finalized)
+- categoria: timeouts
+- status: confirmado
+- resumo: Handler externo tem até 30 s (3 x 10 s por tentativa). Se múltiplas dependências encadeiam, somatório excede qualquer SLA operacional. Não há "budget" por operação.
+- evidencia.arquivo_ou_area: packages/business/messaging/adapters/whatsapp-n2-adapter.ts:42-104 (timeout por tentativa)
+- impacto.tecnico: Requests pendurados
+
 ### [medio] ACH-006 — `Sale.total` calculado na aplicação sem CHECK constraint
 
 - dominio: dados-persistencia
@@ -1277,6 +1428,26 @@
 - resumo: `packages/business/auth/adapters/prisma-otp-repository.ts:11-16` define `getRedis()` local; `apps/api/src/lib/redis.ts` define outro. Dois singletons Redis potenciais.
 - evidencia.arquivo_ou_area: packages/business/auth/adapters/prisma-otp-repository.ts:11-16; apps/api/src/lib/redis.ts
 - impacto.tecnico: Vazamento de conexão em produção; comportamento inconsistente
+
+### [baixo] ACH-016 — Rate-limit por rota, sem load shedding adaptativo sob degradação
+
+- dominio: confiabilidade-resiliencia
+- run: 2026-04-19_07-38-46 (finalized)
+- categoria: overload
+- status: confirmado
+- resumo: `rate-limit-middleware` aplica limites fixos. Quando latência sobe (GC, DB lento), não há redução dinâmica; o sistema não recupera sozinho.
+- evidencia.arquivo_ou_area: apps/api/src/trpc/rate-limit-middleware.ts:31-45
+- impacto.tecnico: Fila interna cresce até crash
+
+### [baixo] ACH-017 — Circuit breakers isolados por adapter — sem sinalização cruzada
+
+- dominio: confiabilidade-resiliencia
+- run: 2026-04-19_07-38-46 (finalized)
+- categoria: resiliencia
+- status: confirmado
+- resumo: Cada adapter mantém seu `CircuitBreaker`. Em crise em múltiplos providers, não há mecanismo para priorizar (ex.: abaixar DeepSeek para priorizar WhatsApp).
+- evidencia.arquivo_ou_area: packages/business/messaging/adapters/whatsapp-n2-adapter.ts:16; packages/business/ai/adapters/deepseek-adapter.ts:15
+- impacto.tecnico: Coordenação impossível automaticamente
 
 ### [baixo] ACH-009 — `Opportunity.status` é String livre em vez de enum
 

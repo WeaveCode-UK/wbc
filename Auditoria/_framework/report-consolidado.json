@@ -1,18 +1,18 @@
 {
   "schema_version": "2.1",
-  "generated_at": "2026-04-19T06:38:35.264Z",
-  "total": 135,
-  "total_runs": 6,
+  "generated_at": "2026-04-19T06:45:10.131Z",
+  "total": 152,
+  "total_runs": 7,
   "distribution": {
     "by_severity": {
-      "critico": 8,
-      "alto": 48,
-      "medio": 62,
-      "baixo": 16,
+      "critico": 10,
+      "alto": 54,
+      "medio": 69,
+      "baixo": 18,
       "informativo": 1
     },
     "by_status": {
-      "confirmado": 109,
+      "confirmado": 126,
       "aberto": 13,
       "null": 13
     },
@@ -20,13 +20,14 @@
       "apis-integracoes": 20,
       "arquitetura": 13,
       "codigo-manutenibilidade": 22,
+      "confiabilidade-resiliencia": 17,
       "dados-persistencia": 22,
       "seguranca": 28,
       "performance-escalabilidade": 30
     }
   },
   "progress": {
-    "last_updated": "2026-04-19T06:38:35.261Z",
+    "last_updated": "2026-04-19T06:45:10.127Z",
     "domains": {
       "arquitetura": {
         "domain": "arquitetura",
@@ -106,11 +107,11 @@
         "run_id_atual": null,
         "fase_atual": "none",
         "fases_concluidas": 0,
-        "fases_totais": 5,
+        "fases_totais": 1,
         "percentual": 0,
-        "ultima_atualizacao": "none",
-        "ultima_run_finalizada": null,
-        "total_runs": 0
+        "ultima_atualizacao": "2026-04-19",
+        "ultima_run_finalizada": "2026-04-19_07-38-46",
+        "total_runs": 1
       },
       "observabilidade-operacao": {
         "domain": "observabilidade-operacao",
@@ -214,7 +215,7 @@
       "dominios_blocked": 0,
       "dominios_ready_for_finalize": 0,
       "dominios_not_started": 15,
-      "dominios_com_historico": 6
+      "dominios_com_historico": 7
     }
   },
   "runs_history": [
@@ -271,6 +272,24 @@
       },
       "distribution_by_status": {
         "confirmado": 22
+      }
+    },
+    {
+      "domain": "confiabilidade-resiliencia",
+      "run_id": "2026-04-19_07-38-46",
+      "run_state": "finalized",
+      "iniciado_em": "2026-04-19 07:38:46",
+      "finalizado_em": "2026-04-19 08:00:00",
+      "avaliacao": null,
+      "total_achados": 17,
+      "distribution_by_severity": {
+        "critico": 2,
+        "alto": 6,
+        "medio": 7,
+        "baixo": 2
+      },
+      "distribution_by_status": {
+        "confirmado": 17
       }
     },
     {
@@ -411,6 +430,47 @@
         "negocio": "Usuário não consegue redefinir senha nem verificar e-mail; risco de comprometer onboarding e conformidade de segurança"
       },
       "acao_sugerida": "Implementar persistência de token em Redis com TTL, validação no consumo e integração com provedor de e-mail real; cobrir com testes de fluxo",
+      "prioridade": "alta"
+    },
+    {
+      "domain": "confiabilidade-resiliencia",
+      "runId": "2026-04-19_07-38-46",
+      "runState": "finalized",
+      "id": "ACH-001",
+      "titulo": "`event-subscriber` usa `Promise.allSettled` e marca `processedAt` mesmo com handler falhando",
+      "severidade": "critico",
+      "categoria": "recuperacao-e-consistencia",
+      "status": "confirmado",
+      "resumo": "`dispatch()` em `packages/shared/src/events/event-subscriber.ts` executa `Promise.allSettled(handlers...)` e, no fim, chama `markProcessed()` do outbox sempre. Se um handler (ex.: `sale-confirmed-handler`) falhar, o evento é considerado processado — estado fica inconsistente sem replay automático.",
+      "evidencia": {
+        "arquivo_ou_area": "packages/shared/src/events/event-subscriber.ts:34-44; packages/business/inventory/adapters/sale-confirmed-handler.ts:8-11"
+      },
+      "impacto": {
+        "tecnico": "Invariantes violadas silenciosamente (venda confirmada sem baixa de estoque)",
+        "negocio": "Divergência entre estado de domínio e realidade — overselling, cashback incorreto, relatórios errados"
+      },
+      "acao_sugerida": "Falhas em qualquer handler devem retornar o evento a PENDING (ou promovê-lo a DLQ) — não marcar `processedAt`; logar metadata do handler que falhou; combinar com idempotência por handler (ACH-002)",
+      "prioridade": "alta"
+    },
+    {
+      "domain": "confiabilidade-resiliencia",
+      "runId": "2026-04-19_07-38-46",
+      "runState": "finalized",
+      "id": "ACH-002",
+      "titulo": "Handlers do outbox não são idempotentes — retry duplica efeitos",
+      "severidade": "critico",
+      "categoria": "idempotencia",
+      "status": "confirmado",
+      "resumo": "Handlers (inventory, messaging, analytics) não recebem chave de idempotência nem persistem \"já processado\". Cruzado com ACH-002 de `dados-persistencia` (claimPending racy) e ACH-001 de `apis-integracoes` (idempotência opcional).",
+      "evidencia": {
+        "arquivo_ou_area": "packages/business/**/handlers/*.ts; packages/shared/src/events/event-subscriber.ts",
+        "detalhe": "Um único evento reenviado duplica estoque, cashback e mensagem"
+      },
+      "impacto": {
+        "tecnico": "Dupla execução em retry",
+        "negocio": "Prejuízo financeiro e reputacional"
+      },
+      "acao_sugerida": "Tabela `processed_events(handler, event_id PK, tenant_id)`; cada handler insere e executa no mesmo `$transaction`; conflito = no-op",
       "prioridade": "alta"
     },
     {
@@ -789,6 +849,128 @@
         "negocio": "Aumenta o custo de testes e de alterações no ciclo de vida da aplicação"
       },
       "acao_sugerida": "Mover inicialização para `async function bootstrap()`; arquivo de entrada só chama bootstrap se for entry real (`if (require.main === module)` ou equivalente ESM)",
+      "prioridade": "alta"
+    },
+    {
+      "domain": "confiabilidade-resiliencia",
+      "runId": "2026-04-19_07-38-46",
+      "runState": "finalized",
+      "id": "ACH-003",
+      "titulo": "Fila BullMQ sem limite de profundidade; Redis 256 MB pode saturar",
+      "severidade": "alto",
+      "categoria": "overload-e-backpressure",
+      "status": "confirmado",
+      "resumo": "As queues (`messaging`, `campaigns`, `analytics`, `schedule`) são criadas sem `defaultJobOptions.removeOnComplete`/`removeOnFail` nem limite máximo. Com falha prolongada, a fila cresce até estourar o `maxmemory` (256 MB) definido no `docker-compose.prod.yml`.",
+      "evidencia": {
+        "arquivo_ou_area": "apps/api/src/lib/queues.ts; apps/worker/src/queues/*; docker-compose.prod.yml (redis `--maxmemory 256mb`)"
+      },
+      "impacto": {
+        "tecnico": "Redis OOM derruba cache e BullMQ",
+        "negocio": "Indisponibilidade total cascata"
+      },
+      "acao_sugerida": "`defaultJobOptions: { removeOnComplete: 1000, removeOnFail: 5000 }`; alertar ao crescer; dimensionar `maxmemory` conforme carga esperada",
+      "prioridade": "alta"
+    },
+    {
+      "domain": "confiabilidade-resiliencia",
+      "runId": "2026-04-19_07-38-46",
+      "runState": "finalized",
+      "id": "ACH-004",
+      "titulo": "Outbox-processor sem timeout por handler — um handler lento trava a loop inteira",
+      "severidade": "alto",
+      "categoria": "bulkhead",
+      "status": "confirmado",
+      "resumo": "`dispatch(event)` não impõe timeout por handler. Handler travado consome o tempo da iteração e pode exceder o `HANDLER_TIMEOUT_MS` global, elevando o lag e acionando readiness failure.",
+      "evidencia": {
+        "arquivo_ou_area": "apps/worker/src/processors/outbox-processor.ts:13-20",
+        "detalhe": "Sem `AbortSignal`/`setTimeout` dentro do dispatch"
+      },
+      "impacto": {
+        "tecnico": "Cascata de restarts; outbox cresce",
+        "negocio": "Degradação silenciosa virando crise"
+      },
+      "acao_sugerida": "Envolver cada handler em `Promise.race([fn(), timeoutPromise])`; marcar como falhado e continuar a loop; métricas por handler",
+      "prioridade": "alta"
+    },
+    {
+      "domain": "confiabilidade-resiliencia",
+      "runId": "2026-04-19_07-38-46",
+      "runState": "finalized",
+      "id": "ACH-005",
+      "titulo": "Graceful shutdown de worker (30s) sem `stop_grace_period` no Docker Compose",
+      "severidade": "alto",
+      "categoria": "recuperacao",
+      "status": "confirmado",
+      "resumo": "O worker implementa shutdown longo (30 s) para drenar jobs; mas `docker-compose.prod.yml` usa default (10 s). Docker envia SIGKILL após 10 s, interrompendo jobs em-flight e deixando eventos `PROCESSING` órfãos.",
+      "evidencia": {
+        "arquivo_ou_area": "apps/worker/src/index.ts:151-222; docker-compose.prod.yml (sem `stop_grace_period`)"
+      },
+      "impacto": {
+        "tecnico": "Eventos presos em PROCESSING; reprocessamento manual",
+        "negocio": "Atrasos em mensageria, cashback e relatórios"
+      },
+      "acao_sugerida": "`stop_grace_period: 40s`; job scheduled que reset `PROCESSING > 5min` para PENDING; métrica de \"orphaned processing events",
+      "prioridade": "alta"
+    },
+    {
+      "domain": "confiabilidade-resiliencia",
+      "runId": "2026-04-19_07-38-46",
+      "runState": "finalized",
+      "id": "ACH-006",
+      "titulo": "DLQ sem replay automático/semi-automático — requer SQL manual",
+      "severidade": "alto",
+      "categoria": "recuperacao",
+      "status": "confirmado",
+      "resumo": "`dlq-processor.ts` apenas loga; nenhum endpoint/CLI expõe replay. Reinjetar um evento crítico exige UPDATE SQL direto na tabela outbox.",
+      "evidencia": {
+        "arquivo_ou_area": "apps/worker/src/processors/dlq-processor.ts:12-16; ausência de rota admin ou comando audkit"
+      },
+      "impacto": {
+        "tecnico": "MTTR alto em incidente com DLQ",
+        "negocio": "Dependência de engenheiro disponível"
+      },
+      "acao_sugerida": "tRPC admin `dlq.replay(id)` com role check; CLI `audkit-dlq replay --id=<>`; log estruturado e alerta ao entrar em DLQ (cross-ref apis-integracoes/ACH-020)",
+      "prioridade": "alta"
+    },
+    {
+      "domain": "confiabilidade-resiliencia",
+      "runId": "2026-04-19_07-38-46",
+      "runState": "finalized",
+      "id": "ACH-007",
+      "titulo": "Ausência de backpressure entre tRPC e outbox (API aceita novos eventos mesmo com lag alto)",
+      "severidade": "alto",
+      "categoria": "overload-e-backpressure",
+      "status": "confirmado",
+      "resumo": "`health/ready` detecta `outboxLagMs > 60s` e retira do balanceador, mas o tRPC segue aceitando `publish()` até ser removido. Clientes continuam gerando eventos que enchem a fila.",
+      "evidencia": {
+        "arquivo_ou_area": "apps/worker/src/health-server.ts:57-70; apps/api/src/trpc/trpc.ts (sem middleware que rejeite com base em lag)"
+      },
+      "impacto": {
+        "tecnico": "Degradação amplificada até orquestrador reagir",
+        "negocio": "Mensagens e ações acumulam atraso"
+      },
+      "acao_sugerida": "Middleware tRPC que rejeite mutations geradoras de evento quando `outboxLagMs > threshold/2`; TRPCError `TOO_MANY_REQUESTS` + `Retry-After`",
+      "prioridade": "alta"
+    },
+    {
+      "domain": "confiabilidade-resiliencia",
+      "runId": "2026-04-19_07-38-46",
+      "runState": "finalized",
+      "id": "ACH-008",
+      "titulo": "Outbox sem idempotência de \"claim\" + handlers repetíveis — combinação racy+duplicação",
+      "severidade": "alto",
+      "categoria": "consistencia-e-recuperacao",
+      "status": "confirmado",
+      "resumo": "Soma do `claimPending` racy (cross-ref dados-persistencia/ACH-002) com handlers não idempotentes (ACH-002) produz, em cenário de multi-worker ou crash-during-processing, efeitos duplicados garantidos.",
+      "evidencia": {
+        "arquivo_ou_area": "packages/db/src/outbox/prisma-outbox-repository.ts:35-60; packages/shared/src/events/event-subscriber.ts; dados-persistencia/ACH-002",
+        "detalhe": "Duas falhas individuais aceitáveis viram um desastre combinadas"
+      },
+      "impacto": {
+        "tecnico": "Reprocessamento com efeito colateral; estado divergente",
+        "negocio": "Confiabilidade do pipeline de eventos comprometida"
+      },
+      "acao_sugerida": "Combinar correções: `FOR UPDATE SKIP LOCKED` + `processed_events` por handler",
       "prioridade": "alta"
     },
     {
@@ -2101,6 +2283,146 @@
       "prioridade": "media"
     },
     {
+      "domain": "confiabilidade-resiliencia",
+      "runId": "2026-04-19_07-38-46",
+      "runState": "finalized",
+      "id": "ACH-009",
+      "titulo": "Dois mecanismos de retry desalinhados (adapter x outbox)",
+      "severidade": "medio",
+      "categoria": "retries",
+      "status": "confirmado",
+      "resumo": "Adapters (WhatsApp/DeepSeek) retentam linearmente em ~1–2 s; outbox retenta com backoff exponencial ~10/40/90 s. Interação composta não é documentada e pode multiplicar carga.",
+      "evidencia": {
+        "arquivo_ou_area": "packages/shared/src/resilience/retry.ts; packages/db/src/outbox/prisma-outbox-repository.ts:69-92"
+      },
+      "impacto": {
+        "tecnico": "Carga de retry imprevisível",
+        "negocio": "Latência percebida instável"
+      },
+      "acao_sugerida": "Documentar em ADR-007 os dois níveis; adotar um padrão único — adapter para falhas transientes rápidas (< 5 s), outbox para persistentes (≥ 30 s); jitter em ambos",
+      "prioridade": "media"
+    },
+    {
+      "domain": "confiabilidade-resiliencia",
+      "runId": "2026-04-19_07-38-46",
+      "runState": "finalized",
+      "id": "ACH-010",
+      "titulo": "Backoff do outbox sem jitter — risco de thundering herd",
+      "severidade": "medio",
+      "categoria": "retries",
+      "status": "confirmado",
+      "resumo": "`backoffMs` é determinístico (10/40/90 s). Se muitos eventos falharem no mesmo instante, todos retentam exatamente no mesmo segundo.",
+      "evidencia": {
+        "arquivo_ou_area": "packages/db/src/outbox/prisma-outbox-repository.ts:82"
+      },
+      "impacto": {
+        "tecnico": "Pico súbito de carga",
+        "negocio": "Instabilidade sob incidente"
+      },
+      "acao_sugerida": "`backoffMs = base + random(base * 0.5)`; aplicar ao adapter também",
+      "prioridade": "media"
+    },
+    {
+      "domain": "confiabilidade-resiliencia",
+      "runId": "2026-04-19_07-38-46",
+      "runState": "finalized",
+      "id": "ACH-011",
+      "titulo": "Isolamento fraco por tenant no worker — um tenant pode monopolizar a fila",
+      "severidade": "medio",
+      "categoria": "bulkhead",
+      "status": "confirmado",
+      "resumo": "`claimPending` não considera tenant; um tenant gerando 10k eventos consome todo o batch, deixando outros tenants starving.",
+      "evidencia": {
+        "arquivo_ou_area": "apps/worker/src/processors/outbox-processor.ts:8-28; docs/adr/008-worker-scaling.md"
+      },
+      "impacto": {
+        "tecnico": "SLA heterogêneo entre tenants",
+        "negocio": "Reclamações de tenants prejudicados"
+      },
+      "acao_sugerida": "Round-robin por tenant no claim (ex: `DISTINCT ON (tenant_id)`); futuro: partições por tenant conforme ADR-008",
+      "prioridade": "media"
+    },
+    {
+      "domain": "confiabilidade-resiliencia",
+      "runId": "2026-04-19_07-38-46",
+      "runState": "finalized",
+      "id": "ACH-012",
+      "titulo": "Thresholds de circuit breaker WhatsApp hardcoded, sem ajuste em runtime",
+      "severidade": "medio",
+      "categoria": "retries-e-circuit",
+      "status": "confirmado",
+      "resumo": "`whatsapp-n2-adapter.ts` define thresholds (5 falhas / 60 s) em constantes. Sem env/override, operação não pode abrir circuito mais cedo durante um incidente.",
+      "evidencia": {
+        "arquivo_ou_area": "packages/business/messaging/adapters/whatsapp-n2-adapter.ts:16-18"
+      },
+      "impacto": {
+        "tecnico": "Resposta lenta a incidentes",
+        "negocio": "MTTR mais alto"
+      },
+      "acao_sugerida": "Centralizar em `packages/shared/src/resilience/policies.ts` + env (`WHATSAPP_CIRCUIT_THRESHOLD`, `WHATSAPP_CIRCUIT_WINDOW_MS`)",
+      "prioridade": "media"
+    },
+    {
+      "domain": "confiabilidade-resiliencia",
+      "runId": "2026-04-19_07-38-46",
+      "runState": "finalized",
+      "id": "ACH-013",
+      "titulo": "Cleanup do outbox pode remover histórico relevante para auditoria",
+      "severidade": "medio",
+      "categoria": "recuperacao-e-auditoria",
+      "status": "confirmado",
+      "resumo": "`outbox-cleanup` remove `processedAt != null`; ADR-007 marca \"janela a definir\". Se a janela for < 30 d, auditoria/compliance perde trilha.",
+      "evidencia": {
+        "arquivo_ou_area": "apps/worker/src/index.ts:109-119; apps/worker/src/processors/outbox-cleanup.ts"
+      },
+      "impacto": {
+        "tecnico": "Perda de histórico",
+        "negocio": "Dificuldade em investigações/LGPD"
+      },
+      "acao_sugerida": "Manter 30 d em Postgres; export para cold storage; documentar em `docs/RETENTION.md`",
+      "prioridade": "media"
+    },
+    {
+      "domain": "confiabilidade-resiliencia",
+      "runId": "2026-04-19_07-38-46",
+      "runState": "finalized",
+      "id": "ACH-014",
+      "titulo": "`MercadoPago` e `Resend` são stubs — não trazem padrão de resiliência aplicado",
+      "severidade": "medio",
+      "categoria": "resiliencia",
+      "status": "confirmado",
+      "resumo": "Integrações críticas estão stubadas; quando reais, precisam herdar padrão (timeout+retry+circuit+fallback). Sem template formal, risco de divergência.",
+      "evidencia": {
+        "arquivo_ou_area": "packages/business/auth/adapters/resend-email-sender.adapter.ts; ausência de adapter MP real"
+      },
+      "impacto": {
+        "tecnico": "Novos adapters podem omitir cobertura de falha",
+        "negocio": "Integrações frágeis em produção"
+      },
+      "acao_sugerida": "Criar `packages/shared/src/adapters/external-adapter-template.ts` e regra de code-review exigindo uso",
+      "prioridade": "media"
+    },
+    {
+      "domain": "confiabilidade-resiliencia",
+      "runId": "2026-04-19_07-38-46",
+      "runState": "finalized",
+      "id": "ACH-015",
+      "titulo": "Cascata de timeouts não definida — sem orçamento ponta-a-ponta",
+      "severidade": "medio",
+      "categoria": "timeouts",
+      "status": "confirmado",
+      "resumo": "Handler externo tem até 30 s (3 x 10 s por tentativa). Se múltiplas dependências encadeiam, somatório excede qualquer SLA operacional. Não há \"budget\" por operação.",
+      "evidencia": {
+        "arquivo_ou_area": "packages/business/messaging/adapters/whatsapp-n2-adapter.ts:42-104 (timeout por tentativa)"
+      },
+      "impacto": {
+        "tecnico": "Requests pendurados",
+        "negocio": "Experiência lenta em incidente"
+      },
+      "acao_sugerida": "Conceito de \"deadline\" propagado em contexto (`AbortSignal.timeout(budgetMs)` no início); adapters abortam se estourar",
+      "prioridade": "media"
+    },
+    {
       "domain": "dados-persistencia",
       "runId": "2026-04-18_23-03-36",
       "runState": "finalized",
@@ -2914,6 +3236,46 @@
         "negocio": "Pequeno, mas operacional"
       },
       "acao_sugerida": "Consolidar em `packages/shared/src/redis.ts`; adapters recebem o client por parâmetro (alinhado com ACH-003)",
+      "prioridade": "baixa"
+    },
+    {
+      "domain": "confiabilidade-resiliencia",
+      "runId": "2026-04-19_07-38-46",
+      "runState": "finalized",
+      "id": "ACH-016",
+      "titulo": "Rate-limit por rota, sem load shedding adaptativo sob degradação",
+      "severidade": "baixo",
+      "categoria": "overload",
+      "status": "confirmado",
+      "resumo": "`rate-limit-middleware` aplica limites fixos. Quando latência sobe (GC, DB lento), não há redução dinâmica; o sistema não recupera sozinho.",
+      "evidencia": {
+        "arquivo_ou_area": "apps/api/src/trpc/rate-limit-middleware.ts:31-45"
+      },
+      "impacto": {
+        "tecnico": "Fila interna cresce até crash",
+        "negocio": "UX piora sem autoajuste"
+      },
+      "acao_sugerida": "Ajuste adaptativo baseado em p95 de latência (reduzir limite quando p95 > threshold)",
+      "prioridade": "baixa"
+    },
+    {
+      "domain": "confiabilidade-resiliencia",
+      "runId": "2026-04-19_07-38-46",
+      "runState": "finalized",
+      "id": "ACH-017",
+      "titulo": "Circuit breakers isolados por adapter — sem sinalização cruzada",
+      "severidade": "baixo",
+      "categoria": "resiliencia",
+      "status": "confirmado",
+      "resumo": "Cada adapter mantém seu `CircuitBreaker`. Em crise em múltiplos providers, não há mecanismo para priorizar (ex.: abaixar DeepSeek para priorizar WhatsApp).",
+      "evidencia": {
+        "arquivo_ou_area": "packages/business/messaging/adapters/whatsapp-n2-adapter.ts:16; packages/business/ai/adapters/deepseek-adapter.ts:15"
+      },
+      "impacto": {
+        "tecnico": "Coordenação impossível automaticamente",
+        "negocio": "Runbook manual em incidente múltiplo"
+      },
+      "acao_sugerida": "(futuro) circuit breaker central com agregado; por ora documentar runbook",
       "prioridade": "baixa"
     },
     {

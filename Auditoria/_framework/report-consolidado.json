@@ -1,18 +1,18 @@
 {
   "schema_version": "2.1",
-  "generated_at": "2026-04-19T20:25:48.606Z",
-  "total": 276,
-  "total_runs": 14,
+  "generated_at": "2026-04-19T20:38:22.233Z",
+  "total": 294,
+  "total_runs": 15,
   "distribution": {
     "by_severity": {
       "critico": 16,
-      "alto": 97,
-      "medio": 119,
-      "baixo": 42,
-      "informativo": 2
+      "alto": 102,
+      "medio": 128,
+      "baixo": 45,
+      "informativo": 3
     },
     "by_status": {
-      "confirmado": 249,
+      "confirmado": 267,
       "aberto": 13,
       "null": 13,
       "hipotese": 1
@@ -27,6 +27,7 @@
       "seguranca": 28,
       "supply-chain-dependencias": 16,
       "custos-finops": 14,
+      "documentacao-runbooks": 18,
       "infraestrutura-deploy-config": 16,
       "observabilidade-operacao": 15,
       "performance-escalabilidade": 30,
@@ -35,7 +36,7 @@
     }
   },
   "progress": {
-    "last_updated": "2026-04-19T20:25:48.601Z",
+    "last_updated": "2026-04-19T20:38:22.229Z",
     "domains": {
       "arquitetura": {
         "domain": "arquitetura",
@@ -211,11 +212,11 @@
         "run_id_atual": null,
         "fase_atual": "none",
         "fases_concluidas": 0,
-        "fases_totais": 5,
+        "fases_totais": 1,
         "percentual": 0,
-        "ultima_atualizacao": "none",
-        "ultima_run_finalizada": null,
-        "total_runs": 0
+        "ultima_atualizacao": "2026-04-19",
+        "ultima_run_finalizada": "2026-04-19_21-26-25",
+        "total_runs": 1
       }
     },
     "summary": {
@@ -223,7 +224,7 @@
       "dominios_blocked": 0,
       "dominios_ready_for_finalize": 0,
       "dominios_not_started": 15,
-      "dominios_com_historico": 14
+      "dominios_com_historico": 15
     }
   },
   "runs_history": [
@@ -352,6 +353,24 @@
       "distribution_by_status": {
         "confirmado": 9,
         "null": 13
+      }
+    },
+    {
+      "domain": "documentacao-runbooks",
+      "run_id": "2026-04-19_21-26-25",
+      "run_state": "finalized",
+      "iniciado_em": "2026-04-19 21:26:25",
+      "finalizado_em": "2026-04-19 21:45:00",
+      "avaliacao": null,
+      "total_achados": 18,
+      "distribution_by_severity": {
+        "alto": 5,
+        "medio": 9,
+        "baixo": 3,
+        "informativo": 1
+      },
+      "distribution_by_status": {
+        "confirmado": 18
       }
     },
     {
@@ -1665,6 +1684,106 @@
         "negocio": "Continuidade em incidente comprometida"
       },
       "acao_sugerida": "Cron; upload remoto; drill mensal; documentar RPO≤1h e RTO≤4h",
+      "prioridade": "alta"
+    },
+    {
+      "domain": "documentacao-runbooks",
+      "runId": "2026-04-19_21-26-25",
+      "runState": "finalized",
+      "id": "ACH-001",
+      "titulo": "`SECURITY.md` inexistente — sem procedimento de divulgação de vulnerabilidades",
+      "severidade": "alto",
+      "categoria": "documentacao-de-seguranca",
+      "status": "confirmado",
+      "resumo": "WBC processa PII e dados sensíveis (cross-ref compliance-privacidade), mas não há canal documentado para pesquisadores reportarem vulnerabilidades (SLA, email dedicado, PGP key, safe-harbor).",
+      "evidencia": {
+        "arquivo_ou_area": "raiz (sem SECURITY.md)"
+      },
+      "impacto": {
+        "tecnico": "Vulnerabilidades potencialmente divulgadas publicamente",
+        "negocio": "Risco legal e reputacional"
+      },
+      "acao_sugerida": "`SECURITY.md` com `security@weavecode.co.uk`, SLA 24-48h, PGP opcional, cláusula de boa-fé e disclosure policy",
+      "prioridade": "alta"
+    },
+    {
+      "domain": "documentacao-runbooks",
+      "runId": "2026-04-19_21-26-25",
+      "runState": "finalized",
+      "id": "ACH-002",
+      "titulo": "README raiz vazio — dev novo não consegue iniciar",
+      "severidade": "alto",
+      "categoria": "onboarding",
+      "status": "confirmado",
+      "resumo": "README atual tem apenas título. Sem quickstart (install, dev, build), sem requisitos, sem links para docs, sem badges.",
+      "evidencia": {
+        "arquivo_ou_area": "README.md"
+      },
+      "impacto": {
+        "tecnico": "Barreira de entrada para colaboradores",
+        "negocio": "Onboarding depende de comunicação individual"
+      },
+      "acao_sugerida": "README com quickstart, stack, scripts úteis, links (docs/ARCHITECTURE.md, docs/DEPLOYMENT.md, begin/WBC_ORCHESTRATOR.md), badges CI/coverage",
+      "prioridade": "alta"
+    },
+    {
+      "domain": "documentacao-runbooks",
+      "runId": "2026-04-19_21-26-25",
+      "runState": "finalized",
+      "id": "ACH-003",
+      "titulo": "`CONTRIBUTING.md` inexistente",
+      "severidade": "alto",
+      "categoria": "governanca-de-contribuicao",
+      "status": "confirmado",
+      "resumo": "CLAUDE.md menciona Conventional Commits em inglês, mas não há guia formal de PR, branch naming, templates. Sem gate documentado.",
+      "evidencia": {
+        "arquivo_ou_area": "raiz"
+      },
+      "impacto": {
+        "tecnico": "Inconsistência de commits e PRs",
+        "negocio": "Dificuldade em revisar/automatizar"
+      },
+      "acao_sugerida": "`CONTRIBUTING.md` com commit template, PR checklist, branch naming, política de testes e link para CODE_OF_CONDUCT (cross-ref testes-qualidade/ACH-007)",
+      "prioridade": "alta"
+    },
+    {
+      "domain": "documentacao-runbooks",
+      "runId": "2026-04-19_21-26-25",
+      "runState": "finalized",
+      "id": "ACH-004",
+      "titulo": "DR do `docs/DEPLOYMENT.md` é placeholder, sem execução nem validação",
+      "severidade": "alto",
+      "categoria": "runbook-critico",
+      "status": "confirmado",
+      "resumo": "Seção \"Disaster Recovery\" marca RTO/RPO como \"pendente validação humana\"; `restore.sh` existe mas não há drill documentado (cross-ref dados-persistencia/ACH-018, infra/ACH-004).",
+      "evidencia": {
+        "arquivo_ou_area": "docs/DEPLOYMENT.md (seção DR); deploy/backup/restore.sh"
+      },
+      "impacto": {
+        "tecnico": "Recuperação real pode falhar/exceder SLA",
+        "negocio": "Perda de dados não mensurada"
+      },
+      "acao_sugerida": "Executar drill, medir tempos, formalizar runbook passo-a-passo em `docs/runbooks/dr.md`; validar RPO ≤ 1h, RTO ≤ 4h com stakeholders",
+      "prioridade": "alta"
+    },
+    {
+      "domain": "documentacao-runbooks",
+      "runId": "2026-04-19_21-26-25",
+      "runState": "finalized",
+      "id": "ACH-005",
+      "titulo": "`deploy/RUNBOOKS.md` não cobre DLQ / outbox lag / worker scaling",
+      "severidade": "alto",
+      "categoria": "runbooks-operacionais",
+      "status": "confirmado",
+      "resumo": "ADR-007 introduz DLQ, graceful shutdown e lag thresholds, mas o RUNBOOKS não tem casos para \"outboxLagMs > 60s\", \"DLQ crescendo\", \"replay de evento\", \"escalar worker\". Cross-ref observabilidade/ACH-004 e confiabilidade/ACH-006.",
+      "evidencia": {
+        "arquivo_ou_area": "deploy/RUNBOOKS.md"
+      },
+      "impacto": {
+        "tecnico": "Operador trava em incidentes novos",
+        "negocio": "MTTR alto"
+      },
+      "acao_sugerida": "Acrescentar casos em `docs/runbooks/outbox-lag.md`, `dlq-replay.md`, `worker-scaling.md`, `certbot-ssl-expiring.md`; cada um com trigger, diagnóstico, mitigação, rollback",
       "prioridade": "alta"
     },
     {
@@ -3933,6 +4052,186 @@
       "prioridade": "baixa"
     },
     {
+      "domain": "documentacao-runbooks",
+      "runId": "2026-04-19_21-26-25",
+      "runState": "finalized",
+      "id": "ACH-006",
+      "titulo": "`docs/ARCHITECTURE.md` sem diagramas de sequência de fluxos críticos",
+      "severidade": "medio",
+      "categoria": "arquitetura",
+      "status": "confirmado",
+      "resumo": "Estrutura de módulos e eventos existe, mas não há fluxo \"criar venda → outbox → handler → estoque/notif\" em sequência.",
+      "evidencia": {
+        "arquivo_ou_area": "docs/ARCHITECTURE.md; docs/architecture/events.md"
+      },
+      "impacto": {
+        "tecnico": "Dev novo tem dificuldade em rastrear fluxos end-to-end",
+        "negocio": "Onboarding lento"
+      },
+      "acao_sugerida": "Diagramas de sequência (Mermaid) para 3 fluxos (criar venda, enviar campanha, aceitar invite); acoplar com ADR-003 (outbox)",
+      "prioridade": "media"
+    },
+    {
+      "domain": "documentacao-runbooks",
+      "runId": "2026-04-19_21-26-25",
+      "runState": "finalized",
+      "id": "ACH-007",
+      "titulo": "Apps (web, mobile, landing) não descritos individualmente em docs",
+      "severidade": "medio",
+      "categoria": "arquitetura",
+      "status": "confirmado",
+      "resumo": "`ARCHITECTURE.md` lista módulos mas não explica responsabilidade de cada app (ex.: web hospeda tRPC; mobile consome via tipos; landing é SSG).",
+      "evidencia": {
+        "arquivo_ou_area": "docs/ARCHITECTURE.md; docs/DEPLOYMENT.md (tabela de serviços)"
+      },
+      "impacto": {
+        "tecnico": "Confusão sobre onde ficam APIs",
+        "negocio": "Menor"
+      },
+      "acao_sugerida": "Seção \"Apps\" com 3-5 linhas cada (tecnologia, URL, responsabilidade, integração)",
+      "prioridade": "media"
+    },
+    {
+      "domain": "documentacao-runbooks",
+      "runId": "2026-04-19_21-26-25",
+      "runState": "finalized",
+      "id": "ACH-008",
+      "titulo": "Centralização de runbooks — `deploy/RUNBOOKS.md` sem índice em `docs/`",
+      "severidade": "medio",
+      "categoria": "descoberta-de-docs",
+      "status": "confirmado",
+      "resumo": "Runbooks vivem em `deploy/RUNBOOKS.md`; não há `docs/OPERATIONS.md` ou link em README.",
+      "evidencia": {
+        "arquivo_ou_area": "deploy/RUNBOOKS.md; README.md"
+      },
+      "impacto": {
+        "tecnico": "Runbooks existem mas invisíveis",
+        "negocio": "MTTR alto por desconhecimento"
+      },
+      "acao_sugerida": "`docs/OPERATIONS.md` com índice + link para cada runbook; referenciar no README",
+      "prioridade": "media"
+    },
+    {
+      "domain": "documentacao-runbooks",
+      "runId": "2026-04-19_21-26-25",
+      "runState": "finalized",
+      "id": "ACH-009",
+      "titulo": "DEPLOYMENT.md — failover/multi-region sem critério de gatilho",
+      "severidade": "medio",
+      "categoria": "roadmap-de-infra",
+      "status": "confirmado",
+      "resumo": "Seção \"Failover\" cita tarefas futuras (Postgres replication, Redis Sentinel, réplicas) mas sem critérios claros (ex.: \"ao atingir X tenants, ativar\").",
+      "evidencia": {
+        "arquivo_ou_area": "docs/DEPLOYMENT.md"
+      },
+      "impacto": {
+        "tecnico": "Decisão de escala empurrada para ad-hoc",
+        "negocio": "Risco em crescimento"
+      },
+      "acao_sugerida": "Documentar gatilhos e SLOs correspondentes; alinhar com performance/ACH-001",
+      "prioridade": "media"
+    },
+    {
+      "domain": "documentacao-runbooks",
+      "runId": "2026-04-19_21-26-25",
+      "runState": "finalized",
+      "id": "ACH-010",
+      "titulo": "Ausência de `docs/GLOSSARY.md`",
+      "severidade": "medio",
+      "categoria": "knowledge-base",
+      "status": "confirmado",
+      "resumo": "Termos internos (outbox, tenant, tenantId, DLQ, ADR, otb, etc.) não são definidos em um único lugar.",
+      "evidencia": {
+        "arquivo_ou_area": "docs/"
+      },
+      "impacto": {
+        "tecnico": "Onboarding lento; desentendimentos",
+        "negocio": "Documentação perde poder didático"
+      },
+      "acao_sugerida": "`docs/GLOSSARY.md` com 15-25 termos, 2-3 linhas por termo + link para ADR/arquivo relevante",
+      "prioridade": "media"
+    },
+    {
+      "domain": "documentacao-runbooks",
+      "runId": "2026-04-19_21-26-25",
+      "runState": "finalized",
+      "id": "ACH-011",
+      "titulo": "Comentários no código referenciam IDs opacos (`ACH-011`, etc.)",
+      "severidade": "medio",
+      "categoria": "documentacao-no-codigo",
+      "status": "confirmado",
+      "resumo": "20+ ocorrências de comentários citando \"ACH-###\" sem contexto. Quem não é do time não entende; cross-ref codigo-manutenibilidade/ACH-019.",
+      "evidencia": {
+        "arquivo_ou_area": "apps/api/src/routers/health.ts; apps/api/src/lib/cache.ts; etc."
+      },
+      "impacto": {
+        "tecnico": "Comentário perde valor",
+        "negocio": "Onboarding prejudicado"
+      },
+      "acao_sugerida": "Substituir por comentário \"WHY\" + link para ADR/doc apropriado; manter referências ACH apenas em docs internas",
+      "prioridade": "media"
+    },
+    {
+      "domain": "documentacao-runbooks",
+      "runId": "2026-04-19_21-26-25",
+      "runState": "finalized",
+      "id": "ACH-012",
+      "titulo": "Ausência de `CHANGELOG.md`",
+      "severidade": "medio",
+      "categoria": "historico-de-mudanca",
+      "status": "confirmado",
+      "resumo": "Sem changelog formal (Keep a Changelog) — mudanças ficam somente no git log.",
+      "evidencia": {
+        "arquivo_ou_area": "raiz (sem CHANGELOG)"
+      },
+      "impacto": {
+        "tecnico": "Rollbacks e decisões de release informais",
+        "negocio": "Comunicação de mudanças com stakeholders ausente"
+      },
+      "acao_sugerida": "`CHANGELOG.md` (Keep a Changelog pt-BR) com versões + Unreleased; manter em cada release",
+      "prioridade": "media"
+    },
+    {
+      "domain": "documentacao-runbooks",
+      "runId": "2026-04-19_21-26-25",
+      "runState": "finalized",
+      "id": "ACH-013",
+      "titulo": "ADRs \"proposto\" sem SLA de decisão (ADR-006 e ADR-008)",
+      "severidade": "medio",
+      "categoria": "governanca-de-arquitetura",
+      "status": "confirmado",
+      "resumo": "ADRs importantes (modelo AI e worker scaling) marcados como \"proposto\" sem data-alvo de decisão.",
+      "evidencia": {
+        "arquivo_ou_area": "docs/adr/006-ai-module-model.md; docs/adr/008-worker-scaling.md"
+      },
+      "impacto": {
+        "tecnico": "Roadmap preso em limbo",
+        "negocio": "Planejamento ambíguo"
+      },
+      "acao_sugerida": "Acrescentar \"Decisão esperada até YYYY-MM-DD, responsável: <nome>, fallback padrão: <opção>",
+      "prioridade": "media"
+    },
+    {
+      "domain": "documentacao-runbooks",
+      "runId": "2026-04-19_21-26-25",
+      "runState": "finalized",
+      "id": "ACH-014",
+      "titulo": "Docs sem \"última revisão\" nem política de atualização",
+      "severidade": "medio",
+      "categoria": "manutencao",
+      "status": "confirmado",
+      "resumo": "Nenhum arquivo técnico indica quando foi revisado pela última vez nem quando deve ser revisto (cross-ref compliance-privacidade/ACH-021).",
+      "evidencia": {
+        "arquivo_ou_area": "docs/**/*.md"
+      },
+      "impacto": {
+        "tecnico": "Risco de docs obsoletos",
+        "negocio": "Tomada de decisão sobre docs desatualizada"
+      },
+      "acao_sugerida": "Rodapé \"Última revisão: YYYY-MM-DD · Próxima revisão esperada: YYYY-MM-DD\"; CI opcional para flag obsoleto",
+      "prioridade": "media"
+    },
+    {
       "domain": "infraestrutura-deploy-config",
       "runId": "2026-04-19_09-03-12",
       "runState": "finalized",
@@ -5568,6 +5867,66 @@
       "prioridade": "baixa"
     },
     {
+      "domain": "documentacao-runbooks",
+      "runId": "2026-04-19_21-26-25",
+      "runState": "finalized",
+      "id": "ACH-015",
+      "titulo": "`CODE_OF_CONDUCT.md` ausente",
+      "severidade": "baixo",
+      "categoria": "governanca",
+      "status": "confirmado",
+      "resumo": "Esperado mesmo em projetos privados; estabelece padrão profissional. Sem este arquivo, não há política de conduta.",
+      "evidencia": {
+        "arquivo_ou_area": "raiz"
+      },
+      "impacto": {
+        "tecnico": "Baixo",
+        "negocio": "Sinaliza profissionalismo; pode influenciar parcerias"
+      },
+      "acao_sugerida": "`CODE_OF_CONDUCT.md` (Contributor Covenant 2.1 pt-BR)",
+      "prioridade": "baixa"
+    },
+    {
+      "domain": "documentacao-runbooks",
+      "runId": "2026-04-19_21-26-25",
+      "runState": "finalized",
+      "id": "ACH-016",
+      "titulo": "Tradução/localização de docs não definida",
+      "severidade": "baixo",
+      "categoria": "estrategia-de-docs",
+      "status": "confirmado",
+      "resumo": "Docs técnicas em inglês, begin docs em pt-BR. Estratégia não está documentada; falta decisão explícita.",
+      "evidencia": {
+        "arquivo_ou_area": "docs/ (inglês); begin/ (pt-BR)"
+      },
+      "impacto": {
+        "tecnico": "Inconsistência percebida",
+        "negocio": "Baixo"
+      },
+      "acao_sugerida": "Documentar a decisão (ADR ou CONTRIBUTING): \"docs técnicas em inglês; begin docs em pt-BR; tradução manual conforme necessidade",
+      "prioridade": "baixa"
+    },
+    {
+      "domain": "documentacao-runbooks",
+      "runId": "2026-04-19_21-26-25",
+      "runState": "finalized",
+      "id": "ACH-017",
+      "titulo": "README sem badges de CI / coverage / version",
+      "severidade": "baixo",
+      "categoria": "sinalizacao",
+      "status": "confirmado",
+      "resumo": "Sem sinal visual de saúde do projeto.",
+      "evidencia": {
+        "arquivo_ou_area": "README.md"
+      },
+      "impacto": {
+        "tecnico": "Cosmético",
+        "negocio": "Sinaliza maturidade"
+      },
+      "acao_sugerida": "Quando CI estável, adicionar badges `[![Tests](…)]`, `[![Coverage](…)]`, `[![Version](…)]`",
+      "prioridade": "baixa"
+    },
+    {
       "domain": "infraestrutura-deploy-config",
       "runId": "2026-04-19_09-03-12",
       "runState": "finalized",
@@ -6068,6 +6427,26 @@
       },
       "acao_sugerida": "Regra ESLint `no-restricted-imports` barrando `../../../..`; normalizar para `@wbc/*`",
       "prioridade": "baixa"
+    },
+    {
+      "domain": "documentacao-runbooks",
+      "runId": "2026-04-19_21-26-25",
+      "runState": "finalized",
+      "id": "ACH-018",
+      "titulo": "Cross-ref: achados de outros domínios que impactam documentação",
+      "severidade": "informativo",
+      "categoria": "cross-ref",
+      "status": "confirmado",
+      "resumo": "Documentos demandados por outros domínios reforçam lista de gaps documentais: PRIVACY_POLICY.md, SUB_PROCESSORS.md, DPIA.md, INCIDENT_RESPONSE_PRIVACY.md, DATA_RETENTION_POLICY.md (compliance); VERSIONING.md, FILTERING_AND_SORTING.md, EVENTS_SCHEMAS.md (apis); SLO.md, RUNBOOKS/OUTBOX_LAG.md (observabilidade); DR.md, BACKUP.md (dados/infra); OVERRIDES.md, LICENSING.md (supply-chain); PRICING.md (finops).",
+      "evidencia": {
+        "arquivo_ou_area": "cross-ref com compliance-privacidade/ACH-002-006-007-008-010-013-015; apis-integracoes/ACH-002-011-012-014; observabilidade/ACH-007-015; dados-persistencia/ACH-018-019; infra/ACH-002-003-004; supply-chain/ACH-005-007-008; custos-finops/ACH-008-010-011"
+      },
+      "impacto": {
+        "tecnico": "Backlog de docs mapeado para planejamento",
+        "negocio": "Melhora due diligence e compliance"
+      },
+      "acao_sugerida": "Consolidar num plano de documentação (roadmap) com priorização (primeiro os itens críticos de compliance/security)",
+      "prioridade": "informativo"
     },
     {
       "domain": "infraestrutura-deploy-config",

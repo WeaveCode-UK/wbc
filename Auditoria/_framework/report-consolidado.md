@@ -1,28 +1,28 @@
 # Relatório Consolidado de Achados — Framework de Auditoria WeaveCode
 
-- gerado_em: 2026-04-19T20:25:48.605Z
-- total_achados: 276
+- gerado_em: 2026-04-19T20:38:22.233Z
+- total_achados: 294
 - dominios_em_progresso: 0
 - dominios_ready_for_finalize: 0
 - dominios_blocked: 0
-- dominios_com_historico: 14
+- dominios_com_historico: 15
 
 ## Distribuição por severidade
 
 | Severidade | Total |
 |---|---|
 | critico | 16 |
-| alto | 97 |
-| medio | 119 |
-| baixo | 42 |
-| informativo | 2 |
+| alto | 102 |
+| medio | 128 |
+| baixo | 45 |
+| informativo | 3 |
 
 ## Distribuição por status
 
 | Status | Total |
 |---|---|
 | aberto | 13 |
-| confirmado | 249 |
+| confirmado | 267 |
 | mitigado | 0 |
 | resolvido | 0 |
 | aceito | 0 |
@@ -46,6 +46,7 @@
 | compliance-privacidade | 22 |
 | supply-chain-dependencias | 16 |
 | custos-finops | 14 |
+| documentacao-runbooks | 18 |
 
 ## Achados ordenados por severidade
 
@@ -624,6 +625,56 @@
 - status: desconhecido
 - evidencia.arquivo_ou_area: deploy/backup/backup.sh, restore.sh; docs/DEPLOYMENT.md:65-76
 - impacto.tecnico: RPO/RTO desconhecidos
+
+### [alto] ACH-001 — `SECURITY.md` inexistente — sem procedimento de divulgação de vulnerabilidades
+
+- dominio: documentacao-runbooks
+- run: 2026-04-19_21-26-25 (finalized)
+- categoria: documentacao-de-seguranca
+- status: confirmado
+- resumo: WBC processa PII e dados sensíveis (cross-ref compliance-privacidade), mas não há canal documentado para pesquisadores reportarem vulnerabilidades (SLA, email dedicado, PGP key, safe-harbor).
+- evidencia.arquivo_ou_area: raiz (sem SECURITY.md)
+- impacto.tecnico: Vulnerabilidades potencialmente divulgadas publicamente
+
+### [alto] ACH-002 — README raiz vazio — dev novo não consegue iniciar
+
+- dominio: documentacao-runbooks
+- run: 2026-04-19_21-26-25 (finalized)
+- categoria: onboarding
+- status: confirmado
+- resumo: README atual tem apenas título. Sem quickstart (install, dev, build), sem requisitos, sem links para docs, sem badges.
+- evidencia.arquivo_ou_area: README.md
+- impacto.tecnico: Barreira de entrada para colaboradores
+
+### [alto] ACH-003 — `CONTRIBUTING.md` inexistente
+
+- dominio: documentacao-runbooks
+- run: 2026-04-19_21-26-25 (finalized)
+- categoria: governanca-de-contribuicao
+- status: confirmado
+- resumo: CLAUDE.md menciona Conventional Commits em inglês, mas não há guia formal de PR, branch naming, templates. Sem gate documentado.
+- evidencia.arquivo_ou_area: raiz
+- impacto.tecnico: Inconsistência de commits e PRs
+
+### [alto] ACH-004 — DR do `docs/DEPLOYMENT.md` é placeholder, sem execução nem validação
+
+- dominio: documentacao-runbooks
+- run: 2026-04-19_21-26-25 (finalized)
+- categoria: runbook-critico
+- status: confirmado
+- resumo: Seção "Disaster Recovery" marca RTO/RPO como "pendente validação humana"; `restore.sh` existe mas não há drill documentado (cross-ref dados-persistencia/ACH-018, infra/ACH-004).
+- evidencia.arquivo_ou_area: docs/DEPLOYMENT.md (seção DR); deploy/backup/restore.sh
+- impacto.tecnico: Recuperação real pode falhar/exceder SLA
+
+### [alto] ACH-005 — `deploy/RUNBOOKS.md` não cobre DLQ / outbox lag / worker scaling
+
+- dominio: documentacao-runbooks
+- run: 2026-04-19_21-26-25 (finalized)
+- categoria: runbooks-operacionais
+- status: confirmado
+- resumo: ADR-007 introduz DLQ, graceful shutdown e lag thresholds, mas o RUNBOOKS não tem casos para "outboxLagMs > 60s", "DLQ crescendo", "replay de evento", "escalar worker". Cross-ref observabilidade/ACH-004 e confiabilidade/ACH-006.
+- evidencia.arquivo_ou_area: deploy/RUNBOOKS.md
+- impacto.tecnico: Operador trava em incidentes novos
 
 ### [alto] ACH-001 — Pipeline CI/CD não constrói nem publica imagens OCI
 
@@ -1726,6 +1777,96 @@
 - evidencia.arquivo_ou_area: schema.prisma (Referral)
 - impacto.tecnico: Queries precisam IS NOT NULL; dangling referrals
 
+### [medio] ACH-006 — `docs/ARCHITECTURE.md` sem diagramas de sequência de fluxos críticos
+
+- dominio: documentacao-runbooks
+- run: 2026-04-19_21-26-25 (finalized)
+- categoria: arquitetura
+- status: confirmado
+- resumo: Estrutura de módulos e eventos existe, mas não há fluxo "criar venda → outbox → handler → estoque/notif" em sequência.
+- evidencia.arquivo_ou_area: docs/ARCHITECTURE.md; docs/architecture/events.md
+- impacto.tecnico: Dev novo tem dificuldade em rastrear fluxos end-to-end
+
+### [medio] ACH-007 — Apps (web, mobile, landing) não descritos individualmente em docs
+
+- dominio: documentacao-runbooks
+- run: 2026-04-19_21-26-25 (finalized)
+- categoria: arquitetura
+- status: confirmado
+- resumo: `ARCHITECTURE.md` lista módulos mas não explica responsabilidade de cada app (ex.: web hospeda tRPC; mobile consome via tipos; landing é SSG).
+- evidencia.arquivo_ou_area: docs/ARCHITECTURE.md; docs/DEPLOYMENT.md (tabela de serviços)
+- impacto.tecnico: Confusão sobre onde ficam APIs
+
+### [medio] ACH-008 — Centralização de runbooks — `deploy/RUNBOOKS.md` sem índice em `docs/`
+
+- dominio: documentacao-runbooks
+- run: 2026-04-19_21-26-25 (finalized)
+- categoria: descoberta-de-docs
+- status: confirmado
+- resumo: Runbooks vivem em `deploy/RUNBOOKS.md`; não há `docs/OPERATIONS.md` ou link em README.
+- evidencia.arquivo_ou_area: deploy/RUNBOOKS.md; README.md
+- impacto.tecnico: Runbooks existem mas invisíveis
+
+### [medio] ACH-009 — DEPLOYMENT.md — failover/multi-region sem critério de gatilho
+
+- dominio: documentacao-runbooks
+- run: 2026-04-19_21-26-25 (finalized)
+- categoria: roadmap-de-infra
+- status: confirmado
+- resumo: Seção "Failover" cita tarefas futuras (Postgres replication, Redis Sentinel, réplicas) mas sem critérios claros (ex.: "ao atingir X tenants, ativar").
+- evidencia.arquivo_ou_area: docs/DEPLOYMENT.md
+- impacto.tecnico: Decisão de escala empurrada para ad-hoc
+
+### [medio] ACH-010 — Ausência de `docs/GLOSSARY.md`
+
+- dominio: documentacao-runbooks
+- run: 2026-04-19_21-26-25 (finalized)
+- categoria: knowledge-base
+- status: confirmado
+- resumo: Termos internos (outbox, tenant, tenantId, DLQ, ADR, otb, etc.) não são definidos em um único lugar.
+- evidencia.arquivo_ou_area: docs/
+- impacto.tecnico: Onboarding lento; desentendimentos
+
+### [medio] ACH-011 — Comentários no código referenciam IDs opacos (`ACH-011`, etc.)
+
+- dominio: documentacao-runbooks
+- run: 2026-04-19_21-26-25 (finalized)
+- categoria: documentacao-no-codigo
+- status: confirmado
+- resumo: 20+ ocorrências de comentários citando "ACH-###" sem contexto. Quem não é do time não entende; cross-ref codigo-manutenibilidade/ACH-019.
+- evidencia.arquivo_ou_area: apps/api/src/routers/health.ts; apps/api/src/lib/cache.ts; etc.
+- impacto.tecnico: Comentário perde valor
+
+### [medio] ACH-012 — Ausência de `CHANGELOG.md`
+
+- dominio: documentacao-runbooks
+- run: 2026-04-19_21-26-25 (finalized)
+- categoria: historico-de-mudanca
+- status: confirmado
+- resumo: Sem changelog formal (Keep a Changelog) — mudanças ficam somente no git log.
+- evidencia.arquivo_ou_area: raiz (sem CHANGELOG)
+- impacto.tecnico: Rollbacks e decisões de release informais
+
+### [medio] ACH-013 — ADRs "proposto" sem SLA de decisão (ADR-006 e ADR-008)
+
+- dominio: documentacao-runbooks
+- run: 2026-04-19_21-26-25 (finalized)
+- categoria: governanca-de-arquitetura
+- status: confirmado
+- resumo: ADRs importantes (modelo AI e worker scaling) marcados como "proposto" sem data-alvo de decisão.
+- evidencia.arquivo_ou_area: docs/adr/006-ai-module-model.md; docs/adr/008-worker-scaling.md
+- impacto.tecnico: Roadmap preso em limbo
+
+### [medio] ACH-014 — Docs sem "última revisão" nem política de atualização
+
+- dominio: documentacao-runbooks
+- run: 2026-04-19_21-26-25 (finalized)
+- categoria: manutencao
+- status: confirmado
+- resumo: Nenhum arquivo técnico indica quando foi revisado pela última vez nem quando deve ser revisto (cross-ref compliance-privacidade/ACH-021).
+- evidencia.arquivo_ou_area: docs/**/*.md
+- impacto.tecnico: Risco de docs obsoletos
+
 ### [medio] ACH-006 — Imagens de observabilidade usando tag `:latest`
 
 - dominio: infraestrutura-deploy-config
@@ -2525,6 +2666,36 @@
 - evidencia.arquivo_ou_area: docker-compose.prod.yml (Postgres sem extension); ausência de script de coleta
 - impacto.tecnico: Decisões de índice no escuro
 
+### [baixo] ACH-015 — `CODE_OF_CONDUCT.md` ausente
+
+- dominio: documentacao-runbooks
+- run: 2026-04-19_21-26-25 (finalized)
+- categoria: governanca
+- status: confirmado
+- resumo: Esperado mesmo em projetos privados; estabelece padrão profissional. Sem este arquivo, não há política de conduta.
+- evidencia.arquivo_ou_area: raiz
+- impacto.tecnico: Baixo
+
+### [baixo] ACH-016 — Tradução/localização de docs não definida
+
+- dominio: documentacao-runbooks
+- run: 2026-04-19_21-26-25 (finalized)
+- categoria: estrategia-de-docs
+- status: confirmado
+- resumo: Docs técnicas em inglês, begin docs em pt-BR. Estratégia não está documentada; falta decisão explícita.
+- evidencia.arquivo_ou_area: docs/ (inglês); begin/ (pt-BR)
+- impacto.tecnico: Inconsistência percebida
+
+### [baixo] ACH-017 — README sem badges de CI / coverage / version
+
+- dominio: documentacao-runbooks
+- run: 2026-04-19_21-26-25 (finalized)
+- categoria: sinalizacao
+- status: confirmado
+- resumo: Sem sinal visual de saúde do projeto.
+- evidencia.arquivo_ou_area: README.md
+- impacto.tecnico: Cosmético
+
 ### [baixo] ACH-007 — `turbo.json globalEnv` incompleto — SENTRY_DSN, GOOGLE_*, WHATSAPP_APP_SECRET ausentes
 
 - dominio: infraestrutura-deploy-config
@@ -2770,6 +2941,16 @@
 - resumo: Alguns routers importam via `../../../../packages/business/...` enquanto `tsconfig.json` define aliases `@wbc/*`.
 - evidencia.arquivo_ou_area: apps/api/src/routers/clients.ts:4-5 (imports relativos profundos)
 - impacto.tecnico: Baixo; quebra só em moves agressivos
+
+### [informativo] ACH-018 — Cross-ref: achados de outros domínios que impactam documentação
+
+- dominio: documentacao-runbooks
+- run: 2026-04-19_21-26-25 (finalized)
+- categoria: cross-ref
+- status: confirmado
+- resumo: Documentos demandados por outros domínios reforçam lista de gaps documentais: PRIVACY_POLICY.md, SUB_PROCESSORS.md, DPIA.md, INCIDENT_RESPONSE_PRIVACY.md, DATA_RETENTION_POLICY.md (compliance); VERSIONING.md, FILTERING_AND_SORTING.md, EVENTS_SCHEMAS.md (apis); SLO.md, RUNBOOKS/OUTBOX_LAG.md (observabilidade); DR.md, BACKUP.md (dados/infra); OVERRIDES.md, LICENSING.md (supply-chain); PRICING.md (finops).
+- evidencia.arquivo_ou_area: cross-ref com compliance-privacidade/ACH-002-006-007-008-010-013-015; apis-integracoes/ACH-002-011-012-014; observabilidade/ACH-007-015; dados-persistencia/ACH-018-019; infra/ACH-002-003-004; supply-chain/ACH-005-007-008; custos-finops/ACH-008-010-011
+- impacto.tecnico: Backlog de docs mapeado para planejamento
 
 ### [informativo] ACH-016 — Cross-ref reforços não duplicados
 

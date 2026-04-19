@@ -1,18 +1,18 @@
 {
   "schema_version": "2.1",
-  "generated_at": "2026-04-19T06:59:11.369Z",
-  "total": 167,
-  "total_runs": 8,
+  "generated_at": "2026-04-19T07:47:16.397Z",
+  "total": 183,
+  "total_runs": 9,
   "distribution": {
     "by_severity": {
       "critico": 10,
-      "alto": 61,
-      "medio": 75,
-      "baixo": 20,
+      "alto": 66,
+      "medio": 82,
+      "baixo": 24,
       "informativo": 1
     },
     "by_status": {
-      "confirmado": 141,
+      "confirmado": 157,
       "aberto": 13,
       "null": 13
     },
@@ -24,11 +24,12 @@
       "dados-persistencia": 22,
       "seguranca": 28,
       "observabilidade-operacao": 15,
-      "performance-escalabilidade": 30
+      "performance-escalabilidade": 30,
+      "testes-qualidade": 16
     }
   },
   "progress": {
-    "last_updated": "2026-04-19T06:59:11.365Z",
+    "last_updated": "2026-04-19T07:47:16.393Z",
     "domains": {
       "arquitetura": {
         "domain": "arquitetura",
@@ -132,11 +133,11 @@
         "run_id_atual": null,
         "fase_atual": "none",
         "fases_concluidas": 0,
-        "fases_totais": 5,
+        "fases_totais": 1,
         "percentual": 0,
-        "ultima_atualizacao": "none",
-        "ultima_run_finalizada": null,
-        "total_runs": 0
+        "ultima_atualizacao": "2026-04-19",
+        "ultima_run_finalizada": "2026-04-19_07-59-20",
+        "total_runs": 1
       },
       "ui-ux-fluxos": {
         "domain": "ui-ux-fluxos",
@@ -216,7 +217,7 @@
       "dominios_blocked": 0,
       "dominios_ready_for_finalize": 0,
       "dominios_not_started": 15,
-      "dominios_com_historico": 8
+      "dominios_com_historico": 9
     }
   },
   "runs_history": [
@@ -362,6 +363,23 @@
       },
       "distribution_by_status": {
         "confirmado": 28
+      }
+    },
+    {
+      "domain": "testes-qualidade",
+      "run_id": "2026-04-19_07-59-20",
+      "run_state": "finalized",
+      "iniciado_em": "2026-04-19 07:59:20",
+      "finalizado_em": "2026-04-19 08:25:00",
+      "avaliacao": null,
+      "total_achados": 16,
+      "distribution_by_severity": {
+        "alto": 5,
+        "medio": 7,
+        "baixo": 4
+      },
+      "distribution_by_status": {
+        "confirmado": 16
       }
     }
   ],
@@ -1829,6 +1847,106 @@
         "negocio": "Código malicioso ou acidental chegando à main sem revisão"
       },
       "acao_sugerida": "Criar `.github/CODEOWNERS`; configurar branch protection (required reviews ≥1, status checks obrigatórios, dismiss stale, admin included); registrar política em `CONTRIBUTING.md`",
+      "prioridade": "alta"
+    },
+    {
+      "domain": "testes-qualidade",
+      "runId": "2026-04-19_07-59-20",
+      "runState": "finalized",
+      "id": "ACH-001",
+      "titulo": "Adapters Prisma sem testes — camada crítica de persistência descoberta",
+      "severidade": "alto",
+      "categoria": "portfolio",
+      "status": "confirmado",
+      "resumo": "Repositórios Prisma não têm testes; sem mock de Prisma Client ou testcontainers, isolamento multi-tenant e CRUD ficam sem rede de segurança.",
+      "evidencia": {
+        "arquivo_ou_area": "packages/business/*/adapters/prisma-*-repository.ts (sem `__tests__`)"
+      },
+      "impacto": {
+        "tecnico": "Regressão silenciosa em queries/constraints/tenantId",
+        "negocio": "Risco alto em isolamento multi-tenant (LGPD)"
+      },
+      "acao_sugerida": "Testes com `jest-mock-extended` + `DeepMockProxy<PrismaClient>` ou testcontainers-postgres; asserir `tenantId` em toda query",
+      "prioridade": "alta"
+    },
+    {
+      "domain": "testes-qualidade",
+      "runId": "2026-04-19_07-59-20",
+      "runState": "finalized",
+      "id": "ACH-002",
+      "titulo": "Sem teste de isolamento multi-tenant (\"evil twin\") em use-cases críticos",
+      "severidade": "alto",
+      "categoria": "hermeticidade",
+      "status": "confirmado",
+      "resumo": "Testes passam `tenantId` em mocks, mas não validam rejeição de acesso cruzado.",
+      "evidencia": {
+        "arquivo_ou_area": "packages/business/sales/use-cases/__tests__/cancel-sale.test.ts; ausência generalizada"
+      },
+      "impacto": {
+        "tecnico": "Leak silencioso cross-tenant",
+        "negocio": "Incidente de compliance"
+      },
+      "acao_sugerida": "Cenário \"tenant A tenta acessar recurso do tenant B\" rejeitado em cada use-case tenant-scoped; combinar com teste de RLS (dados-persistencia/ACH-004)",
+      "prioridade": "alta"
+    },
+    {
+      "domain": "testes-qualidade",
+      "runId": "2026-04-19_07-59-20",
+      "runState": "finalized",
+      "id": "ACH-003",
+      "titulo": "`confirmSale` e baixa de estoque não possuem testes",
+      "severidade": "alto",
+      "categoria": "portfolio",
+      "status": "confirmado",
+      "resumo": "`cancelSale` tem teste; `confirmSale` não. Fluxo crítico (transação + outbox + idempotência + estoque) completamente sem cobertura (cross-ref dados-persistencia/ACH-001, confiabilidade/ACH-001).",
+      "evidencia": {
+        "arquivo_ou_area": "packages/business/sales/use-cases/__tests__/cancel-sale.test.ts; ausência de confirm-sale.test.ts"
+      },
+      "impacto": {
+        "tecnico": "Overselling sem alarme",
+        "negocio": "Prejuízo direto"
+      },
+      "acao_sugerida": "Cobrir: sucesso, falha de estoque, race condition (Serializable), retry idempotente",
+      "prioridade": "alta"
+    },
+    {
+      "domain": "testes-qualidade",
+      "runId": "2026-04-19_07-59-20",
+      "runState": "finalized",
+      "id": "ACH-004",
+      "titulo": "Sem testes genéricos de rate-limit, idempotência e outbox",
+      "severidade": "alto",
+      "categoria": "portfolio",
+      "status": "confirmado",
+      "resumo": "OTP tem rate-limit testado; rate-limit genérico (tRPC middleware), `idempotent` wrapper e outbox (publisher/subscriber/claimPending) não têm.",
+      "evidencia": {
+        "arquivo_ou_area": "apps/api/src/trpc/{rate-limit,idempotency}-middleware.ts; packages/shared/src/events/*"
+      },
+      "impacto": {
+        "tecnico": "Mecanismos de resiliência sem rede",
+        "negocio": "Duplicidade/overload sem barreira"
+      },
+      "acao_sugerida": "Suítes para cada mecanismo; teste de concorrência para claim atômico",
+      "prioridade": "alta"
+    },
+    {
+      "domain": "testes-qualidade",
+      "runId": "2026-04-19_07-59-20",
+      "runState": "finalized",
+      "id": "ACH-005",
+      "titulo": "Reset-password e forgot-password sem testes",
+      "severidade": "alto",
+      "categoria": "portfolio",
+      "status": "confirmado",
+      "resumo": "Apesar de já serem stubs (seguranca/ACH-001), nem os stubs estão testados; quando saírem de stub precisam cobertura imediata.",
+      "evidencia": {
+        "arquivo_ou_area": "packages/business/auth/use-cases/__tests__ (sem reset/forgot-password)"
+      },
+      "impacto": {
+        "tecnico": "Fluxo de recuperação sem proteção",
+        "negocio": "Sequestro de conta"
+      },
+      "acao_sugerida": "Cobrir fluxo completo ao sair do stub (token storage, validação, expiração, consumo único)",
       "prioridade": "alta"
     },
     {
@@ -3370,6 +3488,146 @@
       "prioridade": "media"
     },
     {
+      "domain": "testes-qualidade",
+      "runId": "2026-04-19_07-59-20",
+      "runState": "finalized",
+      "id": "ACH-006",
+      "titulo": "CI executa testes mas sem enforcement de coverage threshold",
+      "severidade": "medio",
+      "categoria": "pipeline",
+      "status": "confirmado",
+      "resumo": null,
+      "evidencia": {
+        "arquivo_ou_area": ".github/workflows/ci.yml; vitest.config.ts:35-40"
+      },
+      "impacto": {
+        "tecnico": "Coverage pode cair sem detecção",
+        "negocio": "Débito acumula"
+      },
+      "acao_sugerida": "`pnpm vitest run --coverage`; falhar PR abaixo do threshold; artefato HTML",
+      "prioridade": "media"
+    },
+    {
+      "domain": "testes-qualidade",
+      "runId": "2026-04-19_07-59-20",
+      "runState": "finalized",
+      "id": "ACH-007",
+      "titulo": "`arch:check` não é gate de CI",
+      "severidade": "medio",
+      "categoria": "pipeline",
+      "status": "confirmado",
+      "resumo": null,
+      "evidencia": {
+        "arquivo_ou_area": ".github/workflows/ci.yml (sem arch:check); .dependency-cruiser.cjs"
+      },
+      "impacto": {
+        "tecnico": "Barreiras arquiteturais relaxam sem alarme",
+        "negocio": "Dívida vira refactor pesado"
+      },
+      "acao_sugerida": "Adicionar step `pnpm arch:check`; falhar em violação",
+      "prioridade": "media"
+    },
+    {
+      "domain": "testes-qualidade",
+      "runId": "2026-04-19_07-59-20",
+      "runState": "finalized",
+      "id": "ACH-008",
+      "titulo": "Mocks manuais repetidos em cada teste — sem factories compartilhadas",
+      "severidade": "medio",
+      "categoria": "hermeticidade",
+      "status": "confirmado",
+      "resumo": null,
+      "evidencia": {
+        "arquivo_ou_area": "packages/business/auth/use-cases/__tests__/send-otp.test.ts:8-20"
+      },
+      "impacto": {
+        "tecnico": "Custo de evolução alto",
+        "negocio": "Ritmo de testes prejudicado"
+      },
+      "acao_sugerida": "`packages/shared/src/__tests__/factories/*` com Faker; helpers `makeMockRepo<T>()`",
+      "prioridade": "media"
+    },
+    {
+      "domain": "testes-qualidade",
+      "runId": "2026-04-19_07-59-20",
+      "runState": "finalized",
+      "id": "ACH-009",
+      "titulo": "Sem Redis mock/testcontainers",
+      "severidade": "medio",
+      "categoria": "hermeticidade",
+      "status": "confirmado",
+      "resumo": null,
+      "evidencia": {
+        "arquivo_ou_area": "package.json (ioredis mas sem ioredis-mock); vitest.setup.ts vazio"
+      },
+      "impacto": {
+        "tecnico": "Divergência entre testes e produção",
+        "negocio": "Falsa segurança"
+      },
+      "acao_sugerida": "`ioredis-mock` para unit; testcontainers-redis para integração",
+      "prioridade": "media"
+    },
+    {
+      "domain": "testes-qualidade",
+      "runId": "2026-04-19_07-59-20",
+      "runState": "finalized",
+      "id": "ACH-010",
+      "titulo": "Sem contract testing (Pact / OpenAPI)",
+      "severidade": "medio",
+      "categoria": "contratos-e-integracoes",
+      "status": "confirmado",
+      "resumo": null,
+      "evidencia": {
+        "arquivo_ou_area": "ausência de `contracts/`, `pacts/`, `trpc-openapi`"
+      },
+      "impacto": {
+        "tecnico": "Quebra silenciosa entre api e mobile",
+        "negocio": "Bugs de campo"
+      },
+      "acao_sugerida": "Gerar JSON Schema a partir de Zods; snapshot em CI; Pact para parceiros",
+      "prioridade": "media"
+    },
+    {
+      "domain": "testes-qualidade",
+      "runId": "2026-04-19_07-59-20",
+      "runState": "finalized",
+      "id": "ACH-011",
+      "titulo": "E2E mínimo (apenas health/login)",
+      "severidade": "medio",
+      "categoria": "portfolio",
+      "status": "confirmado",
+      "resumo": null,
+      "evidencia": {
+        "arquivo_ou_area": "e2e/health.spec.ts; playwright.config.ts"
+      },
+      "impacto": {
+        "tecnico": "Regressão só aparece em prod",
+        "negocio": "UX visível"
+      },
+      "acao_sugerida": "Cenários priorizados: login → list → create sale → confirm (multi-tenant)",
+      "prioridade": "media"
+    },
+    {
+      "domain": "testes-qualidade",
+      "runId": "2026-04-19_07-59-20",
+      "runState": "finalized",
+      "id": "ACH-012",
+      "titulo": "6 de 16 módulos business sem nenhum teste",
+      "severidade": "medio",
+      "categoria": "portfolio",
+      "status": "confirmado",
+      "resumo": null,
+      "evidencia": {
+        "arquivo_ou_area": "packages/business/{analytics,ai,campaigns,landing,schedule,team}/"
+      },
+      "impacto": {
+        "tecnico": "Risco heterogêneo",
+        "negocio": "Alguns fluxos críticos sem rede"
+      },
+      "acao_sugerida": "Roadmap `begin/WBC-Fase7-Testes-Roadmap.md`",
+      "prioridade": "media"
+    },
+    {
       "domain": "apis-integracoes",
       "runId": "2026-04-18_22-30-59",
       "runState": "finalized",
@@ -3772,6 +4030,86 @@
         "negocio": "Mensagens não entregues; poluição de DB"
       },
       "acao_sugerida": "Usar `libphonenumber-js` (`parsePhoneNumberFromString`) com país padrão BR; armazenar em formato E.164",
+      "prioridade": "baixa"
+    },
+    {
+      "domain": "testes-qualidade",
+      "runId": "2026-04-19_07-59-20",
+      "runState": "finalized",
+      "id": "ACH-013",
+      "titulo": "Pre-commit não roda testes",
+      "severidade": "baixo",
+      "categoria": "pipeline",
+      "status": "confirmado",
+      "resumo": null,
+      "evidencia": {
+        "arquivo_ou_area": ".husky/pre-commit (apenas lint-staged)"
+      },
+      "impacto": {
+        "tecnico": "Feedback lento",
+        "negocio": "Baixo enquanto suíte é pequena"
+      },
+      "acao_sugerida": "Na Fase 7, `pnpm vitest related --run` no pre-commit",
+      "prioridade": "baixa"
+    },
+    {
+      "domain": "testes-qualidade",
+      "runId": "2026-04-19_07-59-20",
+      "runState": "finalized",
+      "id": "ACH-014",
+      "titulo": "Threshold de coverage 20% — muito baixo",
+      "severidade": "baixo",
+      "categoria": "portfolio",
+      "status": "confirmado",
+      "resumo": null,
+      "evidencia": {
+        "arquivo_ou_area": "vitest.config.ts:35-40"
+      },
+      "impacto": {
+        "tecnico": "Falsa sensação de segurança",
+        "negocio": "Débito"
+      },
+      "acao_sugerida": "Escalonar: 40% Fase 6, 70% Fase 7, 80% depois",
+      "prioridade": "baixa"
+    },
+    {
+      "domain": "testes-qualidade",
+      "runId": "2026-04-19_07-59-20",
+      "runState": "finalized",
+      "id": "ACH-015",
+      "titulo": "Falta `test-utils` compartilhado (context mock, assertions de domínio)",
+      "severidade": "baixo",
+      "categoria": "hermeticidade",
+      "status": "confirmado",
+      "resumo": null,
+      "evidencia": {
+        "arquivo_ou_area": "packages/shared/src/__tests__ (3 specs, sem utilitários)"
+      },
+      "impacto": {
+        "tecnico": "Curva de aprendizado alta",
+        "negocio": "Ritmo da Fase 7 prejudicado"
+      },
+      "acao_sugerida": "`packages/shared/src/__tests__/test-utils/*`",
+      "prioridade": "baixa"
+    },
+    {
+      "domain": "testes-qualidade",
+      "runId": "2026-04-19_07-59-20",
+      "runState": "finalized",
+      "id": "ACH-016",
+      "titulo": "CI sem matrix de Node (único LTS)",
+      "severidade": "baixo",
+      "categoria": "pipeline",
+      "status": "confirmado",
+      "resumo": null,
+      "evidencia": {
+        "arquivo_ou_area": ".github/workflows/ci.yml (sem `strategy.matrix`)"
+      },
+      "impacto": {
+        "tecnico": "Falha em upgrade de Node",
+        "negocio": "Downtime em manutenção"
+      },
+      "acao_sugerida": "Matrix com Node 20 + 22; `fail-fast: false`",
       "prioridade": "baixa"
     },
     {

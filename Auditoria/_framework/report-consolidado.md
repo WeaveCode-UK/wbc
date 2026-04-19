@@ -1,20 +1,20 @@
 # Relatório Consolidado de Achados — Framework de Auditoria WeaveCode
 
-- gerado_em: 2026-04-19T06:59:11.368Z
-- total_achados: 167
+- gerado_em: 2026-04-19T07:47:16.396Z
+- total_achados: 183
 - dominios_em_progresso: 0
 - dominios_ready_for_finalize: 0
 - dominios_blocked: 0
-- dominios_com_historico: 8
+- dominios_com_historico: 9
 
 ## Distribuição por severidade
 
 | Severidade | Total |
 |---|---|
 | critico | 10 |
-| alto | 61 |
-| medio | 75 |
-| baixo | 20 |
+| alto | 66 |
+| medio | 82 |
+| baixo | 24 |
 | informativo | 1 |
 
 ## Distribuição por status
@@ -22,7 +22,7 @@
 | Status | Total |
 |---|---|
 | aberto | 13 |
-| confirmado | 141 |
+| confirmado | 157 |
 | mitigado | 0 |
 | resolvido | 0 |
 | aceito | 0 |
@@ -40,6 +40,7 @@
 | performance-escalabilidade | 30 |
 | confiabilidade-resiliencia | 17 |
 | observabilidade-operacao | 15 |
+| testes-qualidade | 16 |
 
 ## Achados ordenados por severidade
 
@@ -748,6 +749,56 @@
 - resumo: Não há arquivo `.github/CODEOWNERS` e não há como verificar branch protection via arquivos. Se a configuração no GitHub estiver ausente, qualquer colaborador com write pode mergear direto.
 - evidencia.arquivo_ou_area: .github/ (sem CODEOWNERS); ci.yml existe com lint/type-check/test
 - impacto.tecnico: Ausência de revisão obrigatória abre caminho para merges arriscados
+
+### [alto] ACH-001 — Adapters Prisma sem testes — camada crítica de persistência descoberta
+
+- dominio: testes-qualidade
+- run: 2026-04-19_07-59-20 (finalized)
+- categoria: portfolio
+- status: confirmado
+- resumo: Repositórios Prisma não têm testes; sem mock de Prisma Client ou testcontainers, isolamento multi-tenant e CRUD ficam sem rede de segurança.
+- evidencia.arquivo_ou_area: packages/business/*/adapters/prisma-*-repository.ts (sem `__tests__`)
+- impacto.tecnico: Regressão silenciosa em queries/constraints/tenantId
+
+### [alto] ACH-002 — Sem teste de isolamento multi-tenant ("evil twin") em use-cases críticos
+
+- dominio: testes-qualidade
+- run: 2026-04-19_07-59-20 (finalized)
+- categoria: hermeticidade
+- status: confirmado
+- resumo: Testes passam `tenantId` em mocks, mas não validam rejeição de acesso cruzado.
+- evidencia.arquivo_ou_area: packages/business/sales/use-cases/__tests__/cancel-sale.test.ts; ausência generalizada
+- impacto.tecnico: Leak silencioso cross-tenant
+
+### [alto] ACH-003 — `confirmSale` e baixa de estoque não possuem testes
+
+- dominio: testes-qualidade
+- run: 2026-04-19_07-59-20 (finalized)
+- categoria: portfolio
+- status: confirmado
+- resumo: `cancelSale` tem teste; `confirmSale` não. Fluxo crítico (transação + outbox + idempotência + estoque) completamente sem cobertura (cross-ref dados-persistencia/ACH-001, confiabilidade/ACH-001).
+- evidencia.arquivo_ou_area: packages/business/sales/use-cases/__tests__/cancel-sale.test.ts; ausência de confirm-sale.test.ts
+- impacto.tecnico: Overselling sem alarme
+
+### [alto] ACH-004 — Sem testes genéricos de rate-limit, idempotência e outbox
+
+- dominio: testes-qualidade
+- run: 2026-04-19_07-59-20 (finalized)
+- categoria: portfolio
+- status: confirmado
+- resumo: OTP tem rate-limit testado; rate-limit genérico (tRPC middleware), `idempotent` wrapper e outbox (publisher/subscriber/claimPending) não têm.
+- evidencia.arquivo_ou_area: apps/api/src/trpc/{rate-limit,idempotency}-middleware.ts; packages/shared/src/events/*
+- impacto.tecnico: Mecanismos de resiliência sem rede
+
+### [alto] ACH-005 — Reset-password e forgot-password sem testes
+
+- dominio: testes-qualidade
+- run: 2026-04-19_07-59-20 (finalized)
+- categoria: portfolio
+- status: confirmado
+- resumo: Apesar de já serem stubs (seguranca/ACH-001), nem os stubs estão testados; quando saírem de stub precisam cobertura imediata.
+- evidencia.arquivo_ou_area: packages/business/auth/use-cases/__tests__ (sem reset/forgot-password)
+- impacto.tecnico: Fluxo de recuperação sem proteção
 
 ### [medio] ACH-007 — Paginação sem metadata (`total`, `hasMore`, `nextCursor`)
 
@@ -1490,6 +1541,69 @@
 - evidencia.arquivo_ou_area: .env:3 (AUTH_SECRET)
 - impacto.tecnico: Compartilhamento acidental com staging/prod cria backdoor de assinatura JWT
 
+### [medio] ACH-006 — CI executa testes mas sem enforcement de coverage threshold
+
+- dominio: testes-qualidade
+- run: 2026-04-19_07-59-20 (finalized)
+- categoria: pipeline
+- status: confirmado
+- evidencia.arquivo_ou_area: .github/workflows/ci.yml; vitest.config.ts:35-40
+- impacto.tecnico: Coverage pode cair sem detecção
+
+### [medio] ACH-007 — `arch:check` não é gate de CI
+
+- dominio: testes-qualidade
+- run: 2026-04-19_07-59-20 (finalized)
+- categoria: pipeline
+- status: confirmado
+- evidencia.arquivo_ou_area: .github/workflows/ci.yml (sem arch:check); .dependency-cruiser.cjs
+- impacto.tecnico: Barreiras arquiteturais relaxam sem alarme
+
+### [medio] ACH-008 — Mocks manuais repetidos em cada teste — sem factories compartilhadas
+
+- dominio: testes-qualidade
+- run: 2026-04-19_07-59-20 (finalized)
+- categoria: hermeticidade
+- status: confirmado
+- evidencia.arquivo_ou_area: packages/business/auth/use-cases/__tests__/send-otp.test.ts:8-20
+- impacto.tecnico: Custo de evolução alto
+
+### [medio] ACH-009 — Sem Redis mock/testcontainers
+
+- dominio: testes-qualidade
+- run: 2026-04-19_07-59-20 (finalized)
+- categoria: hermeticidade
+- status: confirmado
+- evidencia.arquivo_ou_area: package.json (ioredis mas sem ioredis-mock); vitest.setup.ts vazio
+- impacto.tecnico: Divergência entre testes e produção
+
+### [medio] ACH-010 — Sem contract testing (Pact / OpenAPI)
+
+- dominio: testes-qualidade
+- run: 2026-04-19_07-59-20 (finalized)
+- categoria: contratos-e-integracoes
+- status: confirmado
+- evidencia.arquivo_ou_area: ausência de `contracts/`, `pacts/`, `trpc-openapi`
+- impacto.tecnico: Quebra silenciosa entre api e mobile
+
+### [medio] ACH-011 — E2E mínimo (apenas health/login)
+
+- dominio: testes-qualidade
+- run: 2026-04-19_07-59-20 (finalized)
+- categoria: portfolio
+- status: confirmado
+- evidencia.arquivo_ou_area: e2e/health.spec.ts; playwright.config.ts
+- impacto.tecnico: Regressão só aparece em prod
+
+### [medio] ACH-012 — 6 de 16 módulos business sem nenhum teste
+
+- dominio: testes-qualidade
+- run: 2026-04-19_07-59-20 (finalized)
+- categoria: portfolio
+- status: confirmado
+- evidencia.arquivo_ou_area: packages/business/{analytics,ai,campaigns,landing,schedule,team}/
+- impacto.tecnico: Risco heterogêneo
+
 ### [baixo] ACH-009 — Filtros e ordenação sem convenção de nomenclatura entre routers
 
 - dominio: apis-integracoes
@@ -1685,6 +1799,42 @@
 - resumo: Schemas aceitam `z.string().min(10).max(15)` sem formato E.164 nem regex; strings como `"0000000000"` ou não-numéricas passam.
 - evidencia.arquivo_ou_area: packages/validators/src/auth.ts:8,16,28; packages/validators/src/clients.ts
 - impacto.tecnico: Dados lixo em base; integrações com WhatsApp/SMS falham
+
+### [baixo] ACH-013 — Pre-commit não roda testes
+
+- dominio: testes-qualidade
+- run: 2026-04-19_07-59-20 (finalized)
+- categoria: pipeline
+- status: confirmado
+- evidencia.arquivo_ou_area: .husky/pre-commit (apenas lint-staged)
+- impacto.tecnico: Feedback lento
+
+### [baixo] ACH-014 — Threshold de coverage 20% — muito baixo
+
+- dominio: testes-qualidade
+- run: 2026-04-19_07-59-20 (finalized)
+- categoria: portfolio
+- status: confirmado
+- evidencia.arquivo_ou_area: vitest.config.ts:35-40
+- impacto.tecnico: Falsa sensação de segurança
+
+### [baixo] ACH-015 — Falta `test-utils` compartilhado (context mock, assertions de domínio)
+
+- dominio: testes-qualidade
+- run: 2026-04-19_07-59-20 (finalized)
+- categoria: hermeticidade
+- status: confirmado
+- evidencia.arquivo_ou_area: packages/shared/src/__tests__ (3 specs, sem utilitários)
+- impacto.tecnico: Curva de aprendizado alta
+
+### [baixo] ACH-016 — CI sem matrix de Node (único LTS)
+
+- dominio: testes-qualidade
+- run: 2026-04-19_07-59-20 (finalized)
+- categoria: pipeline
+- status: confirmado
+- evidencia.arquivo_ou_area: .github/workflows/ci.yml (sem `strategy.matrix`)
+- impacto.tecnico: Falha em upgrade de Node
 
 ### [informativo] ACH-021 — Importações relativas profundas em vez dos aliases `@wbc/*`
 

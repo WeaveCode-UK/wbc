@@ -1,7 +1,7 @@
 # Status Geral do Framework
 
 ## Identificação
-- ultima_atualizacao: 2026-04-18 23:20:00
+- ultima_atualizacao: 2026-04-19
 - versao_framework: 3.3.0
 - status_bootstrap_core: completed
 - status_playbooks_seed: completed
@@ -10,8 +10,8 @@
 - total_dominios: 15
 - total_playbooks_oficiais: 15
 - dominios_com_run_ativa: 0
-- dominios_com_historico: 5
-- total_runs_historicas: 5
+- dominios_com_historico: 6
+- total_runs_historicas: 6
 
 ## Status por Domínio
 
@@ -53,8 +53,8 @@
 ### performance-escalabilidade
 - status_current: not_started
 - run_id_atual: none
-- ultima_run_finalizada: none
-- total_runs: 0
+- ultima_run_finalizada: 2026-04-18_23-18-19
+- total_runs: 1
 - playbook_status: completed
 
 ### confiabilidade-resiliencia

@@ -1,20 +1,20 @@
 # Relatório Consolidado de Achados — Framework de Auditoria WeaveCode
 
-- gerado_em: 2026-04-18T22:17:49.375Z
-- total_achados: 105
+- gerado_em: 2026-04-19T06:38:35.264Z
+- total_achados: 135
 - dominios_em_progresso: 0
 - dominios_ready_for_finalize: 0
 - dominios_blocked: 0
-- dominios_com_historico: 5
+- dominios_com_historico: 6
 
 ## Distribuição por severidade
 
 | Severidade | Total |
 |---|---|
 | critico | 8 |
-| alto | 36 |
-| medio | 48 |
-| baixo | 12 |
+| alto | 48 |
+| medio | 62 |
+| baixo | 16 |
 | informativo | 1 |
 
 ## Distribuição por status
@@ -22,7 +22,7 @@
 | Status | Total |
 |---|---|
 | aberto | 13 |
-| confirmado | 79 |
+| confirmado | 109 |
 | mitigado | 0 |
 | resolvido | 0 |
 | aceito | 0 |
@@ -37,6 +37,7 @@
 | seguranca | 28 |
 | apis-integracoes | 20 |
 | dados-persistencia | 22 |
+| performance-escalabilidade | 30 |
 
 ## Achados ordenados por severidade
 
@@ -325,6 +326,126 @@
 - status: desconhecido
 - evidencia.arquivo_ou_area: deploy/backup/backup.sh, restore.sh; docs/DEPLOYMENT.md:65-76
 - impacto.tecnico: RPO/RTO desconhecidos
+
+### [alto] ACH-001 — SLOs/SLIs não documentados; alertas Prometheus ausentes
+
+- dominio: performance-escalabilidade
+- run: 2026-04-18_23-18-19 (finalized)
+- categoria: sinais-e-observabilidade-de-performance
+- status: confirmado
+- resumo: `docs/adr/007-resilience-strategies.md` propõe SLOs (outbox lag ≤30s, uptime ≥99.5%) mas marca como "pendente validação humana". Não há `docs/SLO.md` executivo; Prometheus scrapes métricas básicas mas não há regras de alerta.
+- evidencia.arquivo_ou_area: docs/adr/007-resilience-strategies.md:67-77; deploy/prometheus.yml (scrape sem alerting rules)
+- impacto.tecnico: Degradação só é detectada por reclamação do usuário
+
+### [alto] ACH-004 — Campaign processor envia a recipients em loop sequencial sem batching
+
+- dominio: performance-escalabilidade
+- run: 2026-04-18_23-18-19 (finalized)
+- categoria: throughput-de-workers
+- status: confirmado
+- resumo: `apps/worker/src/processors/campaign-processor.ts` itera `for (const recipient of recipients)` sem enfileirar em lote nem executar em paralelo. Processa em O(n) sequencial e ainda parece incompleto (só loga). Escalabilidade da messaging fica sabotada.
+- evidencia.arquivo_ou_area: apps/worker/src/processors/campaign-processor.ts:18-32; packages/business/campaigns/adapters/prisma-campaign-repository.ts
+- impacto.tecnico: Latência linear com N destinatários; oportunidade de batch perdida
+
+### [alto] ACH-007 — Ausência de invalidação sistemática de cache após mutations
+
+- dominio: performance-escalabilidade
+- run: 2026-04-18_23-18-19 (finalized)
+- categoria: cache
+- status: confirmado
+- resumo: `apps/api/src/lib/cache.ts` provê `cacheInvalidatePatternForTenant()`, mas apenas entitlements o invoca (no evento planChanged). Sales/clients/campaigns não invalidam cache após mutations → dados stale até TTL expirar.
+- evidencia.arquivo_ou_area: apps/api/src/lib/cache.ts:65-77; apps/api/src/lib/entitlements.ts:43
+- impacto.tecnico: Usuário vê estado antigo após editar; suporte recebe reclamações
+
+### [alto] ACH-009 — Outbox processor em polling de 5s sem controle de concorrência/ backpressure
+
+- dominio: performance-escalabilidade
+- run: 2026-04-18_23-18-19 (finalized)
+- categoria: filas-e-controle-de-carga
+- status: confirmado
+- resumo: `apps/worker/src/index.ts` usa `setInterval(processOutbox, 5000)` sem flag para evitar reentrada. Quando processamento fica lento, rodadas sobrepõem, aumentam lag e podem disparar readiness failure (cascata de restarts).
+- evidencia.arquivo_ou_area: apps/worker/src/index.ts:68-76; apps/worker/src/health-server.ts (threshold 60s)
+- impacto.tecnico: Lag crescente sob carga; restarts cascateados
+
+### [alto] ACH-011 — Redis single-node é SPOF — sem Sentinel/Cluster
+
+- dominio: performance-escalabilidade
+- run: 2026-04-18_23-18-19 (finalized)
+- categoria: escalabilidade
+- status: confirmado
+- resumo: `docker-compose.prod.yml` declara `redis:7-alpine` como instância única. Outbox depende dele para BullMQ; cache API também. Queda = perda de jobs in-flight + cache total miss.
+- evidencia.arquivo_ou_area: docker-compose.prod.yml:22-35; apps/api/src/lib/redis.ts; apps/worker/src/lib/redis.ts
+- impacto.tecnico: Indisponibilidade total em falha de Redis
+
+### [alto] ACH-012 — Postgres single-node sem replication streaming
+
+- dominio: performance-escalabilidade
+- run: 2026-04-18_23-18-19 (finalized)
+- categoria: escalabilidade
+- status: confirmado
+- resumo: `docker-compose.prod.yml` roda `postgres:16-alpine` como container único; `docs/DEPLOYMENT.md` marca replicação como pendente. Sem read replicas, sem failover.
+- evidencia.arquivo_ou_area: docker-compose.prod.yml:3-19; docs/DEPLOYMENT.md
+- impacto.tecnico: Falha de storage = perda; DR não validado
+
+### [alto] ACH-017 — Ausência de bundle analyzer e de orçamento de bundle no CI
+
+- dominio: performance-escalabilidade
+- run: 2026-04-18_23-18-19 (finalized)
+- categoria: frontend
+- status: confirmado
+- resumo: `apps/web/package.json` não inclui `@next/bundle-analyzer`. Não há gate que falhe PRs quando bundle cresce além de um teto.
+- evidencia.arquivo_ou_area: apps/web/package.json; next.config.mjs (sem `withBundleAnalyzer`)
+- impacto.tecnico: Regressão silenciosa de bundle
+
+### [alto] ACH-019 — Ausência de `revalidate` (ISR) e SSG em rotas públicas
+
+- dominio: performance-escalabilidade
+- run: 2026-04-18_23-18-19 (finalized)
+- categoria: frontend-e-escalabilidade
+- status: confirmado
+- resumo: Nenhuma rota usa `revalidate` ou `generateStaticParams`. Landing, catálogo público e páginas marketing fazem SSR a cada request.
+- evidencia.arquivo_ou_area: apps/web/src/app/**/*.tsx (zero hits)
+- impacto.tecnico: Carga desnecessária no server; cache do Next.js não usado
+
+### [alto] ACH-022 — Sem CDN — assets 100% via nginx local (SPOF geográfico)
+
+- dominio: performance-escalabilidade
+- run: 2026-04-18_23-18-19 (finalized)
+- categoria: rede-e-entrega
+- status: confirmado
+- resumo: `next.config.mjs` não define `assetPrefix`. HTML e `_next/static/*` servidos por nginx único, sem edge cache.
+- evidencia.arquivo_ou_area: apps/web/next.config.mjs; docker-compose.prod.yml (nginx -> web local)
+- impacto.tecnico: Latência global; banda limitada; SPOF
+
+### [alto] ACH-024 — Sem Web Vitals RUM — Sentry sample muito baixo em prod
+
+- dominio: performance-escalabilidade
+- run: 2026-04-18_23-18-19 (finalized)
+- categoria: observabilidade-de-frontend
+- status: confirmado
+- resumo: Nenhum pacote de coleta de `CLS/LCP/FID/INP` está ativo; `apps/web/sentry.client.config.ts` usa `tracesSampleRate: 0.3` em prod e não captura Web Vitals.
+- evidencia.arquivo_ou_area: apps/web/sentry.client.config.ts; ausência de `web-vitals`/`@vercel/analytics`
+- impacto.tecnico: Regressões de UX não detectadas
+
+### [alto] ACH-025 — Docker Compose com `replicas: 1` — sem HA nem load balancing interno
+
+- dominio: performance-escalabilidade
+- run: 2026-04-18_23-18-19 (finalized)
+- categoria: escalabilidade
+- status: confirmado
+- resumo: `docker-compose.prod.yml` roda web/worker como instâncias únicas. Sem orchestrator (K8s), escalar é manual.
+- evidencia.arquivo_ou_area: docker-compose.prod.yml:38-94
+- impacto.tecnico: SPOF; crash derruba sistema
+
+### [alto] ACH-026 — Ausência de testes de carga (k6/artillery) — capacidade real desconhecida
+
+- dominio: performance-escalabilidade
+- run: 2026-04-18_23-18-19 (finalized)
+- categoria: escalabilidade
+- status: confirmado
+- resumo: Nenhum script de load test no repositório. `docs/DEPLOYMENT.md` cita SLOs como pendentes. Sem baseline de p95, breaking point, saturation.
+- evidencia.arquivo_ou_area: ausência de `k6.js`/`artillery.yml`; docs/DEPLOYMENT.md
+- impacto.tecnico: Escala adivinhada
 
 ### [alto] ACH-003 — Autenticação por credenciais sem proteção contra brute-force
 
@@ -847,6 +968,146 @@
 - evidencia.arquivo_ou_area: schema.prisma (Referral)
 - impacto.tecnico: Queries precisam IS NOT NULL; dangling referrals
 
+### [medio] ACH-002 — Grafana sem dashboards provisionados
+
+- dominio: performance-escalabilidade
+- run: 2026-04-18_23-18-19 (finalized)
+- categoria: sinais-e-observabilidade-de-performance
+- status: confirmado
+- resumo: `deploy/prometheus.yml` coleta métricas, mas não há `deploy/grafana-provisioning/dashboards/` com painéis declarativos (latência p95, queue depth, lag, pool utilization).
+- evidencia.arquivo_ou_area: deploy/prometheus.yml; ausência de deploy/grafana-provisioning/
+- impacto.tecnico: Observabilidade manual/errática em incidente
+
+### [medio] ACH-003 — `initTracing()` silencioso se `OTEL_EXPORTER_OTLP_ENDPOINT` ausente
+
+- dominio: performance-escalabilidade
+- run: 2026-04-18_23-18-19 (finalized)
+- categoria: observabilidade
+- status: confirmado
+- resumo: `apps/api/src/lib/tracing.ts` retorna silenciosamente quando a env var não está setada. Em produção sem essa config, zero traces são exportados.
+- evidencia.arquivo_ou_area: apps/api/src/lib/tracing.ts:8
+- impacto.tecnico: Falha silenciosa oculta ausência de traces em produção
+
+### [medio] ACH-005 — N+1 potencial em `clients.list` quando consumidor exige tags
+
+- dominio: performance-escalabilidade
+- run: 2026-04-18_23-18-19 (finalized)
+- categoria: acesso-a-dados
+- status: confirmado
+- resumo: `PrismaClientRepository.list()` retorna `Client[]` sem `include: { tags: true }`. Quando a UI quer tags por cliente, o callback acaba fazendo 1+N queries.
+- evidencia.arquivo_ou_area: packages/business/clients/adapters/prisma-client-repository.ts:31
+- impacto.tecnico: 21 queries em vez de 1 com join; contention DB sob N tenants
+
+### [medio] ACH-006 — Cálculo de totais de venda em `number` (IEEE 754) em vez de Decimal
+
+- dominio: performance-escalabilidade
+- run: 2026-04-18_23-18-19 (finalized)
+- categoria: correctness-e-performance
+- status: confirmado
+- resumo: `computeItemSubtotal`/`computeSaleTotal` em `packages/business/sales/domain/value-objects.ts` operam em `number`. Precisão binária acumula arredondamentos em centavos.
+- evidencia.arquivo_ou_area: packages/business/sales/domain/value-objects.ts:29-50
+- impacto.tecnico: Drift entre valor calculado e armazenado (Decimal)
+
+### [medio] ACH-010 — Workers BullMQ com concurrency hardcoded e sem limitador adaptativo
+
+- dominio: performance-escalabilidade
+- run: 2026-04-18_23-18-19 (finalized)
+- categoria: filas-e-controle-de-carga
+- status: confirmado
+- resumo: messaging=5, campaign=2, schedule=3, analytics=1 — fixos no código, sem `limiter` por provedor externo (WhatsApp/Resend). Em burst, filas não priorizadas congestionam provider externo.
+- evidencia.arquivo_ou_area: apps/worker/src/processors/*.ts
+- impacto.tecnico: Subutilização de recursos ou sobrecarga do provider externo
+
+### [medio] ACH-013 — Prisma connection pool fixo sem revisão para escala horizontal
+
+- dominio: performance-escalabilidade
+- run: 2026-04-18_23-18-19 (finalized)
+- categoria: escalabilidade
+- status: confirmado
+- resumo: ADR-008 menciona `connection_limit=5` no worker, mas sem aplicação explícita no DATABASE_URL. Com 5 workers em produção (plano de escala), 5×5 + 20 (API) ≈ 45 conexões — próximo do limite padrão.
+- evidencia.arquivo_ou_area: docs/adr/008-worker-scaling.md:54-59; .env.production.example (sem connection_limit documentado)
+- impacto.tecnico: Pool exhaust em pico → timeouts
+
+### [medio] ACH-015 — Paginação aceita `limit` até 100 e `page` irrestrito (cross-ref apis-integracoes/ACH-018)
+
+- dominio: performance-escalabilidade
+- run: 2026-04-18_23-18-19 (finalized)
+- categoria: protecao-operacional
+- status: confirmado
+- resumo: `paginationSchema` limita `limit ≤ 100`, mas `page` não tem cap. `skip = (page-1)*limit` gera OFFSET gigante → query degradada.
+- evidencia.arquivo_ou_area: packages/validators/src/common.ts:3-6; packages/shared/src/prisma-helpers.ts:23-27
+- impacto.tecnico: DoS via OFFSET em tabelas grandes
+
+### [medio] ACH-016 — Árvore client extensa — 23 arquivos `use client` na web
+
+- dominio: performance-escalabilidade
+- run: 2026-04-18_23-18-19 (finalized)
+- categoria: frontend
+- status: confirmado
+- resumo: Providers (Session/Theme/ErrorBoundary) e páginas do dashboard são Client Components. TTI cresce por hidratação ampla.
+- evidencia.arquivo_ou_area: apps/web/src/app/** (23 hits de "use client"); layout.tsx usa providers client
+- impacto.tecnico: Bundle JS inicial maior; hidratação pesada
+
+### [medio] ACH-018 — Sem dynamic imports — páginas carregam todos os componentes pesados
+
+- dominio: performance-escalabilidade
+- run: 2026-04-18_23-18-19 (finalized)
+- categoria: frontend
+- status: confirmado
+- resumo: Zero uso de `dynamic(() => import(...))`. Modais e editores pesados fazem parte do bundle principal.
+- evidencia.arquivo_ou_area: apps/web/src/**/*.tsx (zero hits de `dynamic(`)
+- impacto.tecnico: Code-splitting ausente
+
+### [medio] ACH-020 — `next/image` não é usado — assets sem otimização de formato/lazy
+
+- dominio: performance-escalabilidade
+- run: 2026-04-18_23-18-19 (finalized)
+- categoria: frontend
+- status: confirmado
+- resumo: Zero `<Image>` em `apps/web/src/**`. Avatares e banners servem sem webp/avif, sem lazy load nem responsive srcset.
+- evidencia.arquivo_ou_area: apps/web/src/**/*.tsx (sem Next Image)
+- impacto.tecnico: Payload maior; LCP pior em mobile
+
+### [medio] ACH-021 — nginx sem brotli e com `gzip_min_length=1000` não-ótimo
+
+- dominio: performance-escalabilidade
+- run: 2026-04-18_23-18-19 (finalized)
+- categoria: rede-e-entrega
+- status: confirmado
+- resumo: `deploy/nginx.conf` ativa gzip mas sem brotli; nenhum `gzip_comp_level` definido. `gzip_min_length 1000` deixa bundles pequenos sem compressão.
+- evidencia.arquivo_ou_area: deploy/nginx.conf:40-43
+- impacto.tecnico: 15-20% de bytes extras; menos economia de banda
+
+### [medio] ACH-023 — React Native: `FlatList` sem `windowSize`, `React.memo` ou `keyExtractor` estabilizado
+
+- dominio: performance-escalabilidade
+- run: 2026-04-18_23-18-19 (finalized)
+- categoria: mobile
+- status: confirmado
+- resumo: Listas de clients/sales em `apps/mobile` não otimizam render (sem `windowSize`, `updateCellsBatchingPeriod`); `renderItem` sem `React.memo`.
+- evidencia.arquivo_ou_area: apps/mobile/src/screens/sales-list-screen.tsx:57-88; clients-list-screen.tsx:62-100
+- impacto.tecnico: Frame drops com 100+ itens reais
+
+### [medio] ACH-027 — Circuit breaker existe mas não é aplicado em handlers de integração
+
+- dominio: performance-escalabilidade
+- run: 2026-04-18_23-18-19 (finalized)
+- categoria: resiliencia
+- status: confirmado
+- resumo: `packages/shared/src/circuit-breaker.ts` está implementado mas nenhum processor (campaign, messaging, analytics) usa para isolar WhatsApp/Resend/DeepSeek.
+- evidencia.arquivo_ou_area: packages/shared/src/circuit-breaker.ts; apps/worker/src/processors/*.ts
+- impacto.tecnico: Falha externa cascateia; retries sem freio
+
+### [medio] ACH-029 — Health server não expõe `queueDepths` para alarme de backpressure
+
+- dominio: performance-escalabilidade
+- run: 2026-04-18_23-18-19 (finalized)
+- categoria: saude-operacional
+- status: confirmado
+- resumo: `collectWorkerStatus()` reporta `paused`, não tamanho das filas. Não há sinal para autoscaler/alarmar quando fila cresce.
+- evidencia.arquivo_ou_area: apps/worker/src/health-server.ts:43-55
+- impacto.tecnico: Saturação sem alarme
+
 ### [medio] ACH-018 — Rate-limit assimétrico e frouxo nos endpoints sensíveis
 
 - dominio: seguranca
@@ -1052,6 +1313,46 @@
 - status: desconhecido
 - evidencia.arquivo_ou_area: docker-compose.prod.yml (Postgres sem extension); ausência de script de coleta
 - impacto.tecnico: Decisões de índice no escuro
+
+### [baixo] ACH-008 — Superjson em toda resposta sem limite de tamanho ou streaming
+
+- dominio: performance-escalabilidade
+- run: 2026-04-18_23-18-19 (finalized)
+- categoria: serializacao
+- status: confirmado
+- resumo: Todas as respostas tRPC passam por `superjson.serialize`, inclusive datasets grandes (dashboards analíticos). Sem corte de payload ou streaming; serialização completa antes do envio.
+- evidencia.arquivo_ou_area: apps/api/src/trpc/trpc.ts:19
+- impacto.tecnico: 10-50ms em payloads médios; pior em relatórios
+
+### [baixo] ACH-014 — Cache TTL uniforme (300s) sem diferenciação por tipo de dado
+
+- dominio: performance-escalabilidade
+- run: 2026-04-18_23-18-19 (finalized)
+- categoria: cache
+- status: confirmado
+- resumo: `CACHE_TTL.MEDIUM = 300s` é usado para dashboard (muda sempre) e stats mensais (estáveis). TTL único reduz hit-rate para dados estáveis e produz stale para dinâmicos.
+- evidencia.arquivo_ou_area: apps/api/src/lib/cache.ts:137-142
+- impacto.tecnico: Miss rate elevado desnecessário
+
+### [baixo] ACH-028 — Health server expõe estado instantâneo sem média móvel (falsos negativos em GC)
+
+- dominio: performance-escalabilidade
+- run: 2026-04-18_23-18-19 (finalized)
+- categoria: saude-operacional
+- status: confirmado
+- resumo: `apps/worker/src/health-server.ts` expõe `outboxLagMs` em tempo real. GC pauses podem levar a readiness false-fail e restart em cascata.
+- evidencia.arquivo_ou_area: apps/worker/src/health-server.ts
+- impacto.tecnico: Restarts espúrios
+
+### [baixo] ACH-030 — Prisma não loga slow queries em produção
+
+- dominio: performance-escalabilidade
+- run: 2026-04-18_23-18-19 (finalized)
+- categoria: observabilidade-de-dados
+- status: confirmado
+- resumo: Logging `'query'` do Prisma só em `NODE_ENV === 'development'`. Sem detecção passiva de N+1/missing index em prod.
+- evidencia.arquivo_ou_area: packages/db/src/index.ts:7
+- impacto.tecnico: Queries lentas descobertas tarde
 
 ### [baixo] ACH-028 — Ausência de validador forte para números de telefone
 

@@ -1,11 +1,15 @@
-import { z } from 'zod';
-import { router, protectedProcedure } from '../trpc/trpc';
-import { PrismaAnalyticsRepository } from '../../../../packages/business/analytics/adapters/prisma-analytics-repository';
-import { getAnalyticsDashboard } from '../../../../packages/business/analytics/use-cases/get-dashboard';
-import { getSalesStats, getProductRanking, getClientEngagement } from '../../../../packages/business/analytics/use-cases/get-stats';
-import { uuidSchema } from '@wbc/validators';
-import { cacheGet, cacheSet } from '../lib/cache';
-import { getAnalyticsQueue } from '../lib/queues';
+import { z } from "zod";
+import { router, protectedProcedure } from "../trpc/trpc";
+import { PrismaAnalyticsRepository } from "../../../../packages/business/analytics/adapters/prisma-analytics-repository";
+import { getAnalyticsDashboard } from "../../../../packages/business/analytics/use-cases/get-dashboard";
+import {
+  getSalesStats,
+  getProductRanking,
+  getClientEngagement,
+} from "../../../../packages/business/analytics/use-cases/get-stats";
+import { uuidSchema } from "@wbc/validators";
+import { cacheGet, cacheSet } from "../lib/cache";
+import { enqueueJob, getAnalyticsQueue } from "../lib/queues";
 
 const analyticsRepo = new PrismaAnalyticsRepository();
 
@@ -14,7 +18,10 @@ export const analyticsRouter = router({
     const cacheKey = `analytics:dashboard:${ctx.tenant.tenantId}`;
     const cached = await cacheGet(cacheKey);
     if (cached) return cached;
-    const result = await getAnalyticsDashboard(ctx.tenant.tenantId, analyticsRepo);
+    const result = await getAnalyticsDashboard(
+      ctx.tenant.tenantId,
+      analyticsRepo,
+    );
     await cacheSet(cacheKey, result, 300);
     return result;
   }),
@@ -22,10 +29,14 @@ export const analyticsRouter = router({
   getSalesStats: protectedProcedure
     .input(z.object({ period: z.string().optional() }))
     .query(async ({ ctx, input }) => {
-      const cacheKey = `analytics:sales:${ctx.tenant.tenantId}:${input.period ?? 'current'}`;
+      const cacheKey = `analytics:sales:${ctx.tenant.tenantId}:${input.period ?? "current"}`;
       const cached = await cacheGet(cacheKey);
       if (cached) return cached;
-      const result = await getSalesStats(ctx.tenant.tenantId, input.period, analyticsRepo);
+      const result = await getSalesStats(
+        ctx.tenant.tenantId,
+        input.period,
+        analyticsRepo,
+      );
       await cacheSet(cacheKey, result, 180);
       return result;
     }),
@@ -39,11 +50,18 @@ export const analyticsRouter = router({
   getClientEngagement: protectedProcedure
     .input(z.object({ clientId: uuidSchema }))
     .query(async ({ ctx, input }) => {
-      return getClientEngagement(ctx.tenant.tenantId, input.clientId, analyticsRepo);
+      return getClientEngagement(
+        ctx.tenant.tenantId,
+        input.clientId,
+        analyticsRepo,
+      );
     }),
 
   recalculateABC: protectedProcedure.mutation(async ({ ctx }) => {
-    await getAnalyticsQueue().add('recalculate-abc', { tenantId: ctx.tenant.tenantId });
+    // ACH-012: validated enqueue (warn-only) instead of raw Queue.add.
+    await enqueueJob(getAnalyticsQueue(), "recalculate-abc", {
+      tenantId: ctx.tenant.tenantId,
+    });
     return { queued: true };
   }),
 });

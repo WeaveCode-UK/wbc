@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto";
 import type { DomainEvent, EventType } from "./domain-event";
 import type { OutboxPort } from "./outbox-service";
+import { logIfInvalidEventPayload } from "./schemas";
 
 let outboxPort: OutboxPort | null = null;
 
@@ -47,6 +48,11 @@ export async function publish<T>(
   if (!outboxPort) {
     throw new OutboxNotInitializedError();
   }
+
+  // ACH-011 apis-integracoes: warn-only validation during the migration
+  // (see schemas.ts). Persist-then-warn keeps old events flowing while the
+  // missing schemas are authored module-by-module.
+  logIfInvalidEventPayload(type, payload);
 
   const event: DomainEvent<T> = {
     id: randomUUID(),

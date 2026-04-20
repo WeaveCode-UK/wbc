@@ -5,6 +5,7 @@ export * from "./context/tenant-context";
 export * from "./events/outbox-service";
 export * from "./events/event-publisher";
 export * from "./events/event-subscriber";
+export * from "./events/schemas";
 export * from "./theme";
 export * from "./prisma-helpers";
 export * from "./security-logger";

@@ -1,6 +1,6 @@
 {
   "schema_version": "2.2",
-  "generated_at": "2026-04-19T21:13:38.092Z",
+  "generated_at": "2026-04-20T08:48:13.277Z",
   "total": 294,
   "total_runs": 15,
   "distribution": {
@@ -37,17 +37,17 @@
   },
   "correction_summary": {
     "runs_by_correction_state": {
-      "not_started": 14,
-      "in_progress": 1,
+      "not_started": 13,
+      "in_progress": 2,
       "completed": 0
     },
-    "total_findings_corrected": 15,
-    "total_findings_not_correctable": 0,
+    "total_findings_corrected": 42,
+    "total_findings_not_correctable": 1,
     "total_findings_pending_correction": 0,
-    "total_commits": 15
+    "total_commits": 42
   },
   "progress": {
-    "last_updated": "2026-04-19T21:13:38.090Z",
+    "last_updated": "2026-04-20T08:48:13.276Z",
     "domains": {
       "arquitetura": {
         "domain": "arquitetura",
@@ -498,7 +498,18 @@
         "confirmado": 28
       },
       "correction": {
-        "state": "not_started"
+        "state": "in_progress",
+        "branch": "fix/seguranca/2026-04-18_22-06-18",
+        "started_at": "2026-04-19 22:20:00",
+        "finished_at": null,
+        "fase_atual": "revisor",
+        "corrected": 27,
+        "reviewed_ok": 27,
+        "not_correctable": 1,
+        "not_approved": 0,
+        "pending": 0,
+        "total_approved": 27,
+        "total_commits": 27
       }
     },
     {
@@ -898,7 +909,13 @@
       "acao_sugerida": "Armazenar token em Redis com TTL 1h, validar no resetPassword antes de hashear nova senha, integrar provedor de e-mail real, cobrir com testes de fluxo completo e rate-limit por e-mail",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "5d3072c",
+        "reviewer_commit": null,
+        "observacoes": "Parcial — integração em produção requer configuração de RESEND_API_KEY e domínio Resend verificado (ação humana). Router tRPC e UI devem injetar ResendEmailSender + RedisAuthTokenStore nos use-cases."
       }
     },
     {
@@ -922,7 +939,13 @@
       "acao_sugerida": "Remover log do OTP por completo; em dev, emitir apenas um evento \"otp-sent\" sem o valor; usar provedor de e-mail/SMS mockado local",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "61afd51",
+        "reviewer_commit": null,
+        "observacoes": "O código permanece persistido via OtpRepository e é consumido apenas pelo canal de entrega (e-mail/SMS) configurado."
       }
     },
     {
@@ -2658,7 +2681,13 @@
       "acao_sugerida": "Lockout após 5 falhas em 15 minutos (contador por accountId + IP em Redis), captcha após N falhas, rate-limit específico para login (ex.: 5 req/min por IP)",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "cdc95a7",
+        "reviewer_commit": null,
+        "observacoes": "Policy padrão (DEFAULT_LOCKOUT_POLICY) customizável por ambiente."
       }
     },
     {
@@ -2682,7 +2711,13 @@
       "acao_sugerida": "Mensagem única \"e-mail ou senha inválidos\" para ambos os casos; equalizar tempo de resposta (executar bcrypt mesmo quando conta não existe)",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "e09b73d",
+        "reviewer_commit": null,
+        "observacoes": "Commit feito antes do ACH-003 (eram sequenciais no mesmo arquivo)."
       }
     },
     {
@@ -2706,7 +2741,13 @@
       "acao_sugerida": "Alterar para `where: { token, status: 'PENDING', expiresAt: { gt: new Date() } }`; escrever teste que cubra invite expirado/aceito",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "98403ea",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -2730,7 +2771,13 @@
       "acao_sugerida": "Manter lista de `jti` revogados em Redis consultada no callback `authorized`; reduzir TTL; implementar refresh-token rotation",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "7d6562a",
+        "reviewer_commit": null,
+        "observacoes": "Parcial — refresh-token rotation completa exige desenho maior (ficará para design follow-up)."
       }
     },
     {
@@ -2754,7 +2801,13 @@
       "acao_sugerida": "Implementar TOTP opcional por conta usando `otplib`, armazenar segredo criptografado, exigir MFA para OWNER/ADMIN e operações financeiras",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "6008544",
+        "reviewer_commit": null,
+        "observacoes": "Parcial — rotas tRPC, UI de setup (QR code, entrada de código, download de recovery codes) e enforcement no fluxo de login (exigir MFA para OWNER/ADMIN) ficam para ação humana. Migração Prisma precisa ser gerada e aplicada."
       }
     },
     {
@@ -2778,7 +2831,13 @@
       "acao_sugerida": "Adicionar whitelist em use-cases de update (pick explícito); proibir `...input` direto no `data` do Prisma",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "48402a2",
+        "reviewer_commit": null,
+        "observacoes": "Padrão a ser replicado nos repos de sales/messaging/finance (acompanhamento humano)."
       }
     },
     {
@@ -2802,7 +2861,13 @@
       "acao_sugerida": "Restringir a HTTPS + allowlist de domínios (próprio CDN, Google avatars); validar via `refine((u) => ALLOWED.some(d => new URL(u).host.endsWith(d)))`",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "42467dc",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -2826,7 +2891,13 @@
       "acao_sugerida": "Declarar cookie options explicitamente com `secure: true`, `httpOnly: true`, `sameSite: 'lax'`; validar em startup",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "31bef10",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -2850,7 +2921,13 @@
       "acao_sugerida": "Migrar para nonces (`next-safe` ou middleware que injeta nonce), eliminar `unsafe-inline`; em dev manter policy mais permissiva somente via `NODE_ENV` check",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "671dda5",
+        "reviewer_commit": null,
+        "observacoes": "Parcial — verificar se algum componente de UI usa script/style inline sem nonce (acompanhamento humano em smoke-test). Migration de `useNonce()` em componentes pode ser necessária."
       }
     },
     {
@@ -2874,7 +2951,13 @@
       "acao_sugerida": "Validar env obrigatórias na composição raiz via Zod (`packages/config`); lançar erro claro quando uma chave obrigatória estiver vazia; publicar métrica de \"integrations_ready",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "491192b",
+        "reviewer_commit": null,
+        "observacoes": "AUTH_SECRET também ganhou validação min(32) + refusal de padrões fracos (preparação para ACH-027)."
       }
     },
     {
@@ -2898,7 +2981,13 @@
       "acao_sugerida": "Adicionar a variável aos dois `.env.example` e ao `globalEnv` do turbo; exigir valor via Zod de env",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "7648208",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -2922,7 +3011,13 @@
       "acao_sugerida": "Remover fallback, exigir `GRAFANA_PASSWORD` obrigatório no startup do compose; adicionar basic-auth no nginx ou oauth2-proxy; restringir IP",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "7e24f3c",
+        "reviewer_commit": null,
+        "observacoes": "Restrição IP via nginx ou reverse-proxy-auth fica para acompanhamento (mudança de infra)."
       }
     },
     {
@@ -2946,7 +3041,13 @@
       "acao_sugerida": "Adicionar `gitleaks` ao pre-commit via lint-staged; incluir job `trivy fs` ou `gitleaks-action` no CI; habilitar GitHub secret scanning e Dependabot security",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "4d00627",
+        "reviewer_commit": null,
+        "observacoes": "Parcial — habilitação de \"Push protection\" e \"Secret scanning native\" do GitHub fica para acompanhamento via UI (documentado em CONTRIBUTING.md/SECURITY.md)."
       }
     },
     {
@@ -2970,7 +3071,13 @@
       "acao_sugerida": "Adotar secret manager gerenciado; introduzir política de rotação trimestral; documentar em `SECURITY.md`",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "not_correctable",
+        "classificacao": "nao_corrigivel",
+        "status_executor": "nao_aplicavel",
+        "status_revisor": "nao_aplicavel",
+        "executor_commit": null,
+        "reviewer_commit": null,
+        "observacoes": "Adoção de Secret Manager exige decisão de infra/produto e provisionamento externo. Documentar manualmente em SECURITY.md após escolha do provedor."
       }
     },
     {
@@ -2994,7 +3101,13 @@
       "acao_sugerida": "Criar `.github/CODEOWNERS`; configurar branch protection (required reviews ≥1, status checks obrigatórios, dismiss stale, admin included); registrar política em `CONTRIBUTING.md`",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "4bd5f78",
+        "reviewer_commit": null,
+        "observacoes": "Parcial — configuração efetiva no GitHub UI depende de admin (documentado em CONTRIBUTING.md como contrato)."
       }
     },
     {
@@ -5533,7 +5646,13 @@
       "acao_sugerida": "Identificador público = IP (via `x-forwarded-for` tratado); limits por rota (login: 5/min/IP; resetRequest: 3/h/IP; acceptInvite: 10/15min/IP)",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "76ab1c0",
+        "reviewer_commit": null,
+        "observacoes": "Handler HTTP precisa chamar createContext com IP extraído para ativar identificador por IP; infraestrutura pronta."
       }
     },
     {
@@ -5557,7 +5676,13 @@
       "acao_sugerida": "Logar apenas `accountId` (após lookup) ou um hash determinístico truncado; nunca o email em claro",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "094ebaa",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -5581,7 +5706,13 @@
       "acao_sugerida": "Função de redaction reutilizável: mascarar phone para últimos 4 dígitos; truncar IDs a 8 chars; aplicar antes do `console.log`",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "890a51f",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -5605,7 +5736,13 @@
       "acao_sugerida": "Implementar `beforeSend` que remova `headers.authorization`, `request.data.password`, `request.data.token`, stackframes com strings sensíveis; reduzir sample em dev",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "58a1108",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -5629,7 +5766,13 @@
       "acao_sugerida": "Migrar para `createLogger()` central com redaction; logar apenas status code e um requestId opaco",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "1d9d567",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -5653,7 +5796,13 @@
       "acao_sugerida": "Manter `live` simples e público; restringir `ready` a IP interno ou autenticado; separar payload \"pública\" (OK/fail) de \"detalhada\" (interna)",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "e71bdde",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -5677,7 +5826,13 @@
       "acao_sugerida": "Criar `AuditLog` (tenantId, accountId, action, resource, ip, userAgent, status, detail, createdAt); middleware que loga após mutations críticas; export periódico",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "fb1fc3d",
+        "reviewer_commit": null,
+        "observacoes": "Parcial — middleware criado mas não aplicado em routers individuais (cada mutation crítica deve adotá-lo: invite.accept, member.role.change, session.revoke, etc — acompanhamento humano). Export periódico para storage frio fica para Fase 7."
       }
     },
     {
@@ -5701,7 +5856,13 @@
       "acao_sugerida": "Criar usuários `wbc_app`, `wbc_migrations`, `wbc_readonly` com permissões segregadas; apps usam `wbc_app`; migrations rodam com role privilegiado somente em deploy",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "8ce2efe",
+        "reviewer_commit": null,
+        "observacoes": "Parcial — execução em produção requer DBA: rodar setup-roles.sql, ajustar DATABASE_URL para usar wbc_app, e separar DATABASE_URL_MIGRATIONS no pipeline de deploy."
       }
     },
     {
@@ -5725,7 +5886,13 @@
       "acao_sugerida": "Adicionar `read_only: true`, `cap_drop: [ALL]`, `cap_add: [NET_BIND_SERVICE]` onde necessário, `security_opt: [no-new-privileges:true]`; ajustar volumes tmpfs para caches",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "fee7a4f",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -5749,7 +5916,13 @@
       "acao_sugerida": "Gerar `AUTH_SECRET` aleatório em dev também (`openssl rand -base64 48`); validar tamanho mínimo em startup; rejeitar padrões conhecidos (\"dev\", \"change\", \"secret\")",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "f343cb6",
+        "reviewer_commit": null,
+        "observacoes": "O .env local do desenvolvedor não é tocado por ser gitignored; a validação de startup pegará valores fracos."
       }
     },
     {
@@ -7100,7 +7273,13 @@
       "acao_sugerida": "Usar `libphonenumber-js` (`parsePhoneNumberFromString`) com país padrão BR; armazenar em formato E.164",
       "prioridade": "baixa",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "8426627",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {

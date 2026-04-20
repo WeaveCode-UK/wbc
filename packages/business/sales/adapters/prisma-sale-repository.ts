@@ -1,6 +1,9 @@
 import { prisma, Prisma } from "@wbc/db";
 import { buildTenantWhere, paginatedQuery } from "@wbc/shared";
-import type { SaleRepository } from "../ports/sale-repository";
+import type {
+  ConfirmAtomicParams,
+  SaleRepository,
+} from "../ports/sale-repository";
 import type { Sale, SaleItem } from "../domain/entities";
 import type { PaymentMethod } from "../domain/status";
 import type { SaleStatus } from "../domain/value-objects";
@@ -124,6 +127,63 @@ export class PrismaSaleRepository implements SaleRepository {
       data: { status },
     });
     return mapSaleFromPrisma(sale);
+  }
+
+  async confirmAtomic(params: ConfirmAtomicParams): Promise<Sale> {
+    // ACH-001 dados-persistencia: all-or-nothing confirmation.
+    // Serializable isolation on the critical path — overselling in
+    // concurrent confirms (same stock row) is what we need to
+    // prevent; Serializable pays the overhead with no PG extension.
+    return prisma.$transaction(
+      async (tx) => {
+        const sale = await tx.sale.update({
+          where: { id: params.saleId },
+          data: { status: "CONFIRMED" },
+        });
+
+        if (params.cashback) {
+          await tx.cashback.create({
+            data: {
+              tenantId: params.tenantId,
+              clientId: params.cashback.clientId,
+              amount: params.cashback.amount,
+              expiresAt: params.cashback.expiresAt,
+              originSaleId: params.cashback.originSaleId,
+            },
+          });
+        }
+
+        for (const d of params.stockDecrements) {
+          // Decrement with a conditional where so a concurrent
+          // decrement can't push `quantity` negative; Prisma turns
+          // "nothing matched" into P2025, which aborts the tx.
+          const updated = await tx.stock.updateMany({
+            where: {
+              tenantId: params.tenantId,
+              productId: d.productId,
+              quantity: { gte: d.quantity },
+            },
+            data: { quantity: { decrement: d.quantity } },
+          });
+          if (updated.count === 0) {
+            throw new Error(
+              `Insufficient stock for product ${d.productId} (needed ${d.quantity})`,
+            );
+          }
+        }
+
+        await tx.outboxEvent.create({
+          data: {
+            type: params.eventType,
+            tenantId: params.tenantId,
+            payload: params.eventPayload as Prisma.JsonObject,
+          },
+        });
+
+        return mapSaleFromPrisma(sale);
+      },
+      { isolationLevel: "Serializable" },
+    );
   }
 
   async delete(tenantId: string, id: string): Promise<void> {

@@ -437,6 +437,27 @@ model Cashback {
   @@map("cashbacks")
 }
 
+// ACH-012 dados-persistencia: idempotent cashback redemption.
+// Writes happen inside the same Serializable transaction as the
+// `Cashback.usedAmount` updates. A retry presents the same
+// `idempotencyKey` and either (a) hits the PK and the redemption
+// returns no-op, or (b) was already committed and the Serializable
+// isolation prevents a concurrent second application.
+//
+// `tenantId` is part of the key so two tenants can't collide on the
+// same client-generated id.
+model CashbackRedemption {
+  tenantId       String   @db.Uuid
+  idempotencyKey String
+  clientId       String   @db.Uuid
+  amount         Decimal  @db.Decimal(10, 2)
+  createdAt      DateTime @default(now())
+
+  @@id([tenantId, idempotencyKey])
+  @@index([tenantId, clientId])
+  @@map("cashback_redemptions")
+}
+
 model Return {
   id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   saleId       String   @db.Uuid

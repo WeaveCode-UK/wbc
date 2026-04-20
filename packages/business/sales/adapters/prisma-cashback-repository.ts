@@ -1,4 +1,4 @@
-import { prisma } from "@wbc/db";
+import { Prisma, prisma } from "@wbc/db";
 import type { CashbackRepository } from "../ports/cashback-repository";
 import type { Cashback } from "../domain/entities";
 import {
@@ -41,9 +41,38 @@ export class PrismaCashbackRepository implements CashbackRepository {
     } as Cashback;
   }
 
-  async use(tenantId: string, clientId: string, amount: number): Promise<void> {
+  async use(
+    tenantId: string,
+    clientId: string,
+    amount: number,
+    idempotencyKey?: string,
+  ): Promise<void> {
     await prisma.$transaction(
       async (tx) => {
+        // ACH-012 dados-persistencia: record the redemption first so a
+        // retry with the same key collides on the PK before touching
+        // any balance. Without this, a retried confirmSale could spend
+        // the cashback twice even under Serializable (the second call
+        // runs in a different transaction so Serializable only
+        // protects against concurrent-in-time collisions, not against
+        // deliberate replays across time).
+        if (idempotencyKey) {
+          try {
+            await tx.cashbackRedemption.create({
+              data: { tenantId, idempotencyKey, clientId, amount },
+            });
+          } catch (err) {
+            if (
+              err instanceof Prisma.PrismaClientKnownRequestError &&
+              err.code === "P2002"
+            ) {
+              // Already redeemed with this key — no-op.
+              return;
+            }
+            throw err;
+          }
+        }
+
         // Serializable isolation prevents concurrent cashback usage from overspending
         const cashbacks = await tx.cashback.findMany({
           where: { tenantId, clientId, expiresAt: { gt: new Date() } },

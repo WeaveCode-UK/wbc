@@ -1,4 +1,3 @@
-import { z } from "zod";
 import { router, protectedProcedure } from "../trpc/trpc";
 import {
   idempotentRoute,
@@ -9,7 +8,8 @@ import { WhatsAppN2Adapter } from "../../../../packages/business/messaging/adapt
 import { PrismaClientRepository } from "../../../../packages/business/clients/adapters/prisma-client-repository";
 import { personalizeMessage } from "../../../../packages/business/messaging/domain/whatsapp";
 import type { WhatsAppPort } from "../../../../packages/business/messaging/ports/whatsapp-port";
-import { uuidSchema } from "@wbc/validators";
+// ACH-008 apis-integracoes: schema centralised in @wbc/validators.
+import { sendToClientSchema } from "@wbc/validators";
 
 const whatsappN1 = new WhatsAppN1Adapter();
 const whatsappN2 = new WhatsAppN2Adapter();
@@ -21,17 +21,9 @@ function getWhatsAppAdapter(plan: string): WhatsAppPort {
 
 export const messagingRouter = router({
   sendToClient: protectedProcedure
-    .input(
-      z.object({
-        // ACH-001 apis-integracoes: idempotencyKey surfaces in the input so
-        // clients can send a stable id per logical send attempt; derived
-        // from input hash when absent (see idempotency-middleware).
-        idempotencyKey: z.string().min(1).optional(),
-        clientId: uuidSchema,
-        message: z.string().min(1),
-        audioUrl: z.string().optional(),
-      }),
-    )
+    // ACH-001 apis-integracoes: schema already carries optional
+    // idempotencyKey; see @wbc/validators/messaging.
+    .input(sendToClientSchema)
     .mutation(async ({ ctx, input }) => {
       return idempotentRoute(
         "messaging.sendToClient",

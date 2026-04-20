@@ -1,4 +1,3 @@
-import { z } from "zod";
 import { router, protectedProcedure } from "../trpc/trpc";
 import { PrismaAnalyticsRepository } from "../../../../packages/business/analytics/adapters/prisma-analytics-repository";
 import { getAnalyticsDashboard } from "../../../../packages/business/analytics/use-cases/get-dashboard";
@@ -7,7 +6,12 @@ import {
   getProductRanking,
   getClientEngagement,
 } from "../../../../packages/business/analytics/use-cases/get-stats";
-import { uuidSchema } from "@wbc/validators";
+// ACH-008 apis-integracoes: schemas centralised in @wbc/validators.
+import {
+  getClientEngagementSchema,
+  getProductRankingSchema,
+  getSalesStatsSchema,
+} from "@wbc/validators";
 import { cacheGet, cacheSet } from "../lib/cache";
 import { enqueueJob, getAnalyticsQueue } from "../lib/queues";
 
@@ -27,7 +31,7 @@ export const analyticsRouter = router({
   }),
 
   getSalesStats: protectedProcedure
-    .input(z.object({ period: z.string().optional() }))
+    .input(getSalesStatsSchema)
     .query(async ({ ctx, input }) => {
       const cacheKey = `analytics:sales:${ctx.tenant.tenantId}:${input.period ?? "current"}`;
       const cached = await cacheGet(cacheKey);
@@ -42,13 +46,13 @@ export const analyticsRouter = router({
     }),
 
   getProductRanking: protectedProcedure
-    .input(z.object({ limit: z.number().int().min(1).max(50).default(10) }))
+    .input(getProductRankingSchema)
     .query(async ({ ctx, input }) => {
       return getProductRanking(ctx.tenant.tenantId, input.limit, analyticsRepo);
     }),
 
   getClientEngagement: protectedProcedure
-    .input(z.object({ clientId: uuidSchema }))
+    .input(getClientEngagementSchema)
     .query(async ({ ctx, input }) => {
       return getClientEngagement(
         ctx.tenant.tenantId,

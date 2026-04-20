@@ -13,56 +13,74 @@ import {
   computeEngagementScore,
   classifyABC,
 } from "../domain/value-objects";
+// ACH-012 revisor follow-up: reuse centralised status enum instead of
+// hardcoding `["CONFIRMED","DELIVERED"]` in 8 spots.
+import { COMPLETED_SALE_STATUSES } from "../../sales/domain/status";
+
+// ACH-017: god-function split. Each metric has its own method so callers can
+// cache individually; `getDashboard` just composes them.
+function monthBounds(): { start: Date; end: Date } {
+  const now = new Date();
+  return {
+    start: new Date(now.getFullYear(), now.getMonth(), 1),
+    end: new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59),
+  };
+}
 
 export class PrismaAnalyticsRepository implements AnalyticsRepository {
-  async getDashboard(tenantId: string): Promise<DashboardData> {
-    const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const endOfMonth = new Date(
-      now.getFullYear(),
-      now.getMonth() + 1,
-      0,
-      23,
-      59,
-      59,
-    );
+  async getMonthlySalesCount(tenantId: string): Promise<number> {
+    const { start, end } = monthBounds();
+    return prisma.sale.count({
+      where: {
+        tenantId,
+        status: { in: COMPLETED_SALE_STATUSES },
+        createdAt: { gte: start, lte: end },
+      },
+    });
+  }
 
-    const [
-      salesThisMonth,
-      revenueResult,
-      pendingReminders,
-      upcomingAppointments,
-    ] = await Promise.all([
-      prisma.sale.count({
-        where: {
-          tenantId,
-          status: { in: ["CONFIRMED", "DELIVERED"] },
-          createdAt: { gte: startOfMonth, lte: endOfMonth },
+  async getMonthlyRevenue(tenantId: string): Promise<number> {
+    const { start, end } = monthBounds();
+    const result = await prisma.sale.aggregate({
+      where: {
+        tenantId,
+        status: { in: COMPLETED_SALE_STATUSES },
+        createdAt: { gte: start, lte: end },
+      },
+      _sum: { total: true },
+    });
+    return Number(result._sum.total ?? 0);
+  }
+
+  async getPendingRemindersCount(tenantId: string): Promise<number> {
+    return prisma.reminder.count({ where: { tenantId, status: "PENDING" } });
+  }
+
+  async getUpcomingAppointmentsCount(tenantId: string): Promise<number> {
+    const now = new Date();
+    return prisma.appointment.count({
+      where: {
+        tenantId,
+        startsAt: {
+          gte: now,
+          lte: new Date(now.getTime() + DAYS_IN_WEEK * MS_PER_DAY),
         },
-      }),
-      prisma.sale.aggregate({
-        where: {
-          tenantId,
-          status: { in: ["CONFIRMED", "DELIVERED"] },
-          createdAt: { gte: startOfMonth, lte: endOfMonth },
-        },
-        _sum: { total: true },
-      }),
-      prisma.reminder.count({ where: { tenantId, status: "PENDING" } }),
-      prisma.appointment.count({
-        where: {
-          tenantId,
-          startsAt: {
-            gte: now,
-            lte: new Date(now.getTime() + DAYS_IN_WEEK * MS_PER_DAY),
-          },
-        },
-      }),
-    ]);
+      },
+    });
+  }
+
+  async getDashboard(tenantId: string): Promise<DashboardData> {
+    const [salesThisMonth, revenue, pendingReminders, upcomingAppointments] =
+      await Promise.all([
+        this.getMonthlySalesCount(tenantId),
+        this.getMonthlyRevenue(tenantId),
+        this.getPendingRemindersCount(tenantId),
+        this.getUpcomingAppointmentsCount(tenantId),
+      ]);
 
     return {
       salesThisMonth,
-      revenue: Number(revenueResult._sum.total ?? 0),
+      revenue,
       pendingReminders,
       upcomingAppointments,
       alerts: [],
@@ -74,7 +92,7 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const where = {
       tenantId,
-      status: { in: ["CONFIRMED" as const, "DELIVERED" as const] },
+      status: { in: COMPLETED_SALE_STATUSES },
       createdAt: { gte: startOfMonth },
     };
 
@@ -96,7 +114,7 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
   ): Promise<ProductRankingItem[]> {
     const items = await prisma.saleItem.groupBy({
       by: ["productId"],
-      where: { sale: { tenantId, status: { in: ["CONFIRMED", "DELIVERED"] } } },
+      where: { sale: { tenantId, status: { in: COMPLETED_SALE_STATUSES } } },
       _sum: { quantity: true, subtotal: true },
       orderBy: { _sum: { quantity: "desc" } },
       take: limit,
@@ -118,14 +136,14 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
         where: {
           tenantId,
           clientId,
-          status: { in: ["CONFIRMED", "DELIVERED"] },
+          status: { in: COMPLETED_SALE_STATUSES },
         },
       }),
       prisma.sale.aggregate({
         where: {
           tenantId,
           clientId,
-          status: { in: ["CONFIRMED", "DELIVERED"] },
+          status: { in: COMPLETED_SALE_STATUSES },
         },
         _sum: { total: true },
       }),
@@ -133,7 +151,7 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
         where: {
           tenantId,
           clientId,
-          status: { in: ["CONFIRMED", "DELIVERED"] },
+          status: { in: COMPLETED_SALE_STATUSES },
         },
         orderBy: { createdAt: "desc" },
         select: { createdAt: true },
@@ -160,7 +178,7 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
       where: { tenantId, isLead: false },
       include: {
         sales: {
-          where: { status: { in: ["CONFIRMED", "DELIVERED"] } },
+          where: { status: { in: COMPLETED_SALE_STATUSES } },
           select: { total: true },
         },
       },

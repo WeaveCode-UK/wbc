@@ -1,13 +1,23 @@
 import { TRPCError } from "@trpc/server";
 import { getRedis } from "../lib/redis";
+import {
+  RATE_LIMIT_PUBLIC_WINDOW_MS,
+  RATE_LIMIT_PROTECTED_WINDOW_MS,
+} from "@wbc/shared";
 
 interface RateLimitConfig {
   windowMs: number;
   maxRequests: number;
 }
 
-const PUBLIC_LIMIT: RateLimitConfig = { windowMs: 60_000, maxRequests: 30 };
-const PROTECTED_LIMIT: RateLimitConfig = { windowMs: 60_000, maxRequests: 100 };
+const PUBLIC_LIMIT: RateLimitConfig = {
+  windowMs: RATE_LIMIT_PUBLIC_WINDOW_MS,
+  maxRequests: 30,
+};
+const PROTECTED_LIMIT: RateLimitConfig = {
+  windowMs: RATE_LIMIT_PROTECTED_WINDOW_MS,
+  maxRequests: 100,
+};
 
 /**
  * Per-route limits for sensitive endpoints (ACH-018). Matched by exact path

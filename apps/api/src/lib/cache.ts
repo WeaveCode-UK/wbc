@@ -1,18 +1,25 @@
 import { getRedis } from "./redis";
 import { createLogger } from "./logger";
-import { TenantScopedRedis, type RedisLike } from "@wbc/shared";
+import {
+  TenantScopedRedis,
+  type RedisLike,
+  CACHE_TTL_DEFAULT_SECONDS,
+} from "@wbc/shared";
 
 const logger = createLogger("cache");
 const PREFIX = "wbc:";
-const DEFAULT_TTL = 300; // 5 minutes
+const DEFAULT_TTL = CACHE_TTL_DEFAULT_SECONDS;
 
 function prefixKey(key: string): string {
   return `${PREFIX}${key}`;
 }
 
-// TenantScopedRedis lazy-inicializado para caches tenant-scoped (ACH-012).
-// Usa o Redis client do app via getRedis() e o AsyncLocalStorage de tenant-context
-// para prefixar chaves automaticamente com `wbc:t:${tenantId}:`.
+// Lazy-init so the wrapper is only built on first use (keeps test bootstrap
+// cheap when cache paths aren't exercised). TenantScopedRedis refuses any
+// operation without a tenant in AsyncLocalStorage — that's what prevents
+// cache keys from one tenant leaking into another, which is why every
+// per-tenant cache MUST go through `getTenantScopedRedis()` rather than the
+// raw client from `getRedis()`.
 let tenantScopedInstance: TenantScopedRedis | null = null;
 export function getTenantScopedRedis(): TenantScopedRedis {
   if (!tenantScopedInstance) {
@@ -110,21 +117,43 @@ export async function cacheDelete(key: string): Promise<void> {
   }
 }
 
+/** Max DEL commands per pipeline flush — caps memory/latency on Redis and
+ *  on the worker even when a tenant has tens of thousands of cache keys. */
+const INVALIDATE_BATCH_SIZE = 500;
+
 export async function cacheInvalidatePattern(pattern: string): Promise<void> {
   try {
     const redis = getRedis();
     const stream = redis.scanStream({ match: prefixKey(pattern), count: 100 });
-    const pipeline = redis.pipeline();
-    let count = 0;
 
+    let pipeline = redis.pipeline();
+    let batched = 0;
+    let totalDeleted = 0;
+
+    // ACH-015: chunk DEL into pipelines of at most INVALIDATE_BATCH_SIZE so
+    // a pattern that matches 50k keys doesn't queue 50k commands in a single
+    // pipeline (which used to risk Redis timeout / worker OOM).
     for await (const keys of stream) {
       for (const key of keys as string[]) {
         pipeline.del(key);
-        count++;
+        batched++;
+        if (batched >= INVALIDATE_BATCH_SIZE) {
+          await pipeline.exec();
+          totalDeleted += batched;
+          pipeline = redis.pipeline();
+          batched = 0;
+        }
       }
     }
 
-    if (count > 0) await pipeline.exec();
+    if (batched > 0) {
+      await pipeline.exec();
+      totalDeleted += batched;
+    }
+
+    if (totalDeleted > 0) {
+      logger.debug({ pattern, totalDeleted }, "Cache pattern invalidated");
+    }
   } catch (error) {
     logger.warn(
       { pattern, error },

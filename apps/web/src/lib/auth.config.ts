@@ -12,6 +12,9 @@ import { RedisJwtBlacklist } from "@wbc/business/auth/adapters/redis-jwt-blackli
 import { logSecurityEvent, type RedisLike } from "@wbc/shared";
 import { randomUUID } from "crypto";
 import Redis from "ioredis";
+// ACH-007 revisor follow-up: pull the pure membership resolver into the
+// callback so the five-field mutation becomes a single apply-state call.
+import { resolveWorkspaceMembership } from "./resolve-workspace-membership";
 
 const accountRepo = new PrismaAccountRepository();
 const oauthRepo = new PrismaOAuthAccountRepository();
@@ -124,44 +127,48 @@ export default {
         }
       }
 
-      // Resolve workspace membership
+      // ACH-007: resolve membership once via a pure function and collapse
+      // the five-field mutation into a single branch per kind. `preferred`
+      // is either the tid already in the token (steady-state reads) or the
+      // tid the user just picked via `session.update(...)`.
       if (token.sub) {
-        const members = await memberRepo.findActiveByAccountId(token.sub);
+        const preferred =
+          trigger === "update" && typeof updateSession?.tenantId === "string"
+            ? updateSession.tenantId
+            : typeof token.tid === "string"
+              ? token.tid
+              : undefined;
 
-        if (members.length === 0) {
-          token.needsOnboarding = true;
-          delete token.tid;
-          delete token.mid;
-          delete token.role;
-          delete token.plan;
-        } else if (members.length === 1 && !token.tid) {
-          // Auto-select single workspace
-          const m = members[0]!;
-          token.tid = m.tenantId;
-          token.mid = m.id;
-          token.role = m.role;
-          token.plan = m.plan;
-          delete token.needsOnboarding;
-          delete token.needsWorkspaceSelection;
-        } else if (members.length >= 2 && !token.tid) {
-          token.needsWorkspaceSelection = true;
-          delete token.needsOnboarding;
-        }
-      }
-
-      // Handle workspace switch via session update
-      if (trigger === "update" && updateSession?.tenantId && token.sub) {
-        const members = await memberRepo.findActiveByAccountId(token.sub);
-        const target = members.find(
-          (m) => m.tenantId === updateSession.tenantId,
+        const state = await resolveWorkspaceMembership(
+          token.sub,
+          preferred,
+          memberRepo,
         );
-        if (target) {
-          token.tid = target.tenantId;
-          token.mid = target.id;
-          token.role = target.role;
-          token.plan = target.plan;
-          delete token.needsOnboarding;
-          delete token.needsWorkspaceSelection;
+
+        switch (state.kind) {
+          case "onboarding":
+            token.needsOnboarding = true;
+            delete token.tid;
+            delete token.mid;
+            delete token.role;
+            delete token.plan;
+            delete token.needsWorkspaceSelection;
+            break;
+          case "selection":
+            // Only force selection when the user hasn't locked in a tid.
+            if (!token.tid) {
+              token.needsWorkspaceSelection = true;
+              delete token.needsOnboarding;
+            }
+            break;
+          case "ready":
+            token.tid = state.tenantId;
+            token.mid = state.memberId;
+            token.role = state.role;
+            token.plan = state.plan;
+            delete token.needsOnboarding;
+            delete token.needsWorkspaceSelection;
+            break;
         }
       }
 

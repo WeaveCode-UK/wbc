@@ -43,6 +43,20 @@ Terminou uma fase → checkpoint → próxima fase. SEM PAUSA. SEM PERGUNTA. SEM
 - **Testes:** ZERO testes até Fase 7
 - **Gates:** type-check APENAS entre fases (checkpoints)
 
+### Convenção de use-cases (ACH-020, codigo-manutenibilidade run 2026-04-18_21-45-58)
+
+- **Forma padrão:** classe com método `execute(input)` recebendo dependências via construtor.
+  ```ts
+  export class CreateClient {
+    constructor(private readonly repo: ClientRepository) {}
+    async execute(input: CreateClientInput): Promise<Client> { ... }
+  }
+  ```
+- **Quando usar função pura `async function execute(input, deps)`:** apenas para utilitários
+  sem dependências próprias, sem estado, sem variações por tenant/usuário. Na dúvida, use classe.
+- Use-cases NUNCA instanciam adapters diretamente — recebem via construtor a partir da
+  composition root (`apps/api/src/composition-root.ts`, introduzido pelo ACH-003).
+
 ## Stack
 
 TypeScript, Next.js 15, tRPC 11, Prisma, PostgreSQL, Redis, BullMQ,
@@ -51,6 +65,7 @@ React Native (Expo), Tailwind, shadcn/ui, Turborepo, pnpm workspaces.
 ## Documentos de Referência
 
 Todos em `begin/`:
+
 - `WBC_ORCHESTRATOR.md` — ponto de entrada principal
 - `WBC_REGRAS_INVIOLAVEIS.md` — contrato de execução
 - `WBC_FASES_E_EPICOS.md` — roadmap (7 fases, ~53 épicos)

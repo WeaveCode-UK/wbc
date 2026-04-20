@@ -97,16 +97,34 @@ export async function idempotent<T>(
  * This is a compatibility shim during the migration: once every caller
  * ships an explicit `idempotencyKey`, we flip to hard-reject mutations
  * that omit it (see `docs/architecture/api-idempotency.md`).
+ *
+ * review-fix ACH-001: the previous implementation passed
+ * `Object.keys(input).sort()` as the `replacer` argument of
+ * `JSON.stringify`. That argument is a property *allow-list* applied
+ * at every nesting level — nested objects got all their keys filtered
+ * out (e.g. `{ items: [{productName, quantity, unitCost}] }` serialized
+ * as `{"items":[{}]}`), which made two completely different inventory
+ * orders hash to the same key and silently "dedupe" real work. The fix
+ * is a proper recursive canonicaliser that sorts keys at every level
+ * and leaves arrays positional.
  */
+function canonicaliseForHash(value: unknown): unknown {
+  if (value === null || typeof value !== "object") return value;
+  if (Array.isArray(value)) return value.map(canonicaliseForHash);
+  const sortedKeys = Object.keys(value as Record<string, unknown>).sort();
+  const out: Record<string, unknown> = {};
+  for (const k of sortedKeys) {
+    out[k] = canonicaliseForHash((value as Record<string, unknown>)[k]);
+  }
+  return out;
+}
+
 export function deriveIdempotencyKey(
   route: string,
   tenantId: string,
   input: unknown,
 ): string {
-  const canonical = JSON.stringify(
-    input,
-    Object.keys((input as object) ?? {}).sort(),
-  );
+  const canonical = JSON.stringify(canonicaliseForHash(input));
   const digest = createHash("sha256")
     .update(canonical)
     .digest("hex")

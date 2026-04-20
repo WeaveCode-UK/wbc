@@ -4,6 +4,19 @@
   "private": true,
   "main": "./src/index.ts",
   "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./sentry-redaction": "./src/sentry-redaction.ts",
+    "./logger": "./src/logger.ts",
+    "./redaction": "./src/redaction.ts",
+    "./env": "./src/env.ts",
+    "./theme": "./src/theme/index.ts",
+    "./constants/timings": "./src/constants/timings.ts",
+    "./events": "./src/events/index.ts",
+    "./redis": "./src/redis/index.ts",
+    "./resilience": "./src/resilience/index.ts",
+    "./circuit-breaker": "./src/circuit-breaker.ts"
+  },
   "scripts": {
     "type-check": "tsc --noEmit",
     "lint": "eslint src/",

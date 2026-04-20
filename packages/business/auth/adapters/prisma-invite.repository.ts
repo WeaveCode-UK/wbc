@@ -1,10 +1,10 @@
-import { prisma } from '@wbc/db';
+import { prisma } from "@wbc/db";
 import type {
   InviteRepository,
   InviteData,
   InviteStatus,
   CreateInviteInput,
-} from '../ports/invite.repository';
+} from "../ports/invite.repository";
 
 export class PrismaInviteRepository implements InviteRepository {
   async findById(id: string): Promise<InviteData | null> {
@@ -14,15 +14,30 @@ export class PrismaInviteRepository implements InviteRepository {
   }
 
   async findByToken(token: string): Promise<InviteData | null> {
-    const data = await prisma.invite.findUnique({ where: { token } });
+    // ACH-005: only PENDING, non-expired invites are valid. EXPIRED or
+    // ACCEPTED invites must not be returned even if the token matches,
+    // otherwise a leaked token can be replayed.
+    const data = await prisma.invite.findFirst({
+      where: {
+        token,
+        status: "PENDING",
+        expiresAt: { gt: new Date() },
+      },
+    });
     if (!data) return null;
     return data as InviteData;
   }
 
-  async findByTenantId(tenantId: string, status?: InviteStatus): Promise<InviteData[]> {
+  async findByTenantId(
+    tenantId: string,
+    status?: InviteStatus,
+  ): Promise<InviteData[]> {
     const where: Record<string, unknown> = { tenantId };
     if (status) where.status = status;
-    const data = await prisma.invite.findMany({ where, orderBy: { createdAt: 'desc' } });
+    const data = await prisma.invite.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+    });
     return data as InviteData[];
   }
 
@@ -31,7 +46,11 @@ export class PrismaInviteRepository implements InviteRepository {
     return data as InviteData;
   }
 
-  async updateStatus(id: string, status: InviteStatus, acceptedAt?: Date): Promise<void> {
+  async updateStatus(
+    id: string,
+    status: InviteStatus,
+    acceptedAt?: Date,
+  ): Promise<void> {
     const updateData: Record<string, unknown> = { status };
     if (acceptedAt) updateData.acceptedAt = acceptedAt;
     await prisma.invite.update({ where: { id }, data: updateData });
@@ -39,8 +58,8 @@ export class PrismaInviteRepository implements InviteRepository {
 
   async expirePending(): Promise<number> {
     const result = await prisma.invite.updateMany({
-      where: { status: 'PENDING', expiresAt: { lt: new Date() } },
-      data: { status: 'EXPIRED' },
+      where: { status: "PENDING", expiresAt: { lt: new Date() } },
+      data: { status: "EXPIRED" },
     });
     return result.count;
   }

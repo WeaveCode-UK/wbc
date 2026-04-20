@@ -8,6 +8,7 @@ export * from "./events/event-subscriber";
 export * from "./theme";
 export * from "./prisma-helpers";
 export * from "./security-logger";
+export * from "./redaction";
 export * from "./env";
 export * from "./circuit-breaker";
 export * from "./resilience";

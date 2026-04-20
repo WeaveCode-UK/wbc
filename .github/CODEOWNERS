@@ -1,0 +1,34 @@
+# CODEOWNERS — WBC Platform
+#
+# Anyone listed here is automatically requested for review when a PR touches
+# the matching paths. The branch protection rule on `main` requires at least
+# one CODEOWNER approval before merge (configure via the GitHub UI; see
+# CONTRIBUTING.md for the expected settings).
+
+# Default owner — every PR
+*                                  @WeaveCode-UK/owners
+
+# Auth, sessions, MFA, secret stores
+/packages/business/auth/           @WeaveCode-UK/owners
+/apps/web/src/lib/auth.config.ts   @WeaveCode-UK/owners
+/apps/web/src/lib/auth.ts          @WeaveCode-UK/owners
+
+# Database schema and migrations
+/packages/db/                      @WeaveCode-UK/owners
+/packages/db/prisma/schema.prisma  @WeaveCode-UK/owners
+
+# Cross-cutting platform concerns
+/packages/shared/                  @WeaveCode-UK/owners
+/packages/business/platform/       @WeaveCode-UK/owners
+
+# CI / deploy / supply-chain
+/.github/                          @WeaveCode-UK/owners
+/deploy/                           @WeaveCode-UK/owners
+/docker-compose.prod.yml           @WeaveCode-UK/owners
+/.gitleaks.toml                    @WeaveCode-UK/owners
+
+# Audit framework — read-only history of past runs
+/Auditoria/                        @WeaveCode-UK/owners
+
+# This file itself
+/.github/CODEOWNERS                @WeaveCode-UK/owners

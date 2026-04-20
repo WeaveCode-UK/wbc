@@ -345,10 +345,14 @@ model Sale {
   status            SaleStatus @default(DRAFT)
   deliveryDate      DateTime?  @db.Date
   paymentMethod     PayMethod?
-  discount          Decimal    @default(0) @db.Decimal(10, 2)
-  total             Decimal    @db.Decimal(10, 2)
-  cashbackUsed      Decimal    @default(0) @db.Decimal(10, 2)
-  cashbackGenerated Decimal    @default(0) @db.Decimal(10, 2)
+  // ACH-020 dados-persistencia: widened to (14,2). Decimal(10,2) caps
+  // at 99 999 999.99 — fine per sale today, but rollup queries
+  // (total por tenant por ano) can overflow; staying ahead on the
+  // columns that feed aggregates is cheaper than migrating under load.
+  discount          Decimal    @default(0) @db.Decimal(14, 2)
+  total             Decimal    @db.Decimal(14, 2)
+  cashbackUsed      Decimal    @default(0) @db.Decimal(14, 2)
+  cashbackGenerated Decimal    @default(0) @db.Decimal(14, 2)
   campaignId        String?    @db.Uuid  // origem da venda (campanha)
   notes             String?
   version           Int        @default(0)
@@ -852,15 +856,25 @@ enum ReminderStatus {
   DISMISSED
 }
 
+// ACH-009 dados-persistencia: `status` promoted from free-form String
+// to a typed enum so malformed values can't slip through and pipeline
+// metrics stay coherent.
+enum OpportunityStatus {
+  PENDING
+  IN_PROGRESS
+  WON
+  LOST
+}
+
 model Opportunity {
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  tenantId    String   @db.Uuid
-  clientId    String?  @db.Uuid
+  id          String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId    String            @db.Uuid
+  clientId    String?           @db.Uuid
   type        String
   description String
   scheduledAt DateTime
-  status      String   @default("pending")
-  createdAt   DateTime @default(now())
+  status      OpportunityStatus @default(PENDING)
+  createdAt   DateTime          @default(now())
 
   tenant Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   client Client? @relation(fields: [clientId], references: [id])
@@ -1024,8 +1038,13 @@ model Referral {
   usedAt           DateTime?
   createdAt        DateTime @default(now())
 
+  // ACH-021 dados-persistencia: uniform `Restrict` on both FKs so
+  // queries don't have to carry IS NOT NULL to skip dangling rows, and
+  // a tenant can't be deleted while it's still linked as referrer or
+  // referred. Loosening later is safer than tightening (the reverse
+  // leaves orphaned rows that need cleanup).
   referrer Tenant  @relation("referrer", fields: [referrerTenantId], references: [id], onDelete: Restrict)
-  referred Tenant? @relation("referred", fields: [referredTenantId], references: [id], onDelete: SetNull)
+  referred Tenant? @relation("referred", fields: [referredTenantId], references: [id], onDelete: Restrict)
 
   @@map("referrals")
 }

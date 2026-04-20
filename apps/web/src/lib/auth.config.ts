@@ -1,19 +1,22 @@
-import Google from 'next-auth/providers/google';
-import Credentials from 'next-auth/providers/credentials';
-import type { NextAuthConfig } from 'next-auth';
-import { PrismaAccountRepository } from '@wbc/business/auth/adapters/prisma-account.repository';
-import { PrismaOAuthAccountRepository } from '@wbc/business/auth/adapters/prisma-oauth-account.repository';
-import { PrismaTenantMemberRepository } from '@wbc/business/auth/adapters/prisma-tenant-member.repository';
-import { BcryptPasswordHasher } from '@wbc/business/auth/adapters/bcrypt-password-hasher.adapter';
-import { AuthenticateWithCredentials } from '@wbc/business/auth/use-cases/authenticate-with-credentials.use-case';
-import { AuthenticateWithOAuth } from '@wbc/business/auth/use-cases/authenticate-with-oauth.use-case';
-import { logSecurityEvent } from '@wbc/shared';
+import Google from "next-auth/providers/google";
+import Credentials from "next-auth/providers/credentials";
+import type { NextAuthConfig } from "next-auth";
+import { PrismaAccountRepository } from "@wbc/business/auth/adapters/prisma-account.repository";
+import { PrismaOAuthAccountRepository } from "@wbc/business/auth/adapters/prisma-oauth-account.repository";
+import { PrismaTenantMemberRepository } from "@wbc/business/auth/adapters/prisma-tenant-member.repository";
+import { BcryptPasswordHasher } from "@wbc/business/auth/adapters/bcrypt-password-hasher.adapter";
+import { AuthenticateWithCredentials } from "@wbc/business/auth/use-cases/authenticate-with-credentials.use-case";
+import { AuthenticateWithOAuth } from "@wbc/business/auth/use-cases/authenticate-with-oauth.use-case";
+import { logSecurityEvent } from "@wbc/shared";
 
 const accountRepo = new PrismaAccountRepository();
 const oauthRepo = new PrismaOAuthAccountRepository();
 const memberRepo = new PrismaTenantMemberRepository();
 const passwordHasher = new BcryptPasswordHasher();
-const authWithCredentials = new AuthenticateWithCredentials(accountRepo, passwordHasher);
+const authWithCredentials = new AuthenticateWithCredentials(
+  accountRepo,
+  passwordHasher,
+);
 const authWithOAuth = new AuthenticateWithOAuth(accountRepo, oauthRepo);
 
 export default {
@@ -24,8 +27,8 @@ export default {
     }),
     Credentials({
       credentials: {
-        email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' },
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
@@ -34,10 +37,20 @@ export default {
             email: credentials.email as string,
             password: credentials.password as string,
           });
-          logSecurityEvent({ event: 'auth.login.success', userId: account.id, success: true, detail: 'credentials' });
+          logSecurityEvent({
+            event: "auth.login.success",
+            userId: account.id,
+            success: true,
+            detail: "credentials",
+          });
           return { id: account.id, email: account.email, name: account.name };
         } catch {
-          logSecurityEvent({ event: 'auth.login.failed', success: false, detail: `credentials: ${credentials.email}` });
+          logSecurityEvent({
+            event: "auth.login.failed",
+            success: false,
+            email: credentials.email as string,
+            detail: "credentials",
+          });
           return null;
         }
       },
@@ -45,8 +58,13 @@ export default {
   ],
   callbacks: {
     async signIn({ user, account: oauthAccount }) {
-      if (oauthAccount?.provider === 'google' && user.email && user.name) {
-        logSecurityEvent({ event: 'auth.login.success', userId: user.id, success: true, detail: `oauth:${oauthAccount.provider}` });
+      if (oauthAccount?.provider === "google" && user.email && user.name) {
+        logSecurityEvent({
+          event: "auth.login.success",
+          userId: user.id,
+          success: true,
+          detail: `oauth:${oauthAccount.provider}`,
+        });
         await authWithOAuth.execute({
           email: user.email,
           name: user.name,
@@ -97,9 +115,11 @@ export default {
       }
 
       // Handle workspace switch via session update
-      if (trigger === 'update' && updateSession?.tenantId && token.sub) {
+      if (trigger === "update" && updateSession?.tenantId && token.sub) {
         const members = await memberRepo.findActiveByAccountId(token.sub);
-        const target = members.find((m) => m.tenantId === updateSession.tenantId);
+        const target = members.find(
+          (m) => m.tenantId === updateSession.tenantId,
+        );
         if (target) {
           token.tid = target.tenantId;
           token.mid = target.id;
@@ -123,17 +143,19 @@ export default {
           role: token.role as string | undefined,
           plan: token.plan as string | undefined,
           needsOnboarding: token.needsOnboarding as boolean | undefined,
-          needsWorkspaceSelection: token.needsWorkspaceSelection as boolean | undefined,
+          needsWorkspaceSelection: token.needsWorkspaceSelection as
+            | boolean
+            | undefined,
         },
       };
     },
   },
   session: {
-    strategy: 'jwt',
+    strategy: "jwt",
     maxAge: 15 * 60, // Access token: 15 minutes
   },
   pages: {
-    signIn: '/login',
-    newUser: '/onboarding',
+    signIn: "/login",
+    newUser: "/onboarding",
   },
 } satisfies NextAuthConfig;

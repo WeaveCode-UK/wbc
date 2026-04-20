@@ -25,22 +25,25 @@ import {
   listLeads,
   convertToClient,
 } from "@wbc/business/clients/use-cases/manage-leads";
-import { paginationSchema, uuidSchema } from "@wbc/validators";
+import {
+  paginationSchema,
+  uuidSchema,
+  listClientsSchema,
+  createClientSchema,
+  updateClientSchema,
+  createTagSchema,
+  tagClientSchema,
+  untagClientSchema,
+  bulkTagSchema,
+} from "@wbc/validators";
 
 const clientRepo = new PrismaClientRepository();
 const tagRepo = new PrismaTagRepository();
 
 export const clientsRouter = router({
   list: protectedProcedure
-    .input(
-      z.object({
-        ...paginationSchema.shape,
-        search: z.string().optional(),
-        classification: z.enum(["A", "B", "C"]).optional(),
-        tagIds: z.array(z.string().uuid()).optional(),
-        isLead: z.boolean().optional(),
-      }),
-    )
+    // ACH-004: reuse schema from @wbc/validators instead of re-declaring inline.
+    .input(listClientsSchema)
     .query(async ({ ctx, input }) => {
       return listClients(
         {
@@ -63,36 +66,8 @@ export const clientsRouter = router({
   ),
 
   create: protectedProcedure
-    .input(
-      z.object({
-        name: z.string().min(1).max(200),
-        phone: z.string().min(8).max(20),
-        email: z.string().email().optional(),
-        sex: z.enum(["MALE", "FEMALE", "OTHER"]).optional(),
-        birthday: z.date().optional(),
-        profession: z.string().optional(),
-        skinType: z
-          .enum(["OILY", "DRY", "COMBINATION", "NORMAL", "SENSITIVE"])
-          .optional(),
-        hairType: z.enum(["STRAIGHT", "WAVY", "CURLY", "COILY"]).optional(),
-        allergies: z.string().optional(),
-        makeupTones: z.string().optional(),
-        preferences: z.string().optional(),
-        notes: z.string().optional(),
-        source: z
-          .enum([
-            "MANUAL",
-            "QRCODE",
-            "IMPORT",
-            "AUTOCADASTRO",
-            "WHATSAPP",
-            "SPREADSHEET",
-            "REFERRAL",
-          ])
-          .optional(),
-        isLead: z.boolean().optional(),
-      }),
-    )
+    // ACH-004: schema pulled from @wbc/validators.
+    .input(createClientSchema)
     .mutation(async ({ ctx, input }) => {
       return createClient(
         { ...input, tenantId: ctx.tenant.tenantId },
@@ -101,16 +76,8 @@ export const clientsRouter = router({
     }),
 
   update: protectedProcedure
-    .input(
-      z.object({
-        id: uuidSchema,
-        name: z.string().min(1).max(200).optional(),
-        phone: z.string().min(8).max(20).optional(),
-        email: z.string().email().nullable().optional(),
-        notes: z.string().nullable().optional(),
-        isActive: z.boolean().optional(),
-      }),
-    )
+    // ACH-004: schema pulled from @wbc/validators.
+    .input(updateClientSchema)
     .mutation(async ({ ctx, input }) => {
       const { id, ...data } = input;
       return updateClient(
@@ -128,13 +95,7 @@ export const clientsRouter = router({
   }),
 
   createTag: protectedProcedure
-    .input(
-      z.object({
-        name: z.string().min(1),
-        color: z.string().optional(),
-        autoRule: z.string().optional(),
-      }),
-    )
+    .input(createTagSchema)
     .mutation(async ({ ctx, input }) => {
       return createTag(
         ctx.tenant.tenantId,
@@ -150,7 +111,7 @@ export const clientsRouter = router({
   ),
 
   tagClient: protectedProcedure
-    .input(z.object({ clientId: uuidSchema, tagId: uuidSchema }))
+    .input(tagClientSchema)
     .mutation(async ({ ctx, input }) => {
       await tagClient(
         ctx.tenant.tenantId,
@@ -162,7 +123,7 @@ export const clientsRouter = router({
     }),
 
   untagClient: protectedProcedure
-    .input(z.object({ clientId: uuidSchema, tagId: uuidSchema }))
+    .input(untagClientSchema)
     .mutation(async ({ ctx, input }) => {
       await untagClient(
         ctx.tenant.tenantId,
@@ -174,9 +135,7 @@ export const clientsRouter = router({
     }),
 
   bulkTag: protectedProcedure
-    .input(
-      z.object({ clientIds: z.array(uuidSchema).max(1000), tagId: uuidSchema }),
-    )
+    .input(bulkTagSchema)
     .mutation(async ({ ctx, input }) => {
       const count = await bulkTag(
         ctx.tenant.tenantId,

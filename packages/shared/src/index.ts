@@ -9,6 +9,7 @@ export * from "./theme";
 export * from "./prisma-helpers";
 export * from "./security-logger";
 export * from "./redaction";
+export * from "./sentry-redaction";
 export * from "./logger";
 export * from "./env";
 export * from "./circuit-breaker";

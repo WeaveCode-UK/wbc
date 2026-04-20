@@ -5,18 +5,18 @@
 - run_id: 2026-04-18_22-06-18
 - branch: fix/seguranca/2026-04-18_22-06-18
 - data_inicio: 2026-04-19 22:20:00
-- ultima_atualizacao: 2026-04-20 10:30:00
+- ultima_atualizacao: 2026-04-20 14:30:00
 - fase_atual: executor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 27
-- corrigidos_executor: 7
+- corrigidos_executor: 16
 - revisados_revisor: 0
 - corrigidos_pelo_revisor: 0
 - nao_corrigiveis: 1
 - nao_aprovados: 0
-- pendentes: 20
+- pendentes: 11
 
 ## Achados
 
@@ -130,91 +130,141 @@
 - titulo: Autenticação por credenciais sem proteção contra brute-force
 - severidade: alto
 - classificacao: corrigivel
-- status_executor: pendente
+- status_executor: corrigido
 - status_revisor: pendente
-- commit_executor: none
+- commit_executor: cdc95a7
 - commit_revisor: none
-- observacoes: none
+- arquivos_alterados:
+  - packages/business/auth/ports/login-attempt-tracker.port.ts (novo)
+  - packages/business/auth/adapters/redis-login-attempt-tracker.adapter.ts (novo)
+  - packages/business/auth/use-cases/authenticate-with-credentials.use-case.ts
+  - apps/web/src/lib/auth.config.ts
+- descricao_correcao: Criado LoginAttemptTracker port + RedisLoginAttemptTracker adapter (sha256 das chaves, TTL 15min, threshold 5). AuthenticateWithCredentials recebe tracker opcional; chama isLocked() antes do bcrypt, recordFailure() em falha, clearAttempts() em sucesso. Auth.config injeta tracker com Redis singleton. IP é extraído via extractIp(request) no callback authorize do NextAuth (bucket por email+IP).
+- observacoes: Policy padrão (DEFAULT_LOCKOUT_POLICY) customizável por ambiente.
 
 ### ACH-004
 - titulo: Enumeração de contas por mensagens de erro distintas
 - severidade: alto
 - classificacao: corrigivel
-- status_executor: pendente
+- status_executor: corrigido
 - status_revisor: pendente
-- commit_executor: none
+- commit_executor: e09b73d
 - commit_revisor: none
-- observacoes: none
+- arquivos_alterados:
+  - packages/business/auth/use-cases/authenticate-with-credentials.use-case.ts
+- descricao_correcao: Exceção única InvalidCredentialsError com mensagem "E-mail ou senha inválidos" para conta ausente, OAuth-only ou senha errada. Bcrypt.verify é sempre executado usando TIMING_DECOY_HASH (hash fixo) quando a conta não existe, equalizando tempo de resposta contra ataque por timing.
+- observacoes: Commit feito antes do ACH-003 (eram sequenciais no mesmo arquivo).
 
 ### ACH-018
 - titulo: Rate-limit assimétrico e frouxo nos endpoints sensíveis
 - severidade: medio
 - classificacao: corrigivel
-- status_executor: pendente
+- status_executor: corrigido
 - status_revisor: pendente
-- commit_executor: none
+- commit_executor: 76ab1c0
 - commit_revisor: none
-- observacoes: none
+- arquivos_alterados:
+  - apps/api/src/trpc/rate-limit-middleware.ts
+  - apps/api/src/trpc/context.ts
+  - apps/api/src/trpc/trpc.ts
+- descricao_correcao: Adicionado SENSITIVE_ROUTE_LIMITS (prefixo → config) com limites específicos: auth.login 5/min, auth.requestPasswordReset 3/h, auth.acceptInvite 10/15min, auth.sendOtp 5/h, auth.verifyOtp 5/min, etc. Context estendido com ipAddress opcional + helper extractIpFromHeaders (x-forwarded-for primeiro hop; x-real-ip fallback). publicProcedure agora identifica por IP quando anônimo, substituindo 'anonymous' global.
+- observacoes: Handler HTTP precisa chamar createContext com IP extraído para ativar identificador por IP; infraestrutura pronta.
 
 ### ACH-002
 - titulo: OTP registrado em console.log em ambiente não-produção
 - severidade: critico
 - classificacao: corrigivel
-- status_executor: pendente
+- status_executor: corrigido
 - status_revisor: pendente
-- commit_executor: none
+- commit_executor: 61afd51
 - commit_revisor: none
-- observacoes: none
+- arquivos_alterados:
+  - packages/business/auth/use-cases/send-otp.ts
+  - packages/business/auth/use-cases/__tests__/send-otp.test.ts
+- descricao_correcao: Removido o campo `code` de SendOtpResult (não exposto ao caller). Removido o `console.log` dev. Security event logado apenas com accountId. Teste atualizado para afirmar ausência de `code` no retorno.
+- observacoes: O código permanece persistido via OtpRepository e é consumido apenas pelo canal de entrega (e-mail/SMS) configurado.
 
 ### ACH-001
 - titulo: reset-password e verify-email não implementados
 - severidade: critico
 - classificacao: corrigivel_parcial
-- status_executor: pendente
+- status_executor: corrigido
 - status_revisor: pendente
-- commit_executor: none
+- commit_executor: 5d3072c
 - commit_revisor: none
-- observacoes: none
+- arquivos_alterados:
+  - packages/business/auth/ports/auth-token-store.port.ts (novo)
+  - packages/business/auth/adapters/redis-auth-token-store.adapter.ts (novo)
+  - packages/business/auth/use-cases/request-password-reset.use-case.ts
+  - packages/business/auth/use-cases/request-email-verification.use-case.ts
+  - packages/business/auth/use-cases/reset-password.use-case.ts
+  - packages/business/auth/use-cases/verify-email.use-case.ts
+  - packages/business/auth/adapters/resend-email-sender.adapter.ts
+- descricao_correcao: AuthTokenStore (port) + RedisAuthTokenStore (adapter) — tokens 32-byte hex, armazenados como `${accountId, kind}` em JSON com TTL. consume() usa GETDEL para one-shot. index set por accountId+kind permite revoke em lote. Password reset TTL 1h, email verification TTL 24h. reset-password.use-case valida password min 8 + hash bcrypt + update account; verify-email marca emailVerified=now. ResendEmailSender: requireEnv em produção (fail fast), chamada HTTP real para api.resend.com; dev loga apenas metadata (sem body que pode conter tokens).
+- observacoes: Parcial — integração em produção requer configuração de RESEND_API_KEY e domínio Resend verificado (ação humana). Router tRPC e UI devem injetar ResendEmailSender + RedisAuthTokenStore nos use-cases.
 
 ### ACH-005
 - titulo: `findByToken` de invites sem validação de status e expiração
 - severidade: alto
 - classificacao: corrigivel
-- status_executor: pendente
+- status_executor: corrigido
 - status_revisor: pendente
-- commit_executor: none
+- commit_executor: 98403ea
 - commit_revisor: none
+- arquivos_alterados:
+  - packages/business/auth/adapters/prisma-invite.repository.ts
+- descricao_correcao: findByToken agora usa findFirst com where { token, status: 'PENDING', expiresAt: { gt: now } }. Invites EXPIRED ou ACCEPTED retornam null mesmo com token válido.
 - observacoes: none
 
 ### ACH-006
 - titulo: Sessão JWT de 15 min sem revogação e sem rotation explícita
 - severidade: alto
 - classificacao: corrigivel_parcial
-- status_executor: pendente
+- status_executor: corrigido
 - status_revisor: pendente
-- commit_executor: none
+- commit_executor: 7d6562a
 - commit_revisor: none
-- observacoes: none
+- arquivos_alterados:
+  - packages/business/auth/ports/jwt-blacklist.port.ts (novo)
+  - packages/business/auth/adapters/redis-jwt-blacklist.adapter.ts (novo)
+  - apps/web/src/lib/jwt.ts
+  - apps/web/src/lib/auth.config.ts
+- descricao_correcao: JwtBlacklist port + RedisJwtBlacklist adapter (SET EX). JWT payload ganhou jti e iat; callback jwt gera jti no login, consulta blacklist a cada invocation — se revogado retorna `{}` (sessão desautenticada). Event signOut revoga jti com TTL igual ao tempo restante da sessão.
+- observacoes: Parcial — refresh-token rotation completa exige desenho maior (ficará para design follow-up).
 
 ### ACH-010
 - titulo: Cookies de sessão sem `secure`/`httpOnly`/`sameSite` explícitos
 - severidade: alto
 - classificacao: corrigivel
-- status_executor: pendente
+- status_executor: corrigido
 - status_revisor: pendente
-- commit_executor: none
+- commit_executor: 31bef10
 - commit_revisor: none
+- arquivos_alterados:
+  - apps/web/src/lib/auth.config.ts
+- descricao_correcao: Adicionado `useSecureCookies: NODE_ENV==='production'` e bloco `cookies` explicitando options de sessionToken/csrfToken/callbackUrl com httpOnly: true, sameSite: 'lax', secure: production, path: '/' e nomes prefixados __Secure-/__Host- em produção.
 - observacoes: none
 
 ### ACH-007
 - titulo: Ausência de MFA/TOTP
 - severidade: alto
 - classificacao: corrigivel_parcial
-- status_executor: pendente
+- status_executor: corrigido
 - status_revisor: pendente
-- commit_executor: none
+- commit_executor: 6008544
 - commit_revisor: none
-- observacoes: none
+- arquivos_alterados:
+  - packages/db/prisma/schema.prisma (Account: totpSecret, totpEnabled, totpActivatedAt, totpRecoveryCodes)
+  - packages/business/auth/ports/totp-service.port.ts (novo)
+  - packages/business/auth/adapters/otplib-totp-service.adapter.ts (novo)
+  - packages/business/auth/adapters/totp-secret-crypto.ts (novo — AES-256-GCM wrapper)
+  - packages/business/auth/use-cases/enable-totp.use-case.ts (BeginTotpEnrollment, ConfirmTotpEnrollment)
+  - packages/business/auth/use-cases/disable-totp.use-case.ts
+  - packages/business/auth/use-cases/verify-totp.use-case.ts
+  - apps/web/package.json (otplib@12)
+  - .env.production.example (TOTP_ENCRYPTION_KEY)
+- descricao_correcao: Schema Prisma com campos TOTP (secret criptografado, flags, recovery codes sha256). TotpService port abstraindo otplib. Crypto helper AES-256-GCM usa TOTP_ENCRYPTION_KEY (requireEnv em prod). Use-cases: BeginTotpEnrollment (gera secret + otpauth URI); ConfirmTotpEnrollment (verifica código, persiste encrypted, emite 10 recovery codes); DisableTotp (requer código válido); VerifyTotp (código live ou recovery one-shot).
+- observacoes: Parcial — rotas tRPC, UI de setup (QR code, entrada de código, download de recovery codes) e enforcement no fluxo de login (exigir MFA para OWNER/ADMIN) ficam para ação humana. Migração Prisma precisa ser gerada e aplicada.
 
 ### ACH-008
 - titulo: Mass assignment potencial em updates — repositórios aceitam `Partial<Entity>` inteiro

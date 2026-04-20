@@ -1,4 +1,5 @@
-import * as Sentry from '@sentry/node';
+import * as Sentry from "@sentry/node";
+import { redactSentryEvent } from "@wbc/shared";
 
 export function initSentry(): void {
   const dsn = process.env.SENTRY_DSN;
@@ -7,10 +8,15 @@ export function initSentry(): void {
     return;
   }
 
+  const isProduction = process.env.NODE_ENV === "production";
+
   Sentry.init({
     dsn,
-    environment: process.env.NODE_ENV ?? 'development',
-    tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.3 : 1.0,
+    environment: process.env.NODE_ENV ?? "development",
+    tracesSampleRate: isProduction ? 0.3 : 0.1,
+    sendDefaultPii: false,
+    beforeSend: (event) => redactSentryEvent(event),
+    beforeBreadcrumb: (breadcrumb) => redactSentryEvent(breadcrumb),
   });
 }
 

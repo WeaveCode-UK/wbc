@@ -17,6 +17,10 @@ services:
       retries: 5
     networks:
       - internal
+    # ACH-026: drop ambient capabilities; Postgres only needs default ones.
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
 
   # ── Cache / Queue ───────────────────────────────────────────
   redis:
@@ -33,6 +37,9 @@ services:
       retries: 5
     networks:
       - internal
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
 
   # ── Web (Next.js) ───────────────────────────────────���───────
   web:
@@ -62,6 +69,16 @@ services:
       start_period: 30s
     networks:
       - internal
+    # ACH-026: read-only rootfs + tmpfs for Next.js cache; drop all caps;
+    # block privilege escalation.
+    read_only: true
+    tmpfs:
+      - /tmp:size=128m
+      - /app/.next/cache:size=256m,uid=1001,gid=1001
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE]
+    security_opt:
+      - no-new-privileges:true
 
   # ── Worker (BullMQ) ─────────────────────────────────────────
   worker:
@@ -91,6 +108,12 @@ services:
       start_period: 30s
     networks:
       - internal
+    read_only: true
+    tmpfs:
+      - /tmp:size=128m
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
 
   # ── Nginx (reverse proxy + SSL) ─────────────────────────────
   nginx:
@@ -108,6 +131,10 @@ services:
       - web
     networks:
       - internal
+    cap_drop: [ALL]
+    cap_add: [CHOWN, SETGID, SETUID, NET_BIND_SERVICE]
+    security_opt:
+      - no-new-privileges:true
 
   # ── Certbot (SSL auto-renewal) ──────────────────────────────
   certbot:
@@ -132,6 +159,9 @@ services:
     command: --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.retention.time=30d
     networks:
       - internal
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
 
   # ── Grafana (dashboards) ────────────────────────────────────
   grafana:
@@ -139,7 +169,14 @@ services:
     container_name: wbc-grafana
     restart: unless-stopped
     environment:
-      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+      # ACH-014: GRAFANA_PASSWORD must be set in .env.production. The previous
+      # `:-admin` fallback let Grafana boot with the default admin/admin
+      # credential whenever the env var was missing.
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:?GRAFANA_PASSWORD is required and must not be empty}
+      GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION: "false"
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+      GF_AUTH_BASIC_ENABLED: "true"
+      GF_USERS_ALLOW_SIGN_UP: "false"
       GF_SERVER_ROOT_URL: https://${DOMAIN}/grafana/
       GF_SERVER_SERVE_FROM_SUB_PATH: "true"
     volumes:
@@ -148,6 +185,9 @@ services:
       - prometheus
     networks:
       - internal
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
 
 volumes:
   postgres_data:

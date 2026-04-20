@@ -37,3 +37,19 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm db:generate
       - run: pnpm test
+
+  # ACH-015 — secret scanning. Catches credentials accidentally committed to
+  # any branch before they reach `main`. Configuration lives in `.gitleaks.toml`
+  # at the repo root (rules + allowlist for known fixture files).
+  secret-scan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Scan the full PR diff, not just HEAD.
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

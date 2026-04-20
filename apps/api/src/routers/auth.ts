@@ -1,40 +1,52 @@
-import { TRPCError } from '@trpc/server';
-import { router, publicProcedure, authedProcedure, protectedProcedure, roleProtectedProcedure } from '../trpc/trpc';
-import { prisma } from '@wbc/db';
+import { TRPCError } from "@trpc/server";
+import {
+  router,
+  publicProcedure,
+  authedProcedure,
+  protectedProcedure,
+  roleProtectedProcedure,
+} from "../trpc/trpc";
+import { prisma } from "@wbc/db";
+import type { RedisLike } from "@wbc/shared";
+import { getRedis } from "../lib/redis";
 
 // Adapters
-import { PrismaAccountRepository } from '@wbc/business/auth/adapters/prisma-account.repository';
-import { PrismaTenantMemberRepository } from '@wbc/business/auth/adapters/prisma-tenant-member.repository';
-import { PrismaSessionRepository } from '@wbc/business/auth/adapters/prisma-session.repository';
-import { PrismaOAuthAccountRepository } from '@wbc/business/auth/adapters/prisma-oauth-account.repository';
-import { PrismaInviteRepository } from '@wbc/business/auth/adapters/prisma-invite.repository';
-import { BcryptPasswordHasher } from '@wbc/business/auth/adapters/bcrypt-password-hasher.adapter';
-import { ResendEmailSender } from '@wbc/business/auth/adapters/resend-email-sender.adapter';
-import { PrismaSubscriptionRepository } from '@wbc/business/auth/adapters/prisma-subscription-repository';
+import { PrismaAccountRepository } from "@wbc/business/auth/adapters/prisma-account.repository";
+import { PrismaTenantMemberRepository } from "@wbc/business/auth/adapters/prisma-tenant-member.repository";
+import { PrismaSessionRepository } from "@wbc/business/auth/adapters/prisma-session.repository";
+import { PrismaOAuthAccountRepository } from "@wbc/business/auth/adapters/prisma-oauth-account.repository";
+import { PrismaInviteRepository } from "@wbc/business/auth/adapters/prisma-invite.repository";
+import { BcryptPasswordHasher } from "@wbc/business/auth/adapters/bcrypt-password-hasher.adapter";
+import { ResendEmailSender } from "@wbc/business/auth/adapters/resend-email-sender.adapter";
+import { RedisAuthTokenStore } from "@wbc/business/auth/adapters/redis-auth-token-store.adapter";
+import { PrismaSubscriptionRepository } from "@wbc/business/auth/adapters/prisma-subscription-repository";
 
 // Use cases
-import { ListWorkspaces } from '@wbc/business/auth/use-cases/list-workspaces.use-case';
-import { SwitchWorkspace } from '@wbc/business/auth/use-cases/switch-workspace.use-case';
-import { CompleteOnboarding } from '@wbc/business/auth/use-cases/complete-onboarding.use-case';
-import { AcceptInvite } from '@wbc/business/auth/use-cases/accept-invite.use-case';
-import { CreateInvite } from '@wbc/business/auth/use-cases/create-invite.use-case';
-import { CancelInvite } from '@wbc/business/auth/use-cases/cancel-invite.use-case';
-import { UpdateAccount } from '@wbc/business/auth/use-cases/update-account.use-case';
-import { UpdateMember } from '@wbc/business/auth/use-cases/update-member.use-case';
-import { DeleteAccount } from '@wbc/business/auth/use-cases/delete-account.use-case';
-import { LeaveTenant } from '@wbc/business/auth/use-cases/leave-tenant.use-case';
-import { ChangePassword } from '@wbc/business/auth/use-cases/change-password.use-case';
-import { RequestPasswordReset } from '@wbc/business/auth/use-cases/request-password-reset.use-case';
-import { ResetPassword } from '@wbc/business/auth/use-cases/reset-password.use-case';
-import { RequestEmailVerification } from '@wbc/business/auth/use-cases/request-email-verification.use-case';
-import { VerifyEmail } from '@wbc/business/auth/use-cases/verify-email.use-case';
-import { ListMembers } from '@wbc/business/auth/use-cases/list-members.use-case';
-import { UpdateMemberRole } from '@wbc/business/auth/use-cases/update-member-role.use-case';
-import { RemoveMember } from '@wbc/business/auth/use-cases/remove-member.use-case';
-import { RevokeSession } from '@wbc/business/auth/use-cases/revoke-session.use-case';
-import { RevokeAllSessions } from '@wbc/business/auth/use-cases/revoke-all-sessions.use-case';
-import { requirePermission, canPromoteTo } from '@wbc/business/auth/guards/permission.guard';
-import type { Role } from '@wbc/business/auth/domain/entities/tenant-member.entity';
+import { ListWorkspaces } from "@wbc/business/auth/use-cases/list-workspaces.use-case";
+import { SwitchWorkspace } from "@wbc/business/auth/use-cases/switch-workspace.use-case";
+import { CompleteOnboarding } from "@wbc/business/auth/use-cases/complete-onboarding.use-case";
+import { AcceptInvite } from "@wbc/business/auth/use-cases/accept-invite.use-case";
+import { CreateInvite } from "@wbc/business/auth/use-cases/create-invite.use-case";
+import { CancelInvite } from "@wbc/business/auth/use-cases/cancel-invite.use-case";
+import { UpdateAccount } from "@wbc/business/auth/use-cases/update-account.use-case";
+import { UpdateMember } from "@wbc/business/auth/use-cases/update-member.use-case";
+import { DeleteAccount } from "@wbc/business/auth/use-cases/delete-account.use-case";
+import { LeaveTenant } from "@wbc/business/auth/use-cases/leave-tenant.use-case";
+import { ChangePassword } from "@wbc/business/auth/use-cases/change-password.use-case";
+import { RequestPasswordReset } from "@wbc/business/auth/use-cases/request-password-reset.use-case";
+import { ResetPassword } from "@wbc/business/auth/use-cases/reset-password.use-case";
+import { RequestEmailVerification } from "@wbc/business/auth/use-cases/request-email-verification.use-case";
+import { VerifyEmail } from "@wbc/business/auth/use-cases/verify-email.use-case";
+import { ListMembers } from "@wbc/business/auth/use-cases/list-members.use-case";
+import { UpdateMemberRole } from "@wbc/business/auth/use-cases/update-member-role.use-case";
+import { RemoveMember } from "@wbc/business/auth/use-cases/remove-member.use-case";
+import { RevokeSession } from "@wbc/business/auth/use-cases/revoke-session.use-case";
+import { RevokeAllSessions } from "@wbc/business/auth/use-cases/revoke-all-sessions.use-case";
+import {
+  requirePermission,
+  canPromoteTo,
+} from "@wbc/business/auth/guards/permission.guard";
+import type { Role } from "@wbc/business/auth/domain/entities/tenant-member.entity";
 
 // Schemas
 import {
@@ -55,7 +67,7 @@ import {
   deleteAccountSchema,
   leaveTenantSchema,
   revokeSessionSchema,
-} from '@wbc/validators';
+} from "@wbc/validators";
 
 // Singletons
 const accountRepo = new PrismaAccountRepository();
@@ -65,12 +77,18 @@ const oauthRepo = new PrismaOAuthAccountRepository();
 const inviteRepo = new PrismaInviteRepository();
 const passwordHasher = new BcryptPasswordHasher();
 const emailSender = new ResendEmailSender();
+// ACH-001: Redis-backed one-shot token store for password-reset and
+// email-verification flows. Cast via `unknown` because the full ioredis
+// surface is a superset of the minimal `RedisLike` we depend on.
+const authTokenStore = new RedisAuthTokenStore(
+  getRedis() as unknown as RedisLike,
+);
 const subscriptionRepo = new PrismaSubscriptionRepository();
 
 // Helper to extract accountId from context (works for authed procedures without tenant)
 function getAccountId(ctx: { tenant: { userId: string } | null }): string {
   if (!ctx.tenant?.userId) {
-    throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Not authenticated' });
+    throw new TRPCError({ code: "UNAUTHORIZED", message: "Not authenticated" });
   }
   return ctx.tenant.userId;
 }
@@ -83,7 +101,11 @@ export const authRouter = router({
   requestPasswordReset: publicProcedure
     .input(requestPasswordResetSchema)
     .mutation(async ({ input }) => {
-      const uc = new RequestPasswordReset(accountRepo, emailSender);
+      const uc = new RequestPasswordReset(
+        accountRepo,
+        emailSender,
+        authTokenStore,
+      );
       await uc.execute({ email: input.email });
       return { success: true };
     }),
@@ -91,7 +113,7 @@ export const authRouter = router({
   resetPassword: publicProcedure
     .input(resetPasswordSchema)
     .mutation(async ({ input }) => {
-      const uc = new ResetPassword(accountRepo, passwordHasher);
+      const uc = new ResetPassword(accountRepo, passwordHasher, authTokenStore);
       await uc.execute({ token: input.token, newPassword: input.newPassword });
       return { success: true };
     }),
@@ -99,7 +121,7 @@ export const authRouter = router({
   verifyEmail: publicProcedure
     .input(verifyEmailSchema)
     .mutation(async ({ input }) => {
-      const uc = new VerifyEmail(accountRepo);
+      const uc = new VerifyEmail(accountRepo, authTokenStore);
       await uc.execute({ token: input.token });
       return { success: true };
     }),
@@ -135,12 +157,11 @@ export const authRouter = router({
       });
     }),
 
-  listWorkspaces: authedProcedure
-    .query(async ({ ctx }) => {
-      const uc = new ListWorkspaces(memberRepo);
-      const workspaces = await uc.execute({ accountId: ctx.accountId });
-      return { workspaces };
-    }),
+  listWorkspaces: authedProcedure.query(async ({ ctx }) => {
+    const uc = new ListWorkspaces(memberRepo);
+    const workspaces = await uc.execute({ accountId: ctx.accountId });
+    return { workspaces };
+  }),
 
   switchWorkspace: authedProcedure
     .input(switchWorkspaceSchema)
@@ -152,49 +173,66 @@ export const authRouter = router({
       });
     }),
 
-  getProfile: protectedProcedure
-    .query(async ({ ctx }) => {
-      const account = await accountRepo.findById(ctx.tenant.userId);
-      if (!account) throw new TRPCError({ code: 'NOT_FOUND', message: 'Account not found' });
+  getProfile: protectedProcedure.query(async ({ ctx }) => {
+    const account = await accountRepo.findById(ctx.tenant.userId);
+    if (!account)
+      throw new TRPCError({ code: "NOT_FOUND", message: "Account not found" });
 
-      const member = await memberRepo.findByAccountAndTenant(ctx.tenant.userId, ctx.tenant.tenantId);
-      const tenant = await prisma.tenant.findUnique({ where: { id: ctx.tenant.tenantId } });
+    const member = await memberRepo.findByAccountAndTenant(
+      ctx.tenant.userId,
+      ctx.tenant.tenantId,
+    );
+    const tenant = await prisma.tenant.findUnique({
+      where: { id: ctx.tenant.tenantId },
+    });
 
-      return {
-        account: {
-          id: account.id,
-          email: account.email,
-          name: account.name,
-          emailVerified: account.emailVerified,
-        },
-        currentMember: member ? {
-          id: member.id,
-          role: member.role,
-          phone: member.phone,
-          displayName: member.displayName,
-          avatar: member.avatar,
-        } : null,
-        tenant: tenant ? {
-          id: tenant.id,
-          name: tenant.name,
-          slug: tenant.slug,
-        } : null,
-      };
-    }),
+    return {
+      account: {
+        id: account.id,
+        email: account.email,
+        name: account.name,
+        emailVerified: account.emailVerified,
+      },
+      currentMember: member
+        ? {
+            id: member.id,
+            role: member.role,
+            phone: member.phone,
+            displayName: member.displayName,
+            avatar: member.avatar,
+          }
+        : null,
+      tenant: tenant
+        ? {
+            id: tenant.id,
+            name: tenant.name,
+            slug: tenant.slug,
+          }
+        : null,
+    };
+  }),
 
   updateAccount: protectedProcedure
     .input(updateAccountSchema)
     .mutation(async ({ input, ctx }) => {
       const uc = new UpdateAccount(accountRepo);
-      const account = await uc.execute({ accountId: ctx.tenant.userId, name: input.name });
-      return { account: { id: account.id, email: account.email, name: account.name } };
+      const account = await uc.execute({
+        accountId: ctx.tenant.userId,
+        name: input.name,
+      });
+      return {
+        account: { id: account.id, email: account.email, name: account.name },
+      };
     }),
 
   deleteAccount: protectedProcedure
     .input(deleteAccountSchema)
     .mutation(async ({ input, ctx }) => {
       const uc = new DeleteAccount(memberRepo);
-      await uc.execute({ accountId: ctx.tenant.userId, confirmation: input.confirmation });
+      await uc.execute({
+        accountId: ctx.tenant.userId,
+        confirmation: input.confirmation,
+      });
       return { success: true };
     }),
 
@@ -210,47 +248,54 @@ export const authRouter = router({
       return { success: true };
     }),
 
-  requestEmailVerification: protectedProcedure
-    .mutation(async ({ ctx }) => {
-      const uc = new RequestEmailVerification(accountRepo, emailSender);
-      await uc.execute({ accountId: ctx.tenant.userId });
-      return { success: true };
-    }),
+  requestEmailVerification: protectedProcedure.mutation(async ({ ctx }) => {
+    const uc = new RequestEmailVerification(
+      accountRepo,
+      emailSender,
+      authTokenStore,
+    );
+    await uc.execute({ accountId: ctx.tenant.userId });
+    return { success: true };
+  }),
 
-  listSessions: protectedProcedure
-    .query(async ({ ctx }) => {
-      const sessions = await sessionRepo.findByAccountId(ctx.tenant.userId);
-      return {
-        sessions: sessions.map((s) => ({
-          id: s.id,
-          userAgent: s.userAgent,
-          ipAddress: s.ipAddress,
-          lastUsedAt: s.lastUsedAt,
-          createdAt: s.createdAt,
-          isExpired: s.isExpired(),
-        })),
-      };
-    }),
+  listSessions: protectedProcedure.query(async ({ ctx }) => {
+    const sessions = await sessionRepo.findByAccountId(ctx.tenant.userId);
+    return {
+      sessions: sessions.map((s) => ({
+        id: s.id,
+        userAgent: s.userAgent,
+        ipAddress: s.ipAddress,
+        lastUsedAt: s.lastUsedAt,
+        createdAt: s.createdAt,
+        isExpired: s.isExpired(),
+      })),
+    };
+  }),
 
   revokeSession: protectedProcedure
     .input(revokeSessionSchema)
     .mutation(async ({ input, ctx }) => {
       const uc = new RevokeSession(sessionRepo);
-      await uc.execute({ sessionId: input.sessionId, accountId: ctx.tenant.userId });
+      await uc.execute({
+        sessionId: input.sessionId,
+        accountId: ctx.tenant.userId,
+      });
       return { success: true };
     }),
 
-  revokeAllSessions: protectedProcedure
-    .mutation(async ({ ctx }) => {
-      const uc = new RevokeAllSessions(sessionRepo);
-      await uc.execute({ accountId: ctx.tenant.userId });
-      return { success: true };
-    }),
+  revokeAllSessions: protectedProcedure.mutation(async ({ ctx }) => {
+    const uc = new RevokeAllSessions(sessionRepo);
+    await uc.execute({ accountId: ctx.tenant.userId });
+    return { success: true };
+  }),
 
   getSubscription: protectedProcedure.query(async ({ ctx }) => {
     const sub = await subscriptionRepo.findByTenantId(ctx.tenant.tenantId);
     if (!sub) {
-      throw new TRPCError({ code: 'NOT_FOUND', message: 'Subscription not found' });
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Subscription not found",
+      });
     }
     return sub;
   }),
@@ -262,8 +307,12 @@ export const authRouter = router({
   updateMember: protectedProcedure
     .input(updateMemberSchema)
     .mutation(async ({ input, ctx }) => {
-      const member = await memberRepo.findByAccountAndTenant(ctx.tenant.userId, ctx.tenant.tenantId);
-      if (!member) throw new TRPCError({ code: 'NOT_FOUND', message: 'Member not found' });
+      const member = await memberRepo.findByAccountAndTenant(
+        ctx.tenant.userId,
+        ctx.tenant.tenantId,
+      );
+      if (!member)
+        throw new TRPCError({ code: "NOT_FOUND", message: "Member not found" });
 
       const uc = new UpdateMember(memberRepo);
       await uc.execute({
@@ -292,80 +341,98 @@ export const authRouter = router({
   // ADMIN ONLY (requires LEADER+ or ADMIN)
   // ═══════════════════════════════════════════
 
-  createInvite: roleProtectedProcedure('LEADER')
+  createInvite: roleProtectedProcedure("LEADER")
     .input(createInviteSchema)
     .mutation(async ({ input, ctx }) => {
-      requirePermission(ctx.tenant.role as Role, 'team:invite');
-      const tenant = await prisma.tenant.findUnique({ where: { id: ctx.tenant.tenantId } });
+      requirePermission(ctx.tenant.role as Role, "team:invite");
+      const tenant = await prisma.tenant.findUnique({
+        where: { id: ctx.tenant.tenantId },
+      });
       const uc = new CreateInvite(inviteRepo, emailSender);
       return uc.execute({
         tenantId: ctx.tenant.tenantId,
         email: input.email,
         role: input.role,
         invitedBy: ctx.tenant.userId,
-        tenantName: tenant?.name ?? '',
+        tenantName: tenant?.name ?? "",
       });
     }),
 
-  listInvites: roleProtectedProcedure('LEADER')
+  listInvites: roleProtectedProcedure("LEADER")
     .input(listInvitesSchema)
     .query(async ({ input, ctx }) => {
-      const invites = await inviteRepo.findByTenantId(ctx.tenant.tenantId, input.status);
+      const invites = await inviteRepo.findByTenantId(
+        ctx.tenant.tenantId,
+        input.status,
+      );
       return { invites };
     }),
 
-  cancelInvite: roleProtectedProcedure('LEADER')
+  cancelInvite: roleProtectedProcedure("LEADER")
     .input(cancelInviteSchema)
     .mutation(async ({ input, ctx }) => {
       const uc = new CancelInvite(inviteRepo);
-      await uc.execute({ inviteId: input.inviteId, tenantId: ctx.tenant.tenantId });
+      await uc.execute({
+        inviteId: input.inviteId,
+        tenantId: ctx.tenant.tenantId,
+      });
       return { success: true };
     }),
 
-  resendInvite: roleProtectedProcedure('LEADER')
+  resendInvite: roleProtectedProcedure("LEADER")
     .input(cancelInviteSchema) // same schema — just inviteId
     .mutation(async ({ input, ctx }) => {
       const invite = await inviteRepo.findById(input.inviteId);
-      if (!invite) throw new TRPCError({ code: 'NOT_FOUND', message: 'Invite not found' });
-      if (invite.tenantId !== ctx.tenant.tenantId) throw new TRPCError({ code: 'FORBIDDEN' });
-      if (invite.status !== 'PENDING') throw new TRPCError({ code: 'BAD_REQUEST', message: 'Invite is not pending' });
+      if (!invite)
+        throw new TRPCError({ code: "NOT_FOUND", message: "Invite not found" });
+      if (invite.tenantId !== ctx.tenant.tenantId)
+        throw new TRPCError({ code: "FORBIDDEN" });
+      if (invite.status !== "PENDING")
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Invite is not pending",
+        });
 
-      const tenant = await prisma.tenant.findUnique({ where: { id: ctx.tenant.tenantId } });
+      const tenant = await prisma.tenant.findUnique({
+        where: { id: ctx.tenant.tenantId },
+      });
       const inviteUrl = `${process.env.NEXTAUTH_URL}/invite?token=${invite.token}`;
       await emailSender.send({
         to: invite.email,
-        subject: `Convite para ${tenant?.name ?? ''}`,
-        html: `<p>Voce foi convidado(a) para o time de <strong>${tenant?.name ?? ''}</strong>.</p>
+        subject: `Convite para ${tenant?.name ?? ""}`,
+        html: `<p>Voce foi convidado(a) para o time de <strong>${tenant?.name ?? ""}</strong>.</p>
                <p><a href="${inviteUrl}">Aceitar convite</a></p>
                <p>Este convite expira em 7 dias.</p>`,
       });
       return { success: true };
     }),
 
-  listMembers: roleProtectedProcedure('LEADER')
-    .query(async ({ ctx }) => {
-      const uc = new ListMembers(memberRepo);
-      const members = await uc.execute({ tenantId: ctx.tenant.tenantId });
-      return {
-        members: members.map((m) => ({
-          id: m.id,
-          accountId: m.accountId,
-          role: m.role,
-          phone: m.phone,
-          displayName: m.displayName,
-          avatar: m.avatar,
-          isActive: m.isActive,
-          joinedAt: m.joinedAt,
-        })),
-      };
-    }),
+  listMembers: roleProtectedProcedure("LEADER").query(async ({ ctx }) => {
+    const uc = new ListMembers(memberRepo);
+    const members = await uc.execute({ tenantId: ctx.tenant.tenantId });
+    return {
+      members: members.map((m) => ({
+        id: m.id,
+        accountId: m.accountId,
+        role: m.role,
+        phone: m.phone,
+        displayName: m.displayName,
+        avatar: m.avatar,
+        isActive: m.isActive,
+        joinedAt: m.joinedAt,
+      })),
+    };
+  }),
 
-  updateMemberRole: roleProtectedProcedure('ADMIN')
+  updateMemberRole: roleProtectedProcedure("ADMIN")
     .input(updateMemberRoleSchema)
     .mutation(async ({ input, ctx }) => {
-      requirePermission(ctx.tenant.role as Role, 'team:promote');
+      requirePermission(ctx.tenant.role as Role, "team:promote");
       if (!canPromoteTo(ctx.tenant.role as Role, input.newRole as Role)) {
-        throw new TRPCError({ code: 'FORBIDDEN', message: 'Cannot promote to this role' });
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Cannot promote to this role",
+        });
       }
       const uc = new UpdateMemberRole(memberRepo);
       await uc.execute({
@@ -377,7 +444,7 @@ export const authRouter = router({
       return { success: true };
     }),
 
-  removeMember: roleProtectedProcedure('ADMIN')
+  removeMember: roleProtectedProcedure("ADMIN")
     .input(removeMemberSchema)
     .mutation(async ({ input, ctx }) => {
       const uc = new RemoveMember(memberRepo);

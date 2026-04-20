@@ -7,7 +7,15 @@ import {
   createTimeoutSignal,
   whatsappRetryPolicy,
   whatsappTimeoutPolicy,
+  requireEnv,
+  createLogger,
+  redactPhone,
 } from "@wbc/shared";
+
+const logger = createLogger("whatsapp-adapter");
+let requestCounter = 0;
+const nextRequestId = (): string =>
+  `whreq_${Date.now().toString(36)}_${++requestCounter}`;
 
 const WHATSAPP_API_URL = "https://graph.facebook.com/v18.0";
 
@@ -33,8 +41,16 @@ export class WhatsAppN2Adapter implements WhatsAppPort {
   private readonly timeoutPolicy: TimeoutPolicy;
 
   constructor(policies: { retry?: RetryPolicy; timeout?: TimeoutPolicy } = {}) {
-    this.apiToken = process.env.WHATSAPP_API_TOKEN ?? "";
-    this.phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID ?? "";
+    // In production, fail fast if credentials are missing rather than letting
+    // requests reach Meta with empty Bearer tokens (which return 401 silently
+    // and look like flaky integration).
+    if (process.env.NODE_ENV === "production") {
+      this.apiToken = requireEnv("WHATSAPP_API_TOKEN");
+      this.phoneNumberId = requireEnv("WHATSAPP_PHONE_NUMBER_ID");
+    } else {
+      this.apiToken = process.env.WHATSAPP_API_TOKEN ?? "";
+      this.phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID ?? "";
+    }
     this.retryPolicy = policies.retry ?? whatsappRetryPolicy;
     this.timeoutPolicy = policies.timeout ?? whatsappTimeoutPolicy;
   }
@@ -46,6 +62,8 @@ export class WhatsAppN2Adapter implements WhatsAppPort {
   ): Promise<SendMessageResult> {
     const cleanPhone = formatPhoneForWhatsApp(phone);
     const { maxRetries, baseDelayMs } = this.retryPolicy;
+    const requestId = nextRequestId();
+    const phoneRedacted = redactPhone(cleanPhone);
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       const { signal, cancel } = createTimeoutSignal(this.timeoutPolicy);
@@ -72,8 +90,15 @@ export class WhatsAppN2Adapter implements WhatsAppPort {
         cancel();
 
         if (!response.ok) {
-          console.error(
-            `[WhatsApp] Send failed: status=${response.status} phone=${cleanPhone} type=${type} attempt=${attempt + 1}`,
+          logger.warn(
+            {
+              requestId,
+              status: response.status,
+              phone: phoneRedacted,
+              type,
+              attempt: attempt + 1,
+            },
+            "WhatsApp send failed",
           );
           if (isRetryableStatus(response.status) && attempt < maxRetries) {
             await sleep(baseDelayMs * (attempt + 1));
@@ -88,9 +113,15 @@ export class WhatsAppN2Adapter implements WhatsAppPort {
         return { success: true, messageId: data.messages?.[0]?.id };
       } catch (error) {
         cancel();
-        console.error(
-          `[WhatsApp] Send error: phone=${cleanPhone} type=${type} attempt=${attempt + 1}`,
-          error instanceof Error ? error.message : error,
+        logger.error(
+          {
+            requestId,
+            phone: phoneRedacted,
+            type,
+            attempt: attempt + 1,
+            err: error instanceof Error ? error.message : String(error),
+          },
+          "WhatsApp send error",
         );
         if (attempt < maxRetries) {
           await sleep(baseDelayMs * (attempt + 1));

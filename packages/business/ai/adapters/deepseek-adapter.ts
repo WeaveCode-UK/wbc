@@ -6,6 +6,7 @@ import {
   createTimeoutSignal,
   deepseekRetryPolicy,
   deepseekTimeoutPolicy,
+  requireEnv,
 } from "@wbc/shared";
 
 const DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions";
@@ -32,7 +33,13 @@ export class DeepSeekAdapter implements AIProvider {
   private readonly timeoutPolicy: TimeoutPolicy;
 
   constructor(policies: { retry?: RetryPolicy; timeout?: TimeoutPolicy } = {}) {
-    this.apiKey = process.env.DEEPSEEK_API_KEY ?? "";
+    // In production, fail fast if the credential is missing — silent fallback
+    // to a stub would hide an integration outage. In dev/test the empty key
+    // path returns a stub response (see generate()).
+    this.apiKey =
+      process.env.NODE_ENV === "production"
+        ? requireEnv("DEEPSEEK_API_KEY")
+        : (process.env.DEEPSEEK_API_KEY ?? "");
     this.model = "deepseek-chat";
     this.retryPolicy = policies.retry ?? deepseekRetryPolicy;
     this.timeoutPolicy = policies.timeout ?? deepseekTimeoutPolicy;

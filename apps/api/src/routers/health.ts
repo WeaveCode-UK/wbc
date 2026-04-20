@@ -12,6 +12,29 @@ const OUTBOX_READY_LAG_THRESHOLD_MS = Number(
 );
 
 /**
+ * ACH-023: only callers from inside the cluster (or with a shared
+ * `READY_DETAILS_TOKEN`) get the detailed readiness payload. Everyone else
+ * gets a flat ok/degraded so external probes can map architecture details.
+ *
+ * Internal IPs are RFC1918 / RFC4193 / loopback. The header `x-internal-probe`
+ * with the matching token also unlocks the detailed view (use it in
+ * Kubernetes liveness/readiness annotations).
+ */
+const INTERNAL_IP_RE =
+  /^(10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[0-1])\.|127\.|::1$|fc|fd)/i;
+
+function isInternalCaller(
+  ipAddress: string | undefined,
+  headerToken: string | undefined,
+): boolean {
+  const expectedToken = process.env.READY_DETAILS_TOKEN;
+  if (expectedToken && headerToken && headerToken === expectedToken)
+    return true;
+  if (!ipAddress) return false;
+  return INTERNAL_IP_RE.test(ipAddress);
+}
+
+/**
  * Health checks separados em live vs ready (ACH-011), seguindo convenção Kubernetes:
  * - live: processo esta vivo? Retorna 200 sempre que o handler responder.
  * - ready: processo esta pronto para receber trafego? Checa dependencias criticas.
@@ -32,7 +55,9 @@ export const healthRouter = router({
 
   // Readiness: checa dependencias criticas — DB, Redis e lag do outbox.
   // Retorna 'ok' se tudo saudavel, 'degraded' se alguma dependencia falhar.
-  ready: publicProcedure.query(async () => {
+  // ACH-023: detalhes (lag, thresholds, contadores) só são expostos a callers
+  // internos; público recebe apenas o overall status.
+  ready: publicProcedure.query(async ({ ctx }) => {
     const checks = {
       database: "unknown" as "ok" | "error" | "unknown",
       redis: "unknown" as "ok" | "error" | "unknown",
@@ -85,7 +110,19 @@ export const healthRouter = router({
         ? ("ok" as const)
         : ("degraded" as const);
 
-    return { status: overall, checks };
+    // Header lookup uses Headers if the transport delivered one; falls back
+    // to env-style lookups when it didn't (e.g. tests).
+    const headerToken =
+      typeof globalThis.Headers !== "undefined" &&
+      (ctx as { headers?: Headers }).headers
+        ? ((ctx as { headers?: Headers }).headers!.get("x-internal-probe") ??
+          undefined)
+        : undefined;
+
+    if (isInternalCaller(ctx.ipAddress, headerToken)) {
+      return { status: overall, checks };
+    }
+    return { status: overall };
   }),
 
   redis: publicProcedure.query(async () => {

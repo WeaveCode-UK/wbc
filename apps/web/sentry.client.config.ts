@@ -1,7 +1,7 @@
 import * as Sentry from "@sentry/nextjs";
 // Import from the specific path rather than the barrel so client-side
 // webpack doesn't follow tenant-context → async_hooks (Node-only).
-import { redactSentryEvent } from "@wbc/shared/src/sentry-redaction";
+import { redactSentryEvent } from "@wbc/shared/sentry-redaction";
 
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,

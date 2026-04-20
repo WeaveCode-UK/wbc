@@ -2,7 +2,8 @@ import { prisma, Prisma } from "@wbc/db";
 import { buildTenantWhere, paginatedQuery } from "@wbc/shared";
 import type { SaleRepository } from "../ports/sale-repository";
 import type { Sale, SaleItem } from "../domain/entities";
-import type { SaleStatus, PaymentMethod } from "../domain/status";
+import type { PaymentMethod } from "../domain/status";
+import type { SaleStatus } from "../domain/value-objects";
 import {
   computeItemSubtotal,
   computeSaleSubtotal,

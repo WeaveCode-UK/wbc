@@ -1,6 +1,6 @@
-import { prisma } from '../index';
-import type { DomainEvent } from '@wbc/shared';
-import type { OutboxPort } from '@wbc/shared/src/events/outbox-service';
+import { prisma } from "../index";
+import type { DomainEvent } from "@wbc/shared";
+import type { OutboxPort } from "@wbc/shared/events";
 
 export class PrismaOutboxRepository implements OutboxPort {
   async save(event: DomainEvent): Promise<void> {
@@ -25,8 +25,8 @@ export class PrismaOutboxRepository implements OutboxPort {
 
   async getPending(limit: number) {
     return prisma.outboxEvent.findMany({
-      where: { status: 'PENDING' },
-      orderBy: { createdAt: 'asc' },
+      where: { status: "PENDING" },
+      orderBy: { createdAt: "asc" },
       take: limit,
       select: { id: true, type: true, tenantId: true, payload: true },
     });
@@ -38,10 +38,10 @@ export class PrismaOutboxRepository implements OutboxPort {
     const now = new Date();
     const pending = await prisma.outboxEvent.findMany({
       where: {
-        status: 'PENDING',
+        status: "PENDING",
         OR: [{ nextRetryAt: null }, { nextRetryAt: { lte: now } }],
       },
-      orderBy: { createdAt: 'asc' },
+      orderBy: { createdAt: "asc" },
       take: limit,
       select: { id: true },
     });
@@ -49,12 +49,12 @@ export class PrismaOutboxRepository implements OutboxPort {
 
     const ids = pending.map((e) => e.id);
     await prisma.outboxEvent.updateMany({
-      where: { id: { in: ids }, status: 'PENDING' },
-      data: { status: 'PROCESSING' },
+      where: { id: { in: ids }, status: "PENDING" },
+      data: { status: "PROCESSING" },
     });
 
     return prisma.outboxEvent.findMany({
-      where: { id: { in: ids }, status: 'PROCESSING' },
+      where: { id: { in: ids }, status: "PROCESSING" },
       select: { id: true, type: true, tenantId: true, payload: true },
     });
   }
@@ -62,12 +62,15 @@ export class PrismaOutboxRepository implements OutboxPort {
   async markProcessed(id: string): Promise<void> {
     await prisma.outboxEvent.update({
       where: { id },
-      data: { status: 'PROCESSED', processedAt: new Date() },
+      data: { status: "PROCESSED", processedAt: new Date() },
     });
   }
 
   async markFailed(id: string): Promise<void> {
-    const event = await prisma.outboxEvent.findUnique({ where: { id }, select: { attempts: true } });
+    const event = await prisma.outboxEvent.findUnique({
+      where: { id },
+      select: { attempts: true },
+    });
     const attempts = (event?.attempts ?? 0) + 1;
     const MAX_ATTEMPTS = 5;
 
@@ -75,7 +78,7 @@ export class PrismaOutboxRepository implements OutboxPort {
       // Move to FAILED permanently — DLQ processor will pick it up
       await prisma.outboxEvent.update({
         where: { id },
-        data: { status: 'FAILED', attempts },
+        data: { status: "FAILED", attempts },
       });
     } else {
       // Exponential backoff: 10s, 40s, 90s, 160s
@@ -83,7 +86,7 @@ export class PrismaOutboxRepository implements OutboxPort {
       await prisma.outboxEvent.update({
         where: { id },
         data: {
-          status: 'PENDING',
+          status: "PENDING",
           attempts,
           nextRetryAt: new Date(Date.now() + backoffMs),
         },
@@ -93,17 +96,24 @@ export class PrismaOutboxRepository implements OutboxPort {
 
   async getFailedForDLQ(limit: number) {
     return prisma.outboxEvent.findMany({
-      where: { status: 'FAILED' },
-      orderBy: { createdAt: 'asc' },
+      where: { status: "FAILED" },
+      orderBy: { createdAt: "asc" },
       take: limit,
-      select: { id: true, type: true, tenantId: true, payload: true, attempts: true, createdAt: true },
+      select: {
+        id: true,
+        type: true,
+        tenantId: true,
+        payload: true,
+        attempts: true,
+        createdAt: true,
+      },
     });
   }
 
   async markDLQ(id: string): Promise<void> {
     await prisma.outboxEvent.update({
       where: { id },
-      data: { status: 'DLQ' },
+      data: { status: "DLQ" },
     });
   }
 }

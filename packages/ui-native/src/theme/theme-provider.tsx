@@ -1,7 +1,12 @@
-import React, { createContext, useContext, useState, useMemo } from 'react';
-import type { ReactNode } from 'react';
-import { themes, md3 } from '@wbc/shared/src/theme/colors';
-import type { ThemeName, ThemeMode, ThemeColors, MD3Colors } from '@wbc/shared/src/theme/colors';
+import React, { createContext, useContext, useState, useMemo } from "react";
+import type { ReactNode } from "react";
+import { themes, md3 } from "@wbc/shared/theme";
+import type {
+  ThemeName,
+  ThemeMode,
+  ThemeColors,
+  MD3Colors,
+} from "@wbc/shared/theme";
 
 interface ThemeContextValue {
   theme: ThemeName;
@@ -14,8 +19,8 @@ interface ThemeContextValue {
 }
 
 const ThemeContext = createContext<ThemeContextValue>({
-  theme: 'default',
-  mode: 'light',
+  theme: "default",
+  mode: "light",
   colors: themes.default.light,
   md3: md3.light,
   setTheme: () => undefined,
@@ -28,15 +33,28 @@ export function useTheme() {
 }
 
 export function NativeThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<ThemeName>('default');
-  const [mode, setMode] = useState<ThemeMode>('light');
+  const [theme, setTheme] = useState<ThemeName>("default");
+  const [mode, setMode] = useState<ThemeMode>("light");
 
-  const colors = useMemo(() => themes[theme][mode] as ThemeColors, [theme, mode]);
+  const colors = useMemo(
+    () => themes[theme][mode] as ThemeColors,
+    [theme, mode],
+  );
   const md3Colors = useMemo(() => md3[mode], [mode]);
-  const toggleMode = () => setMode((m) => (m === 'light' ? 'dark' : 'light'));
+  const toggleMode = () => setMode((m) => (m === "light" ? "dark" : "light"));
 
   return (
-    <ThemeContext.Provider value={{ theme, mode, colors, md3: md3Colors, setTheme, setMode, toggleMode }}>
+    <ThemeContext.Provider
+      value={{
+        theme,
+        mode,
+        colors,
+        md3: md3Colors,
+        setTheme,
+        setMode,
+        toggleMode,
+      }}
+    >
       {children}
     </ThemeContext.Provider>
   );

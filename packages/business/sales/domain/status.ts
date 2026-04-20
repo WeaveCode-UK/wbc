@@ -1,23 +1,27 @@
 /**
- * Centralised Sale status / payment-method enums (ACH-012 codigo-
- * manutenibilidade). Adapters and filters MUST import from here instead of
- * inlining string literals — adding a new status then becomes one edit
- * instead of N scattered greps.
+ * Centralised helpers for the `SaleStatus` / `PayMethod` enums declared
+ * in `domain/value-objects.ts` (ACH-012 codigo-manutenibilidade). Adapters
+ * and filters import from here so the allowed-values lists live in one
+ * place — adding a new status is one edit instead of N scattered literals.
+ * The enum type itself keeps living in value-objects.ts to avoid breaking
+ * existing imports and to keep one source of truth.
  */
-export const SALE_STATUSES = [
+import type { SaleStatus, PayMethod } from "./value-objects";
+
+// Must stay aligned with `enum SaleStatus` in `packages/db/prisma/schema.prisma`.
+export const SALE_STATUSES: SaleStatus[] = [
   "DRAFT",
   "CONFIRMED",
+  "SEPARATED",
+  "SHIPPED",
   "DELIVERED",
   "CANCELLED",
-  "REFUNDED",
-] as const;
-
-export type SaleStatus = (typeof SALE_STATUSES)[number];
+];
 
 /** Statuses that count as "completed" for revenue/commission reports. */
 export const COMPLETED_SALE_STATUSES: SaleStatus[] = ["CONFIRMED", "DELIVERED"];
 
-export const PAYMENT_METHODS = [
+export const PAYMENT_METHODS: PayMethod[] = [
   "CASH",
   "PIX",
   "CREDIT_CARD",
@@ -25,9 +29,10 @@ export const PAYMENT_METHODS = [
   "INSTALLMENT",
   "BANK_TRANSFER",
   "OTHER",
-] as const;
+];
 
-export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
+/** Backwards-compat alias. New code imports `PayMethod` directly. */
+export type PaymentMethod = PayMethod;
 
 /**
  * Prisma-friendly `in` filter helper. Use as

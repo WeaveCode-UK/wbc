@@ -126,7 +126,8 @@ Nenhum.
 - `545d878` — fixes para type-check (subpaths, SALE_STATUSES alinhado, events/index.ts, duplicação SaleStatus)
 
 ## Merge
-- status_merge: pendente
+- status_merge: concluido
 - branch_origem: fix/codigo-manutenibilidade/2026-04-18_21-45-58
 - branch_destino: main
-- aprovado_por_usuario: nao
+- aprovado_por_usuario: sim (autorização "todos" no início do ciclo)
+- data_merge: 2026-04-20 22:45:00

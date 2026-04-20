@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { phoneE164Schema, optionalPhoneE164Schema } from "./phone";
 
 // Auth 2.0 schemas — replaces legacy OTP-based schemas
 
@@ -45,7 +46,7 @@ export const completeOnboardingSchema = z.object({
       /^[a-z0-9-]+$/,
       "Slug deve conter apenas letras minusculas, numeros e hifens",
     ),
-  phone: z.string().min(10).max(15),
+  phone: phoneE164Schema,
   brandId: z.string().uuid().optional(),
   avatar: avatarUrlSchema.optional(),
 });
@@ -53,7 +54,7 @@ export const completeOnboardingSchema = z.object({
 export const acceptInviteSchema = z.object({
   inviteToken: z.string().min(1),
   displayName: z.string().min(2).max(100),
-  phone: z.string().min(10).max(15),
+  phone: phoneE164Schema,
 });
 
 export const switchWorkspaceSchema = z.object({
@@ -65,7 +66,7 @@ export const updateAccountSchema = z.object({
 });
 
 export const updateMemberSchema = z.object({
-  phone: z.string().min(10).max(15).optional(),
+  phone: optionalPhoneE164Schema,
   displayName: z.string().min(2).max(100).optional(),
   avatar: avatarUrlSchema.optional().nullable(),
 });

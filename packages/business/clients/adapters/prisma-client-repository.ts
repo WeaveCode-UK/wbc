@@ -7,6 +7,17 @@ import type {
 import type { Client } from "../domain/entities";
 import { pickClientUpdatable } from "../domain/updatable-fields";
 
+/**
+ * ACH-006 codigo-manutenibilidade (follow-up):
+ * Today this adapter reads the shared `prisma` singleton from `@wbc/db`,
+ * which makes it impossible to unit-test without spinning up a real
+ * database or monkey-patching the module. The target shape is
+ *   `constructor(private readonly db: PrismaClient) {}`
+ * with the singleton injected by `apps/api/src/composition-root.ts`
+ * (introduced by ACH-003). Migration is deferred because it requires
+ * updating every `new PrismaClientRepository()` call-site in parallel;
+ * the composition root's TODO near the `prisma` import tracks the work.
+ */
 export class PrismaClientRepository implements ClientRepository {
   async findById(tenantId: string, id: string): Promise<Client | null> {
     const client = await prisma.client.findFirst({ where: { id, tenantId } });

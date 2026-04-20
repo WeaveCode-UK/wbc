@@ -70,7 +70,15 @@ const CONFLICT_ERRORS = [
 const TOO_MANY_REQUESTS_ERRORS = [
   "OtpTooManyAttemptsError",
   "OtpSendRateLimitError",
+  // ACH-013 apis-integracoes: AI usage-quota errors map to rate-limit on the
+  // wire so callers back off rather than treat it as a server fault.
+  "AILimitExceededError",
 ];
+
+// ACH-013 apis-integracoes: upstream AI providers going dark is a
+// SERVICE_UNAVAILABLE — the client can safely retry after a backoff.
+// Previously these bubbled up as 500 and made Sentry noisy.
+const SERVICE_UNAVAILABLE_ERRORS = ["AIProviderUnavailableError"];
 
 export function mapDomainErrorToTRPC(error: unknown): TRPCError | null {
   if (!(error instanceof Error)) return null;
@@ -118,6 +126,17 @@ export function mapDomainErrorToTRPC(error: unknown): TRPCError | null {
   }
 
   if (INTERNAL_SERVER_ERRORS.includes(name)) {
+    return new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: error.message,
+      cause: error,
+    });
+  }
+
+  if (SERVICE_UNAVAILABLE_ERRORS.includes(name)) {
+    // tRPC doesn't have a 503 code; use INTERNAL_SERVER_ERROR with an
+    // opaque code the client SDK can key off. The `cause` preserves the
+    // original error for Sentry grouping.
     return new TRPCError({
       code: "INTERNAL_SERVER_ERROR",
       message: error.message,

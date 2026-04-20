@@ -1,6 +1,6 @@
 {
   "schema_version": "2.2",
-  "generated_at": "2026-04-20T17:22:44.259Z",
+  "generated_at": "2026-04-20T21:02:16.894Z",
   "total": 294,
   "total_runs": 15,
   "distribution": {
@@ -37,17 +37,17 @@
   },
   "correction_summary": {
     "runs_by_correction_state": {
-      "not_started": 12,
-      "in_progress": 1,
+      "not_started": 11,
+      "in_progress": 2,
       "completed": 2
     },
-    "total_findings_corrected": 67,
+    "total_findings_corrected": 88,
     "total_findings_not_correctable": 1,
     "total_findings_pending_correction": 0,
-    "total_commits": 69
+    "total_commits": 89
   },
   "progress": {
-    "last_updated": "2026-04-20T17:22:44.258Z",
+    "last_updated": "2026-04-20T21:02:16.890Z",
     "domains": {
       "arquitetura": {
         "domain": "arquitetura",
@@ -257,7 +257,18 @@
         "confirmado": 20
       },
       "correction": {
-        "state": "not_started"
+        "state": "in_progress",
+        "branch": "fix/apis-integracoes/2026-04-18_22-30-59",
+        "started_at": "2026-04-20 22:30:00",
+        "finished_at": null,
+        "fase_atual": "revisor",
+        "corrected": 21,
+        "reviewed_ok": 20,
+        "not_correctable": 0,
+        "not_approved": 0,
+        "pending": 0,
+        "total_approved": 20,
+        "total_commits": 20
       }
     },
     {
@@ -608,7 +619,13 @@
       "acao_sugerida": "Obrigar `idempotencyKey` em todas as mutations do tipo `create`/`confirm`/`send`/`mark` via middleware; gerar key no cliente (ULID) quando ausente para queries críticas",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "executor_done",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "corrigido_com_revisao",
+        "executor_commit": "b451a86",
+        "reviewer_commit": "8918ab6",
+        "observacoes": "parcial — migração de cada uma das ~25 mutations restantes (auth, catalog, team, schedule, finance) é follow-up documentado"
       }
     },
     {
@@ -632,7 +649,13 @@
       "acao_sugerida": "Documentar política semver; nunca remover campo sem depreciar por 1 MAJOR; enviar `supportedMobileVersions` via `health.version`; mobile bloqueia startup se abaixo do mínimo",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "47ba4c3",
+        "reviewer_commit": null,
+        "observacoes": "parcial — acordo formal com mobile team sobre minMobileVersion é pendência humana; changelog é follow-up"
       }
     },
     {
@@ -1009,7 +1032,13 @@
       "acao_sugerida": "Criar rota Next.js `/app/api/webhooks/{whatsapp,mercadopago}/route.ts`, aplicar verificação de assinatura antes de processar payload; documentar em `docs/WEBHOOKS.md`",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "c4229be",
+        "reviewer_commit": null,
+        "observacoes": "parcial — secrets reais e teste E2E precisam de credenciais dos providers; use-cases que processam payload são follow-up; ioredis não declarado em apps/web/package.json (hoisted pelo pnpm + graceful degradation via try/catch cobre)"
       }
     },
     {
@@ -1033,7 +1062,13 @@
       "acao_sugerida": "Rejeitar webhooks com `|now - ts| > 300s`; gravar `sha256(request_id)` em Redis com TTL 10 min; rejeitar duplicados",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "c4229be",
+        "reviewer_commit": null,
+        "observacoes": "depende de Redis disponível; rota faz graceful degradation se Redis down"
       }
     },
     {
@@ -1057,7 +1092,13 @@
       "acao_sugerida": "Política \"nunca remover campo; marcar `@deprecated` e manter por ≥1 MAJOR\"; expor campos deprecados via `health.version`; CI que emite warning quando um campo some do schema vs release anterior",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "bd92887",
+        "reviewer_commit": null,
+        "observacoes": "parcial — CI integration, diff de procedures (AppRouter), parse de @deprecated JSDoc são follow-ups"
       }
     },
     {
@@ -1081,7 +1122,13 @@
       "acao_sugerida": "Padronizar: mutations → `{ success: boolean, data?: T, error?: DomainErrorCode }`; queries de lista → `{ data: T[], meta: { page, limit, total, hasMore } }`; queries de item → `{ data: T }`. Introduzir helpers `ok(data)`, `fail(code)`",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "78868e8",
+        "reviewer_commit": null,
+        "observacoes": "parcial — migração full de cada router para os helpers é follow-up; ACH-007 já usou listOk em 3 routers"
       }
     },
     {
@@ -1105,7 +1152,13 @@
       "acao_sugerida": "Criar `packages/shared/src/events/schemas.ts` com `z.discriminatedUnion('type', [...])`, nomes `{module}.{action}.{vN}`, validação no publisher e no consumer; migrar por evento",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "40fa417",
+        "reviewer_commit": null,
+        "observacoes": "parcial — seed de ~37 eventos restantes + flip para strict são follow-up"
       }
     },
     {
@@ -1129,7 +1182,13 @@
       "acao_sugerida": "Criar `packages/shared/src/http/client.ts` com `fetchWithTimeout` + retry/backoff; todos os adapters usam; default 10s por chamada",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "3f59478",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -1153,7 +1212,13 @@
       "acao_sugerida": "Gerar `requestId` único (ULID) por tentativa lógica; enviar nos headers apropriados; repetir com mesmo id em retries; testar",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "d2d0e1c",
+        "reviewer_commit": null,
+        "observacoes": "N1 (deep-link) aceita mas ignora (sem chamada upstream)"
       }
     },
     {
@@ -3524,7 +3589,13 @@
       "acao_sugerida": "Alterar todos os `list` para retornar `{ data, meta: { page, limit, total, hasMore } }`; considerar cursor-based (`nextCursor`) para listas grandes (analytics, logs)",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "841c660",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -3548,7 +3619,13 @@
       "acao_sugerida": "Regra ESLint `no-restricted-syntax` para proibir `z.object({...})` fora de `packages/validators`; migrar schemas remanescentes",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "590a7c8",
+        "reviewer_commit": null,
+        "observacoes": "parcial — 10 routers restantes (catalog, campaigns, schedule, landing, platform, logistics, team, finance, ai, sales) são follow-up; ESLint rule warn mantida"
       }
     },
     {
@@ -3572,7 +3649,13 @@
       "acao_sugerida": "Explicitar \"todas as datas no wire são ISO 8601 UTC\"; incluir `timezone: ctx.tenant.timezone` em meta; documentar",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "58bff42",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -3596,7 +3679,13 @@
       "acao_sugerida": "Centralizar schemas em `packages/shared/src/jobs/schemas.ts`; validar no producer e no consumer; documentar com exemplos",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "4c14b08",
+        "reviewer_commit": null,
+        "observacoes": "parcial — jobs futuros precisam ser seeded; flip para strict é follow-up; worker side ainda usa literal \"wbc:analytics\" etc (cosmético — poderia usar JOB_QUEUES)"
       }
     },
     {
@@ -3620,7 +3709,13 @@
       "acao_sugerida": "Incluir mapeamentos para UNAUTHORIZED, FORBIDDEN, SERVICE_UNAVAILABLE, TOO_MANY_REQUESTS, INTERNAL_SERVER_ERROR (com code opaco); testar cada caminho",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "e50f0ec",
+        "reviewer_commit": null,
+        "observacoes": "complemento ao ACH-018 de codigo-manutenibilidade"
       }
     },
     {
@@ -3644,7 +3739,13 @@
       "acao_sugerida": "Avaliar `trpc-openapi` para procedures selecionadas expostas a parceiros; alternativamente gerar JSON Schema a partir dos Zod com `zod-to-json-schema` em build",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "79c86a9",
+        "reviewer_commit": null,
+        "observacoes": "parcial — adoção de trpc-openapi depende de parceiro real"
       }
     },
     {
@@ -3668,7 +3769,13 @@
       "acao_sugerida": "Validar inicialização em `bootstrap()` (falha rápida); expor gate em `health.ready`; log estruturado com contexto",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "66ac509",
+        "reviewer_commit": null,
+        "observacoes": "antes do fix, mutations via API (confirmSale etc) podiam falhar em runtime pois apps/api nunca chamava setOutboxPort"
       }
     },
     {
@@ -3692,7 +3799,13 @@
       "acao_sugerida": "Limitar `page ≤ 1000` no schema; preferir cursor-based para listas grandes; registrar no rate-limit como rota cara",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "7345f4a",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -3716,7 +3829,13 @@
       "acao_sugerida": "`ResponseSchema = z.object({ messages: z.array(z.object({ id: z.string() })).min(1) })`; `parseAsync` antes de acessar",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "9b0fc03",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -3740,7 +3859,13 @@
       "acao_sugerida": "Enviar a `security-logger` + Sentry/Slack com metadata (tenantId, event type, tentativas, último erro); criar comando `audkit-dlq replay <id>`; painel no Grafana com contagem DLQ por tipo",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "ab26f68",
+        "reviewer_commit": null,
+        "observacoes": "parcial — CLI replay + Grafana dashboard + Alertmanager rule são follow-up; Sentry/Slack secrets permanecem como env opcional"
       }
     },
     {
@@ -6680,7 +6805,13 @@
       "acao_sugerida": "`filters?: {...}` + `sort?: { by: string, order: 'asc'|'desc' }` em todos `list`; documentar em `docs/API_FILTERING.md`",
       "prioridade": "baixa",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "b2d47ff",
+        "reviewer_commit": null,
+        "observacoes": "parcial — migração dos 6 routers com filters ad-hoc é follow-up"
       }
     },
     {

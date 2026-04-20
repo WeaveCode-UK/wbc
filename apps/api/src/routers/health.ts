@@ -2,7 +2,12 @@ import { router, publicProcedure } from "../trpc/trpc";
 import { getRedis } from "../lib/redis";
 import { createLogger } from "../lib/logger";
 import { prisma } from "@wbc/db";
-import { API_VERSION, MIN_MOBILE_VERSION } from "@wbc/shared";
+import {
+  API_VERSION,
+  MIN_MOBILE_VERSION,
+  SUPPORTED_MOBILE_VERSIONS,
+  isOutboxReady,
+} from "@wbc/shared";
 
 const logger = createLogger("health");
 
@@ -45,6 +50,19 @@ export const healthRouter = router({
   version: publicProcedure.query(() => ({
     apiVersion: API_VERSION,
     minMobileVersion: MIN_MOBILE_VERSION,
+    // ACH-002 apis-integracoes: expose the full supported-mobile set so
+    // a client can decide whether to refuse to start (too old), warn
+    // and continue (supported-but-deprecated), or run clean (latest).
+    supportedMobileVersions: SUPPORTED_MOBILE_VERSIONS,
+    // ACH-010 apis-integracoes: publish the wire-format contract so SDK
+    // consumers don't have to infer "ISO UTC" from the first response.
+    // Tenant-local display timezone lives on the protected tenant
+    // profile — `version` is public and knows nothing about a caller.
+    wireFormat: {
+      dates: "iso-8601",
+      dateTimezone: "UTC",
+      numbers: "json-number",
+    } as const,
   })),
 
   // Liveness: se este handler respondeu, o processo esta vivo. Sem dependencias externas.
@@ -63,7 +81,19 @@ export const healthRouter = router({
       redis: "unknown" as "ok" | "error" | "unknown",
       outboxLagMs: -1 as number,
       outboxWithinThreshold: "unknown" as "ok" | "error" | "unknown",
+      // ACH-017 apis-integracoes: surface whether the event bus is wired.
+      // `error` here means publish() would throw — a hard fault that
+      // operators should page on.
+      outboxPortConfigured: "unknown" as "ok" | "error" | "unknown",
     };
+
+    checks.outboxPortConfigured = isOutboxReady() ? "ok" : "error";
+    if (checks.outboxPortConfigured === "error") {
+      logger.error(
+        {},
+        "Readiness check: outbox port not configured (setOutboxPort never called)",
+      );
+    }
 
     try {
       await prisma.$queryRaw`SELECT 1`;
@@ -106,7 +136,8 @@ export const healthRouter = router({
     const overall =
       checks.database === "ok" &&
       checks.redis === "ok" &&
-      checks.outboxWithinThreshold === "ok"
+      checks.outboxWithinThreshold === "ok" &&
+      checks.outboxPortConfigured === "ok"
         ? ("ok" as const)
         : ("degraded" as const);
 

@@ -1,12 +1,39 @@
-import { z } from 'zod';
-import { router, protectedProcedure } from '../trpc/trpc';
-import { PrismaStockRepository } from '../../../../packages/business/inventory/adapters/prisma-stock-repository';
-import { PrismaBrandOrderRepository } from '../../../../packages/business/inventory/adapters/prisma-brand-order-repository';
-import { PrismaSampleRepository } from '../../../../packages/business/inventory/adapters/prisma-sample-repository';
-import { listStock, updateStock, adjustStock } from '../../../../packages/business/inventory/use-cases/manage-stock';
-import { listOrders, createOrder, receiveOrder, cancelOrder } from '../../../../packages/business/inventory/use-cases/manage-orders';
-import { listSamples, createSample, markSampleConverted, getSampleROI } from '../../../../packages/business/inventory/use-cases/manage-samples';
-import { paginationSchema, uuidSchema } from '@wbc/validators';
+import { router, protectedProcedure } from "../trpc/trpc";
+import { PrismaStockRepository } from "../../../../packages/business/inventory/adapters/prisma-stock-repository";
+import { PrismaBrandOrderRepository } from "../../../../packages/business/inventory/adapters/prisma-brand-order-repository";
+import { PrismaSampleRepository } from "../../../../packages/business/inventory/adapters/prisma-sample-repository";
+import {
+  listStock,
+  updateStock,
+  adjustStock,
+} from "../../../../packages/business/inventory/use-cases/manage-stock";
+import {
+  listOrders,
+  createOrder,
+  receiveOrder,
+  cancelOrder,
+} from "../../../../packages/business/inventory/use-cases/manage-orders";
+import {
+  listSamples,
+  createSample,
+  markSampleConverted,
+  getSampleROI,
+} from "../../../../packages/business/inventory/use-cases/manage-samples";
+// ACH-008 apis-integracoes: schemas centralised in @wbc/validators so the
+// UI, the API, and any future SDK see the same shape.
+import {
+  adjustStockSchema,
+  cancelOrderSchema,
+  createOrderSchema,
+  createSampleSchema,
+  listOrdersSchema,
+  listSamplesSchema,
+  listStockSchema,
+  markSampleConvertedSchema,
+  receiveOrderSchema,
+  updateStockSchema,
+} from "@wbc/validators";
+import { idempotentRoute } from "../trpc/idempotency-middleware";
 
 const stockRepo = new PrismaStockRepository();
 const orderRepo = new PrismaBrandOrderRepository();
@@ -14,65 +41,102 @@ const sampleRepo = new PrismaSampleRepository();
 
 export const inventoryRouter = router({
   listStock: protectedProcedure
-    .input(z.object({ lowOnly: z.boolean().optional() }))
+    .input(listStockSchema)
     .query(async ({ ctx, input }) => {
       return listStock(ctx.tenant.tenantId, input.lowOnly, stockRepo);
     }),
 
   updateStock: protectedProcedure
-    .input(z.object({ productId: uuidSchema, quantity: z.number().int().min(0) }))
+    .input(updateStockSchema)
     .mutation(async ({ ctx, input }) => {
-      return updateStock(ctx.tenant.tenantId, input.productId, input.quantity, stockRepo);
+      return updateStock(
+        ctx.tenant.tenantId,
+        input.productId,
+        input.quantity,
+        stockRepo,
+      );
     }),
 
   adjustStock: protectedProcedure
-    .input(z.object({ productId: uuidSchema, adjustment: z.number().int() }))
+    .input(adjustStockSchema)
     .mutation(async ({ ctx, input }) => {
-      return adjustStock(ctx.tenant.tenantId, input.productId, input.adjustment, stockRepo);
+      return adjustStock(
+        ctx.tenant.tenantId,
+        input.productId,
+        input.adjustment,
+        stockRepo,
+      );
     }),
 
   listOrders: protectedProcedure
-    .input(z.object({ status: z.string().optional() }))
+    .input(listOrdersSchema)
     .query(async ({ ctx, input }) => {
       return listOrders(ctx.tenant.tenantId, input.status, orderRepo);
     }),
 
   createOrder: protectedProcedure
-    .input(z.object({
-      brandId: uuidSchema,
-      items: z.array(z.object({ productName: z.string(), quantity: z.number().int().positive(), unitCost: z.number().positive() })),
-      notes: z.string().optional(),
-    }))
+    .input(createOrderSchema)
     .mutation(async ({ ctx, input }) => {
-      return createOrder(ctx.tenant.tenantId, input.brandId, input.items, input.notes, orderRepo);
+      // ACH-001 apis-integracoes: wrapper derives a key when the client
+      // omits one. See docs/architecture/api-idempotency.md.
+      return idempotentRoute(
+        "inventory.createOrder",
+        ctx.tenant.tenantId,
+        input,
+        () =>
+          createOrder(
+            ctx.tenant.tenantId,
+            input.brandId,
+            input.items,
+            input.notes,
+            orderRepo,
+          ),
+      );
     }),
 
   receiveOrder: protectedProcedure
-    .input(z.object({ id: uuidSchema }))
+    .input(receiveOrderSchema)
     .mutation(async ({ ctx, input }) => {
-      return receiveOrder(ctx.tenant.tenantId, input.id, orderRepo);
+      return idempotentRoute(
+        "inventory.receiveOrder",
+        ctx.tenant.tenantId,
+        input,
+        () => receiveOrder(ctx.tenant.tenantId, input.id, orderRepo),
+      );
     }),
 
   cancelOrder: protectedProcedure
-    .input(z.object({ id: uuidSchema }))
+    .input(cancelOrderSchema)
     .mutation(async ({ ctx, input }) => {
       return cancelOrder(ctx.tenant.tenantId, input.id, orderRepo);
     }),
 
   listSamples: protectedProcedure
-    .input(paginationSchema)
+    .input(listSamplesSchema)
     .query(async ({ ctx, input }) => {
-      return listSamples(ctx.tenant.tenantId, input.page, input.limit, sampleRepo);
+      return listSamples(
+        ctx.tenant.tenantId,
+        input.page,
+        input.limit,
+        sampleRepo,
+      );
     }),
 
   createSample: protectedProcedure
-    .input(z.object({ productId: uuidSchema, clientId: z.string().uuid().optional(), quantity: z.number().int().positive(), cost: z.number().positive() }))
+    .input(createSampleSchema)
     .mutation(async ({ ctx, input }) => {
-      return createSample(ctx.tenant.tenantId, input.productId, input.clientId, input.quantity, input.cost, sampleRepo);
+      return createSample(
+        ctx.tenant.tenantId,
+        input.productId,
+        input.clientId,
+        input.quantity,
+        input.cost,
+        sampleRepo,
+      );
     }),
 
   markSampleConverted: protectedProcedure
-    .input(z.object({ id: uuidSchema }))
+    .input(markSampleConvertedSchema)
     .mutation(async ({ ctx, input }) => {
       return markSampleConverted(ctx.tenant.tenantId, input.id, sampleRepo);
     }),

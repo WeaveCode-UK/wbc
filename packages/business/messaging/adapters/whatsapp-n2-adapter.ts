@@ -1,4 +1,8 @@
-import type { WhatsAppPort, SendMessageResult } from "../ports/whatsapp-port";
+import type {
+  WhatsAppPort,
+  SendMessageResult,
+  SendMessageOptions,
+} from "../ports/whatsapp-port";
 import { formatPhoneForWhatsApp } from "../domain/whatsapp";
 import {
   CircuitBreaker,
@@ -10,6 +14,10 @@ import {
   requireEnv,
   createLogger,
   redactPhone,
+  // ACH-019 apis-integracoes: schema lives in @wbc/shared because
+  // packages/business has no package.json and therefore can't import
+  // zod directly. Shared already declares the dep.
+  WhatsAppSendResponseSchema,
 } from "@wbc/shared";
 
 const logger = createLogger("whatsapp-adapter");
@@ -59,10 +67,17 @@ export class WhatsAppN2Adapter implements WhatsAppPort {
     phone: string,
     type: string,
     content: Record<string, unknown>,
+    opts: SendMessageOptions = {},
   ): Promise<SendMessageResult> {
     const cleanPhone = formatPhoneForWhatsApp(phone);
     const { maxRetries, baseDelayMs } = this.retryPolicy;
-    const requestId = nextRequestId();
+    // ACH-016 apis-integracoes: prefer the caller's stable idempotency
+    // key (e.g. outbox event id) so retries coalesce on Meta's side.
+    // Fall back to the per-call counter when no key is supplied — that
+    // path still avoids *collisions*, but it doesn't dedup across
+    // outbox retries (which is why callers should pass their own key
+    // for anything that actually matters).
+    const requestId = opts.idempotencyKey ?? nextRequestId();
     const phoneRedacted = redactPhone(cleanPhone);
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
@@ -76,6 +91,10 @@ export class WhatsAppN2Adapter implements WhatsAppPort {
             headers: {
               Authorization: `Bearer ${this.apiToken}`,
               "Content-Type": "application/json",
+              // ACH-016 apis-integracoes: same id across retries inside
+              // this call; when `opts.idempotencyKey` is set, also same
+              // across outbox-driven retries.
+              "X-Request-Id": requestId,
             },
             body: JSON.stringify({
               messaging_product: "whatsapp",
@@ -107,10 +126,24 @@ export class WhatsAppN2Adapter implements WhatsAppPort {
           return { success: false };
         }
 
-        const data = (await response.json()) as {
-          messages?: Array<{ id: string }>;
-        };
-        return { success: true, messageId: data.messages?.[0]?.id };
+        const raw = await response.json();
+        const parsed = WhatsAppSendResponseSchema.safeParse(raw);
+        if (!parsed.success) {
+          logger.error(
+            {
+              requestId,
+              phone: phoneRedacted,
+              type,
+              zodError: parsed.error.message,
+            },
+            "WhatsApp response shape unexpected — treating as failure",
+          );
+          return { success: false };
+        }
+        // `messages.min(1)` in the schema guarantees [0] exists; the
+        // non-null assertion is safe and dodges TS's narrowing miss
+        // through the intersection of schema types.
+        return { success: true, messageId: parsed.data.messages[0]!.id };
       } catch (error) {
         cancel();
         logger.error(
@@ -134,9 +167,13 @@ export class WhatsAppN2Adapter implements WhatsAppPort {
     return { success: false };
   }
 
-  async sendText(phone: string, message: string): Promise<SendMessageResult> {
+  async sendText(
+    phone: string,
+    message: string,
+    opts?: SendMessageOptions,
+  ): Promise<SendMessageResult> {
     return whatsappCircuit.execute(
-      () => this.sendMessage(phone, "text", { body: message }),
+      () => this.sendMessage(phone, "text", { body: message }, opts),
       () => ({ success: false }) as SendMessageResult,
     );
   }
@@ -145,16 +182,21 @@ export class WhatsAppN2Adapter implements WhatsAppPort {
     phone: string,
     imageUrl: string,
     caption?: string,
+    opts?: SendMessageOptions,
   ): Promise<SendMessageResult> {
     return whatsappCircuit.execute(
-      () => this.sendMessage(phone, "image", { link: imageUrl, caption }),
+      () => this.sendMessage(phone, "image", { link: imageUrl, caption }, opts),
       () => ({ success: false }) as SendMessageResult,
     );
   }
 
-  async sendAudio(phone: string, audioUrl: string): Promise<SendMessageResult> {
+  async sendAudio(
+    phone: string,
+    audioUrl: string,
+    opts?: SendMessageOptions,
+  ): Promise<SendMessageResult> {
     return whatsappCircuit.execute(
-      () => this.sendMessage(phone, "audio", { link: audioUrl }),
+      () => this.sendMessage(phone, "audio", { link: audioUrl }, opts),
       () => ({ success: false }) as SendMessageResult,
     );
   }

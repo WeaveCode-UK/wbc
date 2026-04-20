@@ -24,7 +24,12 @@ process.on("uncaughtException", (error) => {
 });
 import { applyTenantMiddleware } from "@wbc/db";
 import { prisma } from "@wbc/db";
-import { getCurrentTenant, setOutboxPort, validateEnv } from "@wbc/shared";
+import {
+  assertOutboxReady,
+  getCurrentTenant,
+  setOutboxPort,
+  validateEnv,
+} from "@wbc/shared";
 
 // Validate environment variables
 validateEnv("worker");
@@ -62,6 +67,10 @@ applyTenantMiddleware(() => getCurrentTenant()?.tenantId);
 
 // Initialize outbox port
 setOutboxPort(new PrismaOutboxRepository());
+// ACH-017 apis-integracoes: fail fast if the wire above is ever removed
+// or regressed — the worker's whole job is publishing / processing events,
+// so an unwired outbox is not a recoverable state.
+assertOutboxReady();
 
 // Register domain event handlers
 registerInventoryEventHandlers();

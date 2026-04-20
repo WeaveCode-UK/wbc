@@ -52,12 +52,22 @@ export class ResendEmailSender implements EmailSender {
       return;
     }
 
+    // ACH-016 apis-integracoes: forward the caller-provided idempotency
+    // key to Resend. When absent, we don't fabricate one — two separate
+    // logical sends (e.g. user triggers "resend verification email"
+    // twice on purpose) shouldn't be collapsed. Resend only deduplicates
+    // when the header is present and identical.
+    const headers: Record<string, string> = {
+      Authorization: `Bearer ${this.apiKey}`,
+      "Content-Type": "application/json",
+    };
+    if (message.idempotencyKey) {
+      headers["Idempotency-Key"] = message.idempotencyKey;
+    }
+
     const response = await fetch(RESEND_API_URL, {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${this.apiKey}`,
-        "Content-Type": "application/json",
-      },
+      headers,
       body: JSON.stringify({
         from: this.fromAddress,
         to: [message.to],

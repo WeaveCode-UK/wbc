@@ -16,8 +16,8 @@
  * lives here.
  */
 
-import { prisma } from "@wbc/db";
-import type { RedisLike } from "@wbc/shared";
+import { prisma, PrismaOutboxRepository } from "@wbc/db";
+import { setOutboxPort, assertOutboxReady, type RedisLike } from "@wbc/shared";
 import { getRedis } from "./lib/redis";
 
 import { PrismaAccountRepository } from "@wbc/business/auth/adapters/prisma-account.repository";
@@ -64,6 +64,12 @@ export function getRepositories(): Repositories {
   // (ACH-006 follow-up). Once adapters accept PrismaClient via constructor,
   // replace the `new PrismaXxxRepository()` calls with `new PrismaXxxRepository(prisma)`.
   void prisma; // keep the import tree-shaking-safe
+
+  // ACH-017 apis-integracoes: wire the outbox port here so every API call
+  // path that publishes an event has it, then assert so a missing wire
+  // fails on startup instead of on the first mutation.
+  setOutboxPort(new PrismaOutboxRepository());
+  assertOutboxReady();
 
   cached = {
     accountRepo: new PrismaAccountRepository(),

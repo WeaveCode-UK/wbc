@@ -12,6 +12,9 @@ export const listClientsSchema = paginationSchema.extend({
 export const getClientByIdSchema = z.object({ id: uuidSchema });
 
 export const createClientSchema = z.object({
+  // ACH-001 apis-integracoes: optional on the wire; middleware derives
+  // from input hash when omitted.
+  idempotencyKey: z.string().min(1).optional(),
   name: z.string().min(1).max(200),
   phone: phoneE164Schema,
   email: z.string().email().optional(),

@@ -36,6 +36,8 @@ import {
   untagClientSchema,
   bulkTagSchema,
 } from "@wbc/validators";
+import { idempotentRoute } from "../trpc/idempotency-middleware";
+import { listOk } from "../trpc/responses";
 
 const clientRepo = new PrismaClientRepository();
 const tagRepo = new PrismaTagRepository();
@@ -45,7 +47,11 @@ export const clientsRouter = router({
     // ACH-004: reuse schema from @wbc/validators instead of re-declaring inline.
     .input(listClientsSchema)
     .query(async ({ ctx, input }) => {
-      return listClients(
+      // ACH-007 apis-integracoes: wrap the use-case's `{ data, total }`
+      // in the canonical `{ data, meta: { page, limit, total, hasMore } }`
+      // envelope so the SDK/UI can render "N of M" and stop inferring
+      // "end of list" from a short page.
+      const result = await listClients(
         {
           tenantId: ctx.tenant.tenantId,
           filters: {
@@ -59,6 +65,11 @@ export const clientsRouter = router({
         },
         clientRepo,
       );
+      return listOk(result.data, {
+        page: input.page,
+        limit: input.limit,
+        total: result.total,
+      });
     }),
 
   getById: createGetByIdProcedure((tenantId, id) =>
@@ -69,9 +80,16 @@ export const clientsRouter = router({
     // ACH-004: schema pulled from @wbc/validators.
     .input(createClientSchema)
     .mutation(async ({ ctx, input }) => {
-      return createClient(
-        { ...input, tenantId: ctx.tenant.tenantId },
-        clientRepo,
+      // ACH-001 apis-integracoes: retry-safe — createClient will otherwise
+      // emit a duplicate CLIENT_CREATED event and blow up any downstream
+      // consumer that assumes one event per logical creation.
+      const { idempotencyKey: _key, ...clientInput } = input;
+      void _key;
+      return idempotentRoute("clients.create", ctx.tenant.tenantId, input, () =>
+        createClient(
+          { ...clientInput, tenantId: ctx.tenant.tenantId },
+          clientRepo,
+        ),
       );
     }),
 

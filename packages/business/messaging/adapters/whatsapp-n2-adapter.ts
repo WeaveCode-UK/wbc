@@ -1,3 +1,4 @@
+import { z } from "zod";
 import type { WhatsAppPort, SendMessageResult } from "../ports/whatsapp-port";
 import { formatPhoneForWhatsApp } from "../domain/whatsapp";
 import {
@@ -11,6 +12,18 @@ import {
   createLogger,
   redactPhone,
 } from "@wbc/shared";
+
+// ACH-019 apis-integracoes: validate the shape coming back from Meta
+// before indexing into it. Previously `data.messages?.[0]?.id` assumed a
+// shape Meta could change without notice — an `null` or a key rename
+// made the whole processor throw a TypeError, killing the worker and
+// shoving the job into DLQ. The schema keeps parsing cheap (one level
+// deep) and tolerates extra fields via `.passthrough()`.
+const WhatsAppSendResponseSchema = z
+  .object({
+    messages: z.array(z.object({ id: z.string() }).passthrough()).min(1),
+  })
+  .passthrough();
 
 const logger = createLogger("whatsapp-adapter");
 let requestCounter = 0;
@@ -107,10 +120,21 @@ export class WhatsAppN2Adapter implements WhatsAppPort {
           return { success: false };
         }
 
-        const data = (await response.json()) as {
-          messages?: Array<{ id: string }>;
-        };
-        return { success: true, messageId: data.messages?.[0]?.id };
+        const raw = await response.json();
+        const parsed = WhatsAppSendResponseSchema.safeParse(raw);
+        if (!parsed.success) {
+          logger.error(
+            {
+              requestId,
+              phone: phoneRedacted,
+              type,
+              zodError: parsed.error.message,
+            },
+            "WhatsApp response shape unexpected — treating as failure",
+          );
+          return { success: false };
+        }
+        return { success: true, messageId: parsed.data.messages[0].id };
       } catch (error) {
         cancel();
         logger.error(

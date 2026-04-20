@@ -2,6 +2,7 @@ import { prisma } from "@wbc/db";
 import { buildTenantWhere, paginatedQuery } from "@wbc/shared";
 import type { SaleRepository } from "../ports/sale-repository";
 import type { Sale, SaleItem } from "../domain/entities";
+import type { SaleStatus } from "../domain/status";
 import {
   computeItemSubtotal,
   computeSaleSubtotal,
@@ -116,19 +117,12 @@ export class PrismaSaleRepository implements SaleRepository {
   async updateStatus(
     tenantId: string,
     id: string,
-    status: string,
+    status: SaleStatus,
   ): Promise<Sale> {
+    // ACH-012: status typed as SaleStatus so new values flow through tsc.
     const sale = await prisma.sale.update({
       where: { id },
-      data: {
-        status: status as
-          | "DRAFT"
-          | "CONFIRMED"
-          | "SEPARATED"
-          | "SHIPPED"
-          | "DELIVERED"
-          | "CANCELLED",
-      },
+      data: { status },
     });
     return mapSaleFromPrisma(sale as unknown as Record<string, unknown>);
   }

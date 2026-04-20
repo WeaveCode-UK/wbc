@@ -1005,6 +1005,22 @@ enum OutboxStatus {
   DLQ
 }
 
+// ACH-011 dados-persistencia: handler-side idempotency. Each outbox
+// consumer writes `(eventId, handlerName)` into this table inside the
+// same transaction as its side-effect. A retry after crash or at-least-
+// once redelivery hits the unique constraint and the handler returns
+// no-op. Without this, a retried SALE_CONFIRMED could decrement stock
+// twice, send two WhatsApp messages, etc.
+model ProcessedEvent {
+  eventId     String   @db.Uuid
+  handlerName String
+  processedAt DateTime @default(now())
+
+  @@id([eventId, handlerName])
+  @@index([processedAt])
+  @@map("processed_events")
+}
+
 // ============================================================
 // NOTIFICATIONS
 // ============================================================

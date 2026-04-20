@@ -5,14 +5,14 @@
 - run_id: 2026-04-18_22-06-18
 - branch: fix/seguranca/2026-04-18_22-06-18
 - data_inicio: 2026-04-19 22:20:00
-- ultima_atualizacao: 2026-04-20 17:30:00
+- ultima_atualizacao: 2026-04-19 (revisor concluído — 27/27 aprovados)
 - fase_atual: revisor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 27
 - corrigidos_executor: 27
-- revisados_revisor: 0
+- revisados_revisor: 27
 - corrigidos_pelo_revisor: 0
 - nao_corrigiveis: 1
 - nao_aprovados: 0
@@ -25,9 +25,10 @@
 - severidade: alto
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: 491192b
 - commit_revisor: none
+- resultado_revisao: Diff confere com a recomendação. validateEnv estendido com REQUIRED_IN_PRODUCTION para web/api/worker; requireEnv exportado e usado em deepseek-adapter e whatsapp-n2-adapter com fail-fast em produção (dev mantém fallback). Schemas Zod marcam credenciais como `.string().min(1).optional()` permitindo dev rodar sem todas as chaves. Bonus: authSecretSchema com min(32) + refusal de padrões fracos já preparou ACH-027.
 - arquivos_alterados:
   - packages/shared/src/env.ts
   - packages/business/ai/adapters/deepseek-adapter.ts
@@ -40,9 +41,10 @@
 - severidade: alto
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: 7648208
 - commit_revisor: none
+- resultado_revisao: WHATSAPP_APP_SECRET e RESEND_API_KEY presentes em .env.example e .env.production.example com comentários explicativos. Ambas as variáveis foram adicionadas ao globalEnv de turbo.json. Validação no Zod env (ACH-012) garante fail-fast em produção.
 - arquivos_alterados:
   - .env.example
   - .env.production.example
@@ -55,9 +57,10 @@
 - severidade: medio
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: f343cb6
 - commit_revisor: none
+- resultado_revisao: Templates .env.example e .env.production.example agora orientam `openssl rand -base64 48` e usam placeholders neutros (REPLACE_WITH_OUTPUT_OF_openssl_rand_base64_48 / REPLACE_WITH_OPENSSL_RAND_BASE64_48). Comentários explicam constraints. A enforcement runtime foi feita via authSecretSchema em ACH-012 (min 32 + refusal de padrões change/secret/wbc-dev/placeholder/generate). .env tracked do dev não existe (gitignored), conforme registrado no achado.
 - arquivos_alterados:
   - .env.example
   - .env.production.example
@@ -69,9 +72,10 @@
 - severidade: medio
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: 890a51f
 - commit_revisor: none
+- resultado_revisao: redaction.ts cobre phone (últimos 4 dígitos + asteriscos), IDs (primeiros 8 chars + ellipsis), e email (sha256 truncado a 12). security-logger aplica redactSecurityFields antes do console. Interface SecurityEvent estendida com accountId/email/jti. Re-exportado em index.ts.
 - arquivos_alterados:
   - packages/shared/src/redaction.ts (novo)
   - packages/shared/src/security-logger.ts
@@ -84,9 +88,10 @@
 - severidade: medio
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: 094ebaa
 - commit_revisor: none
+- resultado_revisao: detail bruto removido. Email agora vai para o campo `email` do SecurityEvent que é redactado via sha256 truncado (12 chars) pelo redactSecurityFields. Não há mais email bruto em logs.
 - arquivos_alterados:
   - apps/web/src/lib/auth.config.ts
 - descricao_correcao: Substituído `detail: \`credentials: ${credentials.email}\`` por `email: credentials.email` (campo padronizado, redactado via sha256 truncado pelo security-logger).
@@ -97,9 +102,10 @@
 - severidade: medio
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: 1d9d567
 - commit_revisor: none
+- resultado_revisao: createLogger central (pino) implementado em packages/shared/src/logger.ts. WhatsApp adapter substituiu ambos console.error por logger.warn/error com structured fields {requestId, status, phone (redactPhone), type, attempt, err}. Não há mais leak de headers/tokens em stdout. pino adicionado como dep de packages/shared.
 - arquivos_alterados:
   - packages/shared/package.json
   - packages/shared/src/logger.ts (novo)
@@ -113,9 +119,10 @@
 - severidade: medio
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: 58a1108
 - commit_revisor: none
+- resultado_revisao: redactSentryEvent puro em packages/shared cobre request, contexts, extra, breadcrumbs (recursivo até depth 6), regex de keys sensíveis (authorization|cookie|password|token|secret|api_key|otp|email), strip user.email/ip_address, truncamento >2000 chars. Aplicado nos 4 inits Sentry (api/node + web server/edge/client) com sendDefaultPii=false. Sample em dev reduzido para 0.1.
 - arquivos_alterados:
   - packages/shared/src/sentry-redaction.ts (novo)
   - packages/shared/src/index.ts
@@ -131,9 +138,10 @@
 - severidade: alto
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: cdc95a7
 - commit_revisor: none
+- resultado_revisao: LoginAttemptTracker port + RedisLoginAttemptTracker adapter (sha256 das chaves, TTL 15min, threshold 5). Tracker é opcional no use-case (preserva tests). isLocked() é checado antes do bcrypt; recordFailure() em falha; clearAttempts() em sucesso. AccountLockedError reusa mesma mensagem de InvalidCredentialsError, preservando anti-enumeration. Auth.config injeta tracker com Redis singleton; bucket por (email, IP) extraído via x-forwarded-for/x-real-ip no callback authorize.
 - arquivos_alterados:
   - packages/business/auth/ports/login-attempt-tracker.port.ts (novo)
   - packages/business/auth/adapters/redis-login-attempt-tracker.adapter.ts (novo)
@@ -147,9 +155,10 @@
 - severidade: alto
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: e09b73d
 - commit_revisor: none
+- resultado_revisao: InvalidCredentialsError com mensagem única "E-mail ou senha inválidos" cobre conta ausente, OAuth-only e password errado. TIMING_DECOY_HASH (bcrypt fixo) usado quando account não existe — `passwordHasher.verify` sempre executa, equalizando tempo de resposta. Trim/lowercase do email mantém comportamento existente.
 - arquivos_alterados:
   - packages/business/auth/use-cases/authenticate-with-credentials.use-case.ts
 - descricao_correcao: Exceção única InvalidCredentialsError com mensagem "E-mail ou senha inválidos" para conta ausente, OAuth-only ou senha errada. Bcrypt.verify é sempre executado usando TIMING_DECOY_HASH (hash fixo) quando a conta não existe, equalizando tempo de resposta contra ataque por timing.
@@ -160,9 +169,10 @@
 - severidade: medio
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: 76ab1c0
 - commit_revisor: none
+- resultado_revisao: SENSITIVE_ROUTE_LIMITS por prefixo cobre auth.login (5/min), auth.requestPasswordReset (3/h), auth.resetPassword (5/h), auth.acceptInvite (10/15min), auth.sendOtp (5/h), auth.verifyOtp (5/min) etc — bate com a recomendação. Aplicação em ambos applyPublicRateLimit e applyProtectedRateLimit. Context ganhou ipAddress + helper extractIpFromHeaders (x-forwarded-for primeiro hop, x-real-ip fallback). publicProcedure usa ctx.ipAddress como identifier para anônimos, eliminando o bucket global.
 - arquivos_alterados:
   - apps/api/src/trpc/rate-limit-middleware.ts
   - apps/api/src/trpc/context.ts
@@ -175,9 +185,10 @@
 - severidade: critico
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: 61afd51
 - commit_revisor: none
+- resultado_revisor: SendOtpResult não tem mais o campo `code`. console.log dev removido por completo. logSecurityEvent emitido apenas com accountId. Teste atualizado para `expect(result).not.toHaveProperty("code")`. Código permanece persistido via OtpRepository e consumido pelo canal de entrega.
 - arquivos_alterados:
   - packages/business/auth/use-cases/send-otp.ts
   - packages/business/auth/use-cases/__tests__/send-otp.test.ts
@@ -189,9 +200,10 @@
 - severidade: critico
 - classificacao: corrigivel_parcial
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: 5d3072c
 - commit_revisor: none
+- resultado_revisao: AuthTokenStore port com kind binding (password-reset|email-verification) impede replay cross-flow. RedisAuthTokenStore: tokens 32-byte hex (256 bits), `${prefix}:${token}` com TTL via EX, GETDEL one-shot, índice por accountId+kind para revoke em batch. reset-password.use-case valida MIN_PASSWORD_LENGTH (8), consome token, hasheia bcrypt, atualiza account, revoga tokens pendentes do mesmo kind. verify-email.use-case análogo (idempotente em emailVerified). request-* use-cases revogam tokens pendentes antes de issue (defensive). ResendEmailSender real: requireEnv em prod (ResendNotConfiguredError com mensagem clara), POST para api.resend.com com Bearer; em dev loga apenas metadata (sem body que carrega tokens). Limites: parcial é humana (UI/router devem injetar adapters concretos).
 - arquivos_alterados:
   - packages/business/auth/ports/auth-token-store.port.ts (novo)
   - packages/business/auth/adapters/redis-auth-token-store.adapter.ts (novo)
@@ -208,9 +220,10 @@
 - severidade: alto
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: 98403ea
 - commit_revisor: none
+- resultado_revisao: findByToken trocou findUnique por findFirst com where { token, status: 'PENDING', expiresAt: { gt: new Date() } }. Filtros bate exatamente com a recomendação. EXPIRED/ACCEPTED retornam null mesmo com token válido — replay defendido.
 - arquivos_alterados:
   - packages/business/auth/adapters/prisma-invite.repository.ts
 - descricao_correcao: findByToken agora usa findFirst com where { token, status: 'PENDING', expiresAt: { gt: now } }. Invites EXPIRED ou ACCEPTED retornam null mesmo com token válido.
@@ -221,9 +234,10 @@
 - severidade: alto
 - classificacao: corrigivel_parcial
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: 7d6562a
 - commit_revisor: none
+- resultado_revisao: JwtBlacklist port + RedisJwtBlacklist (SET EX clamp ≥1s) implementados. JWTPayload ganhou jti + iat. Callback jwt: gera jti via randomUUID + iat no login; consulta blacklist a cada invocation e retorna `{}` se revogado (sub/role/etc desaparecem, sessão fica desautenticada). Event signOut: revoga jti com TTL ≥60s computado a partir de iat (clamp para mínimo). Refresh-token rotation completa fica como design follow-up — registrado como parcial corretamente.
 - arquivos_alterados:
   - packages/business/auth/ports/jwt-blacklist.port.ts (novo)
   - packages/business/auth/adapters/redis-jwt-blacklist.adapter.ts (novo)
@@ -237,9 +251,10 @@
 - severidade: alto
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: 31bef10
 - commit_revisor: none
+- resultado_revisao: useSecureCookies + bloco cookies explícito para sessionToken/csrfToken/callbackUrl. Todos com httpOnly: true, sameSite: 'lax', secure: production. Nomes prefixados __Secure-/__Host- em produção (boas práticas de Cookie Prefixes RFC). callbackUrl não tem httpOnly (precisa ser legível pelo client; correto pelo padrão NextAuth).
 - arquivos_alterados:
   - apps/web/src/lib/auth.config.ts
 - descricao_correcao: Adicionado `useSecureCookies: NODE_ENV==='production'` e bloco `cookies` explicitando options de sessionToken/csrfToken/callbackUrl com httpOnly: true, sameSite: 'lax', secure: production, path: '/' e nomes prefixados __Secure-/__Host- em produção.
@@ -250,9 +265,10 @@
 - severidade: alto
 - classificacao: corrigivel_parcial
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: 6008544
 - commit_revisor: none
+- resultado_revisao: Schema Prisma estendido (totpSecret encrypted, totpEnabled, totpActivatedAt, totpRecoveryCodes sha256). TotpService port + adapter via otplib. Crypto AES-256-GCM com KDF scrypt e TOTP_ENCRYPTION_KEY (requireEnv em prod). Use-cases: BeginTotpEnrollment (gera secret + otpauth URI sem persistir); ConfirmTotpEnrollment (valida código, encrypta, emite 10 recovery codes, retorna planos uma vez); DisableTotp (exige código atual válido — defesa contra cookie hijack); VerifyTotp (live code primeiro, fallback recovery one-shot que é consumido). Recovery codes em hashed array, uso XOR com pluck. Restante (UI + tRPC routers + enforcement no login) é parcial humana — registrado.
 - arquivos_alterados:
   - packages/db/prisma/schema.prisma (Account: totpSecret, totpEnabled, totpActivatedAt, totpRecoveryCodes)
   - packages/business/auth/ports/totp-service.port.ts (novo)
@@ -271,9 +287,10 @@
 - severidade: alto
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: 48402a2
 - commit_revisor: none
+- resultado_revisao: CLIENT_UPDATABLE_FIELDS + pickClientUpdatable substituem o splat em prisma-client-repository.update; PrismaAccountRepository.update e PrismaTenantMemberRepository.update fazem cherry-pick explícito por if. Campos system-managed (totp*, classification, engagementScore, accountId, tenantId, joinedAt, etc) ficam fora do whitelist. version mantida no whitelist do client porque participa do optimistic locking. Padrão a replicar nos repos de sales/messaging/finance — registrado em observação como ação humana.
 - arquivos_alterados:
   - packages/business/clients/domain/updatable-fields.ts (novo - CLIENT_UPDATABLE_FIELDS + pickClientUpdatable)
   - packages/business/clients/adapters/prisma-client-repository.ts (whitelist em update)
@@ -287,9 +304,10 @@
 - severidade: alto
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: 42467dc
 - commit_revisor: none
+- resultado_revisao: avatarUrlSchema com refine() valida HTTPS + hostname suffix em AVATAR_HOSTNAME_ALLOWLIST (googleusercontent.com, gravatar.com, wbc.cdn.weavecode.co.uk). Rejeita http://, localhost, 169.254.169.254 (cloud metadata) etc. Aplicado em completeOnboardingSchema.avatar e updateMemberSchema.avatar — match com a recomendação.
 - arquivos_alterados:
   - packages/validators/src/auth.ts
 - descricao_correcao: Schema avatarUrlSchema com refine() validando HTTPS + hostname suffix em AVATAR_HOSTNAME_ALLOWLIST (googleusercontent.com, gravatar.com, wbc.cdn.weavecode.co.uk). Aplicado em completeOnboardingSchema.avatar e updateMemberSchema.avatar.
@@ -300,9 +318,10 @@
 - severidade: baixo
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: 8426627
 - commit_revisor: none
+- resultado_revisao: phoneE164Schema/optionalPhoneE164Schema usam libphonenumber-js (parsePhoneNumberFromString, country BR) e fazem transform para E.164. parsed.isValid() rejeita "0000000000" e demais inválidos. Substituído em completeOnboardingSchema, acceptInviteSchema, updateMemberSchema (auth.ts) e createClientSchema, updateClientSchema (clients.ts). libphonenumber-js@1.11 adicionado a packages/validators.
 - arquivos_alterados:
   - packages/validators/package.json (libphonenumber-js@1.11)
   - packages/validators/src/phone.ts (novo)
@@ -317,9 +336,10 @@
 - severidade: alto
 - classificacao: corrigivel_parcial
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: 671dda5
 - commit_revisor: none
+- resultado_revisao: Middleware emite nonce per-request via crypto.getRandomValues (18 bytes base64). Header x-nonce propagado para o request com NextResponse.next({ request }). buildCsp em prod usa script-src 'self' 'nonce-X' 'strict-dynamic' (sem unsafe-inline) e style-src 'self' 'nonce-X'. Em dev mantém unsafe-inline/eval para hot-reload. Bonus: base-uri/form-action/object-src 'none' adicionados ao CSP. next.config.mjs deixa de emitir CSP estático. Parcial é validar componentes que usem inline sem nonce — ação humana.
 - arquivos_alterados:
   - apps/web/src/middleware.ts
   - apps/web/next.config.mjs
@@ -331,9 +351,10 @@
 - severidade: alto
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: 7e24f3c
 - commit_revisor: none
+- resultado_revisao: docker-compose.prod.yml usa ${GRAFANA_PASSWORD:?...} forçando erro de boot se ausente — fallback admin:admin eliminado. GF_AUTH_ANONYMOUS_ENABLED=false, GF_USERS_ALLOW_SIGN_UP=false, GF_AUTH_BASIC_ENABLED=true, GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION=false. .env.production.example documenta GRAFANA_PASSWORD com instrução openssl rand. Restrição IP via nginx fica para infra (registrado em observação como acompanhamento).
 - arquivos_alterados:
   - docker-compose.prod.yml
   - .env.production.example
@@ -345,9 +366,10 @@
 - severidade: medio
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: fee7a4f
 - commit_revisor: none
+- resultado_revisao: Aplicado em todos os 7 serviços (postgres/redis/web/worker/nginx/prometheus/grafana): cap_drop:[ALL] + security_opt:[no-new-privileges:true]. Web: read_only:true + tmpfs para /tmp (128m) e /app/.next/cache (256m, uid:1001). Worker: read_only:true + tmpfs /tmp. Web com cap_add:[NET_BIND_SERVICE]. Nginx com cap_add:[CHOWN, SETGID, SETUID, NET_BIND_SERVICE] (necessárias para bind em 80/443 + reload de workers).
 - arquivos_alterados:
   - docker-compose.prod.yml
 - descricao_correcao: Aplicado a todos os serviços (postgres/redis/web/worker/nginx/prometheus/grafana): cap_drop:[ALL] + security_opt:[no-new-privileges:true]. Web e worker ganharam read_only:true + tmpfs para /tmp e /app/.next/cache. Nginx tem cap_add específicas (CHOWN, SETGID, SETUID, NET_BIND_SERVICE).
@@ -358,9 +380,10 @@
 - severidade: medio
 - classificacao: corrigivel_parcial
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: 8ce2efe
 - commit_revisor: none
+- resultado_revisao: setup-roles.sql idempotente (IF NOT EXISTS) cria wbc_app (SELECT/INSERT/UPDATE/DELETE + USAGE/SELECT em sequences), wbc_migrations (ALL + CREATE em schema), wbc_readonly (SELECT). ALTER DEFAULT PRIVILEGES garante grants automáticos para tabelas futuras criadas por wbc_migrations. REVOKE ALL ... FROM PUBLIC fecha o default. Senhas passadas via psql -v. .env.production.example documenta as 3 senhas com openssl rand. Aplicação em prod exige DBA humano — parcial é adequado.
 - arquivos_alterados:
   - packages/db/prisma/scripts/setup-roles.sql (novo)
   - .env.production.example
@@ -372,9 +395,10 @@
 - severidade: medio
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: e71bdde
 - commit_revisor: none
+- resultado_revisao: isInternalCaller(ipAddress, headerToken) combina dois canais: INTERNAL_IP_RE cobre RFC1918 (10., 192.168., 172.16-31.) + loopback (127., ::1) + RFC4193 (fc|fd); x-internal-probe com READY_DETAILS_TOKEN para K8s probes externas com shared secret. ready retorna {status, checks} apenas se interno; externo recebe só {status: 'ok'|'degraded'}. Bate com a recomendação.
 - arquivos_alterados:
   - apps/api/src/routers/health.ts
 - descricao_correcao: ready procedure usa isInternalCaller(ip, headerToken) para decidir se retorna {status, checks} (interno) ou apenas {status} (público). Internos: IPs RFC1918/RFC4193/loopback OU header x-internal-probe com READY_DETAILS_TOKEN. Externo só vê 'ok'/'degraded'.
@@ -385,9 +409,10 @@
 - severidade: medio
 - classificacao: corrigivel_parcial
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: fb1fc3d
 - commit_revisor: none
+- resultado_revisao: Model AuditLog em Prisma (tenantId, accountId, action, resource, resourceId, status, ip, userAgent, detail Json, createdAt) com 3 índices relevantes: (tenantId, createdAt), (accountId, createdAt), (action, createdAt). AuditLogPort com AuditAction enum pre-definindo eventos críticos (login success/failed, password.change/reset, session.revoked, totp.*, invite.*, member.*, api_token.*). PrismaAuditLog engole falhas com logger.error loudly (não quebra fluxo do usuário). Middleware factory `auditedAs({action, resource, resourceIdFrom})` derive status do try/catch. Parcial é aplicar em routers individuais — reportado em observação como ação humana. Export periódico Fase 7.
 - arquivos_alterados:
   - packages/db/prisma/schema.prisma (model AuditLog)
   - packages/business/platform/audit-log/ports/audit-log.port.ts (novo)
@@ -401,9 +426,10 @@
 - severidade: alto
 - classificacao: corrigivel_parcial
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: 4d00627
 - commit_revisor: none
+- resultado_revisao: Job secret-scan no .github/workflows/ci.yml usa gitleaks/gitleaks-action@v2 com fetch-depth:0 (scan PR inteira). .gitleaks.toml: extends default ruleset + allowlist (Auditoria/, playbook/, *.example, node_modules, .next, dist, .auditoria-backup-*) + regexes para bcrypt timing-decoy (ACH-004), REPLACE_WITH_OPENSSL, CHANGE_ME_*, your-<provider>-<tipo>. Pre-commit via lint-staged shellout condicional (gitleaks protect --staged --redact se instalado, senão noop com aviso). Ativação do push-protection GitHub é parcial humana — documentada.
 - arquivos_alterados:
   - .github/workflows/ci.yml (job secret-scan via gitleaks-action@v2)
   - .gitleaks.toml (novo - allowlist de fixtures e padrões neutros)
@@ -416,9 +442,10 @@
 - severidade: alto
 - classificacao: corrigivel_parcial
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: 4bd5f78
 - commit_revisor: none
+- resultado_revisao: .github/CODEOWNERS criado com @WeaveCode-UK/owners para áreas críticas (auth, db, shared, platform, .github, deploy, .gitleaks.toml, Auditoria/). CONTRIBUTING.md documenta a configuração exigida no GitHub UI: branch protection em main (≥1 review + CODEOWNERS obligatory, dismiss stale, status checks lint/test/secret-scan, required conversation resolution, signed commits, restrict push, no bypass), repo-level security (dependency graph, dependabot, secret scanning, push protection, private vuln reporting). SECURITY.md lista email de reporte (security@weavecode.co.uk) e tabela de políticas operacionais referenciadas pelos ACHs. Config efetiva depende de admin GitHub — parcial adequado.
 - arquivos_alterados:
   - .github/CODEOWNERS (novo)
   - CONTRIBUTING.md (novo)

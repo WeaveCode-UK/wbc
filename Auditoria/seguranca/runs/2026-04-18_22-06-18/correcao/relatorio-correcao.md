@@ -146,7 +146,8 @@ Correções pós-validação técnica (fix):
 Total: 33 commits nesta branch.
 
 ## Merge
-- status_merge: pendente
+- status_merge: concluido
 - branch_origem: fix/seguranca/2026-04-18_22-06-18
 - branch_destino: main
-- aprovado_por_usuario: nao
+- aprovado_por_usuario: sim
+- data_merge: 2026-04-20 18:55:00

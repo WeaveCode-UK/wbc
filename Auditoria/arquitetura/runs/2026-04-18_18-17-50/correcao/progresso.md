@@ -5,9 +5,9 @@
 - run_id: 2026-04-18_18-17-50
 - branch: fix/arquitetura/2026-04-18_18-17-50
 - data_inicio: 2026-04-18 18:48:00
-- ultima_atualizacao: 2026-04-18 20:35:00
-- fase_atual: revisor
-- status: revisao_concluida
+- ultima_atualizacao: 2026-04-20 (merge em main confirmado — commit ce113a3)
+- fase_atual: concluida
+- status: concluido
 
 ## Resumo de Progresso
 - total_aprovados: 13

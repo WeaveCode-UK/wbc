@@ -35,5 +35,23 @@ export default [
       ],
     },
   },
+  {
+    // ACH-004 codigo-manutenibilidade: tRPC routers must pull Zod schemas
+    // from @wbc/validators instead of redeclaring them inline. Inline
+    // schemas drift from the validator package (Prisma, domain, UI all
+    // need the same shape). Starts as warn so the 13 routers still using
+    // inline `z.object(...)` surface without breaking CI; flip to error
+    // after the remaining routers are normalised (follow-up to ACH-004).
+    files: ["apps/api/src/routers/**/*.ts"],
+    rules: {
+      "no-restricted-syntax": [
+        "warn",
+        {
+          selector: "CallExpression[callee.object.name='z'][callee.property.name='object']",
+          message: "Import the schema from @wbc/validators instead of redeclaring `z.object(...)` inline in a router (ACH-004).",
+        },
+      ],
+    },
+  },
   { ignores: ["node_modules/", "dist/", ".next/", "coverage/"] },
 ];

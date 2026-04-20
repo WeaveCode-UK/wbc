@@ -1,7 +1,7 @@
 import type { TotpService } from "../ports/totp-service.port";
 import { decryptTotpSecret } from "../adapters/totp-secret-crypto";
 import { prisma } from "@wbc/db";
-import { createHash } from "node:crypto";
+import { createHash } from "crypto";
 
 /**
  * Verifies a TOTP code (or a one-shot recovery code) for an account. Returns

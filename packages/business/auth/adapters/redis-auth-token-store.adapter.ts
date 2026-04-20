@@ -1,4 +1,4 @@
-import { randomBytes } from "node:crypto";
+import { randomBytes } from "crypto";
 import type { RedisLike } from "@wbc/shared";
 import type {
   AuthTokenKind,

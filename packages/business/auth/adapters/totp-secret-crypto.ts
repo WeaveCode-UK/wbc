@@ -3,7 +3,7 @@ import {
   createDecipheriv,
   randomBytes,
   scryptSync,
-} from "node:crypto";
+} from "crypto";
 import { requireEnv } from "@wbc/shared";
 
 const ALGO = "aes-256-gcm";

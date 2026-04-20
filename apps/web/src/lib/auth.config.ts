@@ -9,7 +9,7 @@ import { AuthenticateWithCredentials } from "@wbc/business/auth/use-cases/authen
 import { AuthenticateWithOAuth } from "@wbc/business/auth/use-cases/authenticate-with-oauth.use-case";
 import { RedisLoginAttemptTracker } from "@wbc/business/auth/adapters/redis-login-attempt-tracker.adapter";
 import { RedisJwtBlacklist } from "@wbc/business/auth/adapters/redis-jwt-blacklist.adapter";
-import { logSecurityEvent } from "@wbc/shared";
+import { logSecurityEvent, type RedisLike } from "@wbc/shared";
 import { randomUUID } from "crypto";
 import Redis from "ioredis";
 
@@ -18,10 +18,11 @@ const oauthRepo = new PrismaOAuthAccountRepository();
 const memberRepo = new PrismaTenantMemberRepository();
 const passwordHasher = new BcryptPasswordHasher();
 // Lazy Redis singleton scoped to auth.config so the connection is reused
-// across `authorize` invocations.
+// across `authorize` invocations. Cast via `unknown` because the full
+// ioredis surface is a superset of the minimal `RedisLike` contract.
 const authRedis = new Redis(
   process.env.REDIS_URL ?? "redis://localhost:6379/0",
-);
+) as unknown as RedisLike;
 const loginAttemptTracker = new RedisLoginAttemptTracker(authRedis);
 export const jwtBlacklist = new RedisJwtBlacklist(authRedis);
 

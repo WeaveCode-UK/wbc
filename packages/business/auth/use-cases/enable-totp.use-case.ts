@@ -1,7 +1,7 @@
 import type { TotpService } from "../ports/totp-service.port";
 import { encryptTotpSecret } from "../adapters/totp-secret-crypto";
 import { prisma } from "@wbc/db";
-import { createHash, randomBytes } from "node:crypto";
+import { createHash, randomBytes } from "crypto";
 
 export interface EnableTotpBeginOutput {
   /** Base32 secret — show once to the user in case QR scan fails. */

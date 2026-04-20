@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { createHash } from "crypto";
 import type { RedisLike } from "@wbc/shared";
 import type { LoginAttemptTracker } from "../ports/login-attempt-tracker.port";
 

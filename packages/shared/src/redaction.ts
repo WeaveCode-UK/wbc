@@ -13,7 +13,7 @@
  * is the recommended entrypoint for log payloads.
  */
 
-import { createHash } from "node:crypto";
+import { createHash } from "crypto";
 
 export function redactPhone(phone: string | undefined): string | undefined {
   if (!phone) return phone;

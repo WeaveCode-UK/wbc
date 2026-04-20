@@ -5,19 +5,41 @@
 - run_id: 2026-04-18_21-45-58
 - branch: fix/codigo-manutenibilidade/2026-04-18_21-45-58
 - data_inicio: 2026-04-20 19:05:00
-- ultima_atualizacao: 2026-04-20 19:05:00
-- fase_atual: executor
+- ultima_atualizacao: 2026-04-20 20:30:00
+- fase_atual: revisor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 20
-- corrigidos_executor: 0
+- corrigidos_executor: 20
 - revisados_revisor: 0
 - corrigidos_pelo_revisor: 0
 - ja_resolvidos_por_outra_run: 2
 - nao_corrigiveis: 0
 - nao_aprovados: 0
-- pendentes: 20
+- pendentes: 0
+
+## Mapa commit_executor por achado (Fase Executor concluída)
+- ACH-010: 3deb49a — packages/shared/src/constants/timings.ts
+- ACH-019: 15e44cd — comentários WHY em cache.ts
+- ACH-022: ed9adeb — PrismaOtpRepository recebe RedisLike via construtor
+- ACH-020: b191603 — CLAUDE.md convenção de use-case
+- ACH-021: 00f8920 — ESLint no-restricted-imports + normaliza clients.ts
+- ACH-009: aaf7fc7 — IdempotencyRedis interface explícita
+- ACH-004: 401646c — clients router reusa schemas de @wbc/validators
+- ACH-012: bfa694d — enum SaleStatus/PaymentMethod centralizado
+- ACH-015: 7f1b2a0 — chunk pipeline Redis SCAN (lotes de 500)
+- ACH-017: 7b8cf73 — dividir getDashboard em métodos por métrica
+- ACH-018: 9e36cf4 — mapper domain-error → tRPC expandido
+- ACH-007: 8bf5e25 — extrai resolveWorkspaceMembership
+- ACH-013: 6dc3e91 — sementar bootstrap() async no worker (parcial)
+- ACH-003: a153f1c — composition-root.ts com getRepositories() (parcial)
+- ACH-006: 863477d — doc de follow-up PrismaClient via constructor (parcial)
+- ACH-002: 2a91b02 — barrels auth/clients expõem só domain/ports
+- ACH-005: 6dcaaa0 — subpath exports em @wbc/shared + SPLIT.md (parcial)
+- ACH-011: 3ecbfe0 — pickFields/pickDefinedFields helpers (parcial)
+- ACH-008: d8ab37c — doc split plan auth.ts (parcial)
+- ACH-016: cd08a76 — doc padrão domain events (parcial)
 
 ## Achados
 

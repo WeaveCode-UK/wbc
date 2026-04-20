@@ -1,6 +1,6 @@
 {
   "schema_version": "2.2",
-  "generated_at": "2026-04-20T08:48:13.277Z",
+  "generated_at": "2026-04-20T17:22:44.259Z",
   "total": 294,
   "total_runs": 15,
   "distribution": {
@@ -37,17 +37,17 @@
   },
   "correction_summary": {
     "runs_by_correction_state": {
-      "not_started": 13,
-      "in_progress": 2,
-      "completed": 0
+      "not_started": 12,
+      "in_progress": 1,
+      "completed": 2
     },
-    "total_findings_corrected": 42,
+    "total_findings_corrected": 67,
     "total_findings_not_correctable": 1,
     "total_findings_pending_correction": 0,
-    "total_commits": 42
+    "total_commits": 69
   },
   "progress": {
-    "last_updated": "2026-04-20T08:48:13.276Z",
+    "last_updated": "2026-04-20T17:22:44.258Z",
     "domains": {
       "arquitetura": {
         "domain": "arquitetura",
@@ -278,11 +278,11 @@
         "aberto": 13
       },
       "correction": {
-        "state": "in_progress",
+        "state": "completed",
         "branch": "fix/arquitetura/2026-04-18_18-17-50",
         "started_at": "2026-04-18 18:48:00",
-        "finished_at": null,
-        "fase_atual": "revisor",
+        "finished_at": "2026-04-20 (merge em main confirmado — commit ce113a3)",
+        "fase_atual": "concluida",
         "corrected": 15,
         "reviewed_ok": 13,
         "not_correctable": 0,
@@ -311,7 +311,18 @@
         "confirmado": 22
       },
       "correction": {
-        "state": "not_started"
+        "state": "in_progress",
+        "branch": "fix/codigo-manutenibilidade/2026-04-18_21-45-58",
+        "started_at": "2026-04-20 19:05:00",
+        "finished_at": null,
+        "fase_atual": "revisor",
+        "corrected": 25,
+        "reviewed_ok": 20,
+        "not_correctable": 0,
+        "not_approved": 0,
+        "pending": 0,
+        "total_approved": 20,
+        "total_commits": 27
       }
     },
     {
@@ -498,11 +509,11 @@
         "confirmado": 28
       },
       "correction": {
-        "state": "in_progress",
+        "state": "completed",
         "branch": "fix/seguranca/2026-04-18_22-06-18",
         "started_at": "2026-04-19 22:20:00",
-        "finished_at": null,
-        "fase_atual": "revisor",
+        "finished_at": "2026-04-20 (merge concluído em main — commit 206c93f)",
+        "fase_atual": "concluida",
         "corrected": 27,
         "reviewed_ok": 27,
         "not_correctable": 1,
@@ -675,7 +686,13 @@
       "acao_sugerida": "Implementar persistência de token em Redis com TTL, validação no consumo e integração com provedor de e-mail real; cobrir com testes de fluxo",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "pending",
+        "classificacao": "ja_resolvido_por_outra_run",
+        "status_executor": "nao_aplicavel",
+        "status_revisor": "nao_aplicavel",
+        "executor_commit": "5d3072c (run seguranca/2026-04-18_22-06-18)",
+        "reviewer_commit": null,
+        "observacoes": "Resolvido pelo fix ACH-001 da correção de seguranca — AuthTokenStore (Redis one-shot), RedisAuthTokenStore adapter, request/reset password e email-verification reescritos, ResendEmailSender real com requireEnv em produção."
       }
     },
     {
@@ -1220,7 +1237,13 @@
       "acao_sugerida": "Reduzir barrels para expor apenas `domain/` e `ports/`; expor use-cases explicitamente via factory; manter adapters como internos, disponibilizados só via composition root",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "executor_done",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "corrigido_com_revisao",
+        "executor_commit": "2a91b02",
+        "reviewer_commit": "bcba1b8",
+        "observacoes": null
       }
     },
     {
@@ -1244,7 +1267,13 @@
       "acao_sugerida": "Introduzir composition root (factory `createRepositories()` ou container leve tipo Awilix); expor via `ctx.repos` no tRPC; remover `new Prisma*Repository()` fora do root",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido_parcial",
+        "status_revisor": "aprovado",
+        "executor_commit": "a153f1c",
+        "reviewer_commit": null,
+        "observacoes": "Parcial intencional — adoção router-a-router é follow-up."
       }
     },
     {
@@ -1268,7 +1297,13 @@
       "acao_sugerida": "Sempre importar schemas de `@wbc/validators`; remover definições inline; adicionar regra ESLint para proibir `z.object` em `apps/api/src/routers/*`",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "executor_done",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "corrigido_com_revisao",
+        "executor_commit": "401646c",
+        "reviewer_commit": "99da797",
+        "observacoes": null
       }
     },
     {
@@ -1292,7 +1327,13 @@
       "acao_sugerida": "Extrair `resolveWorkspaceMembership(userId)` puro; representar estado com discriminated union (`onboarding | selection | ready`); adicionar invariants/tests",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "executor_done",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "corrigido_com_revisao",
+        "executor_commit": "8bf5e25",
+        "reviewer_commit": "33bd39c",
+        "observacoes": null
       }
     },
     {
@@ -1316,7 +1357,13 @@
       "acao_sugerida": "Mover inicialização para `async function bootstrap()`; arquivo de entrada só chama bootstrap se for entry real (`if (require.main === module)` ou equivalente ESM)",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido_parcial",
+        "status_revisor": "aprovado",
+        "executor_commit": "6dc3e91",
+        "reviewer_commit": null,
+        "observacoes": "Parcial intencional — refactor completo do entry-point é follow-up."
       }
     },
     {
@@ -3957,7 +4004,13 @@
       "acao_sugerida": "Dividir em `@wbc/shared-types`, `@wbc/shared-events`, `@wbc/design-tokens`, `@wbc/shared-resilience`; remover barrel único permissivo",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido_parcial",
+        "status_revisor": "aprovado",
+        "executor_commit": "6dcaaa0",
+        "reviewer_commit": null,
+        "observacoes": "Parcial autorizado — split real em 4 pacotes é follow-up (SPLIT.md)."
       }
     },
     {
@@ -3981,7 +4034,13 @@
       "acao_sugerida": "Receber `PrismaClient` via construtor nos adapters (`constructor(private db: PrismaClient) {}`); manter o singleton apenas na composition root; adicionar teste automatizado que valide `tenantId` em toda query",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido_parcial",
+        "status_revisor": "aprovado",
+        "executor_commit": "863477d",
+        "reviewer_commit": null,
+        "observacoes": "Parcial só-doc — migração prisma injetado fica como follow-up amarrado ao composition-root."
       }
     },
     {
@@ -4005,7 +4064,13 @@
       "acao_sugerida": "Segmentar em `auth.signup.ts`, `auth.session.ts`, `auth.invites.ts`, `auth.otp.ts`; cada arquivo expõe sub-router agregado em `auth.ts` enxuto",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido_parcial",
+        "status_revisor": "aprovado",
+        "executor_commit": "d8ab37c",
+        "reviewer_commit": null,
+        "observacoes": "Parcial só-doc autorizado — split real é follow-up em branch dedicada."
       }
     },
     {
@@ -4029,7 +4094,13 @@
       "acao_sugerida": "Substituir por tipos Prisma auto-gerados (`Prisma.SaleGetPayload`) ou interfaces `RedisLike` explícitas; quando genuinamente necessário, comentar o motivo em uma linha acima do cast",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "executor_done",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "corrigido_com_revisao",
+        "executor_commit": "aaf7fc7",
+        "reviewer_commit": "ddc624d",
+        "observacoes": null
       }
     },
     {
@@ -4053,7 +4124,13 @@
       "acao_sugerida": "Criar `packages/shared/src/constants/timings.ts` (ou equivalente por domínio) e `packages/config`; importar constantes nos call sites",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "3deb49a",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -4077,7 +4154,13 @@
       "acao_sugerida": "Criar `BaseMapper<TDomain, TPersistence>` ou função utilitária para projeção comum; reduzir a um único ponto de verdade por entidade",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido_parcial",
+        "status_revisor": "aprovado",
+        "executor_commit": "3ecbfe0",
+        "reviewer_commit": null,
+        "observacoes": "Parcial autorizado — BaseMapper class per-entidade é follow-up."
       }
     },
     {
@@ -4101,7 +4184,13 @@
       "acao_sugerida": "Centralizar enums/tipos `SaleStatus`, `PaymentStatus`, etc. em `@wbc/business/<modulo>/domain/status.ts`; criar helper `statusIn(allowed: SaleStatus[])`",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "executor_done",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "corrigido_com_revisao",
+        "executor_commit": "bfa694d",
+        "reviewer_commit": "abe9e4a",
+        "observacoes": null
       }
     },
     {
@@ -4125,7 +4214,13 @@
       "acao_sugerida": "Criar `packages/config/src/env.ts` com Zod validando cada variável e exportando `config` tipado; proibir `process.env` direto fora desse pacote",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "pending",
+        "classificacao": "ja_resolvido_por_outra_run",
+        "status_executor": "nao_aplicavel",
+        "status_revisor": "nao_aplicavel",
+        "executor_commit": "491192b (run seguranca/2026-04-18_22-06-18)",
+        "reviewer_commit": null,
+        "observacoes": "Resolvido pelo fix ACH-012 da correção de seguranca — packages/shared/src/env.ts ganhou validateEnv estendido com REQUIRED_IN_PRODUCTION, authSecretSchema com min(32) + refusal de padrões fracos, e helper requireEnv(name). Adapters DeepSeek e WhatsApp-N2 passaram a chamar requireEnv em produção."
       }
     },
     {
@@ -4149,7 +4244,13 @@
       "acao_sugerida": "Chunkar pipeline a cada N (p.ex. 500) comandos; aplicar timeout explícito; logar volume removido",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "7f1b2a0",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -4173,7 +4274,13 @@
       "acao_sugerida": "Publicar domain events via outbox a partir dos use-cases; consumir em workers isolados por queue; documentar contratos em `packages/shared/src/events/*`",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido_parcial",
+        "status_revisor": "aprovado",
+        "executor_commit": "cd08a76",
+        "reviewer_commit": null,
+        "observacoes": "Parcial só-doc autorizado — migração dos use-cases para publishEvent() é follow-up."
       }
     },
     {
@@ -4197,7 +4304,13 @@
       "acao_sugerida": "Criar `mapDomainErrorToTRPC(err): { code, message, cause }` puro; testar isolado; aplicar em middleware",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "9e36cf4",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -6651,7 +6764,13 @@
       "acao_sugerida": "Dividir em `getRevenue()`, `getSalesCount()`, etc.; compor no caller ou expor endpoint agregador cacheável por métrica",
       "prioridade": "baixa",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "7b8cf73",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -6675,7 +6794,13 @@
       "acao_sugerida": "Reescrever comentários como WHY: \"usa scope tenant para evitar vazamento de cache cross-tenant\"; remover referências opacas",
       "prioridade": "baixa",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "15e44cd",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -6699,7 +6824,13 @@
       "acao_sugerida": "Escolher e documentar em CLAUDE.md (ex.: \"use-cases são funções puras `async function execute(input, deps)`; classes só quando mantêm estado entre chamadas\")",
       "prioridade": "baixa",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "b191603",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -6723,7 +6854,13 @@
       "acao_sugerida": "Consolidar em `packages/shared/src/redis.ts`; adapters recebem o client por parâmetro (alinhado com ACH-003)",
       "prioridade": "baixa",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "ed9adeb",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -7625,7 +7762,13 @@
       "acao_sugerida": "Regra ESLint `no-restricted-imports` barrando `../../../..`; normalizar para `@wbc/*`",
       "prioridade": "baixa",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "00f8920",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {

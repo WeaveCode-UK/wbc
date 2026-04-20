@@ -5,18 +5,18 @@
 - run_id: 2026-04-18_22-06-18
 - branch: fix/seguranca/2026-04-18_22-06-18
 - data_inicio: 2026-04-19 22:20:00
-- ultima_atualizacao: 2026-04-20 14:30:00
-- fase_atual: executor
+- ultima_atualizacao: 2026-04-20 17:30:00
+- fase_atual: revisor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 27
-- corrigidos_executor: 16
+- corrigidos_executor: 27
 - revisados_revisor: 0
 - corrigidos_pelo_revisor: 0
 - nao_corrigiveis: 1
 - nao_aprovados: 0
-- pendentes: 11
+- pendentes: 0
 
 ## Achados
 
@@ -270,111 +270,161 @@
 - titulo: Mass assignment potencial em updates — repositórios aceitam `Partial<Entity>` inteiro
 - severidade: alto
 - classificacao: corrigivel
-- status_executor: pendente
+- status_executor: corrigido
 - status_revisor: pendente
-- commit_executor: none
+- commit_executor: 48402a2
 - commit_revisor: none
-- observacoes: none
+- arquivos_alterados:
+  - packages/business/clients/domain/updatable-fields.ts (novo - CLIENT_UPDATABLE_FIELDS + pickClientUpdatable)
+  - packages/business/clients/adapters/prisma-client-repository.ts (whitelist em update)
+  - packages/business/auth/adapters/prisma-account.repository.ts (whitelist explícito em update)
+  - packages/business/auth/adapters/prisma-tenant-member.repository.ts (whitelist explícito em update)
+- descricao_correcao: Whitelist explícito (pick) substituindo `data: input` no Prisma. Client repo usa pickClientUpdatable; account/tenant-member fazem cherry-pick de campos por if. Campos system-managed (totp*, classification, engagementScore, accountId, tenantId, joinedAt) não podem ser setados via update.
+- observacoes: Padrão a ser replicado nos repos de sales/messaging/finance (acompanhamento humano).
 
 ### ACH-009
 - titulo: Validação de URLs aceitas para avatar permite SSRF
 - severidade: alto
 - classificacao: corrigivel
-- status_executor: pendente
+- status_executor: corrigido
 - status_revisor: pendente
-- commit_executor: none
+- commit_executor: 42467dc
 - commit_revisor: none
+- arquivos_alterados:
+  - packages/validators/src/auth.ts
+- descricao_correcao: Schema avatarUrlSchema com refine() validando HTTPS + hostname suffix em AVATAR_HOSTNAME_ALLOWLIST (googleusercontent.com, gravatar.com, wbc.cdn.weavecode.co.uk). Aplicado em completeOnboardingSchema.avatar e updateMemberSchema.avatar.
 - observacoes: none
 
 ### ACH-028
 - titulo: Ausência de validador forte para números de telefone
 - severidade: baixo
 - classificacao: corrigivel
-- status_executor: pendente
+- status_executor: corrigido
 - status_revisor: pendente
-- commit_executor: none
+- commit_executor: 8426627
 - commit_revisor: none
+- arquivos_alterados:
+  - packages/validators/package.json (libphonenumber-js@1.11)
+  - packages/validators/src/phone.ts (novo)
+  - packages/validators/src/index.ts (re-export)
+  - packages/validators/src/auth.ts (substitui min(10).max(15))
+  - packages/validators/src/clients.ts (substitui min(8).max(20))
+- descricao_correcao: phoneE164Schema/optionalPhoneE164Schema com transform via libphonenumber-js (parsePhoneNumberFromString, country=BR). Rejeita strings inválidas como "0000000000" e armazena em formato E.164 (+5511999990000).
 - observacoes: none
 
 ### ACH-011
 - titulo: CSP de produção permite `'unsafe-inline'` para scripts e estilos
 - severidade: alto
 - classificacao: corrigivel_parcial
-- status_executor: pendente
+- status_executor: corrigido
 - status_revisor: pendente
-- commit_executor: none
+- commit_executor: 671dda5
 - commit_revisor: none
-- observacoes: none
+- arquivos_alterados:
+  - apps/web/src/middleware.ts
+  - apps/web/next.config.mjs
+- descricao_correcao: Middleware emite nonce per-request via crypto.getRandomValues, propagado via header x-nonce. CSP em prod usa script-src 'self' 'nonce-X' 'strict-dynamic' (sem unsafe-inline); style-src 'self' 'nonce-X'. Em dev mantém unsafe-inline/unsafe-eval para hot-reload. next.config.mjs deixa de emitir Content-Security-Policy estático.
+- observacoes: Parcial — verificar se algum componente de UI usa script/style inline sem nonce (acompanhamento humano em smoke-test). Migration de `useNonce()` em componentes pode ser necessária.
 
 ### ACH-014
 - titulo: Grafana exposto sem autenticação de aplicação (default `admin:admin`)
 - severidade: alto
 - classificacao: corrigivel
-- status_executor: pendente
+- status_executor: corrigido
 - status_revisor: pendente
-- commit_executor: none
+- commit_executor: 7e24f3c
 - commit_revisor: none
-- observacoes: none
+- arquivos_alterados:
+  - docker-compose.prod.yml
+  - .env.production.example
+- descricao_correcao: GF_SECURITY_ADMIN_PASSWORD usa ${GRAFANA_PASSWORD:?...} forçando erro de boot se ausente (sem fallback admin). GF_AUTH_ANONYMOUS_ENABLED=false, GF_USERS_ALLOW_SIGN_UP=false, GF_AUTH_BASIC_ENABLED=true. .env.production.example documenta GRAFANA_PASSWORD com instrução openssl rand.
+- observacoes: Restrição IP via nginx ou reverse-proxy-auth fica para acompanhamento (mudança de infra).
 
 ### ACH-026
 - titulo: Containers Docker sem `--read-only`/cap-drop e sem chown final
 - severidade: medio
 - classificacao: corrigivel
-- status_executor: pendente
+- status_executor: corrigido
 - status_revisor: pendente
-- commit_executor: none
+- commit_executor: fee7a4f
 - commit_revisor: none
+- arquivos_alterados:
+  - docker-compose.prod.yml
+- descricao_correcao: Aplicado a todos os serviços (postgres/redis/web/worker/nginx/prometheus/grafana): cap_drop:[ALL] + security_opt:[no-new-privileges:true]. Web e worker ganharam read_only:true + tmpfs para /tmp e /app/.next/cache. Nginx tem cap_add específicas (CHOWN, SETGID, SETUID, NET_BIND_SERVICE).
 - observacoes: none
 
 ### ACH-025
 - titulo: Postgres sem separação de roles (app vs admin vs migrations)
 - severidade: medio
 - classificacao: corrigivel_parcial
-- status_executor: pendente
+- status_executor: corrigido
 - status_revisor: pendente
-- commit_executor: none
+- commit_executor: 8ce2efe
 - commit_revisor: none
-- observacoes: none
+- arquivos_alterados:
+  - packages/db/prisma/scripts/setup-roles.sql (novo)
+  - .env.production.example
+- descricao_correcao: Script SQL idempotente cria três roles (wbc_app: SELECT/INSERT/UPDATE/DELETE; wbc_migrations: ALL + DDL; wbc_readonly: SELECT). ALTER DEFAULT PRIVILEGES configura grants automáticos para tabelas futuras criadas por wbc_migrations. .env.production.example documenta WBC_APP_DB_PASSWORD/WBC_MIGRATIONS_DB_PASSWORD/WBC_READONLY_DB_PASSWORD.
+- observacoes: Parcial — execução em produção requer DBA: rodar setup-roles.sql, ajustar DATABASE_URL para usar wbc_app, e separar DATABASE_URL_MIGRATIONS no pipeline de deploy.
 
 ### ACH-023
 - titulo: Endpoint `health.ready` público expõe estado interno detalhado
 - severidade: medio
 - classificacao: corrigivel
-- status_executor: pendente
+- status_executor: corrigido
 - status_revisor: pendente
-- commit_executor: none
+- commit_executor: e71bdde
 - commit_revisor: none
+- arquivos_alterados:
+  - apps/api/src/routers/health.ts
+- descricao_correcao: ready procedure usa isInternalCaller(ip, headerToken) para decidir se retorna {status, checks} (interno) ou apenas {status} (público). Internos: IPs RFC1918/RFC4193/loopback OU header x-internal-probe com READY_DETAILS_TOKEN. Externo só vê 'ok'/'degraded'.
 - observacoes: none
 
 ### ACH-024
 - titulo: Trilha de auditoria limitada — eventos críticos não persistidos em banco
 - severidade: medio
 - classificacao: corrigivel_parcial
-- status_executor: pendente
+- status_executor: corrigido
 - status_revisor: pendente
-- commit_executor: none
+- commit_executor: fb1fc3d
 - commit_revisor: none
-- observacoes: none
+- arquivos_alterados:
+  - packages/db/prisma/schema.prisma (model AuditLog)
+  - packages/business/platform/audit-log/ports/audit-log.port.ts (novo)
+  - packages/business/platform/audit-log/adapters/prisma-audit-log.adapter.ts (novo)
+  - apps/api/src/trpc/audit-middleware.ts (novo)
+- descricao_correcao: Model AuditLog (tenantId, accountId, action, resource, resourceId, status, ip, userAgent, detail, createdAt) com índices por (tenantId, createdAt), (accountId, createdAt), (action, createdAt). AuditLogPort + PrismaAuditLog adapter (failures swallowed para não quebrar fluxo). Middleware tRPC factory `auditedAs({action, resource, resourceIdFrom})` para uso em mutations.
+- observacoes: Parcial — middleware criado mas não aplicado em routers individuais (cada mutation crítica deve adotá-lo: invite.accept, member.role.change, session.revoke, etc — acompanhamento humano). Export periódico para storage frio fica para Fase 7.
 
 ### ACH-015
 - titulo: Ausência de secret scanning em pre-commit e em CI
 - severidade: alto
 - classificacao: corrigivel_parcial
-- status_executor: pendente
+- status_executor: corrigido
 - status_revisor: pendente
-- commit_executor: none
+- commit_executor: 4d00627
 - commit_revisor: none
-- observacoes: none
+- arquivos_alterados:
+  - .github/workflows/ci.yml (job secret-scan via gitleaks-action@v2)
+  - .gitleaks.toml (novo - allowlist de fixtures e padrões neutros)
+  - package.json (lint-staged hook condicional via gitleaks local)
+- descricao_correcao: gitleaks-action no CI rodando em todo PR. .gitleaks.toml allowlist Auditoria/, playbook/, *.example, e regexes para o bcrypt timing-decoy + REPLACE_WITH_OPENSSL placeholders. Pre-commit via lint-staged é silencioso quando gitleaks não está instalado localmente (CI ainda enforce).
+- observacoes: Parcial — habilitação de "Push protection" e "Secret scanning native" do GitHub fica para acompanhamento via UI (documentado em CONTRIBUTING.md/SECURITY.md).
 
 ### ACH-017
 - titulo: Branch protection / CODEOWNERS não visíveis no repositório
 - severidade: alto
 - classificacao: corrigivel_parcial
-- status_executor: pendente
+- status_executor: corrigido
 - status_revisor: pendente
-- commit_executor: none
+- commit_executor: 4bd5f78
 - commit_revisor: none
-- observacoes: none
+- arquivos_alterados:
+  - .github/CODEOWNERS (novo)
+  - CONTRIBUTING.md (novo)
+  - SECURITY.md (novo)
+- descricao_correcao: CODEOWNERS com @WeaveCode-UK/owners para áreas críticas (auth, db, .github, deploy, .gitleaks.toml). CONTRIBUTING.md documenta branch protection (≥1 review, CODEOWNERS, status checks lint/test/secret-scan, signed commits, no force-push) e push protection esperada. SECURITY.md mapeia políticas operacionais e contato security@weavecode.co.uk.
+- observacoes: Parcial — configuração efetiva no GitHub UI depende de admin (documentado em CONTRIBUTING.md como contrato).
 
 ### ACH-016
 - titulo: Sem Secret Manager nem política de rotação de credenciais

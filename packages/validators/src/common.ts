@@ -1,23 +1,22 @@
 import { z } from "zod";
 
-// ACH-018 apis-integracoes: cap `page` and the effective offset
-// (`page * limit`). Without this, a request with `page: 1_000_000` forces
-// Postgres into a massive OFFSET scan, turning every paginated list into
-// a cheap DoS vector. 1000 pages × 100 limit = 100 000 rows which is
-// already beyond any real UI need; anything past that should use cursor-
-// based pagination instead.
+// ACH-018 apis-integracoes: cap `page` and `limit` so a request with
+// `page: 1_000_000` can't force Postgres into a massive OFFSET scan.
+// Max page (1000) × max limit (100) = 100 000 rows — already beyond any
+// real UI need; anything past that should use cursor-based pagination.
+//
+// Kept as a plain `ZodObject` (not `.refine()`-wrapped) so downstream
+// schemas can `.extend()` it — `ZodEffects` doesn't expose `.extend`.
+// The max() bounds alone enforce the combined cap without needing a
+// cross-field refinement.
 export const MAX_PAGE = 1000;
-export const MAX_EFFECTIVE_OFFSET = 100_000;
+export const MAX_PAGE_LIMIT = 100;
+export const MAX_EFFECTIVE_OFFSET = MAX_PAGE * MAX_PAGE_LIMIT;
 
-export const paginationSchema = z
-  .object({
-    page: z.number().int().min(1).max(MAX_PAGE).default(1),
-    limit: z.number().int().min(1).max(100).default(20),
-  })
-  .refine((v) => v.page * v.limit <= MAX_EFFECTIVE_OFFSET, {
-    message: `page × limit must not exceed ${MAX_EFFECTIVE_OFFSET}. Use cursor-based pagination for deeper scans.`,
-    path: ["page"],
-  });
+export const paginationSchema = z.object({
+  page: z.number().int().min(1).max(MAX_PAGE).default(1),
+  limit: z.number().int().min(1).max(MAX_PAGE_LIMIT).default(20),
+});
 
 export const uuidSchema = z.string().uuid();
 

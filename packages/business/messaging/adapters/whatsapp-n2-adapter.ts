@@ -1,4 +1,3 @@
-import { z } from "zod";
 import type {
   WhatsAppPort,
   SendMessageResult,
@@ -15,19 +14,11 @@ import {
   requireEnv,
   createLogger,
   redactPhone,
+  // ACH-019 apis-integracoes: schema lives in @wbc/shared because
+  // packages/business has no package.json and therefore can't import
+  // zod directly. Shared already declares the dep.
+  WhatsAppSendResponseSchema,
 } from "@wbc/shared";
-
-// ACH-019 apis-integracoes: validate the shape coming back from Meta
-// before indexing into it. Previously `data.messages?.[0]?.id` assumed a
-// shape Meta could change without notice — an `null` or a key rename
-// made the whole processor throw a TypeError, killing the worker and
-// shoving the job into DLQ. The schema keeps parsing cheap (one level
-// deep) and tolerates extra fields via `.passthrough()`.
-const WhatsAppSendResponseSchema = z
-  .object({
-    messages: z.array(z.object({ id: z.string() }).passthrough()).min(1),
-  })
-  .passthrough();
 
 const logger = createLogger("whatsapp-adapter");
 let requestCounter = 0;
@@ -149,7 +140,10 @@ export class WhatsAppN2Adapter implements WhatsAppPort {
           );
           return { success: false };
         }
-        return { success: true, messageId: parsed.data.messages[0].id };
+        // `messages.min(1)` in the schema guarantees [0] exists; the
+        // non-null assertion is safe and dodges TS's narrowing miss
+        // through the intersection of schema types.
+        return { success: true, messageId: parsed.data.messages[0]!.id };
       } catch (error) {
         cancel();
         logger.error(

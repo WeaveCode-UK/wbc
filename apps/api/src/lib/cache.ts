@@ -14,9 +14,12 @@ function prefixKey(key: string): string {
   return `${PREFIX}${key}`;
 }
 
-// TenantScopedRedis lazy-inicializado para caches tenant-scoped (ACH-012).
-// Usa o Redis client do app via getRedis() e o AsyncLocalStorage de tenant-context
-// para prefixar chaves automaticamente com `wbc:t:${tenantId}:`.
+// Lazy-init so the wrapper is only built on first use (keeps test bootstrap
+// cheap when cache paths aren't exercised). TenantScopedRedis refuses any
+// operation without a tenant in AsyncLocalStorage — that's what prevents
+// cache keys from one tenant leaking into another, which is why every
+// per-tenant cache MUST go through `getTenantScopedRedis()` rather than the
+// raw client from `getRedis()`.
 let tenantScopedInstance: TenantScopedRedis | null = null;
 export function getTenantScopedRedis(): TenantScopedRedis {
   if (!tenantScopedInstance) {

@@ -1,21 +1,26 @@
-import { z } from 'zod';
-import { router, protectedProcedure } from '../trpc/trpc';
-import { createGetByIdProcedure } from '../trpc/crud-helpers';
-import { idempotent } from '../trpc/idempotency-middleware';
-import { PrismaSaleRepository } from '../../../../packages/business/sales/adapters/prisma-sale-repository';
-import { PrismaPaymentRepository } from '../../../../packages/business/sales/adapters/prisma-payment-repository';
-import { PrismaCashbackRepository } from '../../../../packages/business/sales/adapters/prisma-cashback-repository';
-import { PrismaReturnRepository } from '../../../../packages/business/sales/adapters/prisma-return-repository';
-import { createSale } from '../../../../packages/business/sales/use-cases/create-sale';
-import { confirmSale } from '../../../../packages/business/sales/use-cases/confirm-sale';
-import { cancelSale } from '../../../../packages/business/sales/use-cases/cancel-sale';
-import { listSales } from '../../../../packages/business/sales/use-cases/list-sales';
-import { getSaleById } from '../../../../packages/business/sales/use-cases/get-sale-by-id';
-import { updateSaleStatus } from '../../../../packages/business/sales/use-cases/update-sale-status';
-import { listPayments, markPaid, getAccountsReceivable } from '../../../../packages/business/sales/use-cases/manage-payments';
-import { getCashbackBalance } from '../../../../packages/business/sales/use-cases/manage-cashback';
-import { createReturn } from '../../../../packages/business/sales/use-cases/create-return';
-import { paginationSchema, uuidSchema } from '@wbc/validators';
+import { z } from "zod";
+import { router, protectedProcedure } from "../trpc/trpc";
+import { createGetByIdProcedure } from "../trpc/crud-helpers";
+import { idempotent } from "../trpc/idempotency-middleware";
+import { PrismaSaleRepository } from "../../../../packages/business/sales/adapters/prisma-sale-repository";
+import { PrismaPaymentRepository } from "../../../../packages/business/sales/adapters/prisma-payment-repository";
+import { PrismaCashbackRepository } from "../../../../packages/business/sales/adapters/prisma-cashback-repository";
+import { PrismaReturnRepository } from "../../../../packages/business/sales/adapters/prisma-return-repository";
+import { createSale } from "../../../../packages/business/sales/use-cases/create-sale";
+import { confirmSale } from "../../../../packages/business/sales/use-cases/confirm-sale";
+import { cancelSale } from "../../../../packages/business/sales/use-cases/cancel-sale";
+import { listSales } from "../../../../packages/business/sales/use-cases/list-sales";
+import { getSaleById } from "../../../../packages/business/sales/use-cases/get-sale-by-id";
+import { updateSaleStatus } from "../../../../packages/business/sales/use-cases/update-sale-status";
+import {
+  listPayments,
+  markPaid,
+  getAccountsReceivable,
+} from "../../../../packages/business/sales/use-cases/manage-payments";
+import { getCashbackBalance } from "../../../../packages/business/sales/use-cases/manage-cashback";
+import { createReturn } from "../../../../packages/business/sales/use-cases/create-return";
+import { paginationSchema, uuidSchema } from "@wbc/validators";
+import { listOk } from "../trpc/responses";
 
 const saleRepo = new PrismaSaleRepository();
 const paymentRepo = new PrismaPaymentRepository();
@@ -24,33 +29,73 @@ const returnRepo = new PrismaReturnRepository();
 
 export const salesRouter = router({
   list: protectedProcedure
-    .input(z.object({ ...paginationSchema.shape, status: z.string().optional(), clientId: z.string().uuid().optional() }))
+    .input(
+      z.object({
+        ...paginationSchema.shape,
+        status: z.string().optional(),
+        clientId: z.string().uuid().optional(),
+      }),
+    )
     .query(async ({ ctx, input }) => {
-      return listSales(ctx.tenant.tenantId, { status: input.status, clientId: input.clientId, page: input.page, limit: input.limit }, saleRepo);
+      // ACH-007 apis-integracoes: canonical pagination envelope.
+      const result = await listSales(
+        ctx.tenant.tenantId,
+        {
+          status: input.status,
+          clientId: input.clientId,
+          page: input.page,
+          limit: input.limit,
+        },
+        saleRepo,
+      );
+      return listOk(result.data, {
+        page: input.page,
+        limit: input.limit,
+        total: result.total,
+      });
     }),
 
-  getById: createGetByIdProcedure((tenantId, id) => getSaleById(tenantId, id, saleRepo)),
+  getById: createGetByIdProcedure((tenantId, id) =>
+    getSaleById(tenantId, id, saleRepo),
+  ),
 
   create: protectedProcedure
-    .input(z.object({
-      idempotencyKey: z.string().uuid().optional(),
-      clientId: z.string().uuid(),
-      items: z.array(z.object({ productId: z.string().uuid(), quantity: z.number().int().positive(), unitPrice: z.number().positive() })),
-      paymentMethod: z.string().optional(),
-      discount: z.number().min(0).optional(),
-      cashbackUsed: z.number().min(0).optional(),
-      campaignId: z.string().uuid().optional(),
-      notes: z.string().optional(),
-    }))
+    .input(
+      z.object({
+        idempotencyKey: z.string().uuid().optional(),
+        clientId: z.string().uuid(),
+        items: z.array(
+          z.object({
+            productId: z.string().uuid(),
+            quantity: z.number().int().positive(),
+            unitPrice: z.number().positive(),
+          }),
+        ),
+        paymentMethod: z.string().optional(),
+        discount: z.number().min(0).optional(),
+        cashbackUsed: z.number().min(0).optional(),
+        campaignId: z.string().uuid().optional(),
+        notes: z.string().optional(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       const { idempotencyKey, ...saleInput } = input;
-      return idempotent(idempotencyKey, () => createSale({ ...saleInput, tenantId: ctx.tenant.tenantId }, saleRepo));
+      return idempotent(idempotencyKey, () =>
+        createSale({ ...saleInput, tenantId: ctx.tenant.tenantId }, saleRepo),
+      );
     }),
 
   confirm: protectedProcedure
-    .input(z.object({ idempotencyKey: z.string().uuid().optional(), id: uuidSchema }))
+    .input(
+      z.object({
+        idempotencyKey: z.string().uuid().optional(),
+        id: uuidSchema,
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
-      return idempotent(input.idempotencyKey, () => confirmSale(ctx.tenant.tenantId, input.id, saleRepo, cashbackRepo));
+      return idempotent(input.idempotencyKey, () =>
+        confirmSale(ctx.tenant.tenantId, input.id, saleRepo, cashbackRepo),
+      );
     }),
 
   cancel: protectedProcedure
@@ -60,9 +105,25 @@ export const salesRouter = router({
     }),
 
   updateStatus: protectedProcedure
-    .input(z.object({ id: uuidSchema, status: z.enum(['CONFIRMED', 'SEPARATED', 'SHIPPED', 'DELIVERED', 'CANCELLED']) }))
+    .input(
+      z.object({
+        id: uuidSchema,
+        status: z.enum([
+          "CONFIRMED",
+          "SEPARATED",
+          "SHIPPED",
+          "DELIVERED",
+          "CANCELLED",
+        ]),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
-      return updateSaleStatus(ctx.tenant.tenantId, input.id, input.status, saleRepo);
+      return updateSaleStatus(
+        ctx.tenant.tenantId,
+        input.id,
+        input.status,
+        saleRepo,
+      );
     }),
 
   listPayments: protectedProcedure
@@ -72,22 +133,46 @@ export const salesRouter = router({
     }),
 
   markPaid: protectedProcedure
-    .input(z.object({ idempotencyKey: z.string().uuid().optional(), paymentId: uuidSchema }))
+    .input(
+      z.object({
+        idempotencyKey: z.string().uuid().optional(),
+        paymentId: uuidSchema,
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
-      return idempotent(input.idempotencyKey, () => markPaid(ctx.tenant.tenantId, input.paymentId, paymentRepo));
+      return idempotent(input.idempotencyKey, () =>
+        markPaid(ctx.tenant.tenantId, input.paymentId, paymentRepo),
+      );
     }),
 
   getCashbackBalance: protectedProcedure
     .input(z.object({ clientId: uuidSchema }))
     .query(async ({ ctx, input }) => {
-      return getCashbackBalance(ctx.tenant.tenantId, input.clientId, cashbackRepo);
+      return getCashbackBalance(
+        ctx.tenant.tenantId,
+        input.clientId,
+        cashbackRepo,
+      );
     }),
 
   createReturn: protectedProcedure
-    .input(z.object({ idempotencyKey: z.string().uuid().optional(), saleId: uuidSchema, reason: z.string().min(1), refundAmount: z.number().positive() }))
+    .input(
+      z.object({
+        idempotencyKey: z.string().uuid().optional(),
+        saleId: uuidSchema,
+        reason: z.string().min(1),
+        refundAmount: z.number().positive(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       const { idempotencyKey, ...returnInput } = input;
-      return idempotent(idempotencyKey, () => createReturn({ tenantId: ctx.tenant.tenantId, ...returnInput }, saleRepo, returnRepo));
+      return idempotent(idempotencyKey, () =>
+        createReturn(
+          { tenantId: ctx.tenant.tenantId, ...returnInput },
+          saleRepo,
+          returnRepo,
+        ),
+      );
     }),
 
   getAccountsReceivable: protectedProcedure

@@ -11,6 +11,7 @@ import {
 import { paginationSchema, uuidSchema } from "@wbc/validators";
 import { enqueueJob, getCampaignQueue } from "../lib/queues";
 import { idempotentRoute } from "../trpc/idempotency-middleware";
+import { listOk } from "../trpc/responses";
 
 const campaignRepo = new PrismaCampaignRepository();
 
@@ -20,11 +21,17 @@ export const campaignsRouter = router({
       z.object({ ...paginationSchema.shape, status: z.string().optional() }),
     )
     .query(async ({ ctx, input }) => {
-      return listCampaigns(
+      // ACH-007 apis-integracoes: canonical pagination envelope.
+      const result = await listCampaigns(
         ctx.tenant.tenantId,
         { status: input.status, page: input.page, limit: input.limit },
         campaignRepo,
       );
+      return listOk(result.data, {
+        page: input.page,
+        limit: input.limit,
+        total: result.total,
+      });
     }),
 
   create: protectedProcedure

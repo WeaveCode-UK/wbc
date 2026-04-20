@@ -16,5 +16,6 @@ export * from "./constants/timings";
 export * from "./mappers/base";
 export * from "./circuit-breaker";
 export * from "./resilience";
+export * from "./http/client";
 export * from "./redis";
 export * from "./version";

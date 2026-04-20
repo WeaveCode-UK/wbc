@@ -14,55 +14,70 @@ import {
   classifyABC,
 } from "../domain/value-objects";
 
-export class PrismaAnalyticsRepository implements AnalyticsRepository {
-  async getDashboard(tenantId: string): Promise<DashboardData> {
-    const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const endOfMonth = new Date(
-      now.getFullYear(),
-      now.getMonth() + 1,
-      0,
-      23,
-      59,
-      59,
-    );
+// ACH-017: god-function split. Each metric has its own method so callers can
+// cache individually; `getDashboard` just composes them.
+function monthBounds(): { start: Date; end: Date } {
+  const now = new Date();
+  return {
+    start: new Date(now.getFullYear(), now.getMonth(), 1),
+    end: new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59),
+  };
+}
 
-    const [
-      salesThisMonth,
-      revenueResult,
-      pendingReminders,
-      upcomingAppointments,
-    ] = await Promise.all([
-      prisma.sale.count({
-        where: {
-          tenantId,
-          status: { in: ["CONFIRMED", "DELIVERED"] },
-          createdAt: { gte: startOfMonth, lte: endOfMonth },
+export class PrismaAnalyticsRepository implements AnalyticsRepository {
+  async getMonthlySalesCount(tenantId: string): Promise<number> {
+    const { start, end } = monthBounds();
+    return prisma.sale.count({
+      where: {
+        tenantId,
+        status: { in: ["CONFIRMED", "DELIVERED"] },
+        createdAt: { gte: start, lte: end },
+      },
+    });
+  }
+
+  async getMonthlyRevenue(tenantId: string): Promise<number> {
+    const { start, end } = monthBounds();
+    const result = await prisma.sale.aggregate({
+      where: {
+        tenantId,
+        status: { in: ["CONFIRMED", "DELIVERED"] },
+        createdAt: { gte: start, lte: end },
+      },
+      _sum: { total: true },
+    });
+    return Number(result._sum.total ?? 0);
+  }
+
+  async getPendingRemindersCount(tenantId: string): Promise<number> {
+    return prisma.reminder.count({ where: { tenantId, status: "PENDING" } });
+  }
+
+  async getUpcomingAppointmentsCount(tenantId: string): Promise<number> {
+    const now = new Date();
+    return prisma.appointment.count({
+      where: {
+        tenantId,
+        startsAt: {
+          gte: now,
+          lte: new Date(now.getTime() + DAYS_IN_WEEK * MS_PER_DAY),
         },
-      }),
-      prisma.sale.aggregate({
-        where: {
-          tenantId,
-          status: { in: ["CONFIRMED", "DELIVERED"] },
-          createdAt: { gte: startOfMonth, lte: endOfMonth },
-        },
-        _sum: { total: true },
-      }),
-      prisma.reminder.count({ where: { tenantId, status: "PENDING" } }),
-      prisma.appointment.count({
-        where: {
-          tenantId,
-          startsAt: {
-            gte: now,
-            lte: new Date(now.getTime() + DAYS_IN_WEEK * MS_PER_DAY),
-          },
-        },
-      }),
-    ]);
+      },
+    });
+  }
+
+  async getDashboard(tenantId: string): Promise<DashboardData> {
+    const [salesThisMonth, revenue, pendingReminders, upcomingAppointments] =
+      await Promise.all([
+        this.getMonthlySalesCount(tenantId),
+        this.getMonthlyRevenue(tenantId),
+        this.getPendingRemindersCount(tenantId),
+        this.getUpcomingAppointmentsCount(tenantId),
+      ]);
 
     return {
       salesThisMonth,
-      revenue: Number(revenueResult._sum.total ?? 0),
+      revenue,
       pendingReminders,
       upcomingAppointments,
       alerts: [],

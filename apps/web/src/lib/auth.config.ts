@@ -8,7 +8,9 @@ import { BcryptPasswordHasher } from "@wbc/business/auth/adapters/bcrypt-passwor
 import { AuthenticateWithCredentials } from "@wbc/business/auth/use-cases/authenticate-with-credentials.use-case";
 import { AuthenticateWithOAuth } from "@wbc/business/auth/use-cases/authenticate-with-oauth.use-case";
 import { RedisLoginAttemptTracker } from "@wbc/business/auth/adapters/redis-login-attempt-tracker.adapter";
+import { RedisJwtBlacklist } from "@wbc/business/auth/adapters/redis-jwt-blacklist.adapter";
 import { logSecurityEvent } from "@wbc/shared";
+import { randomUUID } from "crypto";
 import Redis from "ioredis";
 
 const accountRepo = new PrismaAccountRepository();
@@ -21,6 +23,9 @@ const authRedis = new Redis(
   process.env.REDIS_URL ?? "redis://localhost:6379/0",
 );
 const loginAttemptTracker = new RedisLoginAttemptTracker(authRedis);
+export const jwtBlacklist = new RedisJwtBlacklist(authRedis);
+
+const SESSION_MAX_AGE_SECONDS = 15 * 60;
 const authWithCredentials = new AuthenticateWithCredentials(
   accountRepo,
   passwordHasher,
@@ -99,11 +104,22 @@ export default {
       return true;
     },
     async jwt({ token, user, trigger, session: updateSession }) {
-      // On initial login — set accountId
+      // On initial login — set accountId + jti for revocation
       if (user) {
         const dbAccount = await accountRepo.findByEmail(user.email!);
         if (dbAccount) {
           token.sub = dbAccount.id;
+          token.jti = randomUUID();
+          token.iat = Math.floor(Date.now() / 1000);
+        }
+      }
+
+      // ACH-006: if the current jti has been blacklisted (e.g. user signed
+      // out of another session), invalidate the token here so callbacks
+      // downstream do not see `sub` and the session reads as unauthenticated.
+      if (token.jti && typeof token.jti === "string") {
+        if (await jwtBlacklist.isRevoked(token.jti)) {
+          return {};
         }
       }
 
@@ -170,7 +186,30 @@ export default {
   },
   session: {
     strategy: "jwt",
-    maxAge: 15 * 60, // Access token: 15 minutes
+    maxAge: SESSION_MAX_AGE_SECONDS,
+  },
+  events: {
+    async signOut(message) {
+      // ACH-006: push the outgoing jti onto the Redis blacklist so stolen
+      // JWT copies can no longer be used. TTL matches the remaining token
+      // lifetime (default: full session window).
+      const token = "token" in message ? message.token : null;
+      if (token && typeof token.jti === "string") {
+        const iat =
+          typeof token.iat === "number"
+            ? token.iat
+            : Math.floor(Date.now() / 1000);
+        const age = Math.floor(Date.now() / 1000) - iat;
+        const remaining = Math.max(60, SESSION_MAX_AGE_SECONDS - age);
+        await jwtBlacklist.revoke({ jti: token.jti, ttlSeconds: remaining });
+        logSecurityEvent({
+          event: "auth.login.failed",
+          success: false,
+          jti: token.jti,
+          detail: "session-revoked",
+        });
+      }
+    },
   },
   pages: {
     signIn: "/login",

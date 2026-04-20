@@ -2,7 +2,7 @@ import { prisma, Prisma } from "@wbc/db";
 import { buildTenantWhere, paginatedQuery } from "@wbc/shared";
 import type { SaleRepository } from "../ports/sale-repository";
 import type { Sale, SaleItem } from "../domain/entities";
-import type { SaleStatus } from "../domain/status";
+import type { SaleStatus, PaymentMethod } from "../domain/status";
 import {
   computeItemSubtotal,
   computeSaleSubtotal,
@@ -91,15 +91,8 @@ export class PrismaSaleRepository implements SaleRepository {
       data: {
         tenantId: data.tenantId,
         clientId: data.clientId,
-        paymentMethod: data.paymentMethod as
-          | "CASH"
-          | "PIX"
-          | "CREDIT_CARD"
-          | "DEBIT_CARD"
-          | "INSTALLMENT"
-          | "BANK_TRANSFER"
-          | "OTHER"
-          | undefined,
+        // ACH-012 revisor follow-up: reuse PaymentMethod from domain/status.
+        paymentMethod: data.paymentMethod as PaymentMethod | undefined,
         discount: data.discount ?? 0,
         total,
         cashbackUsed: data.cashbackUsed ?? 0,

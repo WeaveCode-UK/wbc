@@ -13,6 +13,9 @@ import {
   computeEngagementScore,
   classifyABC,
 } from "../domain/value-objects";
+// ACH-012 revisor follow-up: reuse centralised status enum instead of
+// hardcoding `["CONFIRMED","DELIVERED"]` in 8 spots.
+import { COMPLETED_SALE_STATUSES } from "../../sales/domain/status";
 
 // ACH-017: god-function split. Each metric has its own method so callers can
 // cache individually; `getDashboard` just composes them.
@@ -30,7 +33,7 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
     return prisma.sale.count({
       where: {
         tenantId,
-        status: { in: ["CONFIRMED", "DELIVERED"] },
+        status: { in: COMPLETED_SALE_STATUSES },
         createdAt: { gte: start, lte: end },
       },
     });
@@ -41,7 +44,7 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
     const result = await prisma.sale.aggregate({
       where: {
         tenantId,
-        status: { in: ["CONFIRMED", "DELIVERED"] },
+        status: { in: COMPLETED_SALE_STATUSES },
         createdAt: { gte: start, lte: end },
       },
       _sum: { total: true },
@@ -89,7 +92,7 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const where = {
       tenantId,
-      status: { in: ["CONFIRMED" as const, "DELIVERED" as const] },
+      status: { in: COMPLETED_SALE_STATUSES },
       createdAt: { gte: startOfMonth },
     };
 
@@ -111,7 +114,7 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
   ): Promise<ProductRankingItem[]> {
     const items = await prisma.saleItem.groupBy({
       by: ["productId"],
-      where: { sale: { tenantId, status: { in: ["CONFIRMED", "DELIVERED"] } } },
+      where: { sale: { tenantId, status: { in: COMPLETED_SALE_STATUSES } } },
       _sum: { quantity: true, subtotal: true },
       orderBy: { _sum: { quantity: "desc" } },
       take: limit,
@@ -133,14 +136,14 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
         where: {
           tenantId,
           clientId,
-          status: { in: ["CONFIRMED", "DELIVERED"] },
+          status: { in: COMPLETED_SALE_STATUSES },
         },
       }),
       prisma.sale.aggregate({
         where: {
           tenantId,
           clientId,
-          status: { in: ["CONFIRMED", "DELIVERED"] },
+          status: { in: COMPLETED_SALE_STATUSES },
         },
         _sum: { total: true },
       }),
@@ -148,7 +151,7 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
         where: {
           tenantId,
           clientId,
-          status: { in: ["CONFIRMED", "DELIVERED"] },
+          status: { in: COMPLETED_SALE_STATUSES },
         },
         orderBy: { createdAt: "desc" },
         select: { createdAt: true },
@@ -175,7 +178,7 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
       where: { tenantId, isLead: false },
       include: {
         sales: {
-          where: { status: { in: ["CONFIRMED", "DELIVERED"] } },
+          where: { status: { in: COMPLETED_SALE_STATUSES } },
           select: { total: true },
         },
       },

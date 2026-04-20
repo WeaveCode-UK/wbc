@@ -117,7 +117,9 @@ Nenhum.
 Total: 23 commits.
 
 ## Merge
-- status_merge: pendente
+- status_merge: concluido
 - branch_origem: fix/apis-integracoes/2026-04-18_22-30-59
 - branch_destino: main
-- aprovado_por_usuario: nao
+- aprovado_por_usuario: sim
+- data_merge: 2026-04-21 00:25:00
+- merge_commit: cc9a265

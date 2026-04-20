@@ -56,6 +56,9 @@
   "lint-staged": {
     "*.{ts,tsx,js,jsx,json,md}": [
       "prettier --write"
+    ],
+    "*": [
+      "bash -lc 'command -v gitleaks >/dev/null 2>&1 && gitleaks protect --staged --no-banner --redact --config .gitleaks.toml || echo \"gitleaks not installed locally — pre-commit secret-scan skipped (CI still enforces).\"'"
     ]
   },
   "dependencies": {

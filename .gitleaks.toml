@@ -1,0 +1,27 @@
+title = "WBC Platform — gitleaks config"
+
+# Use the upstream default ruleset and add WBC-specific allowlist for the
+# known dummy strings in tests, fixtures, and the Auditoria/ framework.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Allow known fixtures and audit framework strings"
+paths = [
+  '''^Auditoria/.*''',
+  '''^playbook/.*''',
+  '''^.*\.example$''',
+  '''^.*\.example\..*$''',
+  '''node_modules/.*''',
+  '''.next/.*''',
+  '''dist/.*''',
+  '''.auditoria-backup-.*''',
+]
+regexes = [
+  # Bcrypt timing-decoy used by AuthenticateWithCredentials (ACH-004).
+  '''\$2a\$10\$CwTycUXWue0Thq9StjUM0uJ8yL4SfFWZpw1zZl1OvSn0lWg9UGsKa''',
+  # Local dev placeholders / replace markers from .env.example templates.
+  '''REPLACE_WITH_OPENSSL_RAND_BASE64_\d+''',
+  '''CHANGE_ME_(STRONG_PASSWORD|FROM_.*)''',
+  '''your-(deepseek|whatsapp|resend|mercadopago)-(key|token)''',
+]

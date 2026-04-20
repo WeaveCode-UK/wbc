@@ -36,6 +36,7 @@ import {
   untagClientSchema,
   bulkTagSchema,
 } from "@wbc/validators";
+import { idempotentRoute } from "../trpc/idempotency-middleware";
 
 const clientRepo = new PrismaClientRepository();
 const tagRepo = new PrismaTagRepository();
@@ -69,9 +70,16 @@ export const clientsRouter = router({
     // ACH-004: schema pulled from @wbc/validators.
     .input(createClientSchema)
     .mutation(async ({ ctx, input }) => {
-      return createClient(
-        { ...input, tenantId: ctx.tenant.tenantId },
-        clientRepo,
+      // ACH-001 apis-integracoes: retry-safe — createClient will otherwise
+      // emit a duplicate CLIENT_CREATED event and blow up any downstream
+      // consumer that assumes one event per logical creation.
+      const { idempotencyKey: _key, ...clientInput } = input;
+      void _key;
+      return idempotentRoute("clients.create", ctx.tenant.tenantId, input, () =>
+        createClient(
+          { ...clientInput, tenantId: ctx.tenant.tenantId },
+          clientRepo,
+        ),
       );
     }),
 

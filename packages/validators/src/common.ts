@@ -33,3 +33,10 @@ export const dateRangeSchema = z
   .refine((data) => data.to >= data.from, {
     message: "End date must be after start date",
   });
+
+// ACH-001 apis-integracoes: every mutation that creates/confirms/sends/
+// marks state should accept an idempotency key on the wire. The API
+// middleware derives a deterministic key from the input hash when the
+// client omits it (compatibility during rollout), so this field stays
+// optional at the validator level but the router path is guarded.
+export const idempotencyKeySchema = z.string().min(1);

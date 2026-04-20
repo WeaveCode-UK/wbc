@@ -1,12 +1,27 @@
-import { z } from 'zod';
-import { router, protectedProcedure } from '../trpc/trpc';
-import { PrismaStockRepository } from '../../../../packages/business/inventory/adapters/prisma-stock-repository';
-import { PrismaBrandOrderRepository } from '../../../../packages/business/inventory/adapters/prisma-brand-order-repository';
-import { PrismaSampleRepository } from '../../../../packages/business/inventory/adapters/prisma-sample-repository';
-import { listStock, updateStock, adjustStock } from '../../../../packages/business/inventory/use-cases/manage-stock';
-import { listOrders, createOrder, receiveOrder, cancelOrder } from '../../../../packages/business/inventory/use-cases/manage-orders';
-import { listSamples, createSample, markSampleConverted, getSampleROI } from '../../../../packages/business/inventory/use-cases/manage-samples';
-import { paginationSchema, uuidSchema } from '@wbc/validators';
+import { z } from "zod";
+import { router, protectedProcedure } from "../trpc/trpc";
+import { PrismaStockRepository } from "../../../../packages/business/inventory/adapters/prisma-stock-repository";
+import { PrismaBrandOrderRepository } from "../../../../packages/business/inventory/adapters/prisma-brand-order-repository";
+import { PrismaSampleRepository } from "../../../../packages/business/inventory/adapters/prisma-sample-repository";
+import {
+  listStock,
+  updateStock,
+  adjustStock,
+} from "../../../../packages/business/inventory/use-cases/manage-stock";
+import {
+  listOrders,
+  createOrder,
+  receiveOrder,
+  cancelOrder,
+} from "../../../../packages/business/inventory/use-cases/manage-orders";
+import {
+  listSamples,
+  createSample,
+  markSampleConverted,
+  getSampleROI,
+} from "../../../../packages/business/inventory/use-cases/manage-samples";
+import { paginationSchema, uuidSchema } from "@wbc/validators";
+import { idempotentRoute } from "../trpc/idempotency-middleware";
 
 const stockRepo = new PrismaStockRepository();
 const orderRepo = new PrismaBrandOrderRepository();
@@ -20,15 +35,27 @@ export const inventoryRouter = router({
     }),
 
   updateStock: protectedProcedure
-    .input(z.object({ productId: uuidSchema, quantity: z.number().int().min(0) }))
+    .input(
+      z.object({ productId: uuidSchema, quantity: z.number().int().min(0) }),
+    )
     .mutation(async ({ ctx, input }) => {
-      return updateStock(ctx.tenant.tenantId, input.productId, input.quantity, stockRepo);
+      return updateStock(
+        ctx.tenant.tenantId,
+        input.productId,
+        input.quantity,
+        stockRepo,
+      );
     }),
 
   adjustStock: protectedProcedure
     .input(z.object({ productId: uuidSchema, adjustment: z.number().int() }))
     .mutation(async ({ ctx, input }) => {
-      return adjustStock(ctx.tenant.tenantId, input.productId, input.adjustment, stockRepo);
+      return adjustStock(
+        ctx.tenant.tenantId,
+        input.productId,
+        input.adjustment,
+        stockRepo,
+      );
     }),
 
   listOrders: protectedProcedure
@@ -38,19 +65,54 @@ export const inventoryRouter = router({
     }),
 
   createOrder: protectedProcedure
-    .input(z.object({
-      brandId: uuidSchema,
-      items: z.array(z.object({ productName: z.string(), quantity: z.number().int().positive(), unitCost: z.number().positive() })),
-      notes: z.string().optional(),
-    }))
+    .input(
+      z.object({
+        // ACH-001 apis-integracoes: retries could otherwise create duplicate
+        // brand orders (same items, same supplier). Key derived from input
+        // hash when client omits it.
+        idempotencyKey: z.string().min(1).optional(),
+        brandId: uuidSchema,
+        items: z.array(
+          z.object({
+            productName: z.string(),
+            quantity: z.number().int().positive(),
+            unitCost: z.number().positive(),
+          }),
+        ),
+        notes: z.string().optional(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
-      return createOrder(ctx.tenant.tenantId, input.brandId, input.items, input.notes, orderRepo);
+      return idempotentRoute(
+        "inventory.createOrder",
+        ctx.tenant.tenantId,
+        input,
+        () =>
+          createOrder(
+            ctx.tenant.tenantId,
+            input.brandId,
+            input.items,
+            input.notes,
+            orderRepo,
+          ),
+      );
     }),
 
   receiveOrder: protectedProcedure
-    .input(z.object({ id: uuidSchema }))
+    .input(
+      z.object({
+        // ACH-001: guards against double-receive inflating stock counts.
+        idempotencyKey: z.string().min(1).optional(),
+        id: uuidSchema,
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
-      return receiveOrder(ctx.tenant.tenantId, input.id, orderRepo);
+      return idempotentRoute(
+        "inventory.receiveOrder",
+        ctx.tenant.tenantId,
+        input,
+        () => receiveOrder(ctx.tenant.tenantId, input.id, orderRepo),
+      );
     }),
 
   cancelOrder: protectedProcedure
@@ -62,13 +124,32 @@ export const inventoryRouter = router({
   listSamples: protectedProcedure
     .input(paginationSchema)
     .query(async ({ ctx, input }) => {
-      return listSamples(ctx.tenant.tenantId, input.page, input.limit, sampleRepo);
+      return listSamples(
+        ctx.tenant.tenantId,
+        input.page,
+        input.limit,
+        sampleRepo,
+      );
     }),
 
   createSample: protectedProcedure
-    .input(z.object({ productId: uuidSchema, clientId: z.string().uuid().optional(), quantity: z.number().int().positive(), cost: z.number().positive() }))
+    .input(
+      z.object({
+        productId: uuidSchema,
+        clientId: z.string().uuid().optional(),
+        quantity: z.number().int().positive(),
+        cost: z.number().positive(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
-      return createSample(ctx.tenant.tenantId, input.productId, input.clientId, input.quantity, input.cost, sampleRepo);
+      return createSample(
+        ctx.tenant.tenantId,
+        input.productId,
+        input.clientId,
+        input.quantity,
+        input.cost,
+        sampleRepo,
+      );
     }),
 
   markSampleConverted: protectedProcedure

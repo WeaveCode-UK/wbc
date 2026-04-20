@@ -1,3 +1,8 @@
+import { createHash } from "crypto";
+import { createLogger } from "../lib/logger";
+
+const idempotencyLogger = createLogger("idempotency");
+
 // ACH-009: explicit interface instead of `as unknown as typeof redisClient`
 // — the minimal surface used by idempotency is just GET + SET with EX.
 // Narrowing here lets tsc catch signature drift if ioredis changes.
@@ -77,4 +82,74 @@ export async function idempotent<T>(
   const result = await handler();
   if (key) await storeIdempotencyResult(key, result);
   return result;
+}
+
+/**
+ * ACH-001 apis-integracoes: derive a deterministic idempotency key when
+ * the client didn't send one, so a tCP retry doesn't duplicate a
+ * create/confirm/send/mark mutation.
+ *
+ * The key is `{route}:{tenantId}:{sha256(canonical(input))}`. Same
+ * route + same tenant + same input → same key → cache hit on retry.
+ * Different input (even an added whitespace in a string field) → new
+ * key → new execution, which is the safe default.
+ *
+ * This is a compatibility shim during the migration: once every caller
+ * ships an explicit `idempotencyKey`, we flip to hard-reject mutations
+ * that omit it (see `docs/architecture/api-idempotency.md`).
+ */
+export function deriveIdempotencyKey(
+  route: string,
+  tenantId: string,
+  input: unknown,
+): string {
+  const canonical = JSON.stringify(
+    input,
+    Object.keys((input as object) ?? {}).sort(),
+  );
+  const digest = createHash("sha256")
+    .update(canonical)
+    .digest("hex")
+    .slice(0, 32);
+  return `${route}:${tenantId}:${digest}`;
+}
+
+/**
+ * Resolve the idempotency key for a mutation. Logs a structured warn
+ * when the client didn't send one so the migration progress is
+ * measurable in production (ACH-001).
+ */
+export function resolveIdempotencyKey(
+  route: string,
+  tenantId: string,
+  input: { idempotencyKey?: string } | unknown,
+): string {
+  const fromInput =
+    typeof input === "object" && input && "idempotencyKey" in input
+      ? (input as { idempotencyKey?: unknown }).idempotencyKey
+      : undefined;
+  if (typeof fromInput === "string" && fromInput.length > 0) {
+    return fromInput;
+  }
+  idempotencyLogger.warn(
+    { route, tenantId },
+    "Mutation missing idempotencyKey — derived from input hash (ACH-001 migration)",
+  );
+  return deriveIdempotencyKey(route, tenantId, input);
+}
+
+/**
+ * Thin convenience wrapper so routers can write:
+ *   idempotentRoute('auth.acceptInvite', ctx, input, () => uc.execute(...))
+ * instead of threading `idempotent(resolveIdempotencyKey(...), ...)`
+ * through every mutation.
+ */
+export function idempotentRoute<T>(
+  route: string,
+  tenantId: string,
+  input: { idempotencyKey?: string } | unknown,
+  handler: () => Promise<T>,
+): Promise<T> {
+  const key = resolveIdempotencyKey(route, tenantId, input);
+  return idempotent(key, handler);
 }

@@ -10,6 +10,7 @@ import {
 } from "../../../../packages/business/campaigns/use-cases/manage-campaigns";
 import { paginationSchema, uuidSchema } from "@wbc/validators";
 import { enqueueJob, getCampaignQueue } from "../lib/queues";
+import { idempotentRoute } from "../trpc/idempotency-middleware";
 
 const campaignRepo = new PrismaCampaignRepository();
 
@@ -41,19 +42,33 @@ export const campaignsRouter = router({
     }),
 
   confirm: protectedProcedure
-    .input(z.object({ id: uuidSchema }))
+    .input(
+      z.object({
+        // ACH-001 apis-integracoes: prevents a retry from dispatching the
+        // campaign twice. When omitted, middleware derives from input hash.
+        idempotencyKey: z.string().min(1).optional(),
+        id: uuidSchema,
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
-      const campaign = await confirmCampaign(
+      return idempotentRoute(
+        "campaigns.confirm",
         ctx.tenant.tenantId,
-        input.id,
-        campaignRepo,
+        input,
+        async () => {
+          const campaign = await confirmCampaign(
+            ctx.tenant.tenantId,
+            input.id,
+            campaignRepo,
+          );
+          // ACH-012: validated enqueue (warn-only) instead of raw Queue.add.
+          await enqueueJob(getCampaignQueue(), "send-campaign", {
+            tenantId: ctx.tenant.tenantId,
+            campaignId: input.id,
+          });
+          return campaign;
+        },
       );
-      // ACH-012: validated enqueue (warn-only) instead of raw Queue.add.
-      await enqueueJob(getCampaignQueue(), "send-campaign", {
-        tenantId: ctx.tenant.tenantId,
-        campaignId: input.id,
-      });
-      return campaign;
     }),
 
   cancel: protectedProcedure

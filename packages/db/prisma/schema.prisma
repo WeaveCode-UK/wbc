@@ -249,6 +249,8 @@ model GiftSuggestor {
 
   client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
+  // ACH-005 dados-persistencia.
+  @@index([tenantId, clientId])
   @@map("gift_suggestors")
 }
 
@@ -265,6 +267,9 @@ model Brand {
   products Product[]
   brandOrders BrandOrder[]
 
+  // ACH-007 dados-persistencia: name is global (Brand is not tenant-
+  // scoped); unique prevents duplicate catalog entries.
+  @@unique([name])
   @@map("brands")
 }
 
@@ -357,6 +362,9 @@ model Sale {
   @@index([tenantId, status])
   @@index([tenantId, clientId])
   @@index([tenantId, createdAt])
+  // ACH-013 dados-persistencia: composite for dashboard status-filtered
+  // time ranges (most common analytics query).
+  @@index([tenantId, status, createdAt])
   @@map("sales")
 }
 
@@ -390,6 +398,10 @@ model SaleItem {
   sale    Sale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
   product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
 
+  // ACH-005 dados-persistencia: FK lookup from Sale → items hits this
+  // path on every detail fetch. Without the index it degrades to scan
+  // as the table grows.
+  @@index([saleId])
   @@map("sale_items")
 }
 
@@ -468,6 +480,8 @@ model Return {
 
   sale Sale @relation(fields: [saleId], references: [id], onDelete: Cascade)
 
+  // ACH-005 dados-persistencia.
+  @@index([saleId])
   @@map("returns")
 }
 
@@ -503,6 +517,8 @@ model BrandOrder {
   brand  Brand  @relation(fields: [brandId], references: [id])
   items  BrandOrderItem[]
 
+  // ACH-005 dados-persistencia: list by status is the dashboard query.
+  @@index([tenantId, status])
   @@map("brand_orders")
 }
 
@@ -522,6 +538,8 @@ model BrandOrderItem {
 
   brandOrder BrandOrder @relation(fields: [brandOrderId], references: [id], onDelete: Cascade)
 
+  // ACH-005 dados-persistencia: FK lookup for order details.
+  @@index([brandOrderId])
   @@map("brand_order_items")
 }
 
@@ -539,6 +557,8 @@ model Sample {
   product Product @relation(fields: [productId], references: [id])
   client  Client? @relation(fields: [clientId], references: [id])
 
+  // ACH-005 dados-persistencia.
+  @@index([tenantId, clientId])
   @@map("samples")
 }
 
@@ -654,6 +674,8 @@ model PostSaleFlow {
   sale Sale @relation(fields: [saleId], references: [id], onDelete: Cascade)
 
   @@index([scheduledAt, status])
+  // ACH-005 dados-persistencia: FK lookup by sale.
+  @@index([saleId])
   @@map("post_sale_flows")
 }
 
@@ -707,6 +729,8 @@ model CommunityTemplate {
 
   @@index([likesCount(sort: Desc)])
   @@index([topic])
+  // ACH-005 dados-persistencia: tenant-scoped queries need this.
+  @@index([tenantId])
   @@map("community_templates")
 }
 
@@ -718,6 +742,8 @@ model QuickReply {
 
   tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
+  // ACH-005 dados-persistencia.
+  @@index([tenantId])
   @@map("quick_replies")
 }
 
@@ -877,6 +903,8 @@ model TeamTask {
 
   team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
 
+  // ACH-005 dados-persistencia: team task list + per-member filter.
+  @@index([teamId, memberId])
   @@map("team_tasks")
 }
 
@@ -928,6 +956,12 @@ model Delivery {
   sale   Sale   @relation(fields: [saleId], references: [id], onDelete: Cascade)
   client Client @relation(fields: [clientId], references: [id])
 
+  // ACH-005 dados-persistencia: Delivery rows aren't tenant-scoped via
+  // column — they inherit tenant through the Sale. Status filter is
+  // the dashboard query; index on client is for personal delivery
+  // listings.
+  @@index([status])
+  @@index([clientId])
   @@map("deliveries")
 }
 

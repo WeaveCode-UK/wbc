@@ -7,17 +7,34 @@ import { PrismaTenantMemberRepository } from "@wbc/business/auth/adapters/prisma
 import { BcryptPasswordHasher } from "@wbc/business/auth/adapters/bcrypt-password-hasher.adapter";
 import { AuthenticateWithCredentials } from "@wbc/business/auth/use-cases/authenticate-with-credentials.use-case";
 import { AuthenticateWithOAuth } from "@wbc/business/auth/use-cases/authenticate-with-oauth.use-case";
+import { RedisLoginAttemptTracker } from "@wbc/business/auth/adapters/redis-login-attempt-tracker.adapter";
 import { logSecurityEvent } from "@wbc/shared";
+import Redis from "ioredis";
 
 const accountRepo = new PrismaAccountRepository();
 const oauthRepo = new PrismaOAuthAccountRepository();
 const memberRepo = new PrismaTenantMemberRepository();
 const passwordHasher = new BcryptPasswordHasher();
+// Lazy Redis singleton scoped to auth.config so the connection is reused
+// across `authorize` invocations.
+const authRedis = new Redis(
+  process.env.REDIS_URL ?? "redis://localhost:6379/0",
+);
+const loginAttemptTracker = new RedisLoginAttemptTracker(authRedis);
 const authWithCredentials = new AuthenticateWithCredentials(
   accountRepo,
   passwordHasher,
+  loginAttemptTracker,
 );
 const authWithOAuth = new AuthenticateWithOAuth(accountRepo, oauthRepo);
+
+function extractIp(request?: Request): string | undefined {
+  if (!request) return undefined;
+  const forwarded = request.headers.get("x-forwarded-for");
+  if (forwarded) return forwarded.split(",")[0]!.trim();
+  const real = request.headers.get("x-real-ip");
+  return real ?? undefined;
+}
 
 export default {
   providers: [
@@ -30,12 +47,13 @@ export default {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials, request) {
         if (!credentials?.email || !credentials?.password) return null;
         try {
           const account = await authWithCredentials.execute({
             email: credentials.email as string,
             password: credentials.password as string,
+            ipAddress: extractIp(request as unknown as Request | undefined),
           });
           logSecurityEvent({
             event: "auth.login.success",

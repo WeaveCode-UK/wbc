@@ -188,6 +188,48 @@ export default {
     strategy: "jwt",
     maxAge: SESSION_MAX_AGE_SECONDS,
   },
+  // ACH-010: declare cookie options explicitly so a version/env change can
+  // not silently relax the defaults. `useSecureCookies` is set via
+  // NextAuth's env detection (AUTH_URL scheme) but we pin httpOnly/sameSite
+  // here regardless.
+  useSecureCookies: process.env.NODE_ENV === "production",
+  cookies: {
+    sessionToken: {
+      name:
+        process.env.NODE_ENV === "production"
+          ? "__Secure-authjs.session-token"
+          : "authjs.session-token",
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
+    csrfToken: {
+      name:
+        process.env.NODE_ENV === "production"
+          ? "__Host-authjs.csrf-token"
+          : "authjs.csrf-token",
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
+    callbackUrl: {
+      name:
+        process.env.NODE_ENV === "production"
+          ? "__Secure-authjs.callback-url"
+          : "authjs.callback-url",
+      options: {
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
+  },
   events: {
     async signOut(message) {
       // ACH-006: push the outgoing jti onto the Redis blacklist so stolen

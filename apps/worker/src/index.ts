@@ -230,3 +230,17 @@ process.on("SIGINT", () => {
 });
 
 logger.info("Graceful shutdown handlers registered (SIGTERM, SIGINT)");
+
+/**
+ * ACH-013 codigo-manutenibilidade: module-top initialisation means
+ * importing any symbol from here fires Sentry, the tenant middleware,
+ * Redis and the BullMQ workers. This placeholder gives the caller a single
+ * async boundary to hook on to. The full refactor (moving top-level
+ * side-effects into the body of `bootstrap()` and gating execution with
+ * an `isEntryPoint()` check) is intentionally deferred — it's a large,
+ * risky diff that doesn't fit a maintenance audit PR. Tracked as
+ * follow-up to ACH-013.
+ */
+export async function bootstrap(): Promise<void> {
+  logger.info("bootstrap() invoked (current: reuses module-level init)");
+}

@@ -12,6 +12,7 @@ export * from "./redaction";
 export * from "./sentry-redaction";
 export * from "./logger";
 export * from "./env";
+export * from "./constants/timings";
 export * from "./circuit-breaker";
 export * from "./resilience";
 export * from "./redis";

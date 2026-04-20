@@ -42,7 +42,14 @@ import { startAnalyticsWorker } from "./processors/analytics-processor";
 import { startDLQWorker } from "./processors/dlq-processor";
 import { cleanupProcessedOutboxEvents } from "./processors/outbox-cleanup";
 import { scanFailedForDLQ } from "./processors/dlq-scanner";
-import { subscribe, EVENTS } from "@wbc/shared";
+import {
+  subscribe,
+  EVENTS,
+  OUTBOX_POLL_INTERVAL_MS,
+  OUTBOX_CLEANUP_INTERVAL_MS,
+  DLQ_SCAN_INTERVAL_MS,
+  WORKER_SHUTDOWN_TIMEOUT_MS as SHARED_WORKER_SHUTDOWN_TIMEOUT_MS,
+} from "@wbc/shared";
 import { connection as bullmqRedis } from "./lib/redis";
 import {
   startWorkerHealthServer,
@@ -64,16 +71,19 @@ registerNotificationEventHandlers(new PrismaNotificationRepository());
 logger.info("WBC Worker starting...");
 logger.info("Domain event handlers registered");
 
-// Process outbox every 5 seconds
+// Process outbox using the central OUTBOX_POLL_INTERVAL_MS constant (ACH-010).
 const outboxInterval = setInterval(async () => {
   try {
     await processOutbox();
   } catch (error) {
     logger.error({ error }, "Outbox processing failed");
   }
-}, 5000);
+}, OUTBOX_POLL_INTERVAL_MS);
 
-logger.info("Outbox processor started (5s interval)");
+logger.info(
+  { intervalMs: OUTBOX_POLL_INTERVAL_MS },
+  "Outbox processor started",
+);
 
 // Start BullMQ workers
 const workers = [
@@ -106,30 +116,30 @@ subscribe(EVENTS.TENANT_PLAN_CHANGED, async (event) => {
   }
 });
 
-// Outbox cleanup: run daily (every 24h)
-const cleanupInterval = setInterval(
-  async () => {
-    try {
-      await cleanupProcessedOutboxEvents();
-    } catch (error) {
-      logger.error({ error }, "Outbox cleanup failed");
-    }
-  },
-  24 * 60 * 60 * 1000,
+// Outbox cleanup: interval from shared constants (ACH-010).
+const cleanupInterval = setInterval(async () => {
+  try {
+    await cleanupProcessedOutboxEvents();
+  } catch (error) {
+    logger.error({ error }, "Outbox cleanup failed");
+  }
+}, OUTBOX_CLEANUP_INTERVAL_MS);
+
+logger.info(
+  { intervalMs: OUTBOX_CLEANUP_INTERVAL_MS },
+  "Outbox cleanup scheduled",
 );
 
-logger.info("Outbox cleanup scheduled (24h interval)");
-
-// DLQ scanner: check for permanently failed events every 60s
+// DLQ scanner interval from shared constants (ACH-010).
 const dlqScanInterval = setInterval(async () => {
   try {
     await scanFailedForDLQ();
   } catch (error) {
     logger.error({ error }, "DLQ scan failed");
   }
-}, 60_000);
+}, DLQ_SCAN_INTERVAL_MS);
 
-logger.info("DLQ scanner scheduled (60s interval)");
+logger.info({ intervalMs: DLQ_SCAN_INTERVAL_MS }, "DLQ scanner scheduled");
 
 // Health server (ACH-011): expoe /health/live e /health/ready na porta dedicada
 // para orchestrators (Docker/Kubernetes) detectarem falhas e lag do worker.
@@ -149,7 +159,7 @@ logger.info("WBC Worker module loaded successfully");
 // jobs, close BullMQ workers, disconnect Redis and Prisma, then exit.
 // Honors the at-least-once guarantee declared in ADR-003 (outbox + BullMQ).
 const SHUTDOWN_TIMEOUT_MS = Number(
-  process.env.WORKER_SHUTDOWN_TIMEOUT_MS ?? 30_000,
+  process.env.WORKER_SHUTDOWN_TIMEOUT_MS ?? SHARED_WORKER_SHUTDOWN_TIMEOUT_MS,
 );
 let shuttingDown = false;
 

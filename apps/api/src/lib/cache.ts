@@ -1,10 +1,14 @@
 import { getRedis } from "./redis";
 import { createLogger } from "./logger";
-import { TenantScopedRedis, type RedisLike } from "@wbc/shared";
+import {
+  TenantScopedRedis,
+  type RedisLike,
+  CACHE_TTL_DEFAULT_SECONDS,
+} from "@wbc/shared";
 
 const logger = createLogger("cache");
 const PREFIX = "wbc:";
-const DEFAULT_TTL = 300; // 5 minutes
+const DEFAULT_TTL = CACHE_TTL_DEFAULT_SECONDS;
 
 function prefixKey(key: string): string {
   return `${PREFIX}${key}`;

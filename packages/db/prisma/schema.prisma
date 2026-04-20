@@ -82,6 +82,11 @@ model Subscription {
   expiresAt           DateTime?
   aiGenerationsUsed   Int      @default(0)
   aiGenerationsLimit  Int      @default(30)
+  // ACH-003 dados-persistencia: optimistic-locking version. Writers
+  // that care about lost-update semantics call `optimisticUpdate`
+  // which bumps this field and conditions the WHERE on it, so two
+  // concurrent increments can't both succeed.
+  version             Int      @default(0)
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
@@ -580,6 +585,10 @@ model Campaign {
   statsReplied  Int           @default(0)
   statsSales    Int           @default(0)
   shareOnFeed   Boolean       @default(false)
+  // ACH-003 dados-persistencia: optimistic-locking version for the
+  // concurrent stats increments (viewed/replied/sales come from async
+  // handlers and can race).
+  version       Int           @default(0)
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
 

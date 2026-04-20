@@ -2,7 +2,12 @@ import { router, publicProcedure } from "../trpc/trpc";
 import { getRedis } from "../lib/redis";
 import { createLogger } from "../lib/logger";
 import { prisma } from "@wbc/db";
-import { API_VERSION, MIN_MOBILE_VERSION, isOutboxReady } from "@wbc/shared";
+import {
+  API_VERSION,
+  MIN_MOBILE_VERSION,
+  SUPPORTED_MOBILE_VERSIONS,
+  isOutboxReady,
+} from "@wbc/shared";
 
 const logger = createLogger("health");
 
@@ -45,6 +50,10 @@ export const healthRouter = router({
   version: publicProcedure.query(() => ({
     apiVersion: API_VERSION,
     minMobileVersion: MIN_MOBILE_VERSION,
+    // ACH-002 apis-integracoes: expose the full supported-mobile set so
+    // a client can decide whether to refuse to start (too old), warn
+    // and continue (supported-but-deprecated), or run clean (latest).
+    supportedMobileVersions: SUPPORTED_MOBILE_VERSIONS,
     // ACH-010 apis-integracoes: publish the wire-format contract so SDK
     // consumers don't have to infer "ISO UTC" from the first response.
     // Tenant-local display timezone lives on the protected tenant

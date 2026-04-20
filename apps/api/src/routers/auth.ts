@@ -1,3 +1,19 @@
+/**
+ * ACH-008 codigo-manutenibilidade: this file concentrates 17 procedures
+ * across signup, session, invites, OTP and account management, plus
+ * instantiates 8 repositories at the module top. Target shape:
+ *
+ *   auth.signup.ts      — register, completeOnboarding
+ *   auth.session.ts     — login, logout, listSessions, revoke*
+ *   auth.invites.ts     — createInvite, acceptInvite, cancelInvite, list
+ *   auth.otp.ts         — sendOtp, verifyOtp
+ *   auth.account.ts     — updateAccount, updateMember, deleteAccount, leaveTenant, changePassword, reset-password, verify-email
+ *   auth.ts             — tiny barrel: `router({ ...signup, ...session, ...invites, ...otp, ...account })`
+ *
+ * Deferred to a follow-up PR because the split touches every procedure
+ * and merges poorly with concurrent auth work — it should land on its
+ * own branch with no other changes.
+ */
 import { TRPCError } from "@trpc/server";
 import {
   router,

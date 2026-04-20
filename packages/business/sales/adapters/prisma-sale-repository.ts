@@ -1,4 +1,4 @@
-import { prisma } from "@wbc/db";
+import { prisma, Prisma } from "@wbc/db";
 import { buildTenantWhere, paginatedQuery } from "@wbc/shared";
 import type { SaleRepository } from "../ports/sale-repository";
 import type { Sale, SaleItem } from "../domain/entities";
@@ -9,22 +9,29 @@ import {
   computeSaleTotal,
 } from "../domain/value-objects";
 
-function mapSaleFromPrisma(sale: Record<string, unknown>): Sale {
+// ACH-009 revisor follow-up: use Prisma.*GetPayload instead of
+// `as unknown as Record<string, unknown>`. Narrow, auto-generated types
+// catch schema drift at compile time instead of silently passing through.
+type PrismaSale = Prisma.SaleGetPayload<Record<string, never>>;
+type PrismaSaleWithItems = Prisma.SaleGetPayload<{ include: { items: true } }>;
+type PrismaSaleItem = PrismaSaleWithItems["items"][number];
+
+function mapSaleFromPrisma(sale: PrismaSale): Sale {
   return {
     ...sale,
     discount: Number(sale.discount),
     total: Number(sale.total),
     cashbackUsed: Number(sale.cashbackUsed),
     cashbackGenerated: Number(sale.cashbackGenerated),
-  } as Sale;
+  } as unknown as Sale;
 }
 
-function mapSaleItemFromPrisma(item: Record<string, unknown>): SaleItem {
+function mapSaleItemFromPrisma(item: PrismaSaleItem): SaleItem {
   return {
     ...item,
     unitPrice: Number(item.unitPrice),
     subtotal: Number(item.subtotal),
-  } as SaleItem;
+  } as unknown as SaleItem;
 }
 
 export class PrismaSaleRepository implements SaleRepository {
@@ -38,10 +45,8 @@ export class PrismaSaleRepository implements SaleRepository {
     });
     if (!sale) return null;
     return {
-      ...mapSaleFromPrisma(sale as unknown as Record<string, unknown>),
-      items: sale.items.map((i) =>
-        mapSaleItemFromPrisma(i as unknown as Record<string, unknown>),
-      ),
+      ...mapSaleFromPrisma(sale),
+      items: sale.items.map((i) => mapSaleItemFromPrisma(i)),
     } as Sale & { items: SaleItem[] };
   }
 
@@ -58,7 +63,7 @@ export class PrismaSaleRepository implements SaleRepository {
       status: filters.status,
       clientId: filters.clientId,
     });
-    const result = await paginatedQuery<Record<string, unknown>>(
+    const result = await paginatedQuery<PrismaSale>(
       prisma.sale as never,
       where,
       { page: filters.page, limit: filters.limit },
@@ -111,7 +116,7 @@ export class PrismaSaleRepository implements SaleRepository {
       },
     });
 
-    return mapSaleFromPrisma(sale as unknown as Record<string, unknown>);
+    return mapSaleFromPrisma(sale);
   }
 
   async updateStatus(
@@ -124,7 +129,7 @@ export class PrismaSaleRepository implements SaleRepository {
       where: { id },
       data: { status },
     });
-    return mapSaleFromPrisma(sale as unknown as Record<string, unknown>);
+    return mapSaleFromPrisma(sale);
   }
 
   async delete(tenantId: string, id: string): Promise<void> {

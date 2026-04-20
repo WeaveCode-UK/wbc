@@ -5,11 +5,6 @@ import type { Tag, ClientTag } from "../domain/entities";
 // ACH-014 dados-persistencia: FK/tenant checks used to issue an extra
 // findFirst per call. Replaced by "attempt the write, translate Prisma
 // error codes" — one round-trip, same error surface to callers.
-function isNotFound(err: unknown): boolean {
-  return (
-    err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2025"
-  );
-}
 function isFKViolation(err: unknown): boolean {
   return (
     err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2003"
@@ -143,5 +138,3 @@ export class PrismaTagRepository implements TagRepository {
     return clientTags.map((ct) => ct.tag) as Tag[];
   }
 }
-// Suppress unused import warnings when codegen keeps the symbol.
-void isNotFound;

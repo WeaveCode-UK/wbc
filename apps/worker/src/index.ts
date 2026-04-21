@@ -48,6 +48,10 @@ import { startDLQWorker } from "./processors/dlq-processor";
 import { cleanupProcessedOutboxEvents } from "./processors/outbox-cleanup";
 import { scanFailedForDLQ } from "./processors/dlq-scanner";
 import {
+  archiveDlqEntriesOlderThan,
+  reportDlqDepth,
+} from "./processors/dlq-archive";
+import {
   subscribe,
   EVENTS,
   OUTBOX_POLL_INTERVAL_MS,
@@ -150,6 +154,26 @@ const dlqScanInterval = setInterval(async () => {
 
 logger.info({ intervalMs: DLQ_SCAN_INTERVAL_MS }, "DLQ scanner scheduled");
 
+// ACH-017 dados-persistencia: periodic archive of expired DLQ rows +
+// depth alert. Runs on the same cadence as the scanner; kept separate
+// so each loop has a single responsibility and a single failure mode.
+const dlqArchiveInterval = setInterval(async () => {
+  try {
+    await archiveDlqEntriesOlderThan(
+      Number(process.env.DLQ_ARCHIVE_DAYS ?? 90),
+    );
+  } catch (error) {
+    logger.error({ error }, "DLQ archive failed");
+  }
+  try {
+    await reportDlqDepth(Number(process.env.DLQ_DEPTH_THRESHOLD ?? 100));
+  } catch (error) {
+    logger.error({ error }, "DLQ depth probe failed");
+  }
+}, DLQ_SCAN_INTERVAL_MS);
+
+logger.info("DLQ archive + depth probe scheduled (ACH-017 dados-persistencia)");
+
 // Health server (ACH-011): expoe /health/live e /health/ready na porta dedicada
 // para orchestrators (Docker/Kubernetes) detectarem falhas e lag do worker.
 const healthHandles = startWorkerHealthServer({
@@ -200,7 +224,10 @@ async function gracefulShutdown(signal: NodeJS.Signals): Promise<void> {
     clearInterval(outboxInterval);
     clearInterval(cleanupInterval);
     clearInterval(dlqScanInterval);
-    logger.info("Polling intervals cleared (outbox, cleanup, DLQ scan)");
+    clearInterval(dlqArchiveInterval);
+    logger.info(
+      "Polling intervals cleared (outbox, cleanup, DLQ scan, DLQ archive)",
+    );
 
     await healthHandles.stop();
     logger.info("Worker health server stopped");

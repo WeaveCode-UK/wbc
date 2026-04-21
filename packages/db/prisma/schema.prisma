@@ -82,6 +82,11 @@ model Subscription {
   expiresAt           DateTime?
   aiGenerationsUsed   Int      @default(0)
   aiGenerationsLimit  Int      @default(30)
+  // ACH-003 dados-persistencia: optimistic-locking version. Writers
+  // that care about lost-update semantics call `optimisticUpdate`
+  // which bumps this field and conditions the WHERE on it, so two
+  // concurrent increments can't both succeed.
+  version             Int      @default(0)
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
@@ -249,6 +254,8 @@ model GiftSuggestor {
 
   client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
+  // ACH-005 dados-persistencia.
+  @@index([tenantId, clientId])
   @@map("gift_suggestors")
 }
 
@@ -265,6 +272,9 @@ model Brand {
   products Product[]
   brandOrders BrandOrder[]
 
+  // ACH-007 dados-persistencia: name is global (Brand is not tenant-
+  // scoped); unique prevents duplicate catalog entries.
+  @@unique([name])
   @@map("brands")
 }
 
@@ -335,10 +345,14 @@ model Sale {
   status            SaleStatus @default(DRAFT)
   deliveryDate      DateTime?  @db.Date
   paymentMethod     PayMethod?
-  discount          Decimal    @default(0) @db.Decimal(10, 2)
-  total             Decimal    @db.Decimal(10, 2)
-  cashbackUsed      Decimal    @default(0) @db.Decimal(10, 2)
-  cashbackGenerated Decimal    @default(0) @db.Decimal(10, 2)
+  // ACH-020 dados-persistencia: widened to (14,2). Decimal(10,2) caps
+  // at 99 999 999.99 — fine per sale today, but rollup queries
+  // (total por tenant por ano) can overflow; staying ahead on the
+  // columns that feed aggregates is cheaper than migrating under load.
+  discount          Decimal    @default(0) @db.Decimal(14, 2)
+  total             Decimal    @db.Decimal(14, 2)
+  cashbackUsed      Decimal    @default(0) @db.Decimal(14, 2)
+  cashbackGenerated Decimal    @default(0) @db.Decimal(14, 2)
   campaignId        String?    @db.Uuid  // origem da venda (campanha)
   notes             String?
   version           Int        @default(0)
@@ -357,6 +371,9 @@ model Sale {
   @@index([tenantId, status])
   @@index([tenantId, clientId])
   @@index([tenantId, createdAt])
+  // ACH-013 dados-persistencia: composite for dashboard status-filtered
+  // time ranges (most common analytics query).
+  @@index([tenantId, status, createdAt])
   @@map("sales")
 }
 
@@ -390,6 +407,10 @@ model SaleItem {
   sale    Sale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
   product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
 
+  // ACH-005 dados-persistencia: FK lookup from Sale → items hits this
+  // path on every detail fetch. Without the index it degrades to scan
+  // as the table grows.
+  @@index([saleId])
   @@map("sale_items")
 }
 
@@ -437,6 +458,27 @@ model Cashback {
   @@map("cashbacks")
 }
 
+// ACH-012 dados-persistencia: idempotent cashback redemption.
+// Writes happen inside the same Serializable transaction as the
+// `Cashback.usedAmount` updates. A retry presents the same
+// `idempotencyKey` and either (a) hits the PK and the redemption
+// returns no-op, or (b) was already committed and the Serializable
+// isolation prevents a concurrent second application.
+//
+// `tenantId` is part of the key so two tenants can't collide on the
+// same client-generated id.
+model CashbackRedemption {
+  tenantId       String   @db.Uuid
+  idempotencyKey String
+  clientId       String   @db.Uuid
+  amount         Decimal  @db.Decimal(10, 2)
+  createdAt      DateTime @default(now())
+
+  @@id([tenantId, idempotencyKey])
+  @@index([tenantId, clientId])
+  @@map("cashback_redemptions")
+}
+
 model Return {
   id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   saleId       String   @db.Uuid
@@ -447,6 +489,8 @@ model Return {
 
   sale Sale @relation(fields: [saleId], references: [id], onDelete: Cascade)
 
+  // ACH-005 dados-persistencia.
+  @@index([saleId])
   @@map("returns")
 }
 
@@ -482,6 +526,8 @@ model BrandOrder {
   brand  Brand  @relation(fields: [brandId], references: [id])
   items  BrandOrderItem[]
 
+  // ACH-005 dados-persistencia: list by status is the dashboard query.
+  @@index([tenantId, status])
   @@map("brand_orders")
 }
 
@@ -501,6 +547,8 @@ model BrandOrderItem {
 
   brandOrder BrandOrder @relation(fields: [brandOrderId], references: [id], onDelete: Cascade)
 
+  // ACH-005 dados-persistencia: FK lookup for order details.
+  @@index([brandOrderId])
   @@map("brand_order_items")
 }
 
@@ -518,6 +566,8 @@ model Sample {
   product Product @relation(fields: [productId], references: [id])
   client  Client? @relation(fields: [clientId], references: [id])
 
+  // ACH-005 dados-persistencia.
+  @@index([tenantId, clientId])
   @@map("samples")
 }
 
@@ -539,6 +589,10 @@ model Campaign {
   statsReplied  Int           @default(0)
   statsSales    Int           @default(0)
   shareOnFeed   Boolean       @default(false)
+  // ACH-003 dados-persistencia: optimistic-locking version for the
+  // concurrent stats increments (viewed/replied/sales come from async
+  // handlers and can race).
+  version       Int           @default(0)
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
 
@@ -633,6 +687,8 @@ model PostSaleFlow {
   sale Sale @relation(fields: [saleId], references: [id], onDelete: Cascade)
 
   @@index([scheduledAt, status])
+  // ACH-005 dados-persistencia: FK lookup by sale.
+  @@index([saleId])
   @@map("post_sale_flows")
 }
 
@@ -686,6 +742,8 @@ model CommunityTemplate {
 
   @@index([likesCount(sort: Desc)])
   @@index([topic])
+  // ACH-005 dados-persistencia: tenant-scoped queries need this.
+  @@index([tenantId])
   @@map("community_templates")
 }
 
@@ -697,6 +755,8 @@ model QuickReply {
 
   tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
+  // ACH-005 dados-persistencia.
+  @@index([tenantId])
   @@map("quick_replies")
 }
 
@@ -796,15 +856,25 @@ enum ReminderStatus {
   DISMISSED
 }
 
+// ACH-009 dados-persistencia: `status` promoted from free-form String
+// to a typed enum so malformed values can't slip through and pipeline
+// metrics stay coherent.
+enum OpportunityStatus {
+  PENDING
+  IN_PROGRESS
+  WON
+  LOST
+}
+
 model Opportunity {
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  tenantId    String   @db.Uuid
-  clientId    String?  @db.Uuid
+  id          String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId    String            @db.Uuid
+  clientId    String?           @db.Uuid
   type        String
   description String
   scheduledAt DateTime
-  status      String   @default("pending")
-  createdAt   DateTime @default(now())
+  status      OpportunityStatus @default(PENDING)
+  createdAt   DateTime          @default(now())
 
   tenant Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   client Client? @relation(fields: [clientId], references: [id])
@@ -856,6 +926,8 @@ model TeamTask {
 
   team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
 
+  // ACH-005 dados-persistencia: team task list + per-member filter.
+  @@index([teamId, memberId])
   @@map("team_tasks")
 }
 
@@ -907,6 +979,12 @@ model Delivery {
   sale   Sale   @relation(fields: [saleId], references: [id], onDelete: Cascade)
   client Client @relation(fields: [clientId], references: [id])
 
+  // ACH-005 dados-persistencia: Delivery rows aren't tenant-scoped via
+  // column — they inherit tenant through the Sale. Status filter is
+  // the dashboard query; index on client is for personal delivery
+  // listings.
+  @@index([status])
+  @@index([clientId])
   @@map("deliveries")
 }
 
@@ -960,8 +1038,13 @@ model Referral {
   usedAt           DateTime?
   createdAt        DateTime @default(now())
 
+  // ACH-021 dados-persistencia: uniform `Restrict` on both FKs so
+  // queries don't have to carry IS NOT NULL to skip dangling rows, and
+  // a tenant can't be deleted while it's still linked as referrer or
+  // referred. Loosening later is safer than tightening (the reverse
+  // leaves orphaned rows that need cleanup).
   referrer Tenant  @relation("referrer", fields: [referrerTenantId], references: [id], onDelete: Restrict)
-  referred Tenant? @relation("referred", fields: [referredTenantId], references: [id], onDelete: SetNull)
+  referred Tenant? @relation("referred", fields: [referredTenantId], references: [id], onDelete: Restrict)
 
   @@map("referrals")
 }
@@ -1003,6 +1086,22 @@ enum OutboxStatus {
   PROCESSED
   FAILED
   DLQ
+}
+
+// ACH-011 dados-persistencia: handler-side idempotency. Each outbox
+// consumer writes `(eventId, handlerName)` into this table inside the
+// same transaction as its side-effect. A retry after crash or at-least-
+// once redelivery hits the unique constraint and the handler returns
+// no-op. Without this, a retried SALE_CONFIRMED could decrement stock
+// twice, send two WhatsApp messages, etc.
+model ProcessedEvent {
+  eventId     String   @db.Uuid
+  handlerName String
+  processedAt DateTime @default(now())
+
+  @@id([eventId, handlerName])
+  @@index([processedAt])
+  @@map("processed_events")
 }
 
 // ============================================================

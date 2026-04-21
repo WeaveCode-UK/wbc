@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "../index";
 import type { DomainEvent } from "@wbc/shared";
 import type { OutboxPort } from "@wbc/shared/events";
@@ -33,30 +34,37 @@ export class PrismaOutboxRepository implements OutboxPort {
   }
 
   async claimPending(limit: number) {
-    // Atomically claim PENDING events → PROCESSING to prevent duplicate dispatch
-    // Respects nextRetryAt for exponential backoff
-    const now = new Date();
-    const pending = await prisma.outboxEvent.findMany({
-      where: {
-        status: "PENDING",
-        OR: [{ nextRetryAt: null }, { nextRetryAt: { lte: now } }],
-      },
-      orderBy: { createdAt: "asc" },
-      take: limit,
-      select: { id: true },
-    });
-    if (pending.length === 0) return [];
-
-    const ids = pending.map((e) => e.id);
-    await prisma.outboxEvent.updateMany({
-      where: { id: { in: ids }, status: "PENDING" },
-      data: { status: "PROCESSING" },
-    });
-
-    return prisma.outboxEvent.findMany({
-      where: { id: { in: ids }, status: "PROCESSING" },
-      select: { id: true, type: true, tenantId: true, payload: true },
-    });
+    // ACH-002 dados-persistencia: atomic claim via `FOR UPDATE SKIP LOCKED`.
+    // The previous implementation (`findMany` → `updateMany`) had a race
+    // window: two workers could select the same row in step 1 before
+    // either completed step 2, and end up dispatching the same event
+    // twice. `FOR UPDATE SKIP LOCKED` has Postgres skip rows another
+    // transaction is already holding, so concurrent workers pick up
+    // disjoint batches by construction.
+    //
+    // The RETURNING clause pulls the payload in the same round-trip, so
+    // no second findMany is needed.
+    const rows = await prisma.$queryRaw<
+      Array<{
+        id: string;
+        type: string;
+        tenantId: string;
+        payload: Prisma.JsonValue;
+      }>
+    >`
+      UPDATE "OutboxEvent"
+      SET "status" = 'PROCESSING'
+      WHERE "id" IN (
+        SELECT "id" FROM "OutboxEvent"
+        WHERE "status" = 'PENDING'
+          AND ("nextRetryAt" IS NULL OR "nextRetryAt" <= NOW())
+        ORDER BY "createdAt" ASC
+        LIMIT ${limit}
+        FOR UPDATE SKIP LOCKED
+      )
+      RETURNING "id", "type", "tenantId", "payload"
+    `;
+    return rows;
   }
 
   async markProcessed(id: string): Promise<void> {

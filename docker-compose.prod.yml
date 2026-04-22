@@ -89,6 +89,11 @@ services:
         DATABASE_URL: postgresql://${POSTGRES_USER:-wbc}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-wbc}?schema=public
     container_name: wbc-worker
     restart: unless-stopped
+    # ACH-005 confiabilidade-resiliencia: o worker implementa shutdown
+    # longo (até 30s) para drenar jobs em-flight. Default do Docker é
+    # 10s, o que gera SIGKILL prematuro e deixa eventos em PROCESSING
+    # órfãos. 40s dá margem para drenar antes do kill forçado.
+    stop_grace_period: 40s
     env_file: .env.production
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-wbc}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-wbc}?schema=public&connection_limit=5&pool_timeout=10

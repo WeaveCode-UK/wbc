@@ -5,15 +5,15 @@
 - run_id: 2026-04-19_07-51-34
 - branch: fix/observabilidade-operacao/2026-04-19_07-51-34
 - data_inicio: 2026-04-22 00:35:00
-- ultima_atualizacao: 2026-04-22 01:00:00
+- ultima_atualizacao: 2026-04-22 (revisor ACH-001)
 - fase_atual: revisor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 15
 - corrigidos_executor: 15
-- revisados_revisor: 0
-- corrigidos_pelo_revisor: 0
+- revisados_revisor: 1
+- corrigidos_pelo_revisor: 1
 - nao_corrigiveis: 0
 - nao_aprovados: 0
 - pendentes: 0
@@ -25,12 +25,22 @@
 - severidade: alto
 - classificacao: corrigivel_parcial
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: corrigido_pelo_revisor
 - commit_executor: e676b91
 - arquivos_alterados:
   - apps/worker/src/lib/metrics.ts (novo)
   - apps/worker/src/health-server.ts (rota /metrics)
   - deploy/prometheus.yml (jobs wbc-api e wbc-worker)
+- resultado_revisao: |
+    Worker OK — workerMetricsRegistry com collectDefaultMetrics +
+    wbc_outbox_lag_ms, wbc_bullmq_queue_depth, wbc_dlq_events_total,
+    servido em :9100/metrics pelo health-server. Prometheus.yml com 3
+    jobs (web, api, worker) OK. DISCREPÂNCIA: job `wbc-api` aponta
+    para `api:3001/api/metrics`, mas apps/api era módulo sem HTTP
+    server — scrape quebrado e metricsRegistry tRPC inacessível.
+    Revisor adicionou apps/api/src/metrics-server.ts (servidor
+    node:http mínimo em 3001 expondo metricsRegistry) e wiring em
+    apps/api/src/index.ts. Type-check pnpm --filter @wbc/api passou.
 
 ### ACH-002
 - titulo: OpenTelemetry e Sentry desacoplados — traceId não flui para logs/errors

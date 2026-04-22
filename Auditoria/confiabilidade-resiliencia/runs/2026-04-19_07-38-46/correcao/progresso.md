@@ -5,14 +5,14 @@
 - run_id: 2026-04-19_07-38-46
 - branch: fix/confiabilidade-resiliencia/2026-04-19_07-38-46
 - data_inicio: 2026-04-22 00:00:00
-- ultima_atualizacao: 2026-04-22 00:50:00
+- ultima_atualizacao: 2026-04-22 00:55:00
 - fase_atual: revisor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 17
 - corrigidos_executor: 17
-- revisados_revisor: 10
+- revisados_revisor: 11
 - corrigidos_pelo_revisor: 0
 - nao_corrigiveis: 0
 - nao_aprovados: 0
@@ -164,12 +164,13 @@
 - severidade: medio
 - classificacao: corrigivel_parcial
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: 30d59be
 - commit_revisor: none
 - arquivos_alterados:
   - packages/db/src/outbox/prisma-outbox-repository.ts
 - descricao_correcao: claimPendingRoundRobin com DISTINCT ON (tenant_id); opt-in via OUTBOX_CLAIM_STRATEGY=round_robin.
+- resultado_revisao: aprovado — diff 30d59be adiciona getter claimStrategy lendo process.env.OUTBOX_CLAIM_STRATEGY (default "fifo", sem breaking change) e método privado claimPendingRoundRobin com SELECT DISTINCT ON ("tenantId") "id" FROM "OutboxEvent" WHERE status=PENDING AND (nextRetryAt IS NULL OR nextRetryAt<=NOW()) ORDER BY "tenantId", "createdAt" ASC LIMIT N FOR UPDATE SKIP LOCKED, envolvido em UPDATE ... WHERE id IN (...) RETURNING. Sintaxe SQL válida em Postgres — DISTINCT ON exige que a expressão case com a primeira coluna do ORDER BY ("tenantId"), respeitado; createdAt ASC como segundo critério garante o evento mais antigo por tenant; FOR UPDATE SKIP LOCKED no subquery trava as linhas escolhidas pelo DISTINCT ON e permite workers concorrentes pegarem batches disjuntos; LIMIT limita nº de tenants no batch. claimPending delega ao round-robin quando env setado, preservando o caminho FIFO exponencial+jitter+SKIP LOCKED (ACH-002/008/010) como default. Comentário inline referencia ACH-011 e registra follow-up para índice composto (status, tenantId, createdAt) sob alta cardinalidade. Classificação parcial mantém-se porque partições por tenant (ADR-008) permanecem como evolução futura — o round-robin é a camada opt-in intermediária conforme recomendação.
 
 ### ACH-012
 - titulo: Thresholds de circuit breaker hardcoded

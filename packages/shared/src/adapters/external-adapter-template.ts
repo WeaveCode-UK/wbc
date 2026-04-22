@@ -68,7 +68,7 @@ export abstract class ExternalAdapterTemplate<TResult> {
     try {
       return await this.circuit.execute(() =>
         withRetry<TResult>(async ({ attempt }) => {
-          const { signal } = createTimeoutSignal(this.config.timeout.timeoutMs);
+          const { signal } = createTimeoutSignal(this.config.timeout);
           return this.doCall({ signal, attempt });
         }, this.config.retry),
       );

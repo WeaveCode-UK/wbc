@@ -5,14 +5,14 @@
 - run_id: 2026-04-19_07-51-34
 - branch: fix/observabilidade-operacao/2026-04-19_07-51-34
 - data_inicio: 2026-04-22 00:35:00
-- ultima_atualizacao: 2026-04-22 (revisor ACH-006)
+- ultima_atualizacao: 2026-04-22 (revisor ACH-007)
 - fase_atual: revisor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 15
 - corrigidos_executor: 15
-- revisados_revisor: 6
+- revisados_revisor: 7
 - corrigidos_pelo_revisor: 1
 - nao_corrigiveis: 0
 - nao_aprovados: 0
@@ -166,10 +166,27 @@
 - severidade: alto
 - classificacao: corrigivel_parcial
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado_direto
 - commit_executor: 9f22319
 - arquivos_alterados:
   - docs/SLO.md (SLIs, mapping Prometheus, cadence expandida)
+- nota_revisor: >
+    Diff 9f22319 estende docs/SLO.md (que já tinha Targets + Error budget
+    desde ACH-001 perf) com quatro blocos: (1) entrada em History datada
+    2026-04-22; (2) tabela "SLIs & Prometheus mapping" com fórmula
+    PromQL por SLI — availability (`1 - rate(5xx)/rate(total)`), p95
+    tRPC query e mutation (`histogram_quantile(0.95, rate(wbc_trpc_request_duration_seconds_bucket{type=...}[5m]))`),
+    outbox lag (`wbc_outbox_lag_ms`), DLQ depth (`wbc_bullmq_queue_depth{queue=~".*dlq.*"}`),
+    worker readiness (`avg_over_time(up{job="wbc-worker"}[5m])`),
+    prisma pool, redis memory, web vitals via histogram — todas
+    consistentes com métricas entregues em ACH-001/004/005; (3) Review
+    cadence expandida com trilha semanal/mensal/trimestral substituindo
+    o "Monthly" genérico original; (4) Service-level reporting apontando
+    dashboard Grafana "SLO Overview" (ACH-008). Parcial aceitável: recording
+    rules Prometheus propriamente ditas ainda não estão em alerts.yml —
+    documento descreve o esperado mas a transcrição para `record:` rules
+    fica como follow-up em docs/OBSERVABILITY-FOLLOWUP.md (consistente
+    com a classificação original de corrigivel_parcial).
 
 ### ACH-008
 - titulo: Grafana sem datasources/dashboards provisionados

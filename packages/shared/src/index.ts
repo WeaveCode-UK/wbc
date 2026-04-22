@@ -18,6 +18,7 @@ export * from "./constants/timings";
 export * from "./mappers/base";
 export * from "./circuit-breaker";
 export * from "./resilience";
+export * from "./adapters/external-adapter-template";
 export * from "./http/client";
 export * from "./integrations/whatsapp";
 export * from "./jobs/schemas";

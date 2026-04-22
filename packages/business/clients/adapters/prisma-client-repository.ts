@@ -1,8 +1,10 @@
 import { prisma } from "@wbc/db";
 import { buildTenantWhere, paginatedQuery } from "@wbc/shared";
 import type {
-  ClientRepository,
   ClientFilters,
+  ClientRepository,
+  ClientWithTags,
+  ListClientsOptions,
 } from "../ports/client-repository";
 import type { Client } from "../domain/entities";
 import { pickClientUpdatable } from "../domain/updatable-fields";
@@ -36,7 +38,8 @@ export class PrismaClientRepository implements ClientRepository {
     filters: ClientFilters,
     page: number,
     limit: number,
-  ) {
+    options: ListClientsOptions = {},
+  ): Promise<{ data: ClientWithTags[]; total: number }> {
     const where = buildTenantWhere(tenantId, {
       classification: filters.classification,
       isLead: filters.isLead,
@@ -50,10 +53,30 @@ export class PrismaClientRepository implements ClientRepository {
       ];
     }
 
-    return paginatedQuery<Client>(prisma.client as never, where, {
-      page,
-      limit,
-    });
+    // ACH-005 performance-escalabilidade: when the caller asks for
+    // tags, pull them in the same query via `include` so a 20-client
+    // page is 2 round-trips instead of 21. `paginatedQuery` accepts
+    // `include` as its 5th arg. When `withTags` is false we stay on
+    // the plain data/total shape so existing callers don't pay for
+    // the join.
+    const include = options.withTags
+      ? { tags: { include: { tag: true } } }
+      : undefined;
+    const result = await paginatedQuery<
+      Client & {
+        tags?: Array<{
+          tag: { id: string; name: string; color: string | null };
+        }>;
+      }
+    >(prisma.client as never, where, { page, limit }, undefined, include);
+
+    const data: ClientWithTags[] = options.withTags
+      ? result.data.map((c) => ({
+          ...c,
+          tags: (c.tags ?? []).map((t) => t.tag),
+        }))
+      : (result.data as ClientWithTags[]);
+    return { data, total: result.total };
   }
 
   async create(

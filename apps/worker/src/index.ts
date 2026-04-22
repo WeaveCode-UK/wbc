@@ -22,7 +22,7 @@ process.on("uncaughtException", (error) => {
   Sentry.captureException(error);
   process.exit(1);
 });
-import { applyTenantMiddleware } from "@wbc/db";
+import { applyTenantMiddleware, createSlowQueryMiddleware } from "@wbc/db";
 import { prisma } from "@wbc/db";
 import {
   assertOutboxReady,
@@ -69,6 +69,15 @@ import {
 // Apply tenant middleware
 applyTenantMiddleware(() => getCurrentTenant()?.tenantId);
 
+// ACH-030 performance-escalabilidade: same slow-query probe the API runs.
+prisma.$use(
+  createSlowQueryMiddleware({
+    thresholdMs: Number(process.env.PRISMA_SLOW_QUERY_MS ?? 500),
+    sampleRate: Number(process.env.PRISMA_SLOW_QUERY_SAMPLE ?? 1),
+    warn: (fields, msg) => logger.warn(fields, msg),
+  }),
+);
+
 // Initialize outbox port
 setOutboxPort(new PrismaOutboxRepository());
 // ACH-017 apis-integracoes: fail fast if the wire above is ever removed
@@ -85,11 +94,28 @@ logger.info("WBC Worker starting...");
 logger.info("Domain event handlers registered");
 
 // Process outbox using the central OUTBOX_POLL_INTERVAL_MS constant (ACH-010).
+// ACH-009 performance-escalabilidade: reentrance guard. When a batch
+// takes longer than the poll interval, `setInterval` queues a second
+// `processOutbox` before the first finishes. Even with SKIP LOCKED
+// (ACH-002 dados-persistencia) the two runs still contend for the
+// same connection pool slots and double the scheduler pressure —
+// better to skip the tick entirely and let lag register.
+let isOutboxPolling = false;
 const outboxInterval = setInterval(async () => {
+  if (isOutboxPolling) {
+    logger.warn(
+      {},
+      "Outbox polling tick skipped — previous run still in progress (ACH-009 perf)",
+    );
+    return;
+  }
+  isOutboxPolling = true;
   try {
     await processOutbox();
   } catch (error) {
     logger.error({ error }, "Outbox processing failed");
+  } finally {
+    isOutboxPolling = false;
   }
 }, OUTBOX_POLL_INTERVAL_MS);
 

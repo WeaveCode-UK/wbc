@@ -1,0 +1,57 @@
+# ACH-001 performance-escalabilidade: Prometheus alert rules.
+# Targets reference `docs/SLO.md`.
+#
+# Mount into the Prometheus container via `--rule.files`. Labels
+# chosen so Alertmanager can route by `severity` and `team`.
+
+groups:
+  - name: wbc-perf
+    interval: 30s
+    rules:
+      - alert: OutboxLagHigh
+        expr: wbc_outbox_lag_ms > 60000
+        for: 90s
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Outbox lag > 60s (ACH-001)"
+          description: "Worker is falling behind; check scheduled jobs and Redis health."
+
+      - alert: TrpcLatencyP95High
+        expr: histogram_quantile(0.95, rate(trpc_request_duration_seconds_bucket[5m])) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "tRPC p95 latency > 800ms (ACH-001)"
+          description: "Queries degrading; check DB index usage and cache hit rate."
+
+      - alert: PrismaPoolExhausted
+        expr: prisma_pool_usage_ratio > 0.8
+        for: 2m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Prisma connection pool > 80% (ACH-013)"
+
+      - alert: DlqDepthHigh
+        expr: wbc_dlq_depth > 100
+        for: 5m
+        labels:
+          severity: page
+          team: platform
+        annotations:
+          summary: "DLQ depth crossed 100 entries (ACH-020 apis-integracoes)"
+          description: "Chronic failure mode; review dlq-replay runbook."
+
+      - alert: RedisMemoryHigh
+        expr: redis_memory_used_bytes / redis_memory_max_bytes > 0.7
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "Redis memory > 70% of maxmemory"

@@ -38,6 +38,7 @@ import {
 } from "@wbc/validators";
 import { idempotentRoute } from "../trpc/idempotency-middleware";
 import { listOk } from "../trpc/responses";
+import { withCacheInvalidation } from "../lib/cache-invalidation";
 
 const clientRepo = new PrismaClientRepository();
 const tagRepo = new PrismaTagRepository();
@@ -85,10 +86,15 @@ export const clientsRouter = router({
       // consumer that assumes one event per logical creation.
       const { idempotencyKey: _key, ...clientInput } = input;
       void _key;
-      return idempotentRoute("clients.create", ctx.tenant.tenantId, input, () =>
-        createClient(
-          { ...clientInput, tenantId: ctx.tenant.tenantId },
-          clientRepo,
+      // ACH-007 performance-escalabilidade: invalidate clients + dashboard
+      // caches after creation. Seed adoption — other mutations migrate
+      // alongside their next functional change.
+      return withCacheInvalidation("clients", () =>
+        idempotentRoute("clients.create", ctx.tenant.tenantId, input, () =>
+          createClient(
+            { ...clientInput, tenantId: ctx.tenant.tenantId },
+            clientRepo,
+          ),
         ),
       );
     }),

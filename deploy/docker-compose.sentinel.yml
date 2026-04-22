@@ -1,0 +1,38 @@
+# ACH-011 performance-escalabilidade: Sentinel template.
+#
+# Extends `docker-compose.prod.yml` — run with:
+#   docker compose -f docker-compose.prod.yml \
+#                  -f deploy/docker-compose.sentinel.yml up -d
+#
+# Three Sentinels + one replica is the minimum quorum (quorum=2 of 3).
+# For a real prod setup, run Sentinels on separate hosts.
+
+services:
+  redis-replica:
+    image: redis:7-alpine
+    command: >
+      redis-server
+      --replicaof redis 6379
+      --masterauth ${REDIS_PASSWORD}
+      --requirepass ${REDIS_PASSWORD}
+    depends_on:
+      - redis
+    networks:
+      - wbc
+
+  sentinel-1: &sentinel
+    image: redis:7-alpine
+    command: >
+      redis-sentinel /etc/redis/sentinel.conf
+    volumes:
+      - ./sentinel.conf:/etc/redis/sentinel.conf
+    depends_on:
+      - redis
+    networks:
+      - wbc
+
+  sentinel-2:
+    <<: *sentinel
+
+  sentinel-3:
+    <<: *sentinel

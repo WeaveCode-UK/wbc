@@ -1,0 +1,15 @@
+# ACH-002 performance-escalabilidade: Grafana provisioning entry.
+# Drop into `/etc/grafana/provisioning/dashboards/` (docker-compose
+# bind-mount) so dashboards auto-load on Grafana start.
+
+apiVersion: 1
+providers:
+  - name: 'wbc'
+    orgId: 1
+    folder: 'WBC'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/wbc

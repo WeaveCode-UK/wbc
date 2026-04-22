@@ -1,6 +1,6 @@
 {
   "schema_version": "2.2",
-  "generated_at": "2026-04-20T22:20:03.118Z",
+  "generated_at": "2026-04-22T20:21:05.025Z",
   "total": 294,
   "total_runs": 15,
   "distribution": {
@@ -37,17 +37,17 @@
   },
   "correction_summary": {
     "runs_by_correction_state": {
-      "not_started": 10,
-      "in_progress": 3,
+      "not_started": 9,
+      "in_progress": 4,
       "completed": 2
     },
-    "total_findings_corrected": 112,
-    "total_findings_not_correctable": 1,
+    "total_findings_corrected": 141,
+    "total_findings_not_correctable": 2,
     "total_findings_pending_correction": 0,
-    "total_commits": 103
+    "total_commits": 113
   },
   "progress": {
-    "last_updated": "2026-04-20T22:20:03.117Z",
+    "last_updated": "2026-04-22T20:21:05.023Z",
     "domains": {
       "arquitetura": {
         "domain": "arquitetura",
@@ -510,7 +510,18 @@
         "confirmado": 30
       },
       "correction": {
-        "state": "not_started"
+        "state": "in_progress",
+        "branch": "fix/performance-escalabilidade/2026-04-18_23-18-19",
+        "started_at": "2026-04-22 00:10:00",
+        "finished_at": null,
+        "fase_atual": "revisor",
+        "corrected": 29,
+        "reviewed_ok": 30,
+        "not_correctable": 1,
+        "not_approved": 0,
+        "pending": 0,
+        "total_approved": 30,
+        "total_commits": 10
       }
     },
     {
@@ -2580,7 +2591,13 @@
       "acao_sugerida": "Publicar `docs/SLO.md` com targets por serviço; configurar alert rules (`outbox_lag_ms > 60s`, `prisma_pool_usage > 80%`, `trpc_latency_p95 > 800ms`)",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "f810517",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -2603,7 +2620,13 @@
       "acao_sugerida": "Emitir evento único \"campaign.dispatch\" com array de recipientIds, dividir em sub-jobs `send-bulk` em `Promise.all([queue.add(...)])`; messaging-processor processa lotes atómicos com idempotency-key",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "91827e1",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -2626,7 +2649,13 @@
       "acao_sugerida": "Hook em mutations: após `create/update/delete` chamar `cacheInvalidatePatternForTenant('sales:*')`, etc.; lista central com padrões por domínio",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "3a32eb7",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -2649,7 +2678,13 @@
       "acao_sugerida": "Flag `isProcessing` para evitar reentrância; interval adaptativo (10s se lag > 30s); usar média móvel em `/health/ready`",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "813006d",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -2672,7 +2707,13 @@
       "acao_sugerida": "Redis Sentinel (3 nodes) ou Cluster; ou ElastiCache gerenciado com failover automático; elevar `maxmemory` conforme uso",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "f810517",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -2696,7 +2737,13 @@
       "acao_sugerida": "Primary + hot standby via `pg_basebackup`; ou RDS Multi-AZ; runbook de failover documentado",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "f810517",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -2719,7 +2766,13 @@
       "acao_sugerida": "Adicionar `@next/bundle-analyzer`; script `analyze`; CI falha se chunk principal > 250KB gzip",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "05cb7d6",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -2742,7 +2795,13 @@
       "acao_sugerida": "`revalidate: 3600` em landing e `/catalog/public/[slug]`; webhook para revalidar sob demanda (publish do catálogo)",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "f810517",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -2765,7 +2824,13 @@
       "acao_sugerida": "CloudFront/Cloudflare como CDN; `assetPrefix` via env; definir `Cache-Control` por tipo de resposta",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "05cb7d6",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -2788,7 +2853,13 @@
       "acao_sugerida": "Instalar `web-vitals`; reportar para Sentry ou endpoint `/api/vitals`; elevar sample a `0.1` para transactions críticas",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "8bf9429",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -2811,7 +2882,13 @@
       "acao_sugerida": "Migrar para Kubernetes (HPA + PDB); alternativa curta: `docker compose up --scale web=2` + nginx upstream atualizado",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "f810517",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -2834,7 +2911,13 @@
       "acao_sugerida": "Script k6 com fluxos críticos (login, listar clients, criar sale); rodar em staging; publicar números em ADR",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "f810517",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -5679,7 +5762,13 @@
       "acao_sugerida": "Commitar JSON de dashboards (latência tRPC por procedure; BullMQ queue depth; outbox lag; Prisma pool; memória/CPU)",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "f810517",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -5702,7 +5791,13 @@
       "acao_sugerida": "Em produção, exigir a env var (falha rápida); em dev emitir warning; log estruturado com status \"tracing_enabled",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "813006d",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -5725,7 +5820,13 @@
       "acao_sugerida": "Flag opcional `withTags` em `list()` que aciona `include`; teste unitário do repo com snapshot da quantidade de queries",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "3a32eb7",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -5749,7 +5850,13 @@
       "acao_sugerida": "Usar `decimal.js` ou `bigint` (centavos) em todas as operações monetárias; converter na fronteira",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "88e8e1b",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -5772,7 +5879,13 @@
       "acao_sugerida": "`JobsOptions.priority`; `limiter: { max, duration }` por provider; documentar escala horizontal em função de `queueDepth`",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "91827e1",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -5795,7 +5908,13 @@
       "acao_sugerida": "Documentar `?connection_limit=3` no DATABASE_URL do worker; planilha de capacidade (`1 worker = 3`, `1 web = 20`, total ≤ 70)",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "813006d",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -5818,7 +5937,13 @@
       "acao_sugerida": "Limitar `page ≤ 1000` no schema; cursor-based para grandes listas",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "pending",
+        "classificacao": "corrigivel",
+        "status_executor": "ja_resolvido_por_outra_run",
+        "status_revisor": "nao_aplicavel",
+        "executor_commit": "resolvido em apis-integracoes/ACH-018",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -5841,7 +5966,13 @@
       "acao_sugerida": "Providers como Server Components quando possível; manter client apenas em forms/interativos; auditar `\"use client\"` com ESLint rule",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "f810517",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -5864,7 +5995,13 @@
       "acao_sugerida": "Identificar >50KB (modais, editores, gráficos) e envolver em `dynamic()` com `ssr: false`",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "f810517",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -5887,7 +6024,13 @@
       "acao_sugerida": "Envolver avatares e banners em `<Image>` com `sizes` responsivo; placeholder `blur`",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "f810517",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -5910,7 +6053,13 @@
       "acao_sugerida": "Instalar `ngx_brotli` (ou migrar para CDN); `gzip_comp_level 6`, `gzip_min_length 500`; adicionar brotli paralelamente",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "05cb7d6",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -5933,7 +6082,13 @@
       "acao_sugerida": "`windowSize={10}`, `updateCellsBatchingPeriod={50}`, `keyExtractor` estável, `renderItem` memoizado",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "f810517",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -5956,7 +6111,13 @@
       "acao_sugerida": "Envolver chamadas externas com circuit breaker + fallback (DLQ + alerta); métricas por provider",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "f810517",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -5979,7 +6140,13 @@
       "acao_sugerida": "Expor `{waiting, active, delayed, paused}` por fila; Prometheus alert `waiting > 1000`",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "c2a23c8",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -7591,7 +7758,13 @@
       "acao_sugerida": "Paginação cursor-based em listas grandes; considerar streaming para relatórios (chunked response)",
       "prioridade": "baixa",
       "correction": {
-        "state": "not_started"
+        "state": "not_correctable",
+        "classificacao": "nao_corrigivel",
+        "status_executor": "nao_aplicavel",
+        "status_revisor": "nao_aplicavel",
+        "executor_commit": null,
+        "reviewer_commit": null,
+        "observacoes": "decisão arquitetural; reavaliar em roadmap"
       }
     },
     {
@@ -7614,7 +7787,13 @@
       "acao_sugerida": "Constantes diferenciadas: DASHBOARD=60s, ENTITLEMENTS=300s, MONTHLY_STATS=3600s",
       "prioridade": "baixa",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "813006d",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -7637,7 +7816,13 @@
       "acao_sugerida": "Usar p95/ema dos últimos N; considerar isolate GC; `readiness` usa threshold de ventana, não pontual",
       "prioridade": "baixa",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "c2a23c8",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -7660,7 +7845,13 @@
       "acao_sugerida": "Middleware Prisma que capture queries > 500ms em prod com amostragem; exportar métrica; cross-ref com `pg_stat_statements` (ACH-022 dados-persistencia)",
       "prioridade": "baixa",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "7860679",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {

@@ -1,0 +1,38 @@
+{
+  "title": "WBC — Overview",
+  "description": "ACH-002 performance-escalabilidade: seed dashboard. Add panels for p95 latency per procedure, outbox lag, DLQ depth, Redis memory, Prisma pool as queries become available.",
+  "tags": ["wbc", "perf"],
+  "timezone": "browser",
+  "refresh": "30s",
+  "time": { "from": "now-6h", "to": "now" },
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Outbox lag (ms)",
+      "datasource": "Prometheus",
+      "targets": [{ "expr": "wbc_outbox_lag_ms", "legendFormat": "lag" }],
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 }
+    },
+    {
+      "type": "stat",
+      "title": "DLQ depth",
+      "datasource": "Prometheus",
+      "targets": [{ "expr": "wbc_dlq_depth", "legendFormat": "dlq" }],
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 }
+    },
+    {
+      "type": "timeseries",
+      "title": "tRPC p95 latency (s)",
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, rate(trpc_request_duration_seconds_bucket[5m]))",
+          "legendFormat": "p95"
+        }
+      ],
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 }
+    }
+  ],
+  "schemaVersion": 37,
+  "version": 1
+}

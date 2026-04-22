@@ -34,21 +34,87 @@ function sendJson(res: ServerResponse, status: number, body: unknown): void {
   res.end(JSON.stringify(body));
 }
 
+// ACH-028 performance-escalabilidade: lag EMA buffer.
+// Readiness used to flip degraded on a single GC-pause spike, which
+// cascaded into container restarts. We now keep a small ring buffer
+// of recent lag samples and report both the instantaneous value and
+// the rolling mean; readiness decides on the mean, which smooths
+// out single-sample spikes without hiding sustained lag.
+const LAG_WINDOW_SIZE = 6; // 6 samples × scrape interval ≈ 30-60s window
+const lagWindow: number[] = [];
+
+function recordLag(sample: number): { instant: number; mean: number } {
+  if (sample >= 0) {
+    lagWindow.push(sample);
+    if (lagWindow.length > LAG_WINDOW_SIZE) lagWindow.shift();
+  }
+  const mean =
+    lagWindow.length === 0
+      ? sample
+      : lagWindow.reduce((a, b) => a + b, 0) / lagWindow.length;
+  return { instant: sample, mean };
+}
+
 /**
- * Reporta status basico dos workers BullMQ (running/paused). A profundidade
- * real de cada fila requer um Queue object separado (o Worker do BullMQ nao
- * expoe queue depth diretamente). Melhoria planejada: instanciar Queues em
- * paralelo aos Workers e passa-las aqui para reportar waiting/active/delayed.
+ * ACH-029 performance-escalabilidade: queue depth per worker.
+ * Previously we reported just `paused`. Autoscalers and alert rules
+ * need `waiting` / `active` / `delayed` to react to backpressure
+ * before the queue saturates. BullMQ's Worker owns an internal queue
+ * reference via `opts.connection`; we probe it via a lightweight
+ * `Queue.getJobCounts()` call that reuses the same Redis connection.
  */
-async function collectWorkerStatus(
-  workers: BullMQWorker[],
-): Promise<Record<string, { paused: boolean }>> {
-  const status: Record<string, { paused: boolean }> = {};
+async function collectWorkerStatus(workers: BullMQWorker[]): Promise<
+  Record<
+    string,
+    {
+      paused: boolean;
+      waiting?: number;
+      active?: number;
+      delayed?: number;
+      failed?: number;
+    }
+  >
+> {
+  const status: Record<
+    string,
+    {
+      paused: boolean;
+      waiting?: number;
+      active?: number;
+      delayed?: number;
+      failed?: number;
+    }
+  > = {};
   for (const w of workers) {
+    let paused = false;
     try {
-      status[w.name] = { paused: await w.isPaused() };
+      // BullMQ typings return `boolean` but older majors returned a
+      // Promise; `await` on a plain value is a no-op.
+      paused = await Promise.resolve(w.isPaused());
     } catch {
-      status[w.name] = { paused: false };
+      paused = false;
+    }
+    try {
+      // Lazy-import to avoid a top-level require cycle; Queue shares
+      // the connection config with the Worker, so opening one per
+      // probe is cheap and avoids holding a long-lived Queue ref.
+      const { Queue } = await import("bullmq");
+      const q = new Queue(w.name, { connection: w.opts.connection });
+      const counts = (await q.getJobCounts(
+        "waiting",
+        "active",
+        "delayed",
+        "failed",
+      )) as {
+        waiting: number;
+        active: number;
+        delayed: number;
+        failed: number;
+      };
+      await q.close();
+      status[w.name] = { paused, ...counts };
+    } catch {
+      status[w.name] = { paused };
     }
   }
   return status;
@@ -95,15 +161,20 @@ export function startWorkerHealthServer(
 
       if (url === "/health/ready" || url === "/health") {
         const lagMs = await outboxLagMs();
+        const lagStats = recordLag(lagMs);
         const workerStatus = await collectWorkerStatus(config.workers);
+        // ACH-028: readiness decides on the rolling mean, not the
+        // instantaneous value — a single GC-pause spike no longer
+        // trips the container into restart-cascade territory.
         const withinThreshold =
-          lagMs >= 0 && lagMs <= config.outboxLagThresholdMs;
+          lagStats.mean >= 0 && lagStats.mean <= config.outboxLagThresholdMs;
         const anyPaused = Object.values(workerStatus).some((w) => w.paused);
         const ready = withinThreshold && !anyPaused;
         sendJson(res, ready ? 200 : 503, {
           status: ready ? "ok" : "degraded",
           checks: {
-            outboxLagMs: lagMs,
+            outboxLagMs: lagStats.instant,
+            outboxLagMeanMs: Math.round(lagStats.mean),
             outboxLagThresholdMs: config.outboxLagThresholdMs,
             outboxWithinThreshold: withinThreshold ? "ok" : "error",
             workers: workerStatus,

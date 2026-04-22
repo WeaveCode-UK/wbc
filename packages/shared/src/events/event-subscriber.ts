@@ -13,7 +13,20 @@ export type EventHandler = (event: {
 
 const handlers = new Map<string, EventHandler[]>();
 
-const HANDLER_TIMEOUT_MS = 30_000;
+// ACH-004 confiabilidade-resiliencia: per-handler timeout is now env-
+// configurable (HANDLER_TIMEOUT_MS) so ops can lower it during an
+// incident without redeploy. Default 30s keeps previous behavior.
+const HANDLER_TIMEOUT_MS = Number.parseInt(
+  process.env.HANDLER_TIMEOUT_MS ?? "30000",
+  10,
+);
+
+export class HandlerTimeoutError extends Error {
+  constructor(public readonly timeoutMs: number) {
+    super(`Handler timeout after ${timeoutMs}ms`);
+    this.name = "HandlerTimeoutError";
+  }
+}
 
 export function subscribe(type: EventType, handler: EventHandler): void {
   const existing = handlers.get(type) ?? [];
@@ -23,10 +36,7 @@ export function subscribe(type: EventType, handler: EventHandler): void {
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   return new Promise((resolve, reject) => {
-    const timer = setTimeout(
-      () => reject(new Error(`Handler timeout after ${ms}ms`)),
-      ms,
-    );
+    const timer = setTimeout(() => reject(new HandlerTimeoutError(ms)), ms);
     promise.then(
       (val) => {
         clearTimeout(timer);
@@ -66,11 +76,13 @@ export async function dispatch(event: {
     if (result.status === "rejected") {
       const handler = eventHandlers[index];
       const handlerName = handler?.name || `handler#${index}`;
+      const reason = result.reason;
+      const isTimeout = reason instanceof HandlerTimeoutError;
       console.error(
-        `[EventDispatch] Handler ${handlerName} failed for ${event.type} (event ${event.id}):`,
-        result.reason,
+        `[EventDispatch] Handler ${handlerName} ${isTimeout ? "TIMEOUT" : "failed"} for ${event.type} (event ${event.id}):`,
+        reason,
       );
-      failures.push({ handlerName, reason: result.reason });
+      failures.push({ handlerName, reason, isTimeout });
     }
   });
 

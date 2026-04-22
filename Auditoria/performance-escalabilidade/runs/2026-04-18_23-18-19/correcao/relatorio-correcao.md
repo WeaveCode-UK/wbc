@@ -92,7 +92,8 @@ Nenhum. 28 aprovações diretas + 2 nao_aplicavel.
 Total: 12 commits + relatório de revisor (já persistido em progresso.md).
 
 ## Merge
-- status_merge: pendente
+- status_merge: concluido
 - branch_origem: fix/performance-escalabilidade/2026-04-18_23-18-19
 - branch_destino: main
-- aprovado_por_usuario: nao
+- aprovado_por_usuario: sim
+- data_merge: 2026-04-22 02:50:00

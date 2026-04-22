@@ -14,6 +14,7 @@ export * from "./redaction";
 export * from "./sentry-redaction";
 export * from "./logger";
 export * from "./observability/trace-context";
+export * from "./observability/with-span";
 export * from "./env";
 export * from "./constants/timings";
 export * from "./mappers/base";

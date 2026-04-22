@@ -25,6 +25,40 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+    # ACH-016 testes-qualidade: matrix de Node para detectar quebras em
+    # upgrades do runtime. fail-fast: false para ver as duas versões
+    # quando uma falhar (em vez de parar cedo).
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [20, 22]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm db:generate
+      # ACH-006 testes-qualidade: coverage enforcement. O threshold
+      # vive em vitest.config.ts e falha o job se coverage cair abaixo.
+      - run: pnpm test:coverage
+      - name: Upload coverage artifact
+        if: matrix.node-version == 20
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 14
+
+  # ACH-007 testes-qualidade: arch:check como gate de CI. Depcruise
+  # enforca as regras de arquitetura (ADR-001 hexagonal, etc.) e o job
+  # falha em qualquer violação.
+  arch-check:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -35,8 +69,7 @@ jobs:
           node-version: 20
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm db:generate
-      - run: pnpm test
+      - run: pnpm arch:check
 
   # ACH-015 — secret scanning. Catches credentials accidentally committed to
   # any branch before they reach `main`. Configuration lives in `.gitleaks.toml`

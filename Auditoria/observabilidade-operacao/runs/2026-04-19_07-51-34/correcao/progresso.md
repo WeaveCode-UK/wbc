@@ -5,14 +5,14 @@
 - run_id: 2026-04-19_07-51-34
 - branch: fix/observabilidade-operacao/2026-04-19_07-51-34
 - data_inicio: 2026-04-22 00:35:00
-- ultima_atualizacao: 2026-04-22 (revisor ACH-005)
+- ultima_atualizacao: 2026-04-22 (revisor ACH-006)
 - fase_atual: revisor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 15
 - corrigidos_executor: 15
-- revisados_revisor: 5
+- revisados_revisor: 6
 - corrigidos_pelo_revisor: 1
 - nao_corrigiveis: 0
 - nao_aprovados: 0
@@ -137,12 +137,29 @@
 - severidade: alto
 - classificacao: corrigivel_parcial
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado_direto
 - commit_executor: b1686aa
 - arquivos_alterados:
   - deploy/alertmanager.yml (novo)
   - deploy/prometheus.yml (alerting block)
   - docker-compose.prod.yml (service alertmanager + volume)
+- nota_revisor: >
+    Diff b1686aa confere: alertmanager.yml com route raiz + subroutes
+    `severity=critical → pagerduty-critical` (continue:true) e
+    `severity=warning → slack-default`; receivers `slack-default`
+    (slack_configs em #wbc-alerts com template renderizando runbook_url
+    por alerta) e `pagerduty-critical` (pagerduty_configs com
+    ${PAGERDUTY_ROUTING_KEY}); inhibit_rules suprimindo warning quando
+    critical ativo. prometheus.yml ganha bloco `alerting.alertmanagers`
+    apontando `alertmanager:9093` static_config. docker-compose.prod.yml
+    adiciona serviço `alertmanager` (prom/alertmanager:latest) com
+    env_file .env.production, volume montando alertmanager.yml ro +
+    alertmanager_data em /alertmanager, depends_on:prometheus,
+    cap_drop:[ALL] e no-new-privileges; volume declarado no bloco
+    volumes. deploy/alerts.yml tem `runbook_url` em 4 alertas (ACH-004/
+    ACH-015). Parcial correta: SLACK_WEBHOOK_URL + PAGERDUTY_ROUTING_KEY
+    ficam como env vars humanas no .env.production (follow-up
+    documentado em docs/OBSERVABILITY-FOLLOWUP.md).
 
 ### ACH-007
 - titulo: Sem SLIs/SLOs formais

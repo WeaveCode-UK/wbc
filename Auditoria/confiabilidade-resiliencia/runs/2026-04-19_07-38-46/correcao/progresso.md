@@ -5,14 +5,14 @@
 - run_id: 2026-04-19_07-38-46
 - branch: fix/confiabilidade-resiliencia/2026-04-19_07-38-46
 - data_inicio: 2026-04-22 00:00:00
-- ultima_atualizacao: 2026-04-22 00:35:00
+- ultima_atualizacao: 2026-04-22 00:40:00
 - fase_atual: revisor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 17
 - corrigidos_executor: 17
-- revisados_revisor: 7
+- revisados_revisor: 8
 - corrigidos_pelo_revisor: 0
 - nao_corrigiveis: 0
 - nao_aprovados: 0
@@ -125,12 +125,13 @@
 - severidade: alto
 - classificacao: corrigivel_parcial
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: 2b72eac
 - commit_revisor: none
 - arquivos_alterados:
   - packages/db/src/outbox/prisma-outbox-repository.ts
 - descricao_correcao: cross-ref com SKIP LOCKED (dados-persistencia ACH-002) + ACH-001 + ACH-002 deste run; comentário consolidado no claimPending.
+- resultado_revisao: aprovado — ACH-008 é meta/cross-ref e as 3 peças da recomendação combinada foram verificadas em código: (1) packages/db/src/outbox/prisma-outbox-repository.ts:47-89 — claimPending executa $queryRaw com UPDATE ... WHERE id IN (SELECT ... FOR UPDATE SKIP LOCKED) ... RETURNING, atômico e sem double-claim entre workers; (2) packages/shared/src/events/event-subscriber.ts:53-94 — dispatch() coleta failures via Promise.allSettled e lança AggregateError("outbox dispatch failed ...") quando qualquer handler rejeita, substituindo o comportamento antigo que apenas logava; (3) packages/business/inventory/adapters/sale-confirmed-handler.ts:1,18 — handler piloto envelopado em withIdempotentHandler com HANDLER_NAME estável, apoiado em processed_events (ACH-002 deste run + infra herdada de dados-persistencia). Diff 2b72eac adiciona apenas comentário cross-ref consolidado no claimPending amarrando as três peças — sem código novo, como esperado para ACH meta. Classificação parcial mantém-se porque rollout do withIdempotentHandler aos demais handlers está em RELIABILITY-FOLLOWUP.md, conforme ACH-002 deste run.
 
 ### ACH-009
 - titulo: Dois mecanismos de retry desalinhados

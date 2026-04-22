@@ -1,4 +1,4 @@
-import { Queue } from "bullmq";
+import { Queue, type QueueOptions } from "bullmq";
 import { JOB_QUEUES, logIfInvalidJobData } from "@wbc/shared";
 import { getRedis } from "./redis";
 
@@ -10,29 +10,46 @@ function getConnection() {
   return getRedis();
 }
 
+// ACH-003 confiabilidade-resiliencia: defaultJobOptions centralizados.
+// Antes as queues eram criadas sem limites, deixando Redis crescer até
+// estourar maxmemory (256MB em docker-compose.prod.yml). Agora:
+// - removeOnComplete 1000: mantém amostra recente para inspeção
+// - removeOnFail 5000: preserva janela maior para diagnose
+// - attempts 3 + backoff exponencial: retries antes de considerar
+//   jobs perdidos (o outbox cuida do replay de eventos definitivos).
+function defaultJobOptions(): QueueOptions["defaultJobOptions"] {
+  return {
+    removeOnComplete: 1000,
+    removeOnFail: 5000,
+    attempts: 3,
+    backoff: { type: "exponential", delay: 5000 },
+  };
+}
+
+function queueOpts(): QueueOptions {
+  return {
+    connection: getConnection(),
+    defaultJobOptions: defaultJobOptions(),
+  };
+}
+
 export function getAnalyticsQueue(): Queue {
   if (!analyticsQueue) {
-    analyticsQueue = new Queue(JOB_QUEUES.ANALYTICS, {
-      connection: getConnection(),
-    });
+    analyticsQueue = new Queue(JOB_QUEUES.ANALYTICS, queueOpts());
   }
   return analyticsQueue;
 }
 
 export function getCampaignQueue(): Queue {
   if (!campaignQueue) {
-    campaignQueue = new Queue(JOB_QUEUES.CAMPAIGNS, {
-      connection: getConnection(),
-    });
+    campaignQueue = new Queue(JOB_QUEUES.CAMPAIGNS, queueOpts());
   }
   return campaignQueue;
 }
 
 export function getMessagingQueue(): Queue {
   if (!messagingQueue) {
-    messagingQueue = new Queue(JOB_QUEUES.MESSAGING, {
-      connection: getConnection(),
-    });
+    messagingQueue = new Queue(JOB_QUEUES.MESSAGING, queueOpts());
   }
   return messagingQueue;
 }

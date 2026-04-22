@@ -1,6 +1,6 @@
 {
   "schema_version": "2.2",
-  "generated_at": "2026-04-22T21:52:04.679Z",
+  "generated_at": "2026-04-22T22:40:42.141Z",
   "total": 294,
   "total_runs": 15,
   "distribution": {
@@ -37,17 +37,17 @@
   },
   "correction_summary": {
     "runs_by_correction_state": {
-      "not_started": 8,
-      "in_progress": 5,
+      "not_started": 7,
+      "in_progress": 6,
       "completed": 2
     },
-    "total_findings_corrected": 159,
+    "total_findings_corrected": 175,
     "total_findings_not_correctable": 2,
     "total_findings_pending_correction": 0,
-    "total_commits": 131
+    "total_commits": 146
   },
   "progress": {
-    "last_updated": "2026-04-22T21:52:04.677Z",
+    "last_updated": "2026-04-22T22:40:42.140Z",
     "domains": {
       "arquitetura": {
         "domain": "arquitetura",
@@ -501,7 +501,18 @@
         "confirmado": 15
       },
       "correction": {
-        "state": "not_started"
+        "state": "in_progress",
+        "branch": "fix/observabilidade-operacao/2026-04-19_07-51-34",
+        "started_at": "2026-04-22 00:35:00",
+        "finished_at": null,
+        "fase_atual": "revisor_concluido",
+        "corrected": 16,
+        "reviewed_ok": 15,
+        "not_correctable": 0,
+        "not_approved": 0,
+        "pending": 0,
+        "total_approved": 15,
+        "total_commits": 15
       }
     },
     {
@@ -2488,7 +2499,13 @@
       "acao_sugerida": "Adicionar endpoint `/metrics` em apps/api (porta dedicada) e em apps/worker; criar jobs Prometheus correspondentes; expor histogramas por procedure tRPC, depth de filas, lag de outbox, hit rate de cache, connection pool",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_fixed",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "corrigido_pelo_revisor",
+        "executor_commit": "e676b91",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -2511,7 +2528,13 @@
       "acao_sugerida": "Propagar `traceId`/`spanId` para Pino via AsyncLocalStorage; configurar Sentry com `sentry-otel` para herdar spans; `traceparent`/`tracestate` propagation entre serviços",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "executor_done",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado_direto",
+        "executor_commit": "ea46c70",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -2534,7 +2557,13 @@
       "acao_sugerida": "Redactor Pino com `redact: { paths: ['*.email','*.phone','*.password','*.token'] }`; helper `maskPhone`/`maskEmail`; aplicar também em security-logger e adapters",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "executor_done",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado_direto",
+        "executor_commit": "dc9f5c8",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -2557,7 +2586,13 @@
       "acao_sugerida": "Métrica `wbc_dlq_depth{queue}`; alerta `> 10`; retry com backoff exponencial (3 tentativas) antes do DLQ; painel Grafana",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "executor_done",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado_direto",
+        "executor_commit": "509ede6",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -2580,7 +2615,13 @@
       "acao_sugerida": "Instrumentar `ioredis` (hooks), Prisma middleware, BullMQ `Queue.getJobCounts` em tarefa periódica; expor via `/metrics`",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "executor_done",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado_direto",
+        "executor_commit": "2b47c85",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -2603,7 +2644,13 @@
       "acao_sugerida": "Adicionar `alertmanager` ao compose com routes para Slack webhook; PagerDuty para criticos; runbook link em cada alerta",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "executor_done",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado_direto",
+        "executor_commit": "b1686aa",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -2626,7 +2673,13 @@
       "acao_sugerida": "Publicar SLO (latency p95, error rate, availability por serviço); regras derivadas em Prometheus; dashboard de error budget",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "executor_done",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado_direto",
+        "executor_commit": "9f22319",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -5725,7 +5778,13 @@
       "acao_sugerida": "Provisioning declarativo (datasources.yml + dashboards/*.json cobrindo tRPC, workers, Redis, Postgres, outbox)",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "executor_done",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado_direto",
+        "executor_commit": "1f0d440",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -5748,7 +5807,13 @@
       "acao_sugerida": "Spans por use-case; atributos padronizados (`tenantId`, `entity.id`, `action`); regras para sampling seletivo",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "executor_done",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado_direto",
+        "executor_commit": "ade1b8b",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -5771,7 +5836,13 @@
       "acao_sugerida": "Padrão comum (live/ready/startup) com checks por dependência relevante; documentar em `docs/HEALTH.md`",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "executor_done",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado_direto",
+        "executor_commit": "c415094",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -5794,7 +5865,13 @@
       "acao_sugerida": "Propagar `parentRequestId`/`traceparent` no payload do evento; logger do worker inclui no contexto",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "executor_done",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado_direto",
+        "executor_commit": "ae65ce9",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -5817,7 +5894,13 @@
       "acao_sugerida": "`beforeSend` com redactor; unificar sample rate e tag `service` e `environment`; usar `environment = production|staging|dev`",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "executor_done",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado_direto",
+        "executor_commit": "fe14a1f",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -5840,7 +5923,13 @@
       "acao_sugerida": "Para cada alerta, `runbook_url` apontando para `docs/runbooks/<alert>.md`; template unificado (trigger, diagnóstico, mitigação, rollback)",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "executor_done",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado_direto",
+        "executor_commit": "6cb3a15",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -7825,7 +7914,13 @@
       "acao_sugerida": "`level: 'warn'` em prod (ou `info` com amostragem 10%); `debug` no restante; expor `LOG_LEVEL` via env",
       "prioridade": "baixa",
       "correction": {
-        "state": "not_started"
+        "state": "executor_done",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado_direto",
+        "executor_commit": "4b77b3f",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -7848,7 +7943,13 @@
       "acao_sugerida": "Log JSON + volume montado; exportar via `nginx-prometheus-exporter` ou Filebeat",
       "prioridade": "baixa",
       "correction": {
-        "state": "not_started"
+        "state": "executor_done",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado_direto",
+        "executor_commit": "0685007",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {

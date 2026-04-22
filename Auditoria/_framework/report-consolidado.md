@@ -1,6 +1,6 @@
 # Relatório Consolidado de Achados — Framework de Auditoria WeaveCode
 
-- gerado_em: 2026-04-22T21:52:04.678Z
+- gerado_em: 2026-04-22T22:40:42.140Z
 - total_achados: 294
 - dominios_em_progresso: 0
 - dominios_ready_for_finalize: 0

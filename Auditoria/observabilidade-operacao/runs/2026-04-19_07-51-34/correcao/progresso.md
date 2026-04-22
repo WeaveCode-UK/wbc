@@ -5,14 +5,14 @@
 - run_id: 2026-04-19_07-51-34
 - branch: fix/observabilidade-operacao/2026-04-19_07-51-34
 - data_inicio: 2026-04-22 00:35:00
-- ultima_atualizacao: 2026-04-22 (revisor ACH-003)
+- ultima_atualizacao: 2026-04-22 (revisor ACH-004)
 - fase_atual: revisor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 15
 - corrigidos_executor: 15
-- revisados_revisor: 3
+- revisados_revisor: 4
 - corrigidos_pelo_revisor: 1
 - nao_corrigiveis: 0
 - nao_aprovados: 0
@@ -91,11 +91,25 @@
 - severidade: alto
 - classificacao: corrigivel_parcial
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado_direto
 - commit_executor: 509ede6
 - arquivos_alterados:
   - deploy/alerts.yml (DLQEventsGrowing + outros)
   - apps/worker/src/processors/dlq-processor.ts (dlqEventsTotal.inc)
+- nota_revisor: >
+    Diff 509ede6 adiciona `dlqEventsTotal.inc({ queue: job.data.originalQueue })`
+    em processDLQJob (importado de apps/worker/src/lib/metrics.ts, Counter
+    `wbc_dlq_events_total` com label `queue` definido no ACH-001). alerts.yml
+    ganha DLQEventsGrowing (`increase(wbc_dlq_events_total[5m]) > 10`, for 2m,
+    warning + runbook), OutboxLagHigh (`wbc_outbox_lag_ms > 60000`, for 3m),
+    BullMQQueueDepthHigh (`wbc_bullmq_queue_depth{state="waiting"} > 1000`,
+    for 5m) e runbook_url adicionado em TargetDown. Métrica é
+    `wbc_dlq_events_total` (Counter de eventos novos) em vez do
+    `wbc_dlq_depth` (Gauge) sugerido — aceitável como parcial, pois
+    increase() em 5m captura exatamente o "crescimento da DLQ" que a
+    recomendação pede para alertar. Retry exponencial (3 attempts +
+    backoff) já vem do ACH-003 confiabilidade em defaultJobOptions;
+    painel Grafana DLQ Events já presente em wbc-overview.json (ACH-008).
 
 ### ACH-005
 - titulo: Sem métricas de infra

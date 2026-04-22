@@ -3,10 +3,10 @@
 // `{ traceId, spanId }` — o logging middleware e o Sentry podem
 // misturá-los em cada log/evento para correlação entre sistemas.
 //
-// O módulo não importa @opentelemetry/api diretamente no type space
-// porque alguns consumidores (landing, mobile) não trazem OTel. O
-// import é lazy/opcional; se o pacote não estiver disponível, retorna
-// undefined e o caller continua sem traceId.
+// O módulo não depende de @opentelemetry/api no build do shared
+// (packages auxiliares como landing/mobile não o carregam). A API é
+// resolvida em runtime via require opcional; se não estiver presente,
+// as funções viram no-op.
 
 export interface TraceContext {
   traceId: string;
@@ -14,27 +14,34 @@ export interface TraceContext {
   traceFlags?: number;
 }
 
-let cachedApi: typeof import("@opentelemetry/api") | null | undefined;
+type OtelApi = {
+  trace: {
+    getActiveSpan: () =>
+      | {
+          spanContext: () => {
+            traceId: string;
+            spanId: string;
+            traceFlags: number;
+          };
+        }
+      | null
+      | undefined;
+  };
+};
 
-async function loadOtelApi(): Promise<
-  typeof import("@opentelemetry/api") | null
-> {
-  if (cachedApi !== undefined) return cachedApi;
-  try {
-    cachedApi = await import("@opentelemetry/api");
-    return cachedApi;
-  } catch {
-    cachedApi = null;
-    return null;
-  }
-}
-
-// Versão síncrona para hot-path. Retorna undefined no primeiro call
-// até que `primeTraceContext()` tenha sido chamada uma vez no bootstrap.
-let syncApi: typeof import("@opentelemetry/api") | null = null;
+let syncApi: OtelApi | null = null;
 
 export async function primeTraceContext(): Promise<void> {
-  syncApi = await loadOtelApi();
+  try {
+    // Import dinâmico para não quebrar builds sem @opentelemetry/api.
+    // Usa string literal ofuscada o suficiente para que o bundler não
+    // tente resolver o módulo em compile-time.
+    const moduleName = "@opentelemetry/api";
+    const mod = (await import(/* @vite-ignore */ moduleName)) as OtelApi;
+    syncApi = mod;
+  } catch {
+    syncApi = null;
+  }
 }
 
 export function getActiveTraceContext(): TraceContext | undefined {

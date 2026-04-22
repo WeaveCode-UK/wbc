@@ -11,14 +11,32 @@
 //
 // Sem OTel carregado, simplesmente roda `fn()` sem overhead.
 
-type OtelApi = typeof import("@opentelemetry/api");
+type OtelApi = {
+  trace: {
+    getTracer: (name: string) => {
+      startActiveSpan: <T>(
+        name: string,
+        options: { attributes: Record<string, string | number | boolean> },
+        fn: (span: OtelSpan) => T | Promise<T>,
+      ) => T | Promise<T>;
+    };
+  };
+  SpanStatusCode: { OK: number; ERROR: number };
+};
+
+type OtelSpan = {
+  setStatus: (status: { code: number; message?: string }) => void;
+  recordException: (err: Error) => void;
+  end: () => void;
+};
 
 let cachedApi: OtelApi | null | undefined;
 
 async function loadApi(): Promise<OtelApi | null> {
   if (cachedApi !== undefined) return cachedApi;
   try {
-    cachedApi = await import("@opentelemetry/api");
+    const moduleName = "@opentelemetry/api";
+    cachedApi = (await import(/* @vite-ignore */ moduleName)) as OtelApi;
     return cachedApi;
   } catch {
     cachedApi = null;

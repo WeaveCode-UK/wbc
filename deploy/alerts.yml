@@ -32,3 +32,33 @@ groups:
           severity: critical
         annotations:
           summary: "Scrape target {{ $labels.job }} is down"
+          runbook_url: "https://github.com/WeaveCode-UK/wbc/blob/main/docs/runbooks/target-down.md"
+
+      # ACH-004 observabilidade-operacao: DLQ monitoring.
+      - alert: DLQEventsGrowing
+        expr: increase(wbc_dlq_events_total[5m]) > 10
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "More than 10 events migrated to DLQ in 5m ({{ $labels.queue }})"
+          runbook_url: "https://github.com/WeaveCode-UK/wbc/blob/main/docs/runbooks/dlq-growing.md"
+
+      # ACH-001/ACH-005 observabilidade-operacao: outbox lag (via worker metric).
+      - alert: OutboxLagHigh
+        expr: wbc_outbox_lag_ms > 60000
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Outbox lag > 60s for 3m — worker is falling behind"
+          runbook_url: "https://github.com/WeaveCode-UK/wbc/blob/main/docs/runbooks/outbox-lag.md"
+
+      - alert: BullMQQueueDepthHigh
+        expr: wbc_bullmq_queue_depth{state="waiting"} > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Queue {{ $labels.queue }} waiting > 1000 for 5m"
+          runbook_url: "https://github.com/WeaveCode-UK/wbc/blob/main/docs/runbooks/queue-depth.md"

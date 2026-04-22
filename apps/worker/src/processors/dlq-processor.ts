@@ -1,6 +1,7 @@
 import { Worker, Job } from "bullmq";
 import { connection } from "../lib/redis";
 import { logger } from "../lib/logger";
+import { dlqEventsTotal } from "../lib/metrics";
 
 export interface DLQJob {
   originalQueue: string;
@@ -73,6 +74,10 @@ async function processDLQJob(job: Job<DLQJob>): Promise<void> {
   // the scanner collected. Any log aggregator (Grafana Loki, Datadog,
   // CloudWatch) can count `dlq_entries_total` by tenant or by
   // `originalQueue` off this single entry.
+  // ACH-004 observabilidade-operacao: incrementa contador Prometheus
+  // wbc_dlq_events_total{queue} para alimentar o alerta DLQEventsGrowing.
+  dlqEventsTotal.inc({ queue: job.data.originalQueue });
+
   logger.warn(
     {
       jobId: job.id,

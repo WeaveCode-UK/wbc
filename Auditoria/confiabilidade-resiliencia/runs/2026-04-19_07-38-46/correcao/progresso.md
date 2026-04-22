@@ -5,14 +5,14 @@
 - run_id: 2026-04-19_07-38-46
 - branch: fix/confiabilidade-resiliencia/2026-04-19_07-38-46
 - data_inicio: 2026-04-22 00:00:00
-- ultima_atualizacao: 2026-04-22 00:40:00
+- ultima_atualizacao: 2026-04-22 00:45:00
 - fase_atual: revisor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 17
 - corrigidos_executor: 17
-- revisados_revisor: 8
+- revisados_revisor: 9
 - corrigidos_pelo_revisor: 0
 - nao_corrigiveis: 0
 - nao_aprovados: 0
@@ -138,12 +138,13 @@
 - severidade: medio
 - classificacao: corrigivel_parcial
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: 8ca13f9
 - commit_revisor: none
 - arquivos_alterados:
   - docs/adr/007-resilience-strategies.md
 - descricao_correcao: adendo com tabela comparativa dos 3 níveis (adapter/outbox/BullMQ) e regra de uso.
+- resultado_revisao: aprovado — diff 8ca13f9 confirma o adendo pedido no ADR-007. Tabela dos 3 níveis (adapter em retry.ts linear baseDelayMs*(attempt+1) para falhas transientes rápidas; outbox em PrismaOutboxRepository.markFailed com exponencial+jitter attempt²·10s±50% conforme ACH-010; BullMQ em defaultJobOptions ACH-003 com exponencial 5/10/20s) endereça diretamente o pedido de documentar os dois (três) níveis. Regra de uso está explícita — adapter para 503/429/connection reset, outbox para erros persistentes sem multiplicar, BullMQ apenas para jobs que não nascem do outbox. Jitter registrado como aplicado em outbox e adapter linear curto documentado como intencional (podendo ser uniformizado se métrica de incidente sugerir). Carga amplificada worst case (3×5×3=45) quantificada como limite superior para dimensionar rate limit. Classificação parcial preserva-se porque a recomendação pede "adotar um padrão único" e o ADR explicita a coexistência dos três níveis — o alinhamento pleno (jitter no adapter, uniformização) depende de evidência de incidente futuro e está marcado como follow-up condicional no próprio adendo.
 
 ### ACH-010
 - titulo: Backoff do outbox sem jitter

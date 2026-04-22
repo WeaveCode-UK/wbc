@@ -5,14 +5,14 @@
 - run_id: 2026-04-19_07-38-46
 - branch: fix/confiabilidade-resiliencia/2026-04-19_07-38-46
 - data_inicio: 2026-04-22 00:00:00
-- ultima_atualizacao: 2026-04-22 01:10:00
+- ultima_atualizacao: 2026-04-22 01:20:00
 - fase_atual: revisor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 17
 - corrigidos_executor: 17
-- revisados_revisor: 13
+- revisados_revisor: 14
 - corrigidos_pelo_revisor: 0
 - nao_corrigiveis: 0
 - nao_aprovados: 0
@@ -206,7 +206,7 @@
 - severidade: medio
 - classificacao: corrigivel_parcial
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: 4e89c53
 - commit_revisor: none
 - arquivos_alterados:
@@ -214,6 +214,7 @@
   - packages/shared/src/index.ts
   - docs/ADAPTERS.md
 - descricao_correcao: template abstrato ExternalAdapterTemplate combinando timeout+retry+circuit+fallback; convenção em docs/ADAPTERS.md.
+- resultado_revisao: aprovado — diff 4e89c53 entrega os 3 artefatos pedidos. packages/shared/src/adapters/external-adapter-template.ts define classe abstrata ExternalAdapterTemplate<TResult> com construtor recebendo ExternalAdapterConfig {name, retry:RetryPolicy, timeout:TimeoutPolicy, circuit:CircuitBreakerPolicy}, instancia CircuitBreaker no construtor, expõe doCall(ctx:ExternalCallContext) abstrato (caller recebe signal:AbortSignal + attempt:number e retorna RetryOutcome<TResult>), onFallback(error) default raise com override opcional, e call() orquestra circuit.execute(withRetry(createTimeoutSignal → doCall)) — combina as 4 primitivas exatamente como recomendado (timeout + retry + circuit + fallback). Assinatura `ctx.signal` permite propagar ao fetch do adapter concreto (documentado no exemplo MercadoPagoAdapter de ADAPTERS.md). packages/shared/src/index.ts reexporta via `export * from "./adapters/external-adapter-template"` tornando ExternalAdapterTemplate + ExternalAdapterConfig + ExternalCallContext consumíveis por @wbc/shared. docs/ADAPTERS.md documenta a convenção em 4 seções: (1) 4 primitivas obrigatórias; (2) duas formas aceitas — manual (WhatsAppN2Adapter/DeepSeekAdapter existentes, ACH-008 original de reliability) ou template (recomendação para novas integrações); (3) exemplo completo MercadoPagoAdapter usando as policies centralizadas do ACH-012; (4) regra de code-review explícita — "Nova integração externa deve estender ExternalAdapterTemplate OU justificar no PR por que orquestra manualmente; se justificar, precisa aplicar as 4 primitivas (não basta timeout)". Seção "Stubs atuais" lista resend-email-sender.adapter.ts e finance/MercadoPago ainda ausente, ancorando em RELIABILITY-FOLLOWUP.md. Classificação corrigivel_parcial mantém-se porque migração dos stubs reais (MP/Resend) é decisão de produto — o template + convenção + doc + regra de review atendem o corrigível (padrão disponível + enforcement via review).
 
 ### ACH-015
 - titulo: Cascata de timeouts sem budget ponta-a-ponta

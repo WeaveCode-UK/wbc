@@ -5,14 +5,14 @@
 - run_id: 2026-04-19_07-51-34
 - branch: fix/observabilidade-operacao/2026-04-19_07-51-34
 - data_inicio: 2026-04-22 00:35:00
-- ultima_atualizacao: 2026-04-22 (revisor ACH-011)
+- ultima_atualizacao: 2026-04-22 (revisor ACH-012)
 - fase_atual: revisor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 15
 - corrigidos_executor: 15
-- revisados_revisor: 10
+- revisados_revisor: 11
 - corrigidos_pelo_revisor: 1
 - nao_corrigiveis: 0
 - nao_aprovados: 0
@@ -308,11 +308,18 @@
 - severidade: medio
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado_direto
 - commit_executor: fe14a1f
 - arquivos_alterados:
   - apps/worker/src/index.ts (beforeSend + sample unificado)
   - apps/api/src/lib/sentry.ts (sample unificado)
+- resultado_revisao: |
+    Worker ganhou redactSentryEvent em beforeSend + beforeBreadcrumb
+    (antes faltava) e sendDefaultPii:false. Sample rate unificado via
+    SENTRY_TRACES_SAMPLE_RATE em api e worker, com fallback compatível
+    (api 0.3 prod/0.1 dev, worker 0.3 prod/1.0 dev). Sentry.setTag
+    ("service", "api"|"worker") adicionado nos dois apps. environment
+    preservado via NODE_ENV. Correção aderente à recomendação técnica.
 
 ### ACH-013
 - titulo: Log level info em produção amplifica volume

@@ -5,14 +5,14 @@
 - run_id: 2026-04-19_07-51-34
 - branch: fix/observabilidade-operacao/2026-04-19_07-51-34
 - data_inicio: 2026-04-22 00:35:00
-- ultima_atualizacao: 2026-04-22 (revisor ACH-013)
+- ultima_atualizacao: 2026-04-22 (revisor ACH-014)
 - fase_atual: revisor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 15
 - corrigidos_executor: 15
-- revisados_revisor: 12
+- revisados_revisor: 13
 - corrigidos_pelo_revisor: 1
 - nao_corrigiveis: 0
 - nao_aprovados: 0
@@ -350,11 +350,26 @@
 - severidade: baixo
 - classificacao: corrigivel_parcial
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado_direto
 - commit_executor: 0685007
 - arquivos_alterados:
   - deploy/nginx.conf (log_format json_combined)
   - docker-compose.prod.yml (volume nginx_logs)
+- resultado_revisao: |
+    Diff 0685007 confere: deploy/nginx.conf ganha `log_format json_combined
+    escape=json` com os 12 campos requeridos — time (iso8601), remote_addr,
+    request, status, bytes_sent, referer, user_agent, request_time,
+    upstream_response_time, upstream_addr, x_forwarded_for, scheme,
+    server_name — com `$status` e `$bytes_sent` e `$request_time`
+    emitidos como número (sem aspas) e os demais como string, exatamente
+    como pede o contrato JSON. `access_log /var/log/nginx/access.json
+    json_combined;` e `error_log /var/log/nginx/error.log warn;` no topo
+    do arquivo (antes do bloco upstream). docker-compose.prod.yml monta
+    `nginx_logs:/var/log/nginx` no serviço nginx e declara o volume
+    nomeado `nginx_logs` no bloco volumes. Parcial aceitável:
+    nginx-prometheus-exporter / Filebeat não instalados — follow-up humano
+    documentado em docs/OBSERVABILITY-FOLLOWUP.md (consistente com a
+    classificação original corrigivel_parcial).
 
 ### ACH-015
 - titulo: Sem runbooks por alerta

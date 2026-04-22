@@ -5,14 +5,14 @@
 - run_id: 2026-04-19_07-38-46
 - branch: fix/confiabilidade-resiliencia/2026-04-19_07-38-46
 - data_inicio: 2026-04-22 00:00:00
-- ultima_atualizacao: 2026-04-22 00:15:00
+- ultima_atualizacao: 2026-04-22 00:20:00
 - fase_atual: revisor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 17
 - corrigidos_executor: 17
-- revisados_revisor: 3
+- revisados_revisor: 4
 - corrigidos_pelo_revisor: 0
 - nao_corrigiveis: 0
 - nao_aprovados: 0
@@ -67,12 +67,13 @@
 - severidade: alto
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: 87a652c
 - commit_revisor: none
 - arquivos_alterados:
   - packages/shared/src/events/event-subscriber.ts
 - descricao_correcao: HANDLER_TIMEOUT_MS env-configurável; HandlerTimeoutError diferenciado no log para diagnose.
+- resultado_revisao: aprovado — dispatch() já envolvia cada handler em withTimeout(handler(event), HANDLER_TIMEOUT_MS) desde ACH-001 (event-subscriber.ts:69-71), satisfazendo o Promise.race pedido no achado. Diff 87a652c reforça o controle — HANDLER_TIMEOUT_MS agora lido de process.env.HANDLER_TIMEOUT_MS (default 30000), permitindo ops reduzir o limite durante incidente sem redeploy; HandlerTimeoutError tipada permite o outbox-processor distinguir timeout de outras falhas; log diferencia "TIMEOUT" de "failed" e o objeto failures carrega isTimeout:boolean. Loop continua iterando via Promise.allSettled — um handler lento não trava os demais. Métricas via log estruturado (isTimeout flag) prontas para observabilidade consumir.
 
 ### ACH-005
 - titulo: Graceful shutdown 30s sem stop_grace_period no Docker

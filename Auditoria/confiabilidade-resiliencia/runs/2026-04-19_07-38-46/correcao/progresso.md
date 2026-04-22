@@ -5,14 +5,14 @@
 - run_id: 2026-04-19_07-38-46
 - branch: fix/confiabilidade-resiliencia/2026-04-19_07-38-46
 - data_inicio: 2026-04-22 00:00:00
-- ultima_atualizacao: 2026-04-22 00:55:00
+- ultima_atualizacao: 2026-04-22 01:05:00
 - fase_atual: revisor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 17
 - corrigidos_executor: 17
-- revisados_revisor: 11
+- revisados_revisor: 12
 - corrigidos_pelo_revisor: 0
 - nao_corrigiveis: 0
 - nao_aprovados: 0
@@ -177,7 +177,7 @@
 - severidade: medio
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: 5ba5eed
 - commit_revisor: none
 - arquivos_alterados:
@@ -185,6 +185,7 @@
   - packages/business/messaging/adapters/whatsapp-n2-adapter.ts
   - packages/business/ai/adapters/deepseek-adapter.ts
 - descricao_correcao: whatsappCircuitPolicy e deepseekCircuitPolicy lidos de env; adapters referenciam as policies centrais.
+- resultado_revisao: aprovado — diff 5ba5eed confere com a recomendação do achado. packages/shared/src/resilience/policies.ts agora exporta interface CircuitBreakerPolicy {failureThreshold, resetTimeoutMs} e duas policies centralizadas: whatsappCircuitPolicy = {failureThreshold: readEnvInt("WHATSAPP_CIRCUIT_THRESHOLD",5), resetTimeoutMs: readEnvInt("WHATSAPP_CIRCUIT_WINDOW_MS",60_000)} — casa literalmente com os nomes de env pedidos pelo achado — e deepseekCircuitPolicy = {failureThreshold: readEnvInt("DEEPSEEK_CIRCUIT_THRESHOLD",3), resetTimeoutMs: readEnvInt("DEEPSEEK_CIRCUIT_WINDOW_MS",60_000)}, preservando o default 3 mais agressivo com a justificativa documentada (LLM cara de cascatear). whatsapp-n2-adapter.ts importa whatsappCircuitPolicy e passa ao CircuitBreaker substituindo o objeto hardcoded {failureThreshold:5, resetTimeoutMs:60_000}; deepseek-adapter.ts faz o mesmo com deepseekCircuitPolicy substituindo {failureThreshold:3, resetTimeoutMs:60_000}. Comentários inline em ambos os adapters referenciam ACH-012 e os nomes das envs. Ops pode agora apertar o breaker em incidente (ex: `WHATSAPP_CIRCUIT_THRESHOLD=3`) sem redeploy — objetivo direto do achado atingido.
 
 ### ACH-013
 - titulo: Cleanup do outbox com janela indefinida

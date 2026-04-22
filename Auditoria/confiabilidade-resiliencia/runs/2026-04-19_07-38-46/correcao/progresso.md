@@ -5,14 +5,14 @@
 - run_id: 2026-04-19_07-38-46
 - branch: fix/confiabilidade-resiliencia/2026-04-19_07-38-46
 - data_inicio: 2026-04-22 00:00:00
-- ultima_atualizacao: 2026-04-22 01:05:00
+- ultima_atualizacao: 2026-04-22 01:10:00
 - fase_atual: revisor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 17
 - corrigidos_executor: 17
-- revisados_revisor: 12
+- revisados_revisor: 13
 - corrigidos_pelo_revisor: 0
 - nao_corrigiveis: 0
 - nao_aprovados: 0
@@ -192,13 +192,14 @@
 - severidade: medio
 - classificacao: corrigivel_parcial
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: 3e5f82d
 - commit_revisor: none
 - arquivos_alterados:
   - apps/worker/src/processors/outbox-cleanup.ts
   - docs/RETENTION.md
 - descricao_correcao: OUTBOX_RETENTION_DAYS env (default 30); docs/RETENTION.md documenta política; cold storage em follow-up.
+- resultado_revisao: aprovado — diff 3e5f82d verificado. outbox-cleanup.ts:7-11 define getRetentionDays() que lê process.env.OUTBOX_RETENTION_DAYS com default "30", Number.parseInt(base 10), e cai no default 30 quando !Number.isFinite(raw) || raw < 1, cobrindo NaN/zero/negativo/undefined. Query deleteMany continua filtrando status:"PROCESSED" e processedAt:{lt:cutoffDate}, e o log agora inclui retentionDays dinâmico para auditoria. docs/RETENTION.md (novo) documenta as 4 áreas pedidas: outbox (default 30d, override via env, ref ao cleanup), processed_events (sem cleanup automático, recomendação de manter janela ≥ outbox), DLQ (nunca apagar automaticamente, replay via admin.dlq.replay/scripts) e LGPD (PII em payloads, cross-ref a docs/observabilidade-operacao ACH-003, mascaramento antes de cold storage). Cold storage explicitamente marcado como follow-up em infraestrutura-deploy-config ACH-013, coerente com a classificação corrigivel_parcial. Recomendação "Manter 30d em Postgres; export para cold storage; documentar em docs/RETENTION.md" atendida na parte corrigível (retenção configurável + doc).
 
 ### ACH-014
 - titulo: Stubs MP/Resend sem padrão de resiliência

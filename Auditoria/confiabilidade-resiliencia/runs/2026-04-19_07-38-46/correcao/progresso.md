@@ -5,14 +5,14 @@
 - run_id: 2026-04-19_07-38-46
 - branch: fix/confiabilidade-resiliencia/2026-04-19_07-38-46
 - data_inicio: 2026-04-22 00:00:00
-- ultima_atualizacao: 2026-04-22 00:00:00
+- ultima_atualizacao: 2026-04-22 00:05:00
 - fase_atual: revisor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 17
 - corrigidos_executor: 17
-- revisados_revisor: 0
+- revisados_revisor: 1
 - corrigidos_pelo_revisor: 0
 - nao_corrigiveis: 0
 - nao_aprovados: 0
@@ -25,12 +25,13 @@
 - severidade: critico
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: 43d5018
 - commit_revisor: none
 - arquivos_alterados:
   - packages/shared/src/events/event-subscriber.ts
 - descricao_correcao: dispatch() propaga AggregateError quando qualquer handler rejeita; outbox-processor chama markFailed e evento volta a PENDING com backoff.
+- resultado_revisao: correção completa e consistente — diff do commit 43d5018 mostra substituição do loop que apenas logava por coleta de failures e throw AggregateError; estado atual de event-subscriber.ts:74-94 confirma a lógica; outbox-processor.ts:37-43 envolve dispatch em try/catch e chama markFailed(event.id) em qualquer erro, levando o evento de volta a PENDING com backoff conforme recomendação do achado.
 
 ### ACH-002
 - titulo: Handlers do outbox não são idempotentes

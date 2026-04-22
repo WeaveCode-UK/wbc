@@ -5,14 +5,14 @@
 - run_id: 2026-04-19_07-38-46
 - branch: fix/confiabilidade-resiliencia/2026-04-19_07-38-46
 - data_inicio: 2026-04-22 00:00:00
-- ultima_atualizacao: 2026-04-22 00:25:00
+- ultima_atualizacao: 2026-04-22 00:30:00
 - fase_atual: revisor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 17
 - corrigidos_executor: 17
-- revisados_revisor: 5
+- revisados_revisor: 6
 - corrigidos_pelo_revisor: 0
 - nao_corrigiveis: 0
 - nao_aprovados: 0
@@ -93,7 +93,7 @@
 - severidade: alto
 - classificacao: corrigivel_parcial
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: 550de81
 - commit_revisor: none
 - arquivos_alterados:
@@ -102,6 +102,7 @@
   - apps/api/src/trpc/router.ts
   - scripts/dlq-replay.ts (CLI)
 - descricao_correcao: admin.dlq.list/replay (ADMIN-only) + CLI via pnpm tsx scripts/dlq-replay.ts.
+- resultado_revisao: aprovado — diff 550de81 verificado: replayFromDLQ usa updateMany com where status DLQ e reset attempts=0/nextRetryAt=null voltando a PENDING (correto para reentrar no backoff); admin.dlq.list e admin.dlq.replay ambos usam adminProcedure = roleProtectedProcedure("ADMIN") (trpc.ts:138 confirma função existente); CLI scripts/dlq-replay.ts aceita list [--limit=N] e replay --id=<uuid> com validação e exit codes corretos; adminRouter corretamente plugado em appRouter.admin. Classificação parcial mantém-se porque falta alerta estruturado ao entrar em DLQ (follow-up documentado).
 
 ### ACH-007
 - titulo: Ausência de backpressure entre tRPC e outbox

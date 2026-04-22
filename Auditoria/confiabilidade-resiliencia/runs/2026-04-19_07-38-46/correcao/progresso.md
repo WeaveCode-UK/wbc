@@ -5,15 +5,15 @@
 - run_id: 2026-04-19_07-38-46
 - branch: fix/confiabilidade-resiliencia/2026-04-19_07-38-46
 - data_inicio: 2026-04-22 00:00:00
-- ultima_atualizacao: 2026-04-22 01:20:00
+- ultima_atualizacao: 2026-04-22 01:40:00
 - fase_atual: revisor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 17
 - corrigidos_executor: 17
-- revisados_revisor: 14
-- corrigidos_pelo_revisor: 0
+- revisados_revisor: 17
+- corrigidos_pelo_revisor: 1
 - nao_corrigiveis: 0
 - nao_aprovados: 0
 - pendentes: 0
@@ -250,9 +250,10 @@
 - severidade: baixo
 - classificacao: corrigivel_parcial
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado_direto
 - commit_executor: 4899631
 - commit_revisor: none
 - arquivos_alterados:
   - docs/runbooks/multi-provider-incident.md (novo)
 - descricao_correcao: runbook manual com priorização e procedimentos; agregador central é follow-up.
+- resultado_revisao: aprovado_direto — diff 4899631 entrega docs/runbooks/multi-provider-incident.md cobrindo as 5 seções pedidas pela recomendação ("por ora documentar runbook"). (1) "Quando usar" define o gatilho — circuit breakers de dois ou mais providers abrem em janela < 5 min (WhatsApp+DeepSeek, WhatsApp+MercadoPago, Resend+Slack) — e delimita escopo ("um único provider fora é runbook específico, este é coordenação múltipla"). (2) "Diagnóstico rápido" em 4 passos: painel Grafana Resilience (cross-ref a observabilidade-operacao ACH-008), grep logs do worker por "Circuit opened: <provider>" janela 15min, Sentry agregado por provider, verificação de causa compartilhada (rede interna, DNS, timeout cascata). (3) "Priorização" com ordem explícita crítico→descartável: WhatsApp (único canal conversão/cashback, manter sempre) > MercadoPago (bloqueia receita) > DeepSeek (fallback "[AI indisponível]" aceitável) > Resend (queda poucas horas ok) > Slack webhooks (alerting descartável). Inclui como abrir circuito preventivamente via env var + restart (kubectl set env DEEPSEEK_CIRCUIT_THRESHOLD=1 ou DEEPSEEK_CIRCUIT_WINDOW_MS=600000, aproveitando a configurabilidade introduzida pelo ACH-012). (4) "Mitigação" — checar causa local (pod sem IP egress, DNS, conntrack) antes de assumir externo, comunicar stakeholders, aumentar threshold de alerta para evitar fadiga, monitorar DLQ para decidir pausar scanner. (5) "Pós-incidente" — registrar causa comum em post-mortem e, na recorrência, **promover este runbook para feature de agregação central (serviço dedicado que orquestra prioridades)** — cobrindo literalmente o pedido "(futuro) circuit breaker central com agregado" da recomendação. Classificação corrigivel_parcial mantém-se correta: runbook manual resolve a parte documental; agregador central automatizado fica como follow-up condicional à recorrência do incidente.

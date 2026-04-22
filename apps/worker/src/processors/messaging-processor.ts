@@ -25,6 +25,16 @@ export function startMessagingWorker(): Worker<MessagingJob> {
   const worker = new Worker("wbc:messaging", processMessagingJob, {
     connection,
     concurrency: 5,
+    // ACH-010 performance-escalabilidade: outbound rate limit for the
+    // Meta WhatsApp tier. Meta's business tier is conservatively 10
+    // msg/s per phone number before 429; tune via env when a higher
+    // tier is approved. `limiter.max` / `limiter.duration` are
+    // BullMQ-level — they slow *this worker's* dispatch, not the
+    // queue's enqueue side.
+    limiter: {
+      max: Number(process.env.MESSAGING_RATE_MAX ?? 10),
+      duration: Number(process.env.MESSAGING_RATE_DURATION_MS ?? 1000),
+    },
   });
 
   worker.on("completed", (job) => {

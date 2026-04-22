@@ -5,14 +5,14 @@
 - run_id: 2026-04-19_07-38-46
 - branch: fix/confiabilidade-resiliencia/2026-04-19_07-38-46
 - data_inicio: 2026-04-22 00:00:00
-- ultima_atualizacao: 2026-04-22 00:30:00
+- ultima_atualizacao: 2026-04-22 00:35:00
 - fase_atual: revisor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 17
 - corrigidos_executor: 17
-- revisados_revisor: 6
+- revisados_revisor: 7
 - corrigidos_pelo_revisor: 0
 - nao_corrigiveis: 0
 - nao_aprovados: 0
@@ -109,7 +109,7 @@
 - severidade: alto
 - classificacao: corrigivel_parcial
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: b4bc461
 - commit_revisor: none
 - arquivos_alterados:
@@ -118,6 +118,7 @@
   - apps/api/src/routers/sales.ts (piloto em confirm)
   - apps/api/src/index.ts (start do monitor)
 - descricao_correcao: poll em background + applyOutboxBackpressure(path) em sales.confirm; rollout nas demais mutations em RELIABILITY-FOLLOWUP.md.
+- resultado_revisao: aprovado como parcial correto — diff b4bc461 implementa o middleware pedido. outbox-lag-monitor.ts faz poll background (OUTBOX_LAG_POLL_INTERVAL_MS default 5s) calculando Date.now()-oldest.createdAt sobre outboxEvent com processedAt=null e cacheia em cachedLagMs; expõe getOutboxLagMs() O(1) sem Postgres no request path, timer.unref() evita prender event loop em testes; catch silencioso vira "sem backpressure" quando DB indisponível (fail-open correto). outbox-backpressure-middleware.ts applyOutboxBackpressure(path) lê getOutboxLagMs() e lança TRPCError TOO_MANY_REQUESTS com mensagem lag=Xms>Yms quando excede threshold (OUTBOX_BACKPRESSURE_THRESHOLD_MS default 30_000ms = metade do 60s de readiness do worker, casando exatamente com "threshold/2" da recomendação). sales.confirm chama applyOutboxBackpressure("sales.confirm") antes de idempotent(), garantindo que idempotency cache não registre tentativas rejeitadas por backpressure. apps/api/src/index.ts chama startOutboxLagMonitor() após getRepositories() no bootstrap. Observação não bloqueadora: TRPCError não expõe header Retry-After nativamente (SDK tRPC não oferece responseMeta customizado sem hook extra); código TOO_MANY_REQUESTS já orienta clientes bem-comportados a aplicar backoff, e mapear Retry-After exigiria alteração no fetch adapter — registrado como follow-up em RELIABILITY-FOLLOWUP.md (mesmo caminho do rollout de mutations restantes). Classificação parcial mantém-se porque só sales.confirm é piloto; demais mutations geradoras de evento (messaging, whatsapp, campaigns) ainda precisam receber a chamada.
 
 ### ACH-008
 - titulo: Claim racy + handlers repetíveis (combinação)

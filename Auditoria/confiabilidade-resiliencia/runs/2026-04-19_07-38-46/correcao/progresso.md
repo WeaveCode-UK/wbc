@@ -5,14 +5,14 @@
 - run_id: 2026-04-19_07-38-46
 - branch: fix/confiabilidade-resiliencia/2026-04-19_07-38-46
 - data_inicio: 2026-04-22 00:00:00
-- ultima_atualizacao: 2026-04-22 00:05:00
+- ultima_atualizacao: 2026-04-22 00:10:00
 - fase_atual: revisor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 17
 - corrigidos_executor: 17
-- revisados_revisor: 1
+- revisados_revisor: 2
 - corrigidos_pelo_revisor: 0
 - nao_corrigiveis: 0
 - nao_aprovados: 0
@@ -38,7 +38,7 @@
 - severidade: critico
 - classificacao: corrigivel_parcial
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: ec3c116
 - commit_revisor: none
 - arquivos_alterados:
@@ -46,6 +46,7 @@
   - packages/business/inventory/adapters/sale-confirmed-handler.ts (piloto)
   - docs/RELIABILITY-FOLLOWUP.md
 - descricao_correcao: piloto em sale-confirmed usa withIdempotentHandler (infra já vinha de dados-persistencia run 2026-04-18_23-03-36). Rollout nos demais handlers em RELIABILITY-FOLLOWUP.md.
+- resultado_revisao: aprovado como parcial correto — infra completa verificada (migration 20260421000000_processed_events, ProcessedEventRepository.claim() com P2002→false, withIdempotentHandler wrapper shared); diff ec3c116 expõe event.id no tipo EventHandler, injeta withIdempotentHandler no piloto inventory.sale-confirmed com HANDLER_NAME estável, e RELIABILITY-FOLLOWUP.md lista explicitamente os handlers restantes (whatsapp-webhook, mercadopago-webhook) e a pendência de mover o claim para dentro da tx do handler. Piloto está correto e follow-up documenta rollout conforme classificação corrigivel_parcial.
 
 ### ACH-003
 - titulo: Fila BullMQ sem limite de profundidade

@@ -11,9 +11,17 @@ export interface SendMessageResult {
  * (Meta: `X-Request-Id`) so a duplicate send after a timeout is
  * coalesced upstream instead of delivering the same WhatsApp message
  * twice.
+ *
+ * ACH-015 confiabilidade-resiliencia: `deadlineSignal` carries a
+ * caller-supplied AbortSignal (typically from `withDeadline`) so the
+ * adapter aborts in-flight HTTP before the caller's budget is blown.
+ * When passed, the adapter combines it with its own per-attempt
+ * timeout — whichever fires first wins. Without it the adapter keeps
+ * its pre-existing timeout-only behavior (backwards compatible).
  */
 export interface SendMessageOptions {
   idempotencyKey?: string;
+  deadlineSignal?: AbortSignal;
 }
 
 export interface WhatsAppPort {

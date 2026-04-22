@@ -8,7 +8,6 @@ import {
   CircuitBreaker,
   type RetryPolicy,
   type TimeoutPolicy,
-  createTimeoutSignal,
   whatsappRetryPolicy,
   whatsappTimeoutPolicy,
   whatsappCircuitPolicy,
@@ -80,7 +79,36 @@ export class WhatsAppN2Adapter implements WhatsAppPort {
     const phoneRedacted = redactPhone(cleanPhone);
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
-      const { signal, cancel } = createTimeoutSignal(this.timeoutPolicy);
+      // ACH-015 confiabilidade-resiliencia: piloto de propagação de
+      // deadline. Controller local combina o timeout desta tentativa
+      // com o `deadlineSignal` do chamador (p.ex. `withDeadline` do
+      // request de origem). Quem disparar primeiro — timeout da
+      // tentativa ou budget ponta-a-ponta — aborta o fetch. Sem
+      // `deadlineSignal`, o comportamento é o mesmo de antes:
+      // timeout-only via `createTimeoutSignal` reproduzido aqui.
+      const controller = new AbortController();
+      const timer = setTimeout(
+        () => controller.abort(),
+        this.timeoutPolicy.timeoutMs,
+      );
+      const deadlineSignal = opts.deadlineSignal;
+      const onDeadlineAbort = (): void => controller.abort();
+      if (deadlineSignal) {
+        if (deadlineSignal.aborted) {
+          controller.abort();
+        } else {
+          deadlineSignal.addEventListener("abort", onDeadlineAbort, {
+            once: true,
+          });
+        }
+      }
+      const signal = controller.signal;
+      const cancel = (): void => {
+        clearTimeout(timer);
+        if (deadlineSignal) {
+          deadlineSignal.removeEventListener("abort", onDeadlineAbort);
+        }
+      };
 
       try {
         const response = await fetch(

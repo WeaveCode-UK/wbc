@@ -221,13 +221,16 @@
 - severidade: medio
 - classificacao: corrigivel_parcial
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: corrigido_pelo_revisor
 - commit_executor: ac84fd1
-- commit_revisor: none
+- commit_revisor: <preencher-após-commit>
 - arquivos_alterados:
   - packages/shared/src/resilience/deadline.ts (novo)
   - packages/shared/src/resilience/index.ts
+  - packages/business/messaging/ports/whatsapp-port.ts (revisor)
+  - packages/business/messaging/adapters/whatsapp-n2-adapter.ts (revisor)
 - descricao_correcao: withDeadline(budgetMs, fn) cria AbortSignal compartilhado; propagação via ALS em follow-up.
+- resultado_revisao: corrigido_pelo_revisor — diff ac84fd1 entrega apenas o helper em packages/shared/src/resilience/deadline.ts (withDeadline(budgetMs, fn) com AbortController + setTimeout + unref + cleanup no finally, DeadlineContext {signal, deadlineMs, remainingMs()}, DeadlineExceededError, reexport em resilience/index.ts). Helper está conforme a recomendação ("AbortSignal.timeout(budgetMs) no início"). **Discrepância:** plano-correcao.md linha 126 prometia "piloto aplicado ao adapter WhatsApp" e docs/RELIABILITY-FOLLOWUP.md §ACH-015 declarava entregue "Piloto em packages/business/messaging/adapters/whatsapp-n2-adapter.ts (AbortSignal)", mas o adapter em ac84fd1 continuava sem consumir o signal externo — grep withDeadline|deadlineSignal|DeadlineContext retornava zero ocorrências no adapter. Revisor aplicou o piloto faltante: (1) whatsapp-port.ts adicionou `deadlineSignal?: AbortSignal` em SendMessageOptions documentando ACH-015, mantendo retrocompatibilidade (undefined preserva comportamento timeout-only anterior); (2) whatsapp-n2-adapter.ts substituiu createTimeoutSignal por AbortController local em cada tentativa, combinando o timeout da tentativa com o deadlineSignal do chamador — quem disparar primeiro aborta o fetch. Cleanup (clearTimeout + removeEventListener) roda em finally via cancel(). Import createTimeoutSignal removido (não mais usado neste adapter). Ficou fora do escopo desta correção: propagação automática via AsyncLocalStorage (segue como follow-up declarado em RELIABILITY-FOLLOWUP.md). Type-check focado nos arquivos tocados não gerou novos erros (o erro pré-existente em external-adapter-template.ts linha 71 é do ACH-011 e independente).
 
 ### ACH-016
 - titulo: Rate-limit sem load shedding adaptativo

@@ -1,6 +1,11 @@
 import type { EventType } from "./domain-event";
 
+// ACH-002 confiabilidade-resiliencia: expose event `id` to handlers so
+// they can claim idempotency via ProcessedEventRepository keyed on
+// (eventId, handlerName). Dispatch has always passed `id` at runtime;
+// the type just didn't advertise it.
 export type EventHandler = (event: {
+  id: string;
   type: string;
   tenantId: string;
   payload: unknown;

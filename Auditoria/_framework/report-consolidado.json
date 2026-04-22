@@ -1,6 +1,6 @@
 {
   "schema_version": "2.2",
-  "generated_at": "2026-04-22T20:21:05.025Z",
+  "generated_at": "2026-04-22T21:52:04.679Z",
   "total": 294,
   "total_runs": 15,
   "distribution": {
@@ -37,17 +37,17 @@
   },
   "correction_summary": {
     "runs_by_correction_state": {
-      "not_started": 9,
-      "in_progress": 4,
+      "not_started": 8,
+      "in_progress": 5,
       "completed": 2
     },
-    "total_findings_corrected": 141,
+    "total_findings_corrected": 159,
     "total_findings_not_correctable": 2,
     "total_findings_pending_correction": 0,
-    "total_commits": 113
+    "total_commits": 131
   },
   "progress": {
-    "last_updated": "2026-04-22T20:21:05.023Z",
+    "last_updated": "2026-04-22T21:52:04.677Z",
     "domains": {
       "arquitetura": {
         "domain": "arquitetura",
@@ -375,7 +375,18 @@
         "confirmado": 17
       },
       "correction": {
-        "state": "not_started"
+        "state": "in_progress",
+        "branch": "fix/confiabilidade-resiliencia/2026-04-19_07-38-46",
+        "started_at": "2026-04-22 00:00:00",
+        "finished_at": null,
+        "fase_atual": "revisor",
+        "corrected": 18,
+        "reviewed_ok": 17,
+        "not_correctable": 0,
+        "not_approved": 0,
+        "pending": 0,
+        "total_approved": 17,
+        "total_commits": 18
       }
     },
     {
@@ -875,7 +886,13 @@
       "acao_sugerida": "Falhas em qualquer handler devem retornar o evento a PENDING (ou promovê-lo a DLQ) — não marcar `processedAt`; logar metadata do handler que falhou; combinar com idempotência por handler (ACH-002)",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "43d5018",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -899,7 +916,13 @@
       "acao_sugerida": "Tabela `processed_events(handler, event_id PK, tenant_id)`; cada handler insere e executa no mesmo `$transaction`; conflito = no-op",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "ec3c116",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -1715,7 +1738,13 @@
       "acao_sugerida": "`defaultJobOptions: { removeOnComplete: 1000, removeOnFail: 5000 }`; alertar ao crescer; dimensionar `maxmemory` conforme carga esperada",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "53b3cf4",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -1739,7 +1768,13 @@
       "acao_sugerida": "Envolver cada handler em `Promise.race([fn(), timeoutPromise])`; marcar como falhado e continuar a loop; métricas por handler",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "87a652c",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -1762,7 +1797,13 @@
       "acao_sugerida": "`stop_grace_period: 40s`; job scheduled que reset `PROCESSING > 5min` para PENDING; métrica de \"orphaned processing events",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "cc6c211",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -1785,7 +1826,13 @@
       "acao_sugerida": "tRPC admin `dlq.replay(id)` com role check; CLI `audkit-dlq replay --id=<>`; log estruturado e alerta ao entrar em DLQ (cross-ref apis-integracoes/ACH-020)",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "550de81",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -1808,7 +1855,13 @@
       "acao_sugerida": "Middleware tRPC que rejeite mutations geradoras de evento quando `outboxLagMs > threshold/2`; TRPCError `TOO_MANY_REQUESTS` + `Retry-After`",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "b4bc461",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -1832,7 +1885,13 @@
       "acao_sugerida": "Combinar correções: `FOR UPDATE SKIP LOCKED` + `processed_events` por handler",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "2b72eac",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -4721,7 +4780,13 @@
       "acao_sugerida": "Documentar em ADR-007 os dois níveis; adotar um padrão único — adapter para falhas transientes rápidas (< 5 s), outbox para persistentes (≥ 30 s); jitter em ambos",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "8ca13f9",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -4744,7 +4809,13 @@
       "acao_sugerida": "`backoffMs = base + random(base * 0.5)`; aplicar ao adapter também",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "5a763d2",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -4767,7 +4838,13 @@
       "acao_sugerida": "Round-robin por tenant no claim (ex: `DISTINCT ON (tenant_id)`); futuro: partições por tenant conforme ADR-008",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "30d59be",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -4790,7 +4867,13 @@
       "acao_sugerida": "Centralizar em `packages/shared/src/resilience/policies.ts` + env (`WHATSAPP_CIRCUIT_THRESHOLD`, `WHATSAPP_CIRCUIT_WINDOW_MS`)",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "5ba5eed",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -4813,7 +4896,13 @@
       "acao_sugerida": "Manter 30 d em Postgres; export para cold storage; documentar em `docs/RETENTION.md`",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "3e5f82d",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -4836,7 +4925,13 @@
       "acao_sugerida": "Criar `packages/shared/src/adapters/external-adapter-template.ts` e regra de code-review exigindo uso",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "4e89c53",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -4859,7 +4954,13 @@
       "acao_sugerida": "Conceito de \"deadline\" propagado em contexto (`AbortSignal.timeout(budgetMs)` no início); adapters abortam se estourar",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_fixed",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "corrigido_pelo_revisor",
+        "executor_commit": "ac84fd1",
+        "reviewer_commit": "c24acdb",
+        "observacoes": null
       }
     },
     {
@@ -7346,7 +7447,13 @@
       "acao_sugerida": "Ajuste adaptativo baseado em p95 de latência (reduzir limite quando p95 > threshold)",
       "prioridade": "baixa",
       "correction": {
-        "state": "not_started"
+        "state": "executor_done",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado_direto",
+        "executor_commit": "737722f",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -7369,7 +7476,13 @@
       "acao_sugerida": "(futuro) circuit breaker central com agregado; por ora documentar runbook",
       "prioridade": "baixa",
       "correction": {
-        "state": "not_started"
+        "state": "executor_done",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado_direto",
+        "executor_commit": "4899631",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {

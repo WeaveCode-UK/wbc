@@ -33,7 +33,21 @@ export class PrismaOutboxRepository implements OutboxPort {
     });
   }
 
+  // ACH-011 confiabilidade-resiliencia: round-robin por tenant, ativado
+  // por env `OUTBOX_CLAIM_STRATEGY=round_robin`. Default preserva FIFO
+  // global (comportamento anterior). Com round-robin, uma tenant com
+  // 10k eventos não monopoliza o batch — cada iteração pega no máximo
+  // um evento por tenant.
+  private get claimStrategy(): "fifo" | "round_robin" {
+    return process.env.OUTBOX_CLAIM_STRATEGY === "round_robin"
+      ? "round_robin"
+      : "fifo";
+  }
+
   async claimPending(limit: number) {
+    if (this.claimStrategy === "round_robin") {
+      return this.claimPendingRoundRobin(limit);
+    }
     // ACH-002 dados-persistencia: atomic claim via `FOR UPDATE SKIP LOCKED`.
     // The previous implementation (`findMany` → `updateMany`) had a race
     // window: two workers could select the same row in step 1 before
@@ -66,6 +80,37 @@ export class PrismaOutboxRepository implements OutboxPort {
         WHERE "status" = 'PENDING'
           AND ("nextRetryAt" IS NULL OR "nextRetryAt" <= NOW())
         ORDER BY "createdAt" ASC
+        LIMIT ${limit}
+        FOR UPDATE SKIP LOCKED
+      )
+      RETURNING "id", "type", "tenantId", "payload"
+    `;
+    return rows;
+  }
+
+  private async claimPendingRoundRobin(limit: number) {
+    // DISTINCT ON (tenant_id) garante no máximo 1 evento por tenant no
+    // batch; tenants que excedam esse limite só aparecem na próxima
+    // iteração do outbox-processor.
+    //
+    // Followup (ver docs/RELIABILITY-FOLLOWUP.md): avaliar índice
+    // composto (status, tenantId, createdAt) se benchmark mostrar
+    // degradação sob alta cardinalidade de tenants.
+    const rows = await prisma.$queryRaw<
+      Array<{
+        id: string;
+        type: string;
+        tenantId: string;
+        payload: Prisma.JsonValue;
+      }>
+    >`
+      UPDATE "OutboxEvent"
+      SET "status" = 'PROCESSING'
+      WHERE "id" IN (
+        SELECT DISTINCT ON ("tenantId") "id" FROM "OutboxEvent"
+        WHERE "status" = 'PENDING'
+          AND ("nextRetryAt" IS NULL OR "nextRetryAt" <= NOW())
+        ORDER BY "tenantId", "createdAt" ASC
         LIMIT ${limit}
         FOR UPDATE SKIP LOCKED
       )

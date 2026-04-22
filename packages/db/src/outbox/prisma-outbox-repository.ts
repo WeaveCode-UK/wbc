@@ -96,8 +96,13 @@ export class PrismaOutboxRepository implements OutboxPort {
         data: { status: "FAILED", attempts },
       });
     } else {
-      // Exponential backoff: 10s, 40s, 90s, 160s
-      const backoffMs = Math.pow(attempts, 2) * 10_000;
+      // Exponential backoff with jitter (ACH-010 confiabilidade-resiliencia).
+      // Base: 10s, 40s, 90s, 160s. Without jitter a burst of failures at
+      // the same instant would retry in lockstep (thundering herd),
+      // amplifying the incident. Random +/-50% spreads them across a
+      // window proportional to the attempt count.
+      const base = Math.pow(attempts, 2) * 10_000;
+      const backoffMs = base + Math.floor((Math.random() - 0.5) * base);
       await prisma.outboxEvent.update({
         where: { id },
         data: {

@@ -5,14 +5,14 @@
 - run_id: 2026-04-19_07-38-46
 - branch: fix/confiabilidade-resiliencia/2026-04-19_07-38-46
 - data_inicio: 2026-04-22 00:00:00
-- ultima_atualizacao: 2026-04-22 00:45:00
+- ultima_atualizacao: 2026-04-22 00:50:00
 - fase_atual: revisor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 17
 - corrigidos_executor: 17
-- revisados_revisor: 9
+- revisados_revisor: 10
 - corrigidos_pelo_revisor: 0
 - nao_corrigiveis: 0
 - nao_aprovados: 0
@@ -151,12 +151,13 @@
 - severidade: medio
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: 5a763d2
 - commit_revisor: none
 - arquivos_alterados:
   - packages/db/src/outbox/prisma-outbox-repository.ts
 - descricao_correcao: backoff = base + random(-50%, +50%); previne thundering herd.
+- resultado_revisao: aprovado — diff 5a763d2 em packages/db/src/outbox/prisma-outbox-repository.ts:96-108 preserva base exponencial (attempt²·10s → 10/40/90/160s) e aplica jitter ±50% via `base + Math.floor((Math.random() - 0.5) * base)`, produzindo janela [0.5·base, 1.5·base] — casa literalmente com a recomendação `base + random(base * 0.5)` (magnitude do jitter = 50% da base) e quebra o lockstep de retries simultâneos. Comentário inline referencia ACH-010 e explica a motivação (thundering herd). Aplicação no adapter linear curto ficou como follow-up condicional documentado em ADR-007 (ACH-009).
 
 ### ACH-011
 - titulo: Isolamento fraco por tenant no claimPending

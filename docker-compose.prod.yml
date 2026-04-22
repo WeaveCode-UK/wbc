@@ -161,7 +161,30 @@ services:
       - ./deploy/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./deploy/alerts.yml:/etc/prometheus/alerts.yml:ro
       - prometheus_data:/prometheus
-    command: --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.retention.time=30d
+    command: --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.retention.time=30d --web.enable-lifecycle
+    networks:
+      - internal
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+
+  # ── Alertmanager (routing de alertas) ───────────────────────
+  # ACH-006 observabilidade-operacao: expõe canal real para as regras
+  # definidas em deploy/alerts.yml. Sem alertmanager os alertas
+  # disparavam sem destino.
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: wbc-alertmanager
+    restart: unless-stopped
+    env_file: .env.production
+    volumes:
+      - ./deploy/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager_data:/alertmanager
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+    depends_on:
+      - prometheus
     networks:
       - internal
     cap_drop: [ALL]
@@ -201,6 +224,7 @@ volumes:
   certbot_www:
   prometheus_data:
   grafana_data:
+  alertmanager_data:
 
 networks:
   internal:

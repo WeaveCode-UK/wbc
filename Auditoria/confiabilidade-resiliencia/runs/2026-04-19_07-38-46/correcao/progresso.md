@@ -237,12 +237,13 @@
 - severidade: baixo
 - classificacao: corrigivel_parcial
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado_direto
 - commit_executor: 737722f
 - commit_revisor: none
 - arquivos_alterados:
   - apps/api/src/trpc/rate-limit-middleware.ts
 - descricao_correcao: shouldShed(p95) stub opt-in via ADAPTIVE_SHEDDING=1 (off por default); lógica real depende de métrica Prometheus (observabilidade).
+- resultado_revisao: aprovado_direto — diff 737722f entrega `shouldShed(_p95LatencyMs?: number): boolean` exportada em rate-limit-middleware.ts logo após `getKey`. Off-by-default respeitado: retorna false quando ADAPTIVE_SHEDDING !== "1" e também retorna false no ramo opt-in (placeholder comentado como "lógica real em follow-up"). Comentário inline referencia ACH-001 (observabilidade) e docs/RELIABILITY-FOLLOWUP.md, alinhado à classificação corrigivel_parcial. Assinatura coerente com a recomendação (p95 de latência como input futuro). Nenhum outro ponto do arquivo foi tocado — o comportamento atual de rate-limit fixo por rota permanece inalterado.
 
 ### ACH-017
 - titulo: Circuit breakers sem sinalização cruzada

@@ -16,9 +16,15 @@ export { DEFAULT_TIMEOUT_POLICY, createTimeoutSignal } from "./timeout";
 export {
   whatsappRetryPolicy,
   whatsappTimeoutPolicy,
+  whatsappCircuitPolicy,
   deepseekRetryPolicy,
   deepseekTimeoutPolicy,
+  deepseekCircuitPolicy,
 } from "./policies";
+export type { CircuitBreakerPolicy } from "./policies";
+
+export { withDeadline, DeadlineExceededError } from "./deadline";
+export type { DeadlineContext } from "./deadline";
 
 // CircuitBreaker continua exportado de '@wbc/shared' diretamente (circuit-breaker.ts).
 // Não re-exportamos aqui para evitar conflito de símbolos no barrel.

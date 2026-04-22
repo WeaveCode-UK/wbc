@@ -102,6 +102,25 @@ ACH-009, ACH-008 e ACH-010 endereçaram a implementação; este ADR registra a d
 - BullMQ: delega retry para a fila (cada job que falhar é re-enfileirado com delay).
 - **Adapter (escolhido):** retry dentro da mesma invocação para falhas transientes rápidas (rede), BullMQ retry para falhas mais persistentes. Duas camadas se complementam.
 
+## Adendo — dois níveis de retry (ACH-009 confiabilidade-resiliencia, 2026-04-22)
+
+Existe hoje três níveis de retry em operação; a tabela abaixo evita confusão em diagnóstico de incidente:
+
+| Nível   | Onde                                    | Quando dispara                    | Backoff                                               | Propósito                                                                |
+| ------- | --------------------------------------- | --------------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------ |
+| Adapter | `@wbc/shared/resilience/retry.ts`       | HTTP 5xx/429 em uma única chamada | Linear: `baseDelayMs * (attempt+1)`                   | Falhas transientes rápidas (rede, 502 momentâneo) — resolver em segundos |
+| Outbox  | `PrismaOutboxRepository.markFailed`     | Handler lança erro                | Exponencial + jitter: `attempt² · 10s ±50%` (ACH-010) | Falhas persistentes que precisam de janela maior para se recuperar       |
+| BullMQ  | `defaultJobOptions` em queues (ACH-003) | Job worker lança erro             | Exponencial: 5s, 10s, 20s                             | Backup para bugs transientes no handler ou adapter indisponível          |
+
+**Regra de uso:**
+
+- Use **retry do adapter** para erros de rede esperados (503, 429, connection reset).
+- Confie no **retry do outbox** para erros persistentes (DB lock, provider fora do ar por minutos). Não multiplique por tentar no adapter.
+- O **retry do BullMQ** cobre apenas jobs que não nascem do outbox (campanhas agendadas, analytics).
+- Jitter está aplicado em outbox; WhatsApp retry não (linear curto) — intencional, mas pode ser uniformizado se padrões de incidente sugerirem.
+
+Carga máxima amplificada (worst case): `adapter.maxRetries × outbox.maxAttempts × bullmq.attempts` — hoje ~3 × 5 × 3 = 45 tentativas totais por evento em falha completa. Não é cenário real (a maioria resolve no primeiro nível), mas serve de limite superior para dimensionar rate limit de provider externo.
+
 ## Links
 
 - ADR-003 — Outbox Pattern + BullMQ

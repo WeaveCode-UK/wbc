@@ -56,6 +56,16 @@ function getKey(prefix: string, identifier: string, path: string): string {
   return `ratelimit:${prefix}:${identifier}:${path}`;
 }
 
+// ACH-016 confiabilidade-resiliencia: stub de load shedding adaptativo.
+// Hoje devolve `false` sempre (noop). Quando p95 de latência estiver
+// exposto via métrica Prometheus (depende de ACH-001 do domínio
+// observabilidade-operacao), acoplar leitura ao histograma e habilitar
+// via `ADAPTIVE_SHEDDING=1`. Ver docs/RELIABILITY-FOLLOWUP.md.
+export function shouldShed(_p95LatencyMs?: number): boolean {
+  if (process.env.ADAPTIVE_SHEDDING !== "1") return false;
+  return false; // placeholder — lógica real em follow-up
+}
+
 function findSensitiveLimit(path: string): RateLimitConfig | null {
   for (const entry of SENSITIVE_ROUTE_LIMITS) {
     if (path.startsWith(entry.prefix)) return entry.config;

@@ -33,7 +33,21 @@ export class PrismaOutboxRepository implements OutboxPort {
     });
   }
 
+  // ACH-011 confiabilidade-resiliencia: round-robin por tenant, ativado
+  // por env `OUTBOX_CLAIM_STRATEGY=round_robin`. Default preserva FIFO
+  // global (comportamento anterior). Com round-robin, uma tenant com
+  // 10k eventos não monopoliza o batch — cada iteração pega no máximo
+  // um evento por tenant.
+  private get claimStrategy(): "fifo" | "round_robin" {
+    return process.env.OUTBOX_CLAIM_STRATEGY === "round_robin"
+      ? "round_robin"
+      : "fifo";
+  }
+
   async claimPending(limit: number) {
+    if (this.claimStrategy === "round_robin") {
+      return this.claimPendingRoundRobin(limit);
+    }
     // ACH-002 dados-persistencia: atomic claim via `FOR UPDATE SKIP LOCKED`.
     // The previous implementation (`findMany` → `updateMany`) had a race
     // window: two workers could select the same row in step 1 before
@@ -44,6 +58,13 @@ export class PrismaOutboxRepository implements OutboxPort {
     //
     // The RETURNING clause pulls the payload in the same round-trip, so
     // no second findMany is needed.
+    //
+    // ACH-008 confiabilidade-resiliencia: combined with dispatch now
+    // throwing on handler failure (ACH-001) and handler-side
+    // idempotency via processed_events (ACH-002), the previous
+    // racy+duplicable combination is closed: two workers can no longer
+    // double-dispatch the same event, and even if redelivery happens
+    // (crash mid-handler), the handler is a no-op on second run.
     const rows = await prisma.$queryRaw<
       Array<{
         id: string;
@@ -59,6 +80,37 @@ export class PrismaOutboxRepository implements OutboxPort {
         WHERE "status" = 'PENDING'
           AND ("nextRetryAt" IS NULL OR "nextRetryAt" <= NOW())
         ORDER BY "createdAt" ASC
+        LIMIT ${limit}
+        FOR UPDATE SKIP LOCKED
+      )
+      RETURNING "id", "type", "tenantId", "payload"
+    `;
+    return rows;
+  }
+
+  private async claimPendingRoundRobin(limit: number) {
+    // DISTINCT ON (tenant_id) garante no máximo 1 evento por tenant no
+    // batch; tenants que excedam esse limite só aparecem na próxima
+    // iteração do outbox-processor.
+    //
+    // Followup (ver docs/RELIABILITY-FOLLOWUP.md): avaliar índice
+    // composto (status, tenantId, createdAt) se benchmark mostrar
+    // degradação sob alta cardinalidade de tenants.
+    const rows = await prisma.$queryRaw<
+      Array<{
+        id: string;
+        type: string;
+        tenantId: string;
+        payload: Prisma.JsonValue;
+      }>
+    >`
+      UPDATE "OutboxEvent"
+      SET "status" = 'PROCESSING'
+      WHERE "id" IN (
+        SELECT DISTINCT ON ("tenantId") "id" FROM "OutboxEvent"
+        WHERE "status" = 'PENDING'
+          AND ("nextRetryAt" IS NULL OR "nextRetryAt" <= NOW())
+        ORDER BY "tenantId", "createdAt" ASC
         LIMIT ${limit}
         FOR UPDATE SKIP LOCKED
       )
@@ -89,8 +141,13 @@ export class PrismaOutboxRepository implements OutboxPort {
         data: { status: "FAILED", attempts },
       });
     } else {
-      // Exponential backoff: 10s, 40s, 90s, 160s
-      const backoffMs = Math.pow(attempts, 2) * 10_000;
+      // Exponential backoff with jitter (ACH-010 confiabilidade-resiliencia).
+      // Base: 10s, 40s, 90s, 160s. Without jitter a burst of failures at
+      // the same instant would retry in lockstep (thundering herd),
+      // amplifying the incident. Random +/-50% spreads them across a
+      // window proportional to the attempt count.
+      const base = Math.pow(attempts, 2) * 10_000;
+      const backoffMs = base + Math.floor((Math.random() - 0.5) * base);
       await prisma.outboxEvent.update({
         where: { id },
         data: {
@@ -122,6 +179,32 @@ export class PrismaOutboxRepository implements OutboxPort {
     await prisma.outboxEvent.update({
       where: { id },
       data: { status: "DLQ" },
+    });
+  }
+
+  // ACH-006 confiabilidade-resiliencia: replay de DLQ via tRPC/CLI sem
+  // precisar de UPDATE manual. Reset de attempts para permitir retry
+  // com backoff normal; volta status para PENDING.
+  async replayFromDLQ(id: string): Promise<boolean> {
+    const result = await prisma.outboxEvent.updateMany({
+      where: { id, status: "DLQ" },
+      data: { status: "PENDING", attempts: 0, nextRetryAt: null },
+    });
+    return result.count > 0;
+  }
+
+  async listDLQ(limit = 50) {
+    return prisma.outboxEvent.findMany({
+      where: { status: "DLQ" },
+      orderBy: { createdAt: "asc" },
+      take: limit,
+      select: {
+        id: true,
+        type: true,
+        tenantId: true,
+        attempts: true,
+        createdAt: true,
+      },
     });
   }
 }

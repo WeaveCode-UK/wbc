@@ -8,9 +8,9 @@ import {
   CircuitBreaker,
   type RetryPolicy,
   type TimeoutPolicy,
-  createTimeoutSignal,
   whatsappRetryPolicy,
   whatsappTimeoutPolicy,
+  whatsappCircuitPolicy,
   requireEnv,
   createLogger,
   redactPhone,
@@ -27,12 +27,10 @@ const nextRequestId = (): string =>
 
 const WHATSAPP_API_URL = "https://graph.facebook.com/v18.0";
 
-// CircuitBreaker para WhatsApp: 5 falhas em 60s abre o circuito.
-// Thresholds centralizados aqui por enquanto; no futuro podem vir de @wbc/shared/resilience/policies.ts.
-const whatsappCircuit = new CircuitBreaker("whatsapp", {
-  failureThreshold: 5,
-  resetTimeoutMs: 60_000,
-});
+// ACH-012 confiabilidade-resiliencia: thresholds do circuit breaker vêm
+// de `whatsappCircuitPolicy` em @wbc/shared/resilience/policies.ts,
+// lidos do env (`WHATSAPP_CIRCUIT_THRESHOLD`, `WHATSAPP_CIRCUIT_WINDOW_MS`).
+const whatsappCircuit = new CircuitBreaker("whatsapp", whatsappCircuitPolicy);
 
 function isRetryableStatus(status: number): boolean {
   return status >= 500 || status === 429;
@@ -81,7 +79,36 @@ export class WhatsAppN2Adapter implements WhatsAppPort {
     const phoneRedacted = redactPhone(cleanPhone);
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
-      const { signal, cancel } = createTimeoutSignal(this.timeoutPolicy);
+      // ACH-015 confiabilidade-resiliencia: piloto de propagação de
+      // deadline. Controller local combina o timeout desta tentativa
+      // com o `deadlineSignal` do chamador (p.ex. `withDeadline` do
+      // request de origem). Quem disparar primeiro — timeout da
+      // tentativa ou budget ponta-a-ponta — aborta o fetch. Sem
+      // `deadlineSignal`, o comportamento é o mesmo de antes:
+      // timeout-only via `createTimeoutSignal` reproduzido aqui.
+      const controller = new AbortController();
+      const timer = setTimeout(
+        () => controller.abort(),
+        this.timeoutPolicy.timeoutMs,
+      );
+      const deadlineSignal = opts.deadlineSignal;
+      const onDeadlineAbort = (): void => controller.abort();
+      if (deadlineSignal) {
+        if (deadlineSignal.aborted) {
+          controller.abort();
+        } else {
+          deadlineSignal.addEventListener("abort", onDeadlineAbort, {
+            once: true,
+          });
+        }
+      }
+      const signal = controller.signal;
+      const cancel = (): void => {
+        clearTimeout(timer);
+        if (deadlineSignal) {
+          deadlineSignal.removeEventListener("abort", onDeadlineAbort);
+        }
+      };
 
       try {
         const response = await fetch(

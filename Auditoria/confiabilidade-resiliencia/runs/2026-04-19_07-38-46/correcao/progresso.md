@@ -223,7 +223,7 @@
 - status_executor: corrigido
 - status_revisor: corrigido_pelo_revisor
 - commit_executor: ac84fd1
-- commit_revisor: <preencher-após-commit>
+- commit_revisor: c24acdb
 - arquivos_alterados:
   - packages/shared/src/resilience/deadline.ts (novo)
   - packages/shared/src/resilience/index.ts

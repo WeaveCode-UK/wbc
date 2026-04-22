@@ -228,12 +228,26 @@
 - severidade: medio
 - classificacao: corrigivel_parcial
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado_direto
 - commit_executor: ade1b8b
+- commit_post_fix: c9f3c8b (ajuste OTel dynamic import)
 - arquivos_alterados:
   - packages/shared/src/observability/with-span.ts (novo)
   - packages/shared/src/index.ts
   - packages/business/sales/use-cases/create-sale.ts (piloto)
+- nota_revisor: >
+    Helper withSpan correto — OtelApi/OtelSpan como types locais (evita
+    dep de @opentelemetry/api no shared), dynamic import via
+    moduleName var com `/* @vite-ignore */` (compat com bundlers),
+    cache de null quando OTel ausente (fallback silencioso). Piloto
+    em sales.createSale usa atributos padronizados wbc.tenantId,
+    wbc.clientId, wbc.items.count; SpanStatusCode.OK/ERROR aplicado
+    via api.SpanStatusCode, recordException no catch, span.end() em
+    finally. Parcial aceitável: piloto em 1 use-case — expansão
+    (confirm-sale, campanha, messaging) fica como follow-up humano
+    em docs/OBSERVABILITY-FOLLOWUP.md §ACH-009 (já documentado pelo
+    executor). Type-check do @wbc/shared passou sem erros após o
+    post-fix c9f3c8b.
 
 ### ACH-010
 - titulo: Health checks inconsistentes

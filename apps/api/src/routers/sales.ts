@@ -2,6 +2,7 @@ import { z } from "zod";
 import { router, protectedProcedure } from "../trpc/trpc";
 import { createGetByIdProcedure } from "../trpc/crud-helpers";
 import { idempotent } from "../trpc/idempotency-middleware";
+import { applyOutboxBackpressure } from "../trpc/outbox-backpressure-middleware";
 import { PrismaSaleRepository } from "../../../../packages/business/sales/adapters/prisma-sale-repository";
 import { PrismaPaymentRepository } from "../../../../packages/business/sales/adapters/prisma-payment-repository";
 import { PrismaCashbackRepository } from "../../../../packages/business/sales/adapters/prisma-cashback-repository";
@@ -93,6 +94,11 @@ export const salesRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      // ACH-007 confiabilidade-resiliencia: pilot — confirmSale publica
+      // SALE_CONFIRMED no outbox. Se o worker está atrasado, rejeitamos
+      // cedo para não ampliar a fila. Rollout para demais mutations em
+      // docs/RELIABILITY-FOLLOWUP.md.
+      applyOutboxBackpressure("sales.confirm");
       return idempotent(input.idempotencyKey, () =>
         confirmSale(ctx.tenant.tenantId, input.id, saleRepo, cashbackRepo),
       );

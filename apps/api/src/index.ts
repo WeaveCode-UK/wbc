@@ -8,6 +8,7 @@ import {
 } from "@wbc/db";
 import { getCurrentTenant, validateEnv } from "@wbc/shared";
 import { getRepositories } from "./composition-root";
+import { startOutboxLagMonitor } from "./lib/outbox-lag-monitor";
 
 // Initialize tracing before anything else
 initTracing();
@@ -40,6 +41,10 @@ prisma.$use(
 // refactor that deferred that import would have left the event bus
 // silently unwired until the first mutation.
 getRepositories();
+
+// ACH-007 confiabilidade-resiliencia: polling leve em background para
+// alimentar o middleware de backpressure do outbox (`applyOutboxBackpressure`).
+startOutboxLagMonitor();
 
 logger.info("WBC API starting...");
 logger.info("Sentry initialized");

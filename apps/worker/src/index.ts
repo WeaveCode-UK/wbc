@@ -1,15 +1,30 @@
 import { logger } from "./lib/logger";
 import * as Sentry from "@sentry/node";
+import { redactSentryEvent } from "@wbc/shared";
 
-// Initialize Sentry for worker error tracking
+// ACH-012 observabilidade-operacao: alinhar sampling e aplicar
+// beforeSend redactor no worker (antes faltava). `SENTRY_TRACES_SAMPLE_RATE`
+// unifica web/api/worker em uma única env var.
 const sentryDsn = process.env.SENTRY_DSN;
 if (sentryDsn) {
+  const sampleRateEnv = Number.parseFloat(
+    process.env.SENTRY_TRACES_SAMPLE_RATE ?? "",
+  );
+  const sampleRate = Number.isFinite(sampleRateEnv)
+    ? sampleRateEnv
+    : process.env.NODE_ENV === "production"
+      ? 0.3
+      : 1.0;
   Sentry.init({
     dsn: sentryDsn,
     environment: process.env.NODE_ENV ?? "development",
-    tracesSampleRate: process.env.NODE_ENV === "production" ? 0.1 : 1.0,
+    tracesSampleRate: sampleRate,
+    sendDefaultPii: false,
+    beforeSend: (event) => redactSentryEvent(event),
+    beforeBreadcrumb: (breadcrumb) => redactSentryEvent(breadcrumb),
   });
-  logger.info("Sentry initialized for worker");
+  Sentry.setTag("service", "worker");
+  logger.info({ sampleRate }, "Sentry initialized for worker");
 }
 
 process.on("unhandledRejection", (reason) => {

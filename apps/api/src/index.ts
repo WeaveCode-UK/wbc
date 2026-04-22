@@ -9,6 +9,7 @@ import {
 import { getCurrentTenant, validateEnv } from "@wbc/shared";
 import { getRepositories } from "./composition-root";
 import { startOutboxLagMonitor } from "./lib/outbox-lag-monitor";
+import { startApiMetricsServer } from "./metrics-server";
 
 // Initialize tracing before anything else
 initTracing();
@@ -45,6 +46,12 @@ getRepositories();
 // ACH-007 confiabilidade-resiliencia: polling leve em background para
 // alimentar o middleware de backpressure do outbox (`applyOutboxBackpressure`).
 startOutboxLagMonitor();
+
+// ACH-001 observabilidade-operacao (revisor): sobe o servidor HTTP de
+// métricas na porta casada com o job `wbc-api` do Prometheus. Sem isso,
+// o `metricsRegistry` populado pelos middlewares tRPC ficaria inacessível
+// e o scrape do Prometheus sempre falharia.
+startApiMetricsServer();
 
 logger.info("WBC API starting...");
 logger.info("Sentry initialized");

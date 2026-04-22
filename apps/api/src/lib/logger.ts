@@ -1,11 +1,4 @@
-import pino from 'pino';
-
-export function createLogger(service: string) {
-  return pino({
-    name: `wbc-${service}`,
-    level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
-    transport: process.env.NODE_ENV === 'development'
-      ? { target: 'pino-pretty', options: { colorize: true } }
-      : undefined,
-  });
-}
+// ACH-013 observabilidade-operacao: delega para o factory central em
+// @wbc/shared. Hoje a configuração era idêntica à de shared; centralizar
+// evita drift de config (ex: redact paths, LOG_LEVEL) entre apps.
+export { createLogger } from "@wbc/shared";

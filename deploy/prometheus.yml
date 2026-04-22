@@ -2,11 +2,31 @@ global:
   scrape_interval: 15s
   evaluation_interval: 15s
 
+# ACH-006 observabilidade-operacao: rotear alertas para Alertmanager.
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - alertmanager:9093
+
 rule_files:
   - /etc/prometheus/alerts.yml
 
+# ACH-001 observabilidade-operacao: scrape de web, API e worker.
+# Worker expõe /metrics na mesma porta do health server (9100).
+# Web continua servindo em /api/metrics via Next.js.
 scrape_configs:
   - job_name: 'wbc-web'
     metrics_path: '/api/metrics'
     static_configs:
       - targets: ['web:3000']
+
+  - job_name: 'wbc-api'
+    metrics_path: '/api/metrics'
+    static_configs:
+      - targets: ['api:3001']
+
+  - job_name: 'wbc-worker'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['worker:9100']

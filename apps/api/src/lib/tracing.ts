@@ -1,6 +1,7 @@
 import { NodeSDK } from "@opentelemetry/sdk-node";
 import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentations-node";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
+import { primeTraceContext } from "@wbc/shared";
 import { createLogger } from "./logger";
 
 const logger = createLogger("tracing");
@@ -44,6 +45,9 @@ export function initTracing(): void {
   });
 
   sdk.start();
+  // ACH-002 observabilidade-operacao: carrega o módulo OTel no shared
+  // logger para que traceId/spanId apareçam em cada log subsequente.
+  void primeTraceContext();
   logger.info(
     { tracing_enabled: true, endpoint: otlpEndpoint },
     "Tracing enabled",

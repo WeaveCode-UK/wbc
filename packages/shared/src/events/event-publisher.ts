@@ -2,6 +2,7 @@ import { randomUUID } from "crypto";
 import type { DomainEvent, EventType } from "./domain-event";
 import type { OutboxPort } from "./outbox-service";
 import { logIfInvalidEventPayload } from "./schemas";
+import { getActiveTraceContext } from "../observability/trace-context";
 
 let outboxPort: OutboxPort | null = null;
 
@@ -54,13 +55,26 @@ export async function publish<T>(
   // missing schemas are authored module-by-module.
   logIfInvalidEventPayload(type, payload);
 
-  const event: DomainEvent<T> = {
+  // ACH-011 observabilidade-operacao: propaga trace context do request
+  // atual para o evento. O worker que processar pode extrair traceparent
+  // e continuar o mesmo trace, conectando request → outbox → handler.
+  const traceCtx = getActiveTraceContext();
+  const metadata = traceCtx
+    ? {
+        traceId: traceCtx.traceId,
+        spanId: traceCtx.spanId,
+        traceparent: `00-${traceCtx.traceId}-${traceCtx.spanId}-01`,
+      }
+    : undefined;
+
+  const event: DomainEvent<T> & { metadata?: unknown } = {
     id: randomUUID(),
     type,
     tenantId,
     payload,
     timestamp: new Date(),
     version: 1,
+    ...(metadata ? { metadata } : {}),
   };
 
   await outboxPort.save(event);

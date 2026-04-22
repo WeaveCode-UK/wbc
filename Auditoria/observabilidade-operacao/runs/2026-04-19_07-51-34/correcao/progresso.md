@@ -5,14 +5,14 @@
 - run_id: 2026-04-19_07-51-34
 - branch: fix/observabilidade-operacao/2026-04-19_07-51-34
 - data_inicio: 2026-04-22 00:35:00
-- ultima_atualizacao: 2026-04-22 (revisor ACH-010)
+- ultima_atualizacao: 2026-04-22 (revisor ACH-011)
 - fase_atual: revisor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 15
 - corrigidos_executor: 15
-- revisados_revisor: 9
+- revisados_revisor: 10
 - corrigidos_pelo_revisor: 1
 - nao_corrigiveis: 0
 - nao_aprovados: 0
@@ -283,10 +283,25 @@
 - severidade: medio
 - classificacao: corrigivel_parcial
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado_direto
 - commit_executor: ae65ce9
 - arquivos_alterados:
   - packages/shared/src/events/event-publisher.ts (metadata com traceparent)
+- nota_revisor: >
+    Diff ae65ce9 importa getActiveTraceContext de ../observability/trace-context
+    (mesmo helper do ACH-002) e, dentro de publish(), coleta traceCtx antes de
+    montar o DomainEvent. Quando há span ativo, injeta `metadata: { traceId,
+    spanId, traceparent }` no evento, com traceparent no formato W3C
+    `00-<traceId>-<spanId>-01` (flags=sampled). Sem span ativo, metadata fica
+    undefined e o spread condicional `...(metadata ? { metadata } : {})` omite
+    o campo — evento segue exatamente igual ao anterior, preservando
+    compatibilidade com consumidores antigos. Tipo ampliado via intersection
+    `DomainEvent<T> & { metadata?: unknown }` em vez de mutar a interface
+    domain-event.ts, mantendo o contrato base estável. Parcial aceitável: o
+    worker (outbox-dispatcher / BullMQ processor) ainda não lê `metadata` para
+    criar span de continuação via OTel propagator — follow-up documentado em
+    docs/OBSERVABILITY-FOLLOWUP.md §ACH-011. Jobs BullMQ sem propagação de
+    traceparent ficam no mesmo follow-up.
 
 ### ACH-012
 - titulo: Sentry sem beforeSend e sampling desbalanceado

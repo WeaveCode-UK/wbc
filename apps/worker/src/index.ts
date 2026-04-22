@@ -22,7 +22,7 @@ process.on("uncaughtException", (error) => {
   Sentry.captureException(error);
   process.exit(1);
 });
-import { applyTenantMiddleware } from "@wbc/db";
+import { applyTenantMiddleware, createSlowQueryMiddleware } from "@wbc/db";
 import { prisma } from "@wbc/db";
 import {
   assertOutboxReady,
@@ -68,6 +68,15 @@ import {
 
 // Apply tenant middleware
 applyTenantMiddleware(() => getCurrentTenant()?.tenantId);
+
+// ACH-030 performance-escalabilidade: same slow-query probe the API runs.
+prisma.$use(
+  createSlowQueryMiddleware({
+    thresholdMs: Number(process.env.PRISMA_SLOW_QUERY_MS ?? 500),
+    sampleRate: Number(process.env.PRISMA_SLOW_QUERY_SAMPLE ?? 1),
+    warn: (fields, msg) => logger.warn(fields, msg),
+  }),
+);
 
 // Initialize outbox port
 setOutboxPort(new PrismaOutboxRepository());

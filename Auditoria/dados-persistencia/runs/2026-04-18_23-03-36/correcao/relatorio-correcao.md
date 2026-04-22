@@ -115,7 +115,8 @@ Nenhum.
 Total: 17 commits.
 
 ## Merge
-- status_merge: pendente
+- status_merge: concluido
 - branch_origem: fix/dados-persistencia/2026-04-18_23-03-36
 - branch_destino: main
-- aprovado_por_usuario: nao
+- aprovado_por_usuario: sim
+- data_merge: 2026-04-22 00:00:00

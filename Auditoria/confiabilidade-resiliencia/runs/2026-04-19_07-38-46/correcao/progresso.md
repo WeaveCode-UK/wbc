@@ -5,14 +5,14 @@
 - run_id: 2026-04-19_07-38-46
 - branch: fix/confiabilidade-resiliencia/2026-04-19_07-38-46
 - data_inicio: 2026-04-22 00:00:00
-- ultima_atualizacao: 2026-04-22 00:20:00
+- ultima_atualizacao: 2026-04-22 00:25:00
 - fase_atual: revisor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 17
 - corrigidos_executor: 17
-- revisados_revisor: 4
+- revisados_revisor: 5
 - corrigidos_pelo_revisor: 0
 - nao_corrigiveis: 0
 - nao_aprovados: 0
@@ -80,12 +80,13 @@
 - severidade: alto
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: cc6c211
 - commit_revisor: none
 - arquivos_alterados:
   - docker-compose.prod.yml
 - descricao_correcao: stop_grace_period: 40s no serviço worker.
+- resultado_revisao: aprovado — diff cc6c211 adiciona exatamente stop_grace_period: 40s no serviço worker de docker-compose.prod.yml, com comentário inline explicando que o default do Docker (10s) força SIGKILL antes do shutdown handler de 30s do worker e deixa eventos em PROCESSING órfãos. Confere com a recomendação. Não foi adicionado em docker-compose.yml (dev) porque o achado menciona explicitamente apenas prod.yml. Recomendações secundárias do achado (job scheduled para reset PROCESSING>5min e métrica de orphaned events) são fora do escopo Compose e pertencem a outros ACH, se existirem, ou a follow-up.
 
 ### ACH-006
 - titulo: DLQ sem replay automático

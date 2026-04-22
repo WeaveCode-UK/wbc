@@ -86,7 +86,14 @@ async function collectWorkerStatus(workers: BullMQWorker[]): Promise<
     }
   > = {};
   for (const w of workers) {
-    const paused = await w.isPaused().catch(() => false);
+    let paused = false;
+    try {
+      // BullMQ typings return `boolean` but older majors returned a
+      // Promise; `await` on a plain value is a no-op.
+      paused = await Promise.resolve(w.isPaused());
+    } catch {
+      paused = false;
+    }
     try {
       // Lazy-import to avoid a top-level require cycle; Queue shares
       // the connection config with the Worker, so opening one per

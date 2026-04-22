@@ -24,7 +24,9 @@ export function toCents(value: number | string): bigint {
   if (typeof value === "string") {
     // Stringified Decimal: "123.45" → 12345n. No `parseFloat` — that
     // loses precision on the way through a binary float.
-    const [whole, frac = ""] = value.split(".");
+    const parts = value.split(".");
+    const whole = parts[0] ?? "0";
+    const frac = parts[1] ?? "";
     const wholePart = whole.replace(/^-/, "");
     const negative = whole.startsWith("-");
     const fracPadded = (frac + "00").slice(0, 2); // two decimal places

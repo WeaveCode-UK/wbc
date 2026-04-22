@@ -5,14 +5,14 @@
 - run_id: 2026-04-19_07-51-34
 - branch: fix/observabilidade-operacao/2026-04-19_07-51-34
 - data_inicio: 2026-04-22 00:35:00
-- ultima_atualizacao: 2026-04-22 (revisor ACH-014)
-- fase_atual: revisor
-- status: em_andamento
+- ultima_atualizacao: 2026-04-22 (revisor ACH-015 — último)
+- fase_atual: revisor_concluido
+- status: revisao_concluida
 
 ## Resumo de Progresso
 - total_aprovados: 15
 - corrigidos_executor: 15
-- revisados_revisor: 13
+- revisados_revisor: 15
 - corrigidos_pelo_revisor: 1
 - nao_corrigiveis: 0
 - nao_aprovados: 0
@@ -376,7 +376,7 @@
 - severidade: medio
 - classificacao: corrigivel_parcial
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado_direto
 - commit_executor: 6cb3a15
 - arquivos_alterados:
   - docs/runbooks/_template.md (novo)
@@ -384,3 +384,17 @@
   - docs/runbooks/outbox-lag.md (novo)
   - docs/runbooks/queue-depth.md (novo)
   - docs/runbooks/target-down.md (novo)
+- resultado_revisao: |
+    Diff 6cb3a15 confere: _template.md com as 5 seções obrigatórias
+    (Trigger, Diagnóstico, Mitigação rápida, Rollback, Pós-incidente)
+    e rodapé apontando post-mortem em docs/postmortems/YYYY-MM-DD-<slug>.md.
+    Quatro runbooks entregues cobrindo exatamente os alertas com
+    runbook_url em deploy/alerts.yml: TargetDown (target-down.md),
+    DLQEventsGrowing (dlq-growing.md), OutboxLagHigh (outbox-lag.md),
+    BullMQQueueDepthHigh (queue-depth.md). Cada runbook tem Trigger
+    (alert/expr/severidade/for), Diagnóstico com passos concretos
+    (comandos, queries SQL, painéis Grafana, filtros de logs),
+    Mitigação com variantes por causa, Rollback e Pós-incidente.
+    Alertas legados (HighErrorRate, SlowRequests, HighRequestRate)
+    permanecem sem runbook_url — follow-up explícito, consistente
+    com classificacao corrigivel_parcial.

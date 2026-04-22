@@ -5,14 +5,14 @@
 - run_id: 2026-04-19_07-51-34
 - branch: fix/observabilidade-operacao/2026-04-19_07-51-34
 - data_inicio: 2026-04-22 00:35:00
-- ultima_atualizacao: 2026-04-22 (revisor ACH-004)
+- ultima_atualizacao: 2026-04-22 (revisor ACH-005)
 - fase_atual: revisor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 15
 - corrigidos_executor: 15
-- revisados_revisor: 4
+- revisados_revisor: 5
 - corrigidos_pelo_revisor: 1
 - nao_corrigiveis: 0
 - nao_aprovados: 0
@@ -116,10 +116,21 @@
 - severidade: alto
 - classificacao: corrigivel_parcial
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado_direto
 - commit_executor: 2b47c85
 - arquivos_alterados:
   - apps/api/src/lib/metrics.ts (prismaPoolSize, redisActiveConnections, outboxLagMs, cacheHit/Miss)
+- nota_revisor: >
+    Diff 2b47c85 adiciona cinco métricas ao metricsRegistry do API:
+    Gauge `wbc_prisma_pool_size`, Gauge `wbc_redis_active_connections`,
+    Gauge `wbc_outbox_lag_ms` (espelho do worker), Counter
+    `wbc_cache_hits_total{store}` e Counter `wbc_cache_misses_total{store}`.
+    Comentário inline indica origem (ACH-005) e aponta para follow-up.
+    Worker já expõe `wbc_bullmq_queue_depth{queue,state}` + `wbc_outbox_lag_ms`
+    em apps/worker/src/lib/metrics.ts (entregues no ACH-001). Classificação
+    parcial correta: os gauges de API ficam em zero até Prisma middleware +
+    ioredis hook + cache helpers chamarem .set()/.inc() — follow-up humano
+    documentado em docs/OBSERVABILITY-FOLLOWUP.md §ACH-005.
 
 ### ACH-006
 - titulo: Alertas Prometheus sem Alertmanager

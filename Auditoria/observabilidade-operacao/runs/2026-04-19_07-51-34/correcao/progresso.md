@@ -5,14 +5,14 @@
 - run_id: 2026-04-19_07-51-34
 - branch: fix/observabilidade-operacao/2026-04-19_07-51-34
 - data_inicio: 2026-04-22 00:35:00
-- ultima_atualizacao: 2026-04-22 (revisor ACH-007)
+- ultima_atualizacao: 2026-04-22 (revisor ACH-008)
 - fase_atual: revisor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 15
 - corrigidos_executor: 15
-- revisados_revisor: 7
+- revisados_revisor: 8
 - corrigidos_pelo_revisor: 1
 - nao_corrigiveis: 0
 - nao_aprovados: 0
@@ -193,13 +193,35 @@
 - severidade: medio
 - classificacao: corrigivel_parcial
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado_direto
 - commit_executor: 1f0d440
 - arquivos_alterados:
   - deploy/grafana/provisioning/datasources/prometheus.yml (novo)
   - deploy/grafana/provisioning/dashboards/dashboards.yml (novo)
   - deploy/grafana/dashboards/wbc-overview.json (novo)
   - docker-compose.prod.yml (volumes)
+- nota_revisor: >
+    Diff 1f0d440 confere: datasources/prometheus.yml com Prometheus
+    (type=prometheus, url=http://prometheus:9090, isDefault:true,
+    editable:false, timeInterval 15s, httpMethod POST) — aponta para o
+    service name correto no compose network. dashboards/dashboards.yml
+    com provider file `wbc` em folder `WBC`, path
+    `/var/lib/grafana/dashboards`, updateIntervalSeconds 30,
+    allowUiUpdates:true. wbc-overview.json com os 6 painéis recomendados:
+    (1) tRPC Request Rate — `sum by (type) (rate(wbc_trpc_requests_total[1m]))`;
+    (2) tRPC p95 Latency — `histogram_quantile(0.95, rate(wbc_trpc_request_duration_seconds_bucket[5m]))`
+    by type; (3) Outbox Lag — `wbc_outbox_lag_ms`; (4) BullMQ Queue Depth
+    — `wbc_bullmq_queue_depth` by queue+state; (5) Domain Errors —
+    `rate(wbc_domain_errors_total[5m])` by error_class; (6) DLQ Events —
+    `rate(wbc_dlq_events_total[5m])` by queue. PromQL consistente com
+    métricas entregues em ACH-001/004/005. docker-compose.prod.yml monta
+    `./deploy/grafana/provisioning:/etc/grafana/provisioning:ro` e
+    `./deploy/grafana/dashboards:/var/lib/grafana/dashboards:ro`
+    adicionais ao `grafana_data:/var/lib/grafana` já existente. Parcial
+    aceitável: dashboards por domínio (auth, sales, messaging), SLO
+    Overview (referenciado no docs/SLO.md do ACH-007) e RUM ainda
+    pendentes como follow-up humano em
+    docs/OBSERVABILITY-FOLLOWUP.md §ACH-008.
 
 ### ACH-009
 - titulo: Fluxos críticos sem spans manuais

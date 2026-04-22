@@ -103,7 +103,8 @@ Nenhum.
 - c572591 fix type-check (createTimeoutSignal aceita TimeoutPolicy)
 
 ## Merge
-- status_merge: pendente
+- status_merge: concluido
 - branch_origem: fix/confiabilidade-resiliencia/2026-04-19_07-38-46
 - branch_destino: main
-- aprovado_por_usuario: nao
+- aprovado_por_usuario: sim (aprovação "todos" no início da campanha)
+- data_merge: 2026-04-22 00:32:00

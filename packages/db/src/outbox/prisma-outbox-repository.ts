@@ -181,4 +181,30 @@ export class PrismaOutboxRepository implements OutboxPort {
       data: { status: "DLQ" },
     });
   }
+
+  // ACH-006 confiabilidade-resiliencia: replay de DLQ via tRPC/CLI sem
+  // precisar de UPDATE manual. Reset de attempts para permitir retry
+  // com backoff normal; volta status para PENDING.
+  async replayFromDLQ(id: string): Promise<boolean> {
+    const result = await prisma.outboxEvent.updateMany({
+      where: { id, status: "DLQ" },
+      data: { status: "PENDING", attempts: 0, nextRetryAt: null },
+    });
+    return result.count > 0;
+  }
+
+  async listDLQ(limit = 50) {
+    return prisma.outboxEvent.findMany({
+      where: { status: "DLQ" },
+      orderBy: { createdAt: "asc" },
+      take: limit,
+      select: {
+        id: true,
+        type: true,
+        tenantId: true,
+        attempts: true,
+        createdAt: true,
+      },
+    });
+  }
 }

@@ -99,7 +99,8 @@ Nenhum.
 - ACHs: 002, 003, 004, 005, 006, 007, 008, 009, 010, 011, 012, 013, 014, 015
 
 ## Merge
-- status_merge: pendente
+- status_merge: concluido
 - branch_origem: fix/observabilidade-operacao/2026-04-19_07-51-34
 - branch_destino: main
-- aprovado_por_usuario: nao
+- aprovado_por_usuario: sim (aprovação "todos" no início da campanha)
+- data_merge: 2026-04-22 01:35:00

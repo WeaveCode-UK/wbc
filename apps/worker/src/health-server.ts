@@ -14,6 +14,11 @@ import {
 import type { Worker as BullMQWorker } from "bullmq";
 import { prisma } from "@wbc/db";
 import { logger } from "./lib/logger";
+import {
+  workerMetricsRegistry,
+  outboxLagMsGauge,
+  bullmqQueueDepth,
+} from "./lib/metrics";
 
 interface ServerHandles {
   server: HttpServer;
@@ -159,10 +164,49 @@ export function startWorkerHealthServer(
         return;
       }
 
+      // ACH-001 observabilidade-operacao: expõe métricas Prometheus
+      // no próprio health-server (sem porta extra).
+      if (url === "/metrics") {
+        res.writeHead(200, {
+          "Content-Type": workerMetricsRegistry.contentType,
+        });
+        res.end(await workerMetricsRegistry.metrics());
+        return;
+      }
+
       if (url === "/health/ready" || url === "/health") {
         const lagMs = await outboxLagMs();
         const lagStats = recordLag(lagMs);
         const workerStatus = await collectWorkerStatus(config.workers);
+        // ACH-005 observabilidade-operacao: alimenta gauges Prometheus
+        // com o mesmo snapshot do health check (sem round-trip extra).
+        outboxLagMsGauge.set(lagStats.mean);
+        for (const [queueName, stats] of Object.entries(workerStatus)) {
+          if (typeof stats.waiting === "number") {
+            bullmqQueueDepth.set(
+              { queue: queueName, state: "waiting" },
+              stats.waiting,
+            );
+          }
+          if (typeof stats.active === "number") {
+            bullmqQueueDepth.set(
+              { queue: queueName, state: "active" },
+              stats.active,
+            );
+          }
+          if (typeof stats.delayed === "number") {
+            bullmqQueueDepth.set(
+              { queue: queueName, state: "delayed" },
+              stats.delayed,
+            );
+          }
+          if (typeof stats.failed === "number") {
+            bullmqQueueDepth.set(
+              { queue: queueName, state: "failed" },
+              stats.failed,
+            );
+          }
+        }
         // ACH-028: readiness decides on the rolling mean, not the
         // instantaneous value — a single GC-pause spike no longer
         // trips the container into restart-cascade territory.

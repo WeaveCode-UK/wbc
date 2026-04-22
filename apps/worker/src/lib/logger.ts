@@ -1,9 +1,5 @@
-import pino from 'pino';
+// ACH-013 observabilidade-operacao: delega para o factory central em
+// @wbc/shared (LOG_LEVEL env + redact PII).
+import { createLogger } from "@wbc/shared";
 
-export const logger = pino({
-  name: 'wbc-worker',
-  level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
-  transport: process.env.NODE_ENV === 'development'
-    ? { target: 'pino-pretty', options: { colorize: true } }
-    : undefined,
-});
+export const logger = createLogger("worker");

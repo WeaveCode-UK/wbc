@@ -21,6 +21,7 @@ export * from "./resilience";
 export * from "./http/client";
 export * from "./integrations/whatsapp";
 export * from "./jobs/schemas";
+export * from "./money/centavos";
 export * from "./persistence/optimistic-update";
 export * from "./redis";
 export * from "./version";

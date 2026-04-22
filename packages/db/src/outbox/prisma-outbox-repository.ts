@@ -44,6 +44,13 @@ export class PrismaOutboxRepository implements OutboxPort {
     //
     // The RETURNING clause pulls the payload in the same round-trip, so
     // no second findMany is needed.
+    //
+    // ACH-008 confiabilidade-resiliencia: combined with dispatch now
+    // throwing on handler failure (ACH-001) and handler-side
+    // idempotency via processed_events (ACH-002), the previous
+    // racy+duplicable combination is closed: two workers can no longer
+    // double-dispatch the same event, and even if redelivery happens
+    // (crash mid-handler), the handler is a no-op on second run.
     const rows = await prisma.$queryRaw<
       Array<{
         id: string;

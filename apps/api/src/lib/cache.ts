@@ -162,10 +162,17 @@ export async function cacheInvalidatePattern(pattern: string): Promise<void> {
   }
 }
 
-// Cache TTL constants
+// ACH-014 performance-escalabilidade: TTLs differentiated by data
+// volatility. A single MEDIUM=300s bucket was serving dashboards
+// (changes every minute) and monthly stats (changes once a month) —
+// terrible hit-rate on one end, stale data on the other.
 export const CACHE_TTL = {
   SHORT: 60, // 1 minute
-  MEDIUM: 300, // 5 minutes
+  MEDIUM: 300, // 5 minutes (legacy — prefer a named entry below)
   LONG: 900, // 15 minutes
-  ENTITLEMENTS: 300, // 5 minutes — for plan/feature cache
+  ENTITLEMENTS: 300, // 5 minutes — plan/feature cache, changes on plan upgrade
+  DASHBOARD: 60, // dashboards invalidate on most mutations; short TTL keeps them responsive
+  MONTHLY_STATS: 3600, // monthly aggregates; rebuild hourly
+  DAILY_STATS: 900, // daily aggregates; 15 min resolution
+  CATALOG_PUBLIC: 600, // public catalog; invalidate on publish
 } as const;

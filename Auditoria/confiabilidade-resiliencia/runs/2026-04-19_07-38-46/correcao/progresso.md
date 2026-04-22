@@ -5,14 +5,14 @@
 - run_id: 2026-04-19_07-38-46
 - branch: fix/confiabilidade-resiliencia/2026-04-19_07-38-46
 - data_inicio: 2026-04-22 00:00:00
-- ultima_atualizacao: 2026-04-22 00:10:00
+- ultima_atualizacao: 2026-04-22 00:15:00
 - fase_atual: revisor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 17
 - corrigidos_executor: 17
-- revisados_revisor: 2
+- revisados_revisor: 3
 - corrigidos_pelo_revisor: 0
 - nao_corrigiveis: 0
 - nao_aprovados: 0
@@ -53,13 +53,14 @@
 - severidade: alto
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado
 - commit_executor: 53b3cf4
 - commit_revisor: none
 - arquivos_alterados:
   - apps/api/src/lib/queues.ts
   - apps/worker/src/queues/index.ts
 - descricao_correcao: defaultJobOptions { removeOnComplete:1000, removeOnFail:5000, attempts:3, backoff:exponential 5s } centralizados em todas as queues (producer + consumer).
+- resultado_revisao: aprovado — diff 53b3cf4 confere com recomendação do achado (removeOnComplete 1000 / removeOnFail 5000). Lado produtor (apps/api/src/lib/queues.ts) extrai helpers defaultJobOptions() + queueOpts() e aplica às 3 queues (analytics, campaigns, messaging); lado consumidor (apps/worker/src/queues/index.ts) centraliza defaultOpts e aplica às 6 queues (messaging, campaigns, schedule, analytics, outbox, dlq). Extras sobre a recomendação mínima — attempts 3 + backoff exponencial 5s — são reforço válido (retries antes de DLQ, enquanto o outbox cuida do replay definitivo). Comentários inline referenciam ACH-003 e o limite de 256MB do Redis. Política consistente entre producer e consumer.
 
 ### ACH-004
 - titulo: outbox-processor sem timeout por handler

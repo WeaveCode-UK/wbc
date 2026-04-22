@@ -5,14 +5,14 @@
 - run_id: 2026-04-19_07-51-34
 - branch: fix/observabilidade-operacao/2026-04-19_07-51-34
 - data_inicio: 2026-04-22 00:35:00
-- ultima_atualizacao: 2026-04-22 (revisor ACH-008)
+- ultima_atualizacao: 2026-04-22 (revisor ACH-010)
 - fase_atual: revisor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 15
 - corrigidos_executor: 15
-- revisados_revisor: 8
+- revisados_revisor: 9
 - corrigidos_pelo_revisor: 1
 - nao_corrigiveis: 0
 - nao_aprovados: 0
@@ -254,10 +254,29 @@
 - severidade: medio
 - classificacao: corrigivel_parcial
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado_direto
 - commit_executor: c415094
 - arquivos_alterados:
   - docs/HEALTH.md (novo — contrato unificado + gaps identificados)
+- nota_revisor: >
+    Diff c415094 entrega docs/HEALTH.md com os 4 blocos requeridos:
+    (1) definição dos 3 níveis — `live` (sempre 200 se event loop
+    responde), `ready` (só 200 com dependências OK) e `startup`
+    (k8s, 503 durante warm-up de composition root + migrations);
+    (2) contrato por serviço — api (rotas /health/live, /health/ready,
+    /health com Postgres SELECT 1 + Redis PING + outbox lag;
+    referencia apps/api/src/routers/health.ts como OK), web (rota
+    /api/health com Postgres; gap explícito "adicionar Redis PING"
+    apontado para OBSERVABILITY-FOLLOWUP) e worker (porta 9100 com
+    outbox lag EMA + BullMQ não pausados + gap "queue depth só
+    reporta, não falha"); (3) regras gerais — live nunca toca banco,
+    timeout por dependência, estrutura JSON {status, checks,
+    timestamp}, códigos 200/503/500; (4) thresholds — outbox 60s
+    worker / 30s middleware, queue depth warn 1000 / fail 5000,
+    com ponteiro para docs/SLO.md. Gaps não implementados
+    (web+Redis, worker+queue depth fail) são exatamente o que a
+    classificação parcial admite e estão registrados em
+    docs/OBSERVABILITY-FOLLOWUP.md como follow-up humano.
 
 ### ACH-011
 - titulo: requestId não propaga para outbox events

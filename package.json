@@ -29,7 +29,7 @@
   "pnpm": {
     "overrides": {
       "react": "19.1.0",
-      "react-dom": "19.1.0",
+      "react-dom": "19.2.5",
       "react-native": "0.81.5",
       "@types/react": "~19.1.17",
       "ioredis": "5.10.1"
@@ -40,18 +40,18 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/ioredis": "^5.0.0",
-    "@types/node": "^25.5.0",
+    "@types/node": "^25.6.0",
     "@vitejs/plugin-react": "^6.0.1",
     "dependency-cruiser": "^17.3.10",
     "husky": "^9.1.7",
-    "jsdom": "^29.0.1",
+    "jsdom": "^29.0.2",
     "lint-staged": "^16.4.0",
     "playwright": "^1.59.1",
     "prettier": "^3.8.3",
-    "react-dom": "19.1.0",
-    "turbo": "^2.8.20",
+    "react-dom": "19.2.5",
+    "turbo": "^2.9.6",
     "typescript": "^5.9.3",
-    "vitest": "^4.1.0"
+    "vitest": "^4.1.5"
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx,json,md}": [

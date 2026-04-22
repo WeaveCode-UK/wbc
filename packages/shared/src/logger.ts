@@ -1,4 +1,5 @@
 import pino, { type Logger } from "pino";
+import { getActiveTraceContext } from "./observability/trace-context";
 
 /**
  * Central logger for use across packages and apps. Replaces direct
@@ -49,6 +50,14 @@ export function createLogger(service: string): Logger {
     name: `wbc-${service}`,
     level: getLogLevel(),
     redact: { paths: REDACT_PATHS, censor: "[REDACTED]" },
+    // ACH-002 observabilidade-operacao: injeta traceId/spanId em cada
+    // log se houver span OTel ativo. Pino mixin é chamado a cada log
+    // call — cost mínimo, zero por linha quando não há span.
+    mixin: () => {
+      const ctx = getActiveTraceContext();
+      if (!ctx) return {};
+      return { traceId: ctx.traceId, spanId: ctx.spanId };
+    },
     transport:
       process.env.NODE_ENV === "development"
         ? { target: "pino-pretty", options: { colorize: true } }

@@ -13,6 +13,7 @@ export * from "./security-logger";
 export * from "./redaction";
 export * from "./sentry-redaction";
 export * from "./logger";
+export * from "./observability/trace-context";
 export * from "./env";
 export * from "./constants/timings";
 export * from "./mappers/base";

@@ -5,14 +5,14 @@
 - run_id: 2026-04-19_07-51-34
 - branch: fix/observabilidade-operacao/2026-04-19_07-51-34
 - data_inicio: 2026-04-22 00:35:00
-- ultima_atualizacao: 2026-04-22 (revisor ACH-012)
+- ultima_atualizacao: 2026-04-22 (revisor ACH-013)
 - fase_atual: revisor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 15
 - corrigidos_executor: 15
-- revisados_revisor: 11
+- revisados_revisor: 12
 - corrigidos_pelo_revisor: 1
 - nao_corrigiveis: 0
 - nao_aprovados: 0
@@ -326,11 +326,24 @@
 - severidade: baixo
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado_direto
 - commit_executor: 4b77b3f
 - arquivos_alterados:
   - apps/api/src/lib/logger.ts (delega para @wbc/shared)
   - apps/worker/src/lib/logger.ts (delega para @wbc/shared)
+- resultado_revisao: |
+    Diff 4b77b3f confere: apps/api/src/lib/logger.ts vira
+    `export { createLogger } from "@wbc/shared"` (remove pino direto +
+    lógica NODE_ENV local); apps/worker/src/lib/logger.ts usa
+    `createLogger("worker")` importado de @wbc/shared mantendo export
+    `logger` compatível com callers existentes. Factory central em
+    packages/shared/src/logger.ts (criada em ACH-003) define
+    getLogLevel() que lê `process.env.LOG_LEVEL` e cai para `warn` em
+    produção / `debug` fora dela — exatamente o que a recomendação
+    técnica pede ("level warn em prod, debug no restante, LOG_LEVEL via
+    env"). Consolidação herda redact PII (ACH-003) e mixin traceId
+    (ACH-002) sem custo adicional. Aceitável como correção completa
+    (classificacao original: corrigivel).
 
 ### ACH-014
 - titulo: Nginx sem access/error log estruturado

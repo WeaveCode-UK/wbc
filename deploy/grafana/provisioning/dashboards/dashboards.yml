@@ -1,0 +1,13 @@
+# ACH-008 observabilidade-operacao: dashboard provisioning.
+apiVersion: 1
+
+providers:
+  - name: 'wbc'
+    orgId: 1
+    folder: 'WBC'
+    type: file
+    disableDeletion: false
+    allowUiUpdates: true
+    updateIntervalSeconds: 30
+    options:
+      path: /var/lib/grafana/dashboards

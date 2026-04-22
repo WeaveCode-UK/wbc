@@ -30,3 +30,24 @@ export const deepseekRetryPolicy: RetryPolicy = {
 export const deepseekTimeoutPolicy: TimeoutPolicy = {
   timeoutMs: readEnvInt("DEEPSEEK_TIMEOUT_MS", 30_000),
 };
+
+// ACH-012 confiabilidade-resiliencia: thresholds de circuit breaker
+// centralizados e configuráveis via env. Ops pode apertar o breaker
+// durante incidente sem redeploy (ex: exportar
+// `WHATSAPP_CIRCUIT_THRESHOLD=3` abre o circuito mais cedo).
+export interface CircuitBreakerPolicy {
+  failureThreshold: number;
+  resetTimeoutMs: number;
+}
+
+export const whatsappCircuitPolicy: CircuitBreakerPolicy = {
+  failureThreshold: readEnvInt("WHATSAPP_CIRCUIT_THRESHOLD", 5),
+  resetTimeoutMs: readEnvInt("WHATSAPP_CIRCUIT_WINDOW_MS", 60_000),
+};
+
+// DeepSeek usa limiar default 3 (mais agressivo que WhatsApp) porque
+// falhas de LLM costumam ser mais caras e cascatear.
+export const deepseekCircuitPolicy: CircuitBreakerPolicy = {
+  failureThreshold: readEnvInt("DEEPSEEK_CIRCUIT_THRESHOLD", 3),
+  resetTimeoutMs: readEnvInt("DEEPSEEK_CIRCUIT_WINDOW_MS", 60_000),
+};

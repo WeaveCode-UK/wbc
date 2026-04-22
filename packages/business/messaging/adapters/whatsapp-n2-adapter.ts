@@ -11,6 +11,7 @@ import {
   createTimeoutSignal,
   whatsappRetryPolicy,
   whatsappTimeoutPolicy,
+  whatsappCircuitPolicy,
   requireEnv,
   createLogger,
   redactPhone,
@@ -27,12 +28,10 @@ const nextRequestId = (): string =>
 
 const WHATSAPP_API_URL = "https://graph.facebook.com/v18.0";
 
-// CircuitBreaker para WhatsApp: 5 falhas em 60s abre o circuito.
-// Thresholds centralizados aqui por enquanto; no futuro podem vir de @wbc/shared/resilience/policies.ts.
-const whatsappCircuit = new CircuitBreaker("whatsapp", {
-  failureThreshold: 5,
-  resetTimeoutMs: 60_000,
-});
+// ACH-012 confiabilidade-resiliencia: thresholds do circuit breaker vêm
+// de `whatsappCircuitPolicy` em @wbc/shared/resilience/policies.ts,
+// lidos do env (`WHATSAPP_CIRCUIT_THRESHOLD`, `WHATSAPP_CIRCUIT_WINDOW_MS`).
+const whatsappCircuit = new CircuitBreaker("whatsapp", whatsappCircuitPolicy);
 
 function isRetryableStatus(status: number): boolean {
   return status >= 500 || status === 429;

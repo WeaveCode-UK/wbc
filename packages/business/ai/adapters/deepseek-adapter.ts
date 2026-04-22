@@ -6,17 +6,15 @@ import {
   createTimeoutSignal,
   deepseekRetryPolicy,
   deepseekTimeoutPolicy,
+  deepseekCircuitPolicy,
   requireEnv,
 } from "@wbc/shared";
 
 const DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions";
 
-// CircuitBreaker para DeepSeek: 3 falhas em 60s abre (mais agressivo que WhatsApp
-// porque falhas de LLM costumam ser mais caras e cascatear).
-const deepseekCircuit = new CircuitBreaker("deepseek", {
-  failureThreshold: 3,
-  resetTimeoutMs: 60_000,
-});
+// ACH-012 confiabilidade-resiliencia: thresholds do circuit breaker vêm
+// de `deepseekCircuitPolicy` (env `DEEPSEEK_CIRCUIT_THRESHOLD` / `DEEPSEEK_CIRCUIT_WINDOW_MS`).
+const deepseekCircuit = new CircuitBreaker("deepseek", deepseekCircuitPolicy);
 
 function isRetryableStatus(status: number): boolean {
   return status >= 500 || status === 429;

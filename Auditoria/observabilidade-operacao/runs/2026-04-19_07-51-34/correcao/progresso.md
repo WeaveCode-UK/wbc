@@ -5,14 +5,14 @@
 - run_id: 2026-04-19_07-51-34
 - branch: fix/observabilidade-operacao/2026-04-19_07-51-34
 - data_inicio: 2026-04-22 00:35:00
-- ultima_atualizacao: 2026-04-22 (revisor ACH-002)
+- ultima_atualizacao: 2026-04-22 (revisor ACH-003)
 - fase_atual: revisor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 15
 - corrigidos_executor: 15
-- revisados_revisor: 2
+- revisados_revisor: 3
 - corrigidos_pelo_revisor: 1
 - nao_corrigiveis: 0
 - nao_aprovados: 0
@@ -73,10 +73,18 @@
 - severidade: alto
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado_direto
 - commit_executor: dc9f5c8
 - arquivos_alterados:
   - packages/shared/src/logger.ts (Pino redact paths + censor)
+- nota_revisor: >
+    Diff dc9f5c8 adiciona `redact: { paths: REDACT_PATHS, censor: "[REDACTED]" }`
+    em createLogger. REDACT_PATHS cobre recomendação (`*.email`, `*.phone`,
+    `*.password`, `*.token`) e amplia com `passwordHash`, `accessToken`,
+    `refreshToken`, `apiKey`, `authorization`, `*.headers.authorization`,
+    `*.headers.cookie` e versões top-level. Censor é literal `[REDACTED]`.
+    security-logger.ts já usa `redactSecurityFields` (import linha 1, aplicado
+    em phone/userId/tenantId/email/jti) — cobertura complementar OK.
 
 ### ACH-004
 - titulo: DLQ sem dashboard, alerta ou retry automático

@@ -5,14 +5,14 @@
 - run_id: 2026-04-19_07-51-34
 - branch: fix/observabilidade-operacao/2026-04-19_07-51-34
 - data_inicio: 2026-04-22 00:35:00
-- ultima_atualizacao: 2026-04-22 (revisor ACH-001)
+- ultima_atualizacao: 2026-04-22 (revisor ACH-002)
 - fase_atual: revisor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 15
 - corrigidos_executor: 15
-- revisados_revisor: 1
+- revisados_revisor: 2
 - corrigidos_pelo_revisor: 1
 - nao_corrigiveis: 0
 - nao_aprovados: 0
@@ -47,13 +47,26 @@
 - severidade: alto
 - classificacao: corrigivel_parcial
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado_direto
 - commit_executor: ea46c70
 - arquivos_alterados:
   - packages/shared/src/observability/trace-context.ts (novo)
   - packages/shared/src/logger.ts (Pino mixin)
   - packages/shared/src/index.ts
   - apps/api/src/lib/tracing.ts (primeTraceContext)
+- resultado_revisao: |
+    trace-context.ts expõe getActiveTraceContext() + primeTraceContext()
+    com dynamic import opcional de @opentelemetry/api (refinado em
+    c9f3c8b para usar string literal moduleName e evitar bundler
+    resolvendo em compile-time). Pino mixin em logger.ts chama
+    getActiveTraceContext() por log e injeta traceId/spanId só quando
+    há span — zero alocação quando OTel desligado. apps/api
+    tracing.ts chama primeTraceContext() logo após sdk.start(). Sem
+    @opentelemetry/api em packages/shared/package.json (confirmado).
+    Filtro traceId all-zeros (00000…) previne logs com span sintético.
+    Sentry-OTel integration documentado como follow-up em
+    docs/OBSERVABILITY-FOLLOWUP.md — parcial aceitável conforme
+    classificacao original.
 
 ### ACH-003
 - titulo: Logs contêm PII sem redação

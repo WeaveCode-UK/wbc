@@ -71,6 +71,24 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm arch:check
 
+  # ACH-007 supply-chain-dependencias: enforce a licença allowlist antes do
+  # merge. Policy documentada em docs/LICENSING.md; allowlist no script
+  # `license:check` do package.json root. Licenças fora do allowlist
+  # quebram o job e precisam de review humano.
+  license-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.18.1
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm license:check
+
   # ACH-015 — secret scanning. Catches credentials accidentally committed to
   # any branch before they reach `main`. Configuration lives in `.gitleaks.toml`
   # at the repo root (rules + allowlist for known fixture files).

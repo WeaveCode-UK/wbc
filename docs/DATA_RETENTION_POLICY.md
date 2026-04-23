@@ -62,3 +62,42 @@ Relatório mensal pode ser gerado via `/api/trpc/privacy.retentionReport`
 2. Implementar os 4 workers pendentes.
 3. Documentar `retentionReport` no painel admin.
 4. Alinhar com obrigações fiscais específicas por região (BR vs UK).
+
+## Perspectiva de custo (ACH-007 custos-finops)
+
+O ACH-007 da auditoria `custos-finops/2026-04-19_21-19-13` reforça a
+política acima sob a lente de custo de storage. Pontos adicionais:
+
+### Cobertura que falta em workers
+
+- **Outbox `FAILED`:** `outbox-cleanup.ts` só cobre `PROCESSED`.
+  Eventos `FAILED` com `attempts >= maxAttempts` ficam indefinidamente.
+  Prazo proposto: 30 dias após último retry. Pendente: estender o
+  worker.
+- **Anonimização de Clients inativos:** ACH-007 sugere 2 anos
+  (cost-driven); LGPD article permite 3 anos (privacy-driven). O
+  valor conservador deste doc (3a) vence por ser mais restritivo ao
+  risco; se custo de storage se tornar crítico, reduzir para 2a após
+  review do DPO.
+
+### Partitioning (cost mitigation em escala)
+
+Para tabelas de alto volume (`Sale`, `CampaignRecipient`, `AuthAuditLog`):
+
+- Partitioning por mês (`PARTITION BY RANGE (createdAt)`).
+- Detach + drop da partição antiga é O(1), muito mais rápido que
+  `DELETE FROM ... WHERE createdAt < ...` (que varre índice + gera
+  tuple bloat).
+- Recomendado quando a tabela passar de 100M linhas ou 20 GB.
+
+### Storage tiering (futuro)
+
+Dados "legalmente retidos mas raramente consultados" (Sales > 1 ano):
+mover para S3 Glacier com lifecycle em vez de manter no Postgres.
+Requer arquitetura de read-through para relatórios históricos.
+
+### Cross-referência
+
+- COGS de storage: `docs/PRICING.md` seção 3.3.
+- Política de backup (retention off-site): `docs/DR-BACKUP-POLICY.md`.
+- Worker: `apps/worker/src/processors/outbox-cleanup.ts`.

@@ -31,6 +31,40 @@ docker exec wbc-postgres pg_dump \
 SIZE=$(du -h "${BACKUP_DIR}/${FILENAME}" | cut -f1)
 echo "[backup] Created ${FILENAME} (${SIZE})"
 
+# ACH-003: Optional off-host replication. Opt-in via BACKUP_S3_URL (e.g.
+# "s3://wbc-backups/postgres/" or MinIO "mc"-style alias). If the variable is
+# unset, we skip replication silently — local-only backups keep working for
+# dev/staging. For prod, set BACKUP_S3_URL + AWS_* (or MC_HOST_*) credentials.
+replicate_offsite() {
+  if [ -z "${BACKUP_S3_URL:-}" ]; then
+    return 0
+  fi
+
+  if command -v aws >/dev/null 2>&1; then
+    echo "[backup] Replicating to ${BACKUP_S3_URL} via aws cli..."
+    if aws s3 cp "${BACKUP_DIR}/${FILENAME}" "${BACKUP_S3_URL%/}/${FILENAME}"; then
+      echo "[backup] Off-site replication OK"
+    else
+      echo "[backup] WARN: off-site replication failed (local backup preserved)" >&2
+    fi
+    return 0
+  fi
+
+  if command -v mc >/dev/null 2>&1; then
+    echo "[backup] Replicating to ${BACKUP_S3_URL} via mc..."
+    if mc cp "${BACKUP_DIR}/${FILENAME}" "${BACKUP_S3_URL%/}/${FILENAME}"; then
+      echo "[backup] Off-site replication OK"
+    else
+      echo "[backup] WARN: off-site replication failed (local backup preserved)" >&2
+    fi
+    return 0
+  fi
+
+  echo "[backup] WARN: BACKUP_S3_URL set but neither aws-cli nor mc found" >&2
+}
+
+replicate_offsite
+
 # Retention: delete backups older than RETENTION_DAYS
 DELETED=$(find "$BACKUP_DIR" -name "wbc_*.sql.gz" -mtime +${RETENTION_DAYS} -delete -print | wc -l)
 if [ "$DELETED" -gt 0 ]; then

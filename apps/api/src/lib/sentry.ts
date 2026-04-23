@@ -1,5 +1,5 @@
 import * as Sentry from "@sentry/node";
-import { redactSentryEvent } from "@wbc/shared";
+import { redactSentryEvent, filterCostNoise } from "@wbc/shared";
 
 export function initSentry(): void {
   const dsn = process.env.SENTRY_DSN;
@@ -10,16 +10,16 @@ export function initSentry(): void {
 
   const isProduction = process.env.NODE_ENV === "production";
 
-  // ACH-012 observabilidade-operacao: sample rate unificado via
-  // SENTRY_TRACES_SAMPLE_RATE (mesma env em web/api/worker). Default
-  // preserva o comportamento anterior (0.3 prod / 0.1 dev).
+  // ACH-012 observabilidade-operacao + ACH-005 custos-finops: sample rate
+  // unificado via SENTRY_TRACES_SAMPLE_RATE (mesma env em web/api/worker).
+  // Default reduzido para 0.1 prod (antes 0.3) para economizar quota.
   const sampleRateEnv = Number.parseFloat(
     process.env.SENTRY_TRACES_SAMPLE_RATE ?? "",
   );
   const tracesSampleRate = Number.isFinite(sampleRateEnv)
     ? sampleRateEnv
     : isProduction
-      ? 0.3
+      ? 0.1
       : 0.1;
 
   Sentry.init({
@@ -27,7 +27,12 @@ export function initSentry(): void {
     environment: process.env.NODE_ENV ?? "development",
     tracesSampleRate,
     sendDefaultPii: false,
-    beforeSend: (event) => redactSentryEvent(event),
+    // ACH-005 custos-finops: descarta 404s/timeouts/aborts antes da redação
+    // para evitar consumo de quota com eventos sem valor diagnóstico.
+    beforeSend: (event) => {
+      const filtered = filterCostNoise(event);
+      return filtered === null ? null : redactSentryEvent(filtered);
+    },
     beforeBreadcrumb: (breadcrumb) => redactSentryEvent(breadcrumb),
   });
   Sentry.setTag("service", "api");

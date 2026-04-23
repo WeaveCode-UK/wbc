@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@sentry/node": "^10.45.0",
-    "@types/bcryptjs": "^3.0.0",
     "@wbc/db": "workspace:*",
     "@wbc/shared": "workspace:*",
     "bcryptjs": "^3.0.3",

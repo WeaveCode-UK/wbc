@@ -71,6 +71,25 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm arch:check
 
+  # ACH-003 supply-chain-dependencias: pnpm audit bloqueia merges com CVEs
+  # high/critical. Override de protobufjs/picomatch/vite em package.json root
+  # (ACH-001/010/011) garante que o lockfile atual passe. Se uma nova CVE
+  # aparecer, este job falha e força bump/override.
+  security-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.18.1
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: pnpm audit (high+critical)
+        run: pnpm audit --audit-level high --prod
+
   # ACH-007 supply-chain-dependencias: enforce a licença allowlist antes do
   # merge. Policy documentada em docs/LICENSING.md; allowlist no script
   # `license:check` do package.json root. Licenças fora do allowlist

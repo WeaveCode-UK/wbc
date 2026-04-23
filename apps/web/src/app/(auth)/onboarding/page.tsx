@@ -155,6 +155,29 @@ export default function OnboardingPage() {
               <strong>{t("onboarding.phone")}:</strong> {phone}
             </p>
           </div>
+
+          {/* ACH-019 compliance-privacidade: explicit notice of international
+              data transfers; ACH-022: link to data-subject rights. */}
+          <div className="rounded-md border border-[var(--color-border-secondary)] bg-[var(--color-bg-secondary)] p-3 text-caption space-y-2">
+            <p>
+              Ao continuar, você concorda que seus dados serão processados pela
+              WeaveCode Ltd (UK) e por sub-processadores em USA, Argentina e
+              China — detalhes em{" "}
+              <a
+                href="/privacy-policy"
+                className="text-[var(--color-primary)] hover:underline"
+              >
+                Política de Privacidade
+              </a>
+              .
+            </p>
+            <p className="text-[var(--color-text-tertiary)]">
+              <a href="/privacy-policy#direitos" className="hover:underline">
+                Conheça seus direitos (LGPD art. 18-22)
+              </a>
+            </p>
+          </div>
+
           {error && <p className="text-sm text-destructive">{error}</p>}
           <div className="flex gap-2">
             <Button

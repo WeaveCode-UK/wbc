@@ -38,9 +38,10 @@ Projeto em Fase 4, CLAUDE.md proíbe testes até Fase 7. Correções seguem o pa
 - severidade: alto
 - classificacao: corrigivel_parcial
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado_direto
 - commit_executor: 414a006
 - descricao_correcao: roadmap Bloco 2 + helper mockTenantPair já seeded em test-utils/mock-tenant-ctx.ts.
+- nota_revisor: Bloco 2 do roadmap referencia mockTenantPair() e o padrão evil twin por use-case tenant-scoped, com cross-ref para RLS Postgres (dados-persistencia ACH-004). Helper em 507e405 exporta mockTenantPair() retornando alice (tenant-a/CONSULTANT) e bob (tenant-b/CONSULTANT) via mockTenantCtx, pronto para consumo em Fase 7. Aprovação parcial adequada pelo constraint CLAUDE.md "ZERO testes até Fase 7".
 
 ### ACH-003
 - titulo: confirmSale sem testes

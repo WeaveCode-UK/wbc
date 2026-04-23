@@ -83,26 +83,50 @@ export default function DashboardPage() {
             {t("quick_actions")}
           </h2>
           <div className="grid grid-cols-2 gap-3">
-            <button className="flex items-center gap-3 rounded-md bg-[var(--color-primary-surface)] p-3 text-body-small text-[var(--color-primary)] hover:bg-[var(--color-primary-surface-hover)] transition-colors">
-              <span className="flex h-9 w-9 items-center justify-center rounded-md bg-[var(--color-primary)] text-white text-lg">
+            <button
+              aria-label={t("new_sale")}
+              className="flex items-center gap-3 rounded-md bg-[var(--color-primary-surface)] p-3 text-body-small text-[var(--color-primary)] hover:bg-[var(--color-primary-surface-hover)] transition-colors"
+            >
+              <span
+                aria-hidden="true"
+                className="flex h-9 w-9 items-center justify-center rounded-md bg-[var(--color-primary)] text-white text-lg"
+              >
                 +
               </span>
               {t("new_sale")}
             </button>
-            <button className="flex items-center gap-3 rounded-md bg-[var(--color-primary-surface)] p-3 text-body-small text-[var(--color-primary)] hover:bg-[var(--color-primary-surface-hover)] transition-colors">
-              <span className="flex h-9 w-9 items-center justify-center rounded-md bg-[var(--color-primary)] text-white text-lg">
+            <button
+              aria-label={t("new_client")}
+              className="flex items-center gap-3 rounded-md bg-[var(--color-primary-surface)] p-3 text-body-small text-[var(--color-primary)] hover:bg-[var(--color-primary-surface-hover)] transition-colors"
+            >
+              <span
+                aria-hidden="true"
+                className="flex h-9 w-9 items-center justify-center rounded-md bg-[var(--color-primary)] text-white text-lg"
+              >
                 👤
               </span>
               {t("new_client")}
             </button>
-            <button className="flex items-center gap-3 rounded-md bg-[var(--color-primary-surface)] p-3 text-body-small text-[var(--color-primary)] hover:bg-[var(--color-primary-surface-hover)] transition-colors">
-              <span className="flex h-9 w-9 items-center justify-center rounded-md bg-[var(--color-primary)] text-white text-lg">
+            <button
+              aria-label={t("send_message")}
+              className="flex items-center gap-3 rounded-md bg-[var(--color-primary-surface)] p-3 text-body-small text-[var(--color-primary)] hover:bg-[var(--color-primary-surface-hover)] transition-colors"
+            >
+              <span
+                aria-hidden="true"
+                className="flex h-9 w-9 items-center justify-center rounded-md bg-[var(--color-primary)] text-white text-lg"
+              >
                 💬
               </span>
               {t("send_message")}
             </button>
-            <button className="flex items-center gap-3 rounded-md bg-[var(--color-primary-surface)] p-3 text-body-small text-[var(--color-primary)] hover:bg-[var(--color-primary-surface-hover)] transition-colors">
-              <span className="flex h-9 w-9 items-center justify-center rounded-md bg-[var(--color-primary)] text-white text-lg">
+            <button
+              aria-label={t("ask_ai")}
+              className="flex items-center gap-3 rounded-md bg-[var(--color-primary-surface)] p-3 text-body-small text-[var(--color-primary)] hover:bg-[var(--color-primary-surface-hover)] transition-colors"
+            >
+              <span
+                aria-hidden="true"
+                className="flex h-9 w-9 items-center justify-center rounded-md bg-[var(--color-primary)] text-white text-lg"
+              >
                 ✨
               </span>
               {t("ask_ai")}
@@ -144,7 +168,7 @@ export default function DashboardPage() {
             <div className="flex items-center gap-3 rounded-md p-3 border-l-[3px] border-l-[var(--color-success)] bg-[var(--color-bg-primary)]">
               <div className="flex-1">
                 <p className="text-body-small text-[var(--color-text-primary)]">
-                  {t("birthday_today")} 🎂
+                  {t("birthday_today")} <span aria-hidden="true">🎂</span>
                 </p>
                 <p className="text-caption text-[var(--color-text-tertiary)]">
                   Carla Oliveira

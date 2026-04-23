@@ -1,10 +1,22 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 
 export default function DashboardPage() {
   const t = useTranslations("analytics");
   const tCommon = useTranslations("common");
+  const router = useRouter();
+
+  // Quick-action handlers wire the dashboard CTAs to their destinations.
+  // Mutation + toast feedback (ACH-005 follow-up) happens on the target pages.
+  const goNewSale = () => router.push("/sales");
+  const goNewClient = () => router.push("/clients");
+  const goSendMessage = () => router.push("/campaigns");
+  const goAskAi = () => router.push("/campaigns");
+  const onCharge = () => router.push("/finance");
+  const onRestockReminder = () => router.push("/inventory");
+  const onCongratulate = () => router.push("/campaigns");
   const hour = new Date().getHours();
   const greeting =
     hour < 12
@@ -85,6 +97,7 @@ export default function DashboardPage() {
           <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
+              onClick={goNewSale}
               aria-label={t("new_sale")}
               className="flex items-center gap-3 rounded-md bg-[var(--color-primary-surface)] p-3 text-body-small text-[var(--color-primary)] hover:bg-[var(--color-primary-surface-hover)] transition-all duration-150 active:scale-[0.98] active:opacity-90 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-offset-2"
             >
@@ -98,6 +111,7 @@ export default function DashboardPage() {
             </button>
             <button
               type="button"
+              onClick={goNewClient}
               aria-label={t("new_client")}
               className="flex items-center gap-3 rounded-md bg-[var(--color-primary-surface)] p-3 text-body-small text-[var(--color-primary)] hover:bg-[var(--color-primary-surface-hover)] transition-all duration-150 active:scale-[0.98] active:opacity-90 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-offset-2"
             >
@@ -111,6 +125,7 @@ export default function DashboardPage() {
             </button>
             <button
               type="button"
+              onClick={goSendMessage}
               aria-label={t("send_message")}
               className="flex items-center gap-3 rounded-md bg-[var(--color-primary-surface)] p-3 text-body-small text-[var(--color-primary)] hover:bg-[var(--color-primary-surface-hover)] transition-all duration-150 active:scale-[0.98] active:opacity-90 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-offset-2"
             >
@@ -124,6 +139,7 @@ export default function DashboardPage() {
             </button>
             <button
               type="button"
+              onClick={goAskAi}
               aria-label={t("ask_ai")}
               className="flex items-center gap-3 rounded-md bg-[var(--color-primary-surface)] p-3 text-body-small text-[var(--color-primary)] hover:bg-[var(--color-primary-surface-hover)] transition-all duration-150 active:scale-[0.98] active:opacity-90 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-offset-2"
             >
@@ -154,6 +170,7 @@ export default function DashboardPage() {
               </div>
               <button
                 type="button"
+                onClick={onCharge}
                 className="text-caption text-[var(--color-primary)] hover:underline"
               >
                 {t("charge")}
@@ -170,6 +187,7 @@ export default function DashboardPage() {
               </div>
               <button
                 type="button"
+                onClick={onRestockReminder}
                 className="text-caption text-[var(--color-primary)] hover:underline"
               >
                 {t("send")}
@@ -186,6 +204,7 @@ export default function DashboardPage() {
               </div>
               <button
                 type="button"
+                onClick={onCongratulate}
                 className="text-caption text-[var(--color-primary)] hover:underline"
               >
                 {t("congratulate")}

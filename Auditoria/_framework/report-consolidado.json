@@ -1,6 +1,6 @@
 {
   "schema_version": "2.2",
-  "generated_at": "2026-04-23T21:28:51.113Z",
+  "generated_at": "2026-04-23T22:07:46.109Z",
   "total": 294,
   "total_runs": 15,
   "distribution": {
@@ -37,17 +37,17 @@
   },
   "correction_summary": {
     "runs_by_correction_state": {
-      "not_started": 3,
-      "in_progress": 10,
+      "not_started": 2,
+      "in_progress": 11,
       "completed": 2
     },
-    "total_findings_corrected": 252,
+    "total_findings_corrected": 268,
     "total_findings_not_correctable": 4,
     "total_findings_pending_correction": 0,
-    "total_commits": 211
+    "total_commits": 227
   },
   "progress": {
-    "last_updated": "2026-04-23T21:28:51.110Z",
+    "last_updated": "2026-04-23T22:07:46.108Z",
     "domains": {
       "arquitetura": {
         "domain": "arquitetura",
@@ -618,7 +618,18 @@
         "confirmado": 16
       },
       "correction": {
-        "state": "not_started"
+        "state": "in_progress",
+        "branch": "fix/supply-chain-dependencias/2026-04-19_21-11-51",
+        "started_at": "2026-04-23 22:40:54",
+        "finished_at": null,
+        "fase_atual": "revisor",
+        "corrected": 16,
+        "reviewed_ok": 16,
+        "not_correctable": 0,
+        "not_approved": 0,
+        "pending": 0,
+        "total_approved": 16,
+        "total_commits": 16
       }
     },
     {
@@ -1150,7 +1161,13 @@
       "acao_sugerida": "Atualizar `@opentelemetry/auto-instrumentations-node` para versão que puxe `protobufjs ≥ 7.5.5`; alternativamente, `pnpm.overrides: { \"protobufjs\": \">=7.5.5\" }`; validar pelo `pnpm audit`",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "6257ff7",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -3672,7 +3689,13 @@
       "acao_sugerida": "Aguardar GA de `next-auth@5`; ou rollback para `4.x` LTS se estabilidade é prioridade imediata",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "e2fa60e",
+        "reviewer_commit": null,
+        "observacoes": "rollback para 4.x ou espera de GA é decisão humana não automatizável"
       }
     },
     {
@@ -3695,7 +3718,13 @@
       "acao_sugerida": "Passo `pnpm audit --audit-level high --production=true`; opcional Trivy filesystem/Grype em modo `fail-on high`; Snyk ou GitHub Dependency Review Action como gate",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "6ad7611",
+        "reviewer_commit": null,
+        "observacoes": "depende de ACH-001/010/011 já terem sido aplicados"
       }
     },
     {
@@ -3718,7 +3747,13 @@
       "acao_sugerida": "Pin por digest (`image@sha256:...`); Dependabot (`package-ecosystem: docker`) para manter atualizado com PR automatizado",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "ae1243a",
+        "reviewer_commit": null,
+        "observacoes": "Dependabot docker-ecosystem (ACH-006) mantém atualizado"
       }
     },
     {
@@ -3741,7 +3776,13 @@
       "acao_sugerida": "Gerar SBOM CycloneDX com Syft em CI; publicar artefato e assinar imagens com cosign; habilitar `actions/attest-build-provenance`",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "d06994e",
+        "reviewer_commit": null,
+        "observacoes": "requer OIDC habilitado no repo (GitHub default está on); em staging/prod o artifact fica no GHCR com o digest"
       }
     },
     {
@@ -3764,7 +3805,13 @@
       "acao_sugerida": "Adicionar `docker` e `docker-compose`; agendar 2x/semana; grupo separado para major updates com reviewer humano",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "be3dfb1",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -6955,7 +7002,13 @@
       "acao_sugerida": "Política (allowlist MIT/Apache/BSD/ISC); `license-checker` em CI com fail em GPL/AGPL; SBOM inclui campo license",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "c19be02",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -6978,7 +7031,13 @@
       "acao_sugerida": "`docs/OVERRIDES.md` com rationale por override; rodar `pnpm install --strict-peer-dependencies` em CI opcional",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "115b156",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -7001,7 +7060,13 @@
       "acao_sugerida": "Signed commits; hook pre-push que recalcula hash do `pnpm-lock.yaml`; GitHub Advanced Security (Dependency Review) para analisar diffs",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "4d3fbf9",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -7024,7 +7089,13 @@
       "acao_sugerida": "Atualizar tooling; `pnpm dedupe` após; validar com `pnpm audit`",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "76f5194",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -7047,7 +7118,13 @@
       "acao_sugerida": "Atualizar para `@vitejs/plugin-react@6.0.2+`; garantir que sourcemaps não vão para produção",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "f890f95",
+        "reviewer_commit": null,
+        "observacoes": "divergência do texto da recomendação original (6.0.2 → override vite)"
       }
     },
     {
@@ -7070,7 +7147,13 @@
       "acao_sugerida": "Atualizar para `next-intl@4.x`; validar redirects no middleware; testar fluxos de i18n",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "10e4e07",
+        "reviewer_commit": null,
+        "observacoes": "projeto não usa createMiddleware de locale-redirect — CVE não está ativa, mas o caminho fica documentado"
       }
     },
     {
@@ -8570,7 +8653,13 @@
       "acao_sugerida": "Remover @types redundantes; atualizar glob/rimraf/uuid; `pnpm dedupe`",
       "prioridade": "baixa",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "7bf6c9e",
+        "reviewer_commit": null,
+        "observacoes": "outras deprecated (glob@7, rimraf@3, uuid@3, inflight) são transitivas — Dependabot (ACH-006) cobre"
       }
     },
     {
@@ -8593,7 +8682,13 @@
       "acao_sugerida": "Pinar minor (ex.: `20.13.0`) e alinhar em todos; Dependabot atualiza",
       "prioridade": "baixa",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "b1bae9e",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -8616,7 +8711,13 @@
       "acao_sugerida": "Revisar `.husky/` regularmente; code review obrigatório para mudanças; em CI ignorar scripts não necessários (`pnpm install --ignore-scripts` onde cabível)",
       "prioridade": "baixa",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "64533b3",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -8639,7 +8740,13 @@
       "acao_sugerida": "`pnpm install --strict-peer-dependencies` em job não bloqueante; relatório mensal",
       "prioridade": "baixa",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "52071f3",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {

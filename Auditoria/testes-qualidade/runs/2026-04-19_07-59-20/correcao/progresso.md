@@ -5,14 +5,14 @@
 - run_id: 2026-04-19_07-59-20
 - branch: fix/testes-qualidade/2026-04-19_07-59-20
 - data_inicio: 2026-04-22 01:35:00
-- ultima_atualizacao: 2026-04-22 02:30:00
+- ultima_atualizacao: 2026-04-22 02:40:00
 - fase_atual: revisor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 16
 - corrigidos_executor: 16
-- revisados_revisor: 6
+- revisados_revisor: 7
 - corrigidos_pelo_revisor: 0
 - nao_corrigiveis: 0
 - nao_aprovados: 0
@@ -101,11 +101,12 @@ Projeto em Fase 4, CLAUDE.md proíbe testes até Fase 7. Correções seguem o pa
 - severidade: medio
 - classificacao: corrigivel_parcial
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado_direto
 - commit_executor: 507e405
 - arquivos_alterados:
   - packages/shared/src/__tests__/factories/README.md (novo)
   - packages/shared/src/__tests__/factories/make-mock-repo.ts (novo)
+- nota_revisor: factories/README.md documenta a convenção `<entity>-factory.ts` com `buildX(overrides?)` retornando entidade válida, defaults aleatórios via Faker, determinismo por seed fixo e `setSeed()`, além de plano de migração em Fase 7. factories/make-mock-repo.ts exporta `makeMockRepo<T extends object>(overrides)` via Proxy que resolve overrides e lança erro informativo em métodos não configurados (stub intencional para ser trocado por `vi.fn()` em Fase 7). Faker ainda não é dependência — confirmado via grep em packages/shared/package.json e package.json raiz, comportamento parcial esperado pelo constraint CLAUDE.md "ZERO testes até Fase 7" (Faker será adicionado quando os testes forem escritos). Recomendação seed atendida.
 
 ### ACH-009
 - titulo: Sem Redis mock/testcontainers

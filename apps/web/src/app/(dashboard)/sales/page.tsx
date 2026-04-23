@@ -1,20 +1,31 @@
-'use client';
+"use client";
 
-import { useTranslations } from 'next-intl';
+import { useTranslations } from "next-intl";
+import { Button, EmptyState } from "@wbc/ui";
 
 export default function SalesPage() {
-  const t = useTranslations('sales');
+  const t = useTranslations("sales");
   return (
-    <div className="p-6">
+    <div className="p-3 sm:p-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">{t('title')}</h1>
-        <button className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
-          {t('new_sale')}
-        </button>
+        <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
+          {t("title")}
+        </h1>
+        <Button type="button" size="sm">
+          {t("new_sale")}
+        </Button>
       </div>
-      <div className="mt-6 rounded-lg border bg-white p-8 text-center">
-        <p className="text-gray-500">{t('no_sales')}</p>
-        <p className="mt-1 text-sm text-gray-400">{t('no_sales_hint')}</p>
+      <div className="mt-6 rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)]">
+        <EmptyState
+          icon="💰"
+          title={t("no_sales")}
+          description={t("no_sales_hint")}
+          action={
+            <Button type="button" size="sm">
+              {t("new_sale")}
+            </Button>
+          }
+        />
       </div>
     </div>
   );

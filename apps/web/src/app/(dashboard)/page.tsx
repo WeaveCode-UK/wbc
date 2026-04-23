@@ -1,85 +1,214 @@
-'use client';
+"use client";
 
-import { useTranslations } from 'next-intl';
+import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 export default function DashboardPage() {
-  const t = useTranslations('analytics');
+  const t = useTranslations("analytics");
+  const tCommon = useTranslations("common");
+  const router = useRouter();
+
+  // Quick-action handlers wire the dashboard CTAs to their destinations.
+  // Mutation + toast feedback (ACH-005 follow-up) happens on the target pages.
+  const goNewSale = () => router.push("/sales");
+  const goNewClient = () => router.push("/clients");
+  const goSendMessage = () => router.push("/campaigns");
+  const goAskAi = () => router.push("/campaigns");
+  const onCharge = () => router.push("/finance");
+  const onRestockReminder = () => router.push("/inventory");
+  const onCongratulate = () => router.push("/campaigns");
   const hour = new Date().getHours();
-  const greeting = hour < 12 ? t('greeting_morning') : hour < 18 ? t('greeting_afternoon') : t('greeting_evening');
+  const greeting =
+    hour < 12
+      ? t("greeting_morning")
+      : hour < 18
+        ? t("greeting_afternoon")
+        : t("greeting_evening");
 
   return (
-    <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-heading-1 text-[var(--color-text-primary)]">{greeting}! 👋</h1>
-        <p className="mt-1 text-body-small text-[var(--color-text-tertiary)]">{t('summary')}</p>
+    <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
+      <header>
+        <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
+          {tCommon("nav_my_day")}
+        </h1>
+        <p className="mt-1 text-body-small sm:text-body text-[var(--color-text-secondary)]">
+          {greeting}! <span aria-hidden="true">👋</span>
+        </p>
+        <p className="mt-0.5 text-caption text-[var(--color-text-tertiary)]">
+          {t("summary")}
+        </p>
+      </header>
+
+      <div className="grid gap-2 sm:gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="rounded-lg bg-[var(--color-bg-secondary)] p-3 sm:p-4 space-y-1">
+          <p className="text-caption text-[var(--color-text-tertiary)]">
+            {t("sales_month")}
+          </p>
+          <p
+            className="text-heading-3 sm:text-heading-2 text-[var(--color-text-primary)]"
+            style={{ fontVariantNumeric: "tabular-nums" }}
+          >
+            100
+          </p>
+        </div>
+        <div className="rounded-lg bg-[var(--color-bg-secondary)] p-3 sm:p-4 space-y-1">
+          <p className="text-caption text-[var(--color-text-tertiary)]">
+            {t("revenue")}
+          </p>
+          <p
+            className="text-heading-3 sm:text-heading-2 text-[var(--color-text-primary)]"
+            style={{ fontVariantNumeric: "tabular-nums" }}
+          >
+            R$ 15.230
+          </p>
+        </div>
+        <div className="rounded-lg bg-[var(--color-bg-secondary)] p-3 sm:p-4 space-y-1">
+          <p className="text-caption text-[var(--color-text-tertiary)]">
+            {t("clients")}
+          </p>
+          <p
+            className="text-heading-3 sm:text-heading-2 text-[var(--color-text-primary)]"
+            style={{ fontVariantNumeric: "tabular-nums" }}
+          >
+            50
+          </p>
+        </div>
+        <div className="rounded-lg bg-[var(--color-bg-secondary)] p-3 sm:p-4 space-y-1">
+          <p className="text-caption text-[var(--color-text-tertiary)]">
+            {t("reminders")}
+          </p>
+          <p
+            className="text-heading-3 sm:text-heading-2 text-[var(--color-text-primary)]"
+            style={{ fontVariantNumeric: "tabular-nums" }}
+          >
+            3
+          </p>
+          <p className="text-caption text-[var(--color-warning)]">
+            {t("pending")}
+          </p>
+        </div>
       </div>
 
-      <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-lg bg-[var(--color-bg-secondary)] p-4 space-y-1">
-          <p className="text-caption text-[var(--color-text-tertiary)]">{t('sales_month')}</p>
-          <p className="text-heading-2 text-[var(--color-text-primary)]" style={{ fontVariantNumeric: 'tabular-nums' }}>100</p>
-        </div>
-        <div className="rounded-lg bg-[var(--color-bg-secondary)] p-4 space-y-1">
-          <p className="text-caption text-[var(--color-text-tertiary)]">{t('revenue')}</p>
-          <p className="text-heading-2 text-[var(--color-text-primary)]" style={{ fontVariantNumeric: 'tabular-nums' }}>R$ 15.230</p>
-        </div>
-        <div className="rounded-lg bg-[var(--color-bg-secondary)] p-4 space-y-1">
-          <p className="text-caption text-[var(--color-text-tertiary)]">{t('clients')}</p>
-          <p className="text-heading-2 text-[var(--color-text-primary)]" style={{ fontVariantNumeric: 'tabular-nums' }}>50</p>
-        </div>
-        <div className="rounded-lg bg-[var(--color-bg-secondary)] p-4 space-y-1">
-          <p className="text-caption text-[var(--color-text-tertiary)]">{t('reminders')}</p>
-          <p className="text-heading-2 text-[var(--color-text-primary)]" style={{ fontVariantNumeric: 'tabular-nums' }}>3</p>
-          <p className="text-caption text-[var(--color-warning)]">{t('pending')}</p>
-        </div>
-      </div>
-
-      <div className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-lg bg-[var(--color-bg-primary)] border border-[var(--color-border-secondary)] p-5 space-y-4">
-          <h2 className="text-heading-3 text-[var(--color-text-primary)]">{t('quick_actions')}</h2>
+      <div className="grid gap-3 sm:gap-4 lg:grid-cols-2">
+        <div className="rounded-lg bg-[var(--color-bg-primary)] border border-[var(--color-border-secondary)] p-4 sm:p-5 space-y-4">
+          <h2 className="text-heading-3 text-[var(--color-text-primary)]">
+            {t("quick_actions")}
+          </h2>
           <div className="grid grid-cols-2 gap-3">
-            <button className="flex items-center gap-3 rounded-md bg-[var(--color-primary-surface)] p-3 text-body-small text-[var(--color-primary)] hover:bg-[var(--color-primary-surface-hover)] transition-colors">
-              <span className="flex h-9 w-9 items-center justify-center rounded-md bg-[var(--color-primary)] text-white text-lg">+</span>
-              {t('new_sale')}
+            <button
+              type="button"
+              onClick={goNewSale}
+              aria-label={t("new_sale")}
+              className="flex items-center gap-3 rounded-md bg-[var(--color-primary-surface)] p-3 text-body-small text-[var(--color-primary)] hover:bg-[var(--color-primary-surface-hover)] transition-all duration-150 active:scale-[0.98] active:opacity-90 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-offset-2"
+            >
+              <span
+                aria-hidden="true"
+                className="flex h-9 w-9 items-center justify-center rounded-md bg-[var(--color-primary)] text-white text-lg"
+              >
+                +
+              </span>
+              {t("new_sale")}
             </button>
-            <button className="flex items-center gap-3 rounded-md bg-[var(--color-primary-surface)] p-3 text-body-small text-[var(--color-primary)] hover:bg-[var(--color-primary-surface-hover)] transition-colors">
-              <span className="flex h-9 w-9 items-center justify-center rounded-md bg-[var(--color-primary)] text-white text-lg">👤</span>
-              {t('new_client')}
+            <button
+              type="button"
+              onClick={goNewClient}
+              aria-label={t("new_client")}
+              className="flex items-center gap-3 rounded-md bg-[var(--color-primary-surface)] p-3 text-body-small text-[var(--color-primary)] hover:bg-[var(--color-primary-surface-hover)] transition-all duration-150 active:scale-[0.98] active:opacity-90 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-offset-2"
+            >
+              <span
+                aria-hidden="true"
+                className="flex h-9 w-9 items-center justify-center rounded-md bg-[var(--color-primary)] text-white text-lg"
+              >
+                👤
+              </span>
+              {t("new_client")}
             </button>
-            <button className="flex items-center gap-3 rounded-md bg-[var(--color-primary-surface)] p-3 text-body-small text-[var(--color-primary)] hover:bg-[var(--color-primary-surface-hover)] transition-colors">
-              <span className="flex h-9 w-9 items-center justify-center rounded-md bg-[var(--color-primary)] text-white text-lg">💬</span>
-              {t('send_message')}
+            <button
+              type="button"
+              onClick={goSendMessage}
+              aria-label={t("send_message")}
+              className="flex items-center gap-3 rounded-md bg-[var(--color-primary-surface)] p-3 text-body-small text-[var(--color-primary)] hover:bg-[var(--color-primary-surface-hover)] transition-all duration-150 active:scale-[0.98] active:opacity-90 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-offset-2"
+            >
+              <span
+                aria-hidden="true"
+                className="flex h-9 w-9 items-center justify-center rounded-md bg-[var(--color-primary)] text-white text-lg"
+              >
+                💬
+              </span>
+              {t("send_message")}
             </button>
-            <button className="flex items-center gap-3 rounded-md bg-[var(--color-primary-surface)] p-3 text-body-small text-[var(--color-primary)] hover:bg-[var(--color-primary-surface-hover)] transition-colors">
-              <span className="flex h-9 w-9 items-center justify-center rounded-md bg-[var(--color-primary)] text-white text-lg">✨</span>
-              {t('ask_ai')}
+            <button
+              type="button"
+              onClick={goAskAi}
+              aria-label={t("ask_ai")}
+              className="flex items-center gap-3 rounded-md bg-[var(--color-primary-surface)] p-3 text-body-small text-[var(--color-primary)] hover:bg-[var(--color-primary-surface-hover)] transition-all duration-150 active:scale-[0.98] active:opacity-90 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-offset-2"
+            >
+              <span
+                aria-hidden="true"
+                className="flex h-9 w-9 items-center justify-center rounded-md bg-[var(--color-primary)] text-white text-lg"
+              >
+                ✨
+              </span>
+              {t("ask_ai")}
             </button>
           </div>
         </div>
 
-        <div className="rounded-lg bg-[var(--color-bg-primary)] border border-[var(--color-border-secondary)] p-5 space-y-4">
-          <h2 className="text-heading-3 text-[var(--color-text-primary)]">{t('today')}</h2>
+        <div className="rounded-lg bg-[var(--color-bg-primary)] border border-[var(--color-border-secondary)] p-4 sm:p-5 space-y-4">
+          <h2 className="text-heading-3 text-[var(--color-text-primary)]">
+            {t("today")}
+          </h2>
           <div className="space-y-3">
             <div className="flex items-center gap-3 rounded-md p-3 border-l-[3px] border-l-[var(--color-danger)] bg-[var(--color-bg-primary)]">
               <div className="flex-1">
-                <p className="text-body-small text-[var(--color-text-primary)]">{t('pending_billing')}</p>
-                <p className="text-caption text-[var(--color-text-tertiary)]">Ana Silva — R$ 150,00</p>
+                <p className="text-body-small text-[var(--color-text-primary)]">
+                  {t("pending_billing")}
+                </p>
+                <p className="text-caption text-[var(--color-text-tertiary)]">
+                  Ana Silva — R$ 150,00
+                </p>
               </div>
-              <button className="text-caption text-[var(--color-primary)] hover:underline">{t('charge')}</button>
+              <button
+                type="button"
+                onClick={onCharge}
+                className="text-caption text-[var(--color-primary)] hover:underline"
+              >
+                {t("charge")}
+              </button>
             </div>
             <div className="flex items-center gap-3 rounded-md p-3 border-l-[3px] border-l-[var(--color-warning)] bg-[var(--color-bg-primary)]">
               <div className="flex-1">
-                <p className="text-body-small text-[var(--color-text-primary)]">{t('restock_reminder')}</p>
-                <p className="text-caption text-[var(--color-text-tertiary)]">Beatriz Santos — Creme Hidratante</p>
+                <p className="text-body-small text-[var(--color-text-primary)]">
+                  {t("restock_reminder")}
+                </p>
+                <p className="text-caption text-[var(--color-text-tertiary)]">
+                  Beatriz Santos — Creme Hidratante
+                </p>
               </div>
-              <button className="text-caption text-[var(--color-primary)] hover:underline">{t('send')}</button>
+              <button
+                type="button"
+                onClick={onRestockReminder}
+                className="text-caption text-[var(--color-primary)] hover:underline"
+              >
+                {t("send")}
+              </button>
             </div>
             <div className="flex items-center gap-3 rounded-md p-3 border-l-[3px] border-l-[var(--color-success)] bg-[var(--color-bg-primary)]">
               <div className="flex-1">
-                <p className="text-body-small text-[var(--color-text-primary)]">{t('birthday_today')} 🎂</p>
-                <p className="text-caption text-[var(--color-text-tertiary)]">Carla Oliveira</p>
+                <p className="text-body-small text-[var(--color-text-primary)]">
+                  {t("birthday_today")} <span aria-hidden="true">🎂</span>
+                </p>
+                <p className="text-caption text-[var(--color-text-tertiary)]">
+                  Carla Oliveira
+                </p>
               </div>
-              <button className="text-caption text-[var(--color-primary)] hover:underline">{t('congratulate')}</button>
+              <button
+                type="button"
+                onClick={onCongratulate}
+                className="text-caption text-[var(--color-primary)] hover:underline"
+              >
+                {t("congratulate")}
+              </button>
             </div>
           </div>
         </div>

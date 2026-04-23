@@ -5,14 +5,14 @@
 - run_id: 2026-04-19_07-59-20
 - branch: fix/testes-qualidade/2026-04-19_07-59-20
 - data_inicio: 2026-04-22 01:35:00
-- ultima_atualizacao: 2026-04-22 02:15:00
+- ultima_atualizacao: 2026-04-22 02:20:00
 - fase_atual: revisor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 16
 - corrigidos_executor: 16
-- revisados_revisor: 2
+- revisados_revisor: 5
 - corrigidos_pelo_revisor: 0
 - nao_corrigiveis: 0
 - nao_aprovados: 0
@@ -68,9 +68,10 @@ Projeto em Fase 4, CLAUDE.md proíbe testes até Fase 7. Correções seguem o pa
 - severidade: alto
 - classificacao: corrigivel_parcial
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado_direto
 - commit_executor: 414a006
 - descricao_correcao: roadmap Bloco 5.
+- nota_revisor: Bloco 5 do roadmap cobre os três requisitos do ACH-005 — (a) request reset gerando token único com persist de hash e envio de email, (b) consumo com três cenários (válido muda password, usado rejeitado, expirado rejeitado), (c) rate-limit específico testado via SENSITIVE_ROUTE_LIMITS (X tentativas em janela → 429). Cross-ref seguranca/ACH-001 reconhecido ("quando saírem de stub"). Aprovação parcial adequada pelo constraint CLAUDE.md "ZERO testes até Fase 7".
 
 ### ACH-006
 - titulo: CI sem enforcement de coverage threshold

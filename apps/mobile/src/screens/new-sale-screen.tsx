@@ -122,9 +122,24 @@ export function NewSaleScreen({
           <View style={styles.clientRow}>
             <Avatar name="Mariana Costa" size="md" />
             <View style={{ flex: 1 }}>
-              <Text style={[styles.clientName, { color: c.onSurface }]}>
-                Mariana Costa
-              </Text>
+              <View style={styles.clientNameRow}>
+                <Text style={[styles.clientName, { color: c.onSurface }]}>
+                  Mariana Costa
+                </Text>
+                {/* ACH-023: Explicit VIP badge so the discount is visibly tied
+                    to the VIP status. */}
+                <View
+                  accessibilityLabel="Cliente VIP, desconto de 5% aplicado"
+                  style={[
+                    styles.vipBadge,
+                    { backgroundColor: c.primaryContainer },
+                  ]}
+                >
+                  <Text style={[styles.vipBadgeText, { color: c.onPrimary }]}>
+                    VIP −5%
+                  </Text>
+                </View>
+              </View>
               <Text style={[styles.clientMeta, { color: c.outline }]}>
                 Cliente VIP {"·"} 12 compras
               </Text>
@@ -425,7 +440,24 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   clientRow: { flexDirection: "row", alignItems: "center", gap: 12 },
+  clientNameRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    flexWrap: "wrap",
+  },
   clientName: { fontSize: 15, fontWeight: "700", fontFamily: "Sora" },
+  vipBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 999,
+  },
+  vipBadgeText: {
+    fontSize: 10,
+    fontWeight: "700",
+    letterSpacing: 0.6,
+    fontFamily: "Manrope",
+  },
   clientMeta: {
     fontSize: 12,
     fontWeight: "400",

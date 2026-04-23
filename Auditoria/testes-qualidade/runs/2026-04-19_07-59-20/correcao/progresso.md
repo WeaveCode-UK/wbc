@@ -5,14 +5,14 @@
 - run_id: 2026-04-19_07-59-20
 - branch: fix/testes-qualidade/2026-04-19_07-59-20
 - data_inicio: 2026-04-22 01:35:00
-- ultima_atualizacao: 2026-04-22 03:30:00
+- ultima_atualizacao: 2026-04-22 03:45:00
 - fase_atual: revisor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 16
 - corrigidos_executor: 16
-- revisados_revisor: 12
+- revisados_revisor: 13
 - corrigidos_pelo_revisor: 0
 - nao_corrigiveis: 0
 - nao_aprovados: 0
@@ -164,10 +164,11 @@ Projeto em Fase 4, CLAUDE.md proíbe testes até Fase 7. Correções seguem o pa
 - severidade: baixo
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado_direto
 - commit_executor: bd876f9
 - arquivos_alterados:
   - vitest.config.ts (comentário com escalonamento 20→40→70→80)
+- nota_revisor: Diff bd876f9^..bd876f9 em vitest.config.ts adiciona comentário ACH-014 (linhas 36-40) documentando escalonamento de coverage — Fase 4 (hoje) 20%, Fase 6 40%, Fase 7 70%, estável 80% — com cross-ref explícita a CLAUDE.md "ZERO testes até Fase 7" e ao gate de CI do ACH-006 (`pnpm test:coverage`). Thresholds lines/branches/functions/statements mantidos em 20, coerente com a Fase 4 atual e respeitando o constraint do projeto. Recomendação "Escalonar: 40% Fase 6, 70% Fase 7, 80% depois" atendida integralmente como documentação executável — cada incremento de threshold será feito no checkpoint da respectiva fase.
 
 ### ACH-015
 - titulo: Falta test-utils compartilhado

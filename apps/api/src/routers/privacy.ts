@@ -22,7 +22,7 @@ export const privacyRouter = router({
     .input(z.object({ format: z.enum(["json", "zip"]).default("zip") }))
     .mutation(async ({ ctx, input }) => {
       logger.warn(
-        { tenantId: ctx.tenantId, format: input.format },
+        { tenantId: ctx.tenant.tenantId, format: input.format },
         "ACH-001 stub: privacy.exportMyData invoked — requires implementation",
       );
       return {
@@ -46,7 +46,7 @@ export const privacyRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       logger.warn(
-        { tenantId: ctx.tenantId, input },
+        { tenantId: ctx.tenant.tenantId, input },
         "ACH-001 stub: privacy.correctField invoked — requires implementation",
       );
       return {
@@ -63,7 +63,7 @@ export const privacyRouter = router({
     .input(z.object({ confirmation: z.literal("ERASE_MY_DATA") }))
     .mutation(async ({ ctx }) => {
       logger.warn(
-        { tenantId: ctx.tenantId },
+        { tenantId: ctx.tenant.tenantId },
         "ACH-001 stub: privacy.requestDeletion invoked — requires implementation",
       );
       return {
@@ -86,7 +86,7 @@ export const privacyRouter = router({
     )
     .query(async ({ ctx, input }) => {
       logger.warn(
-        { tenantId: ctx.tenantId, input },
+        { tenantId: ctx.tenant.tenantId, input },
         "ACH-001 stub: privacy.accessLog invoked — requires implementation",
       );
       return {

@@ -12,6 +12,9 @@
 /packages/business/auth/           @WeaveCode-UK/owners
 /apps/web/src/lib/auth.config.ts   @WeaveCode-UK/owners
 /apps/web/src/lib/auth.ts          @WeaveCode-UK/owners
+/apps/web/src/app/(auth)/          @WeaveCode-UK/owners
+/apps/api/src/middleware/          @WeaveCode-UK/owners
+/apps/api/src/trpc/middleware/     @WeaveCode-UK/owners
 
 # Database schema and migrations
 /packages/db/                      @WeaveCode-UK/owners
@@ -24,8 +27,15 @@
 # CI / deploy / supply-chain
 /.github/                          @WeaveCode-UK/owners
 /deploy/                           @WeaveCode-UK/owners
+/docker-compose.yml                @WeaveCode-UK/owners
 /docker-compose.prod.yml           @WeaveCode-UK/owners
+/docker-compose.staging.yml        @WeaveCode-UK/owners
+/docker-compose.sentinel.yml       @WeaveCode-UK/owners
 /.gitleaks.toml                    @WeaveCode-UK/owners
+/infra/                            @WeaveCode-UK/owners
+
+# DR runbooks — review obrigatório (quem edita precisa ser quem seria chamado)
+/docs/dr/                          @WeaveCode-UK/owners
 
 # Audit framework — read-only history of past runs
 /Auditoria/                        @WeaveCode-UK/owners

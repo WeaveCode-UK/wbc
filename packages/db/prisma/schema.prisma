@@ -81,6 +81,10 @@ model Subscription {
   startsAt            DateTime
   expiresAt           DateTime?
   aiGenerationsUsed   Int      @default(0)
+  // ACH-002 custos-finops: hoje constante 30 para todos os planos.
+  // Alvo: mover para `PlanQuota` (indexada por plan) + adicionar
+  // monthlyCostBudgetUSD/monthlyCostAccumulatedUSD neste model.
+  // Ver docs/FINOPS-PLAN-LIMITS.md para roadmap de migration.
   aiGenerationsLimit  Int      @default(30)
   // ACH-003 dados-persistencia: optimistic-locking version. Writers
   // that care about lost-update semantics call `optimisticUpdate`

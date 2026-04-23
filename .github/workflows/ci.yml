@@ -131,6 +131,32 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm license:check
 
+  # ACH-016 supply-chain-dependencias: relatório não-bloqueante de peer-deps
+  # estritos. Job sobe, instala com --strict-peer-dependencies, e se houver
+  # mismatch o log indica — útil para detectar override que está escondendo
+  # incompatibilidade real. continue-on-error mantém o job informativo.
+  peer-deps-report:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.18.1
+          cache: pnpm
+      - name: Install with strict peer-deps
+        run: pnpm install --strict-peer-dependencies 2>&1 | tee peer-deps-report.txt
+      - name: Upload peer-deps report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: peer-deps-report
+          path: peer-deps-report.txt
+          retention-days: 14
+
   # ACH-015 — secret scanning. Catches credentials accidentally committed to
   # any branch before they reach `main`. Configuration lives in `.gitleaks.toml`
   # at the repo root (rules + allowlist for known fixture files).

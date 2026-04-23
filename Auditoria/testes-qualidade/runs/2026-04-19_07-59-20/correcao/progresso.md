@@ -5,14 +5,14 @@
 - run_id: 2026-04-19_07-59-20
 - branch: fix/testes-qualidade/2026-04-19_07-59-20
 - data_inicio: 2026-04-22 01:35:00
-- ultima_atualizacao: 2026-04-22 03:15:00
+- ultima_atualizacao: 2026-04-22 03:30:00
 - fase_atual: revisor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 16
 - corrigidos_executor: 16
-- revisados_revisor: 11
+- revisados_revisor: 12
 - corrigidos_pelo_revisor: 0
 - nao_corrigiveis: 0
 - nao_aprovados: 0
@@ -153,10 +153,11 @@ Projeto em Fase 4, CLAUDE.md proíbe testes até Fase 7. Correções seguem o pa
 - severidade: baixo
 - classificacao: corrigivel_parcial
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado_direto
 - commit_executor: df92ae2
 - arquivos_alterados:
   - .husky/pre-commit (TODO Fase 7 + comando pronto)
+- nota_revisor: Diff df92ae2^..df92ae2 em .husky/pre-commit mantém `npx lint-staged` (linha 1) e adiciona 6 linhas de comentário documentando ativação em Fase 7 com o comando pronto `pnpm vitest related --run --reporter=dot $(git diff --cached --name-only | tr '\n' ' ')` e cross-ref ao CLAUDE.md "ZERO testes até Fase 7". Nenhum teste executando agora, respeitando o constraint do projeto. Aprovação parcial adequada — ACH-013 exige habilitar o hook em Fase 7, o que está documentado no próprio arquivo como TODO executável.
 
 ### ACH-014
 - titulo: Threshold coverage 20% muito baixo

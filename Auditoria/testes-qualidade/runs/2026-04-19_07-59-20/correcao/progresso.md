@@ -5,14 +5,14 @@
 - run_id: 2026-04-19_07-59-20
 - branch: fix/testes-qualidade/2026-04-19_07-59-20
 - data_inicio: 2026-04-22 01:35:00
-- ultima_atualizacao: 2026-04-22 02:20:00
+- ultima_atualizacao: 2026-04-22 02:30:00
 - fase_atual: revisor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 16
 - corrigidos_executor: 16
-- revisados_revisor: 5
+- revisados_revisor: 6
 - corrigidos_pelo_revisor: 0
 - nao_corrigiveis: 0
 - nao_aprovados: 0
@@ -90,10 +90,11 @@ Projeto em Fase 4, CLAUDE.md proíbe testes até Fase 7. Correções seguem o pa
 - severidade: medio
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado_direto
 - commit_executor: bd876f9
 - arquivos_alterados:
   - .github/workflows/ci.yml (novo job arch-check)
+- nota_revisor: Job `arch-check` dedicado (ci.yml linhas 60-72) com step `pnpm arch:check` — script resolve para `depcruise --config .dependency-cruiser.cjs apps packages`, cujo exit ≠0 falha o job em qualquer violação das regras hexagonais. Job roda em paralelo a `test`/`lint-and-typecheck` (sem `needs:`) no mesmo trigger push/pull_request para main, então PR é bloqueado se dep-cruiser detectar violação. Recomendação atendida integralmente.
 
 ### ACH-008
 - titulo: Mocks manuais repetidos — sem factories

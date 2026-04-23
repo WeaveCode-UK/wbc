@@ -5,14 +5,14 @@
 - run_id: 2026-04-19_07-59-20
 - branch: fix/testes-qualidade/2026-04-19_07-59-20
 - data_inicio: 2026-04-22 01:35:00
-- ultima_atualizacao: 2026-04-22 02:55:00
+- ultima_atualizacao: 2026-04-22 03:00:00
 - fase_atual: revisor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 16
 - corrigidos_executor: 16
-- revisados_revisor: 9
+- revisados_revisor: 10
 - corrigidos_pelo_revisor: 0
 - nao_corrigiveis: 0
 - nao_aprovados: 0
@@ -133,9 +133,10 @@ Projeto em Fase 4, CLAUDE.md proíbe testes até Fase 7. Correções seguem o pa
 - severidade: medio
 - classificacao: corrigivel_parcial
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado_direto
 - commit_executor: 414a006
 - descricao_correcao: roadmap Bloco 8.
+- nota_revisor: Bloco 8 do roadmap (linhas 102-109 de begin/WBC-Fase7-Testes-Roadmap.md) expande o E2E playwright além de health/login com os três cenários exigidos pelo ACH-011 — (a) fluxo completo login → criar cliente → criar venda → confirmar → verificar cashback creditado, (b) isolamento multi-tenant alice/bob não vendo clientes um do outro (cross-ref ACH-002), (c) WhatsApp webhook ingest → evento criado → handler processado (cross-ref apis-integracoes). Aprovação parcial adequada pelo constraint CLAUDE.md "ZERO testes até Fase 7".
 
 ### ACH-012
 - titulo: 6 módulos business sem testes

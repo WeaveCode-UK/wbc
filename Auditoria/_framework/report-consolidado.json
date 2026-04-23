@@ -1,6 +1,6 @@
 {
   "schema_version": "2.2",
-  "generated_at": "2026-04-23T19:52:00.479Z",
+  "generated_at": "2026-04-23T20:39:37.152Z",
   "total": 294,
   "total_runs": 15,
   "distribution": {
@@ -37,17 +37,17 @@
   },
   "correction_summary": {
     "runs_by_correction_state": {
-      "not_started": 6,
-      "in_progress": 7,
+      "not_started": 5,
+      "in_progress": 8,
       "completed": 2
     },
-    "total_findings_corrected": 191,
-    "total_findings_not_correctable": 2,
+    "total_findings_corrected": 215,
+    "total_findings_not_correctable": 3,
     "total_findings_pending_correction": 0,
-    "total_commits": 150
+    "total_commits": 174
   },
   "progress": {
-    "last_updated": "2026-04-23T19:52:00.477Z",
+    "last_updated": "2026-04-23T20:39:37.150Z",
     "domains": {
       "arquitetura": {
         "domain": "arquitetura",
@@ -648,7 +648,18 @@
         "hipotese": 1
       },
       "correction": {
-        "state": "not_started"
+        "state": "in_progress",
+        "branch": "fix/ui-ux-fluxos/2026-04-19_08-47-24",
+        "started_at": "2026-04-23 00:00:00",
+        "finished_at": null,
+        "fase_atual": "revisor",
+        "corrected": 24,
+        "reviewed_ok": 24,
+        "not_correctable": 1,
+        "not_approved": 0,
+        "pending": 0,
+        "total_approved": 24,
+        "total_commits": 24
       }
     }
   ],
@@ -3774,7 +3785,13 @@
       "acao_sugerida": "Menu hamburger com as 9 rotas ou sub-menu \"Mais\"; ou revisão do bottom-nav para incluir itens essenciais",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "379f892",
+        "reviewer_commit": null,
+        "observacoes": "revisor validou aria-haspopup/aria-expanded/aria-controls, role=menu+menuitem, ESC handler, close-on-route, aria-current em links primários, touch targets 44x44; novas chaves nav_more consistentes pt/en"
       }
     },
     {
@@ -3797,7 +3814,13 @@
       "acao_sugerida": "Stack vertical em `<md`; fontes reduzidas (12-14px); padding 12px; teste em iPhone SE (375px)",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "ad878f8",
+        "reviewer_commit": null,
+        "observacoes": "revisor validou grid-cols-1 sm:grid-cols-2 lg:grid-cols-4, headings text-heading-3 sm:text-heading-2, padding p-3 sm:p-6; iPhone SE 375px agora viewport-safe"
       }
     },
     {
@@ -3820,7 +3843,13 @@
       "acao_sugerida": "Wire-up dos handlers (navigation + mutations) com toast (sonner) para sucesso/erro; skeletons durante espera",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "b265945",
+        "reviewer_commit": null,
+        "observacoes": "revisor validou 7 handlers web (4 quick + 3 today) e 3 handlers mobile (back/saveDraft/confirm) com fallback Alert; mutations+toast (sonner) corretamente rastreado como follow-up na descricao"
       }
     },
     {
@@ -3843,7 +3872,13 @@
       "acao_sugerida": "`minHeight: 44` e `minWidth: 44`; padding maior em botões pequenos; hit slops quando necessário",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "705e868",
+        "reviewer_commit": null,
+        "observacoes": "revisor validou backButton 44×44 com minWidth+minHeight e width+height (defensivo), deliveryButton minHeight 48 (preserva paddingVertical 16), toggleIconBox 44×44; comentários ACH-004 preservados"
       }
     },
     {
@@ -3866,7 +3901,13 @@
       "acao_sugerida": "Consolidar strings em `messages/{pt,en}.json`; validar Zod com mensagens localizadas (map de erro por código); regra ESLint para barrar strings inline em JSX",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "8ac5dbd",
+        "reviewer_commit": null,
+        "observacoes": "revisor aprovou seed+doc (regra corrigivel_parcial); 16 chaves validation.* paritárias pt/en, zodI18nErrorMap cobre invalid_type/invalid_string/too_small/too_big/invalid_date; UI-I18N-FOLLOWUP.md lista 5 pendências + critério de fechamento"
       }
     },
     {
@@ -7041,7 +7082,13 @@
       "acao_sugerida": "Skeleton por item (card/list) via `Suspense` ou estado local; helper `<ListSkeleton count={N} />`",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "7bfd598",
+        "reviewer_commit": null,
+        "observacoes": "revisor validou componente com animate-pulse, variants list/card, ARIA completo (role=status + aria-live=polite + aria-busy + aria-label + sr-only); adoção em listas fica para fase com data-fetching"
       }
     },
     {
@@ -7064,7 +7111,13 @@
       "acao_sugerida": "Substituir por `<EmptyState icon=\"…\" title=\"…\" action={<Button>…</Button>} />`",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "d5ff52a",
+        "reviewer_commit": null,
+        "observacoes": "revisor validou EmptyState com ícone+título+description+action em ambas as páginas; bônus: headers com responsividade p-3 sm:p-6 e migração de bg-blue-600 para CSS vars do tema"
       }
     },
     {
@@ -7087,7 +7140,13 @@
       "acao_sugerida": "`aria-label={t('action_new_sale')}` e congêneres; substituir emoji por `lucide-react` com `aria-hidden` + texto",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "e050e85",
+        "reviewer_commit": null,
+        "observacoes": "revisor validou todos 4 quick actions com aria-label + spans de emoji com aria-hidden=true; consistente com bottom-nav; birthday_today separa span decorativo 🎂"
       }
     },
     {
@@ -7110,7 +7169,13 @@
       "acao_sugerida": "Um `<h1>` por página; `<h2>` só em seções principais; `<h3>` em subsecções",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "a61f049",
+        "reviewer_commit": null,
+        "observacoes": "revisor validou <header> semântico, h1=nav_my_day, greeting/summary em <p>; h2/h3 mantidos nas seções (Quick Actions/Today)"
       }
     },
     {
@@ -7133,7 +7198,13 @@
       "acao_sugerida": "Ajustar para `#5A6370` ou mais escuro; revalidar temas dark/rose-dark",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "cc74f77",
+        "reviewer_commit": null,
+        "observacoes": "revisor validou #5A5261 em colors.ts:163 e #4B5563 em classificationColors.C; comentários ACH-010 preservados para rastreabilidade; dark mantido"
       }
     },
     {
@@ -7156,7 +7227,13 @@
       "acao_sugerida": "Container de erro com `aria-live=\"polite\"` e `aria-atomic=\"true\"`",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "445d480",
+        "reviewer_commit": null,
+        "observacoes": "revisor validou container aria-live presente no estado atual (input.tsx:79); estrutura preservada após ACH-015"
       }
     },
     {
@@ -7179,7 +7256,13 @@
       "acao_sugerida": "`react-input-mask` ou `imask` com padrões BR; validar E.164 no submit (cross-ref seguranca/ACH-028)",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "eb2e2f5",
+        "reviewer_commit": null,
+        "observacoes": "revisor validou helpers progressivos por comprimento, submit com phoneDigits (raw) consistente com E.164 ready; CPF/CNPJ helpers disponíveis para usos futuros (Settings/clients)"
       }
     },
     {
@@ -7202,7 +7285,13 @@
       "acao_sugerida": "Usar Radix Dialog (já disponível via shadcn) com trap/autoFocus; se manter `<dialog>`, acoplar `focus-trap-react`",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "1bc3567",
+        "reviewer_commit": null,
+        "observacoes": "revisor validou queueMicrotask focus em abertura, handleKeyDown ciclando confirm↔cancel em ambas direções, aria-labelledby + aria-describedby; estrutura preservada após ACH-018"
       }
     },
     {
@@ -7225,7 +7314,13 @@
       "acao_sugerida": "AlertDialog explicando \"Vamos enviar um link...\" + botões \"Sim/Não",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "041f974",
+        "reviewer_commit": null,
+        "observacoes": "revisor validou decisão de confirmar no submit (não nos links) — o recurso escasso é o envio de email, não a navegação; interpolação {email} na descrição + isLoading propagado; autoComplete=email adicional"
       }
     },
     {
@@ -7248,7 +7343,13 @@
       "acao_sugerida": "Usar `StepIndicator` no onboarding desktop; sincronizar visual entre web e mobile",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "58ede7c",
+        "reviewer_commit": null,
+        "observacoes": "revisor validou import de @wbc/ui/components/step-indicator e current={step-1} mapeando corretamente step 1→0, 2→1, 3→2; reforço textual mantém AA"
       }
     },
     {
@@ -7271,7 +7372,13 @@
       "acao_sugerida": "Implementar tabs: Profile / Plan / Landing / Data Export; cada tab com form + submit (react-hook-form + Zod)",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "b84ffed",
+        "reviewer_commit": null,
+        "observacoes": "revisor aprovou seed+doc (regra corrigivel_parcial); role=tablist+tab+tabpanel com aria-selected/aria-controls/aria-labelledby corretos; ProfileSettingsForm com useId para statusId e aria-live no feedback; UI-SETTINGS-FOLLOWUP.md com 5 pendências"
       }
     },
     {
@@ -7294,7 +7401,13 @@
       "acao_sugerida": "Prop `isLoading`; botão confirm com spinner + `aria-busy`; desabilitar durante promise",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "ddd0ccb",
+        "reviewer_commit": null,
+        "observacoes": "revisor validou handleConfirm guard contra dupla-invocação, aria-busy no dialog e confirm, spinner visual com aria-hidden, cancel também disabled; caller controla close via prop open quando loading"
       }
     },
     {
@@ -7317,7 +7430,13 @@
       "acao_sugerida": "`packages/ui-native/src/typography.ts` com tokens (heading1..caption) e helpers `styles(theme).text.headingN`",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "eed0c77",
+        "reviewer_commit": null,
+        "observacoes": "revisor aprovou seed+doc (regra corrigivel_parcial); textStyles confirmado exportado em @wbc/ui-native/src/index.ts; follow-up enumera 12 migrações na própria tela, sweep em demais telas, ESLint rule e critério de fechamento"
       }
     },
     {
@@ -7340,7 +7459,13 @@
       "acao_sugerida": "Usar `FormField` que injeta `id` explícito; ou gerar via `useId()` do React e passar manualmente",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "05757e9",
+        "reviewer_commit": null,
+        "observacoes": "revisor validou useId() em 3 inputs, aria-describedby slug→hint, inputMode=tel e autoComplete=tel no phone (bônus a11y)"
       }
     },
     {
@@ -8409,7 +8534,13 @@
       "acao_sugerida": "Ícone olho em `Input` quando `type === 'password'`; a11y com `aria-pressed`",
       "prioridade": "baixa",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "66ebe12",
+        "reviewer_commit": null,
+        "observacoes": "revisor validou botão toggle com 44x44 min, aria-label dinâmico (Show/Hide), aria-pressed, aria-controls={inputId}; CredentialsForm expõe togglePassword em ambos password/confirmPassword"
       }
     },
     {
@@ -8432,7 +8563,13 @@
       "acao_sugerida": "Persistir em `localStorage` e enviar cookie para SSR; usar `next-themes` ou abordagem equivalente; `data-theme` consistente entre web e mobile",
       "prioridade": "baixa",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "c79379b",
+        "reviewer_commit": null,
+        "observacoes": "revisor aprovou seed+doc (regra corrigivel_parcial); cookie+localStorage dupla persistência, parseThemeCookies com whitelist rose/dark (seguro contra injeção); follow-up inclui snippet pronto para app/layout.tsx"
       }
     },
     {
@@ -8455,7 +8592,13 @@
       "acao_sugerida": "`type=\"button\"` explícito ou `<Link>` quando a intenção é navegar",
       "prioridade": "baixa",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "2118746",
+        "reviewer_commit": null,
+        "observacoes": "revisor validou type=button em 4 quick actions + 3 today-items + theme toggle + mode toggle; bottom-nav já trata via ACH-001"
       }
     },
     {
@@ -8478,7 +8621,13 @@
       "acao_sugerida": "`transition + active:scale-98 + opacity-90`; consistência entre cards/botões",
       "prioridade": "baixa",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "7ab1fe7",
+        "reviewer_commit": null,
+        "observacoes": "revisor validou 4 quick actions com active:scale+opacity e focus:ring com ring-offset; consistência visual nos 4 botões"
       }
     },
     {
@@ -8501,7 +8650,13 @@
       "acao_sugerida": "Toast contextual ou destaque visual no total (\"VIP -5%\")",
       "prioridade": "baixa",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "d7a833b",
+        "reviewer_commit": null,
+        "observacoes": "revisor validou clientNameRow com flexWrap, badge pill borderRadius 999 com primaryContainer+onPrimary (contraste), accessibilityLabel descritivo \"Cliente VIP, desconto de 5% aplicado\""
       }
     },
     {
@@ -8524,7 +8679,13 @@
       "acao_sugerida": "Implementar upload com validação (max 5 MB; image/*) e mensagens inline quando a feature for introduzida",
       "prioridade": "baixa",
       "correction": {
-        "state": "not_started"
+        "state": "not_correctable",
+        "classificacao": "nao_corrigivel",
+        "status_executor": "nao_aplicavel",
+        "status_revisor": "nao_aplicavel",
+        "executor_commit": null,
+        "reviewer_commit": null,
+        "observacoes": "Feature de upload não existe; documentar quando introduzida"
       }
     },
     {

@@ -5,14 +5,14 @@
 - run_id: 2026-04-19_07-59-20
 - branch: fix/testes-qualidade/2026-04-19_07-59-20
 - data_inicio: 2026-04-22 01:35:00
-- ultima_atualizacao: 2026-04-22 03:45:00
+- ultima_atualizacao: 2026-04-22 03:55:00
 - fase_atual: revisor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 16
 - corrigidos_executor: 16
-- revisados_revisor: 13
+- revisados_revisor: 14
 - corrigidos_pelo_revisor: 0
 - nao_corrigiveis: 0
 - nao_aprovados: 0
@@ -175,11 +175,12 @@ Projeto em Fase 4, CLAUDE.md proíbe testes até Fase 7. Correções seguem o pa
 - severidade: baixo
 - classificacao: corrigivel_parcial
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado_direto
 - commit_executor: 507e405
 - arquivos_alterados:
   - packages/shared/src/__tests__/test-utils/README.md (novo)
   - packages/shared/src/__tests__/test-utils/mock-tenant-ctx.ts (novo)
+- nota_revisor: Diff 507e405^..507e405 entrega test-utils/README.md listando os 4 helpers planejados (mock-tenant-ctx, assert-domain-invariant, with-fixed-time, evil-twin) com caminho futuro de subpath export `@wbc/shared/test-utils`, e test-utils/mock-tenant-ctx.ts exportando a interface MockTenantCtx (tenantId, userId, role: CONSULTANT|LEADER|DIRECTOR|ADMIN, plan?), a factory `mockTenantCtx(overrides)` com defaults consistentes (test-tenant-a / test-user-1 / CONSULTANT) e `mockTenantPair()` retornando alice (tenant-a) + bob (tenant-b) para o padrão evil twin (ACH-002). Os dois helpers remanescentes (assert-domain-invariant, with-fixed-time) ficam documentados como follow-up no README, coerente com classificacao corrigivel_parcial e com CLAUDE.md "ZERO testes até Fase 7". Commit 507e405 também entrega factories/ vinculado ao ACH-008 (revisado separadamente). Recomendação seed atendida.
 
 ### ACH-016
 - titulo: CI sem matrix de Node

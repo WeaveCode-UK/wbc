@@ -1,7 +1,8 @@
 services:
   # ── Database ────────────────────────────────────────────────
   postgres:
-    image: postgres:16-alpine
+    # ACH-004 supply-chain-dependencias: pin por digest. Tag postgres:16-alpine em 2026-04-23.
+    image: postgres:16-alpine@sha256:4e6e670bb069649261c9c18031f0aded7bb249a5b6664ddec29c013a89310d50
     container_name: wbc-postgres
     restart: unless-stopped
     environment:
@@ -24,7 +25,8 @@ services:
 
   # ── Cache / Queue ───────────────────────────────────────────
   redis:
-    image: redis:7-alpine
+    # ACH-004 supply-chain-dependencias: pin por digest. Tag redis:7-alpine em 2026-04-23.
+    image: redis:7-alpine@sha256:7aec734b2bb298a1d769fd8729f13b8514a41bf90fcdd1f38ec52267fbaa8ee6
     container_name: wbc-redis
     restart: unless-stopped
     command: redis-server --requirepass ${REDIS_PASSWORD} --maxmemory 256mb --maxmemory-policy allkeys-lru
@@ -122,7 +124,8 @@ services:
 
   # ── Nginx (reverse proxy + SSL) ─────────────────────────────
   nginx:
-    image: nginx:alpine
+    # ACH-004 supply-chain-dependencias: pin por digest. Tag nginx:alpine em 2026-04-23.
+    image: nginx:alpine@sha256:5616878291a2eed594aee8db4dade5878cf7edcb475e59193904b198d9b830de
     container_name: wbc-nginx
     restart: unless-stopped
     ports:
@@ -145,7 +148,8 @@ services:
 
   # ── Certbot (SSL auto-renewal) ──────────────────────────────
   certbot:
-    image: certbot/certbot
+    # ACH-004 supply-chain-dependencias: pin por digest. Tag certbot/certbot:latest em 2026-04-23.
+    image: certbot/certbot:latest@sha256:78a7eaa40af657301e25731297b6e73646c695370d17e9bb03189fa82966d65c
     container_name: wbc-certbot
     volumes:
       - ssl_certs:/etc/letsencrypt
@@ -156,7 +160,8 @@ services:
 
   # ── Prometheus (metrics collection) ──────────────────────────
   prometheus:
-    image: prom/prometheus:v2.54.1
+    # ACH-004 supply-chain-dependencias: pin por digest. Tag prom/prometheus:v2.54.1 em 2026-04-23.
+    image: prom/prometheus:v2.54.1@sha256:f6639335d34a77d9d9db382b92eeb7fc00934be8eae81dbc03b31cfe90411a94
     container_name: wbc-prometheus
     restart: unless-stopped
     volumes:
@@ -175,7 +180,8 @@ services:
   # definidas em deploy/alerts.yml. Sem alertmanager os alertas
   # disparavam sem destino.
   alertmanager:
-    image: prom/alertmanager:v0.27.0
+    # ACH-004 supply-chain-dependencias: pin por digest. Tag prom/alertmanager:v0.27.0 em 2026-04-23.
+    image: prom/alertmanager:v0.27.0@sha256:e13b6ed5cb929eeaee733479dce55e10eb3bc2e9c4586c705a4e8da41e5eacf5
     container_name: wbc-alertmanager
     restart: unless-stopped
     env_file: .env.production
@@ -195,7 +201,8 @@ services:
 
   # ── Grafana (dashboards) ────────────────────────────────────
   grafana:
-    image: grafana/grafana:11.2.2
+    # ACH-004 supply-chain-dependencias: pin por digest. Tag grafana/grafana:11.2.2 em 2026-04-23.
+    image: grafana/grafana:11.2.2@sha256:d5133220d770aba5cb655147b619fa8770b90f41d8489a821d33b1cd34d16f89
     container_name: wbc-grafana
     restart: unless-stopped
     environment:

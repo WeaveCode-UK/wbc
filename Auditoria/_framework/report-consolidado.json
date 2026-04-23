@@ -1,6 +1,6 @@
 {
   "schema_version": "2.2",
-  "generated_at": "2026-04-23T21:01:21.580Z",
+  "generated_at": "2026-04-23T21:28:51.113Z",
   "total": 294,
   "total_runs": 15,
   "distribution": {
@@ -37,17 +37,17 @@
   },
   "correction_summary": {
     "runs_by_correction_state": {
-      "not_started": 4,
-      "in_progress": 9,
+      "not_started": 3,
+      "in_progress": 10,
       "completed": 2
     },
-    "total_findings_corrected": 230,
+    "total_findings_corrected": 252,
     "total_findings_not_correctable": 4,
     "total_findings_pending_correction": 0,
-    "total_commits": 189
+    "total_commits": 211
   },
   "progress": {
-    "last_updated": "2026-04-23T21:01:21.578Z",
+    "last_updated": "2026-04-23T21:28:51.110Z",
     "domains": {
       "arquitetura": {
         "domain": "arquitetura",
@@ -354,7 +354,18 @@
         "confirmado": 22
       },
       "correction": {
-        "state": "not_started"
+        "state": "in_progress",
+        "branch": "fix/compliance-privacidade/2026-04-19_21-00-11",
+        "started_at": "2026-04-23 04:40:00",
+        "finished_at": null,
+        "fase_atual": "revisor_concluido",
+        "corrected": 22,
+        "reviewed_ok": 22,
+        "not_correctable": 0,
+        "not_approved": 0,
+        "pending": 0,
+        "total_approved": 22,
+        "total_commits": 22
       }
     },
     {
@@ -815,7 +826,13 @@
       "acao_sugerida": "Implementar 4 endpoints tRPC (`privacy.exportMyData`, `privacy.correctField`, `privacy.requestDeletion`, `privacy.accessLog`); OTP obrigatório; registro em AuditLog; ZIP com JSON por domínio",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "df93eb2",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -838,7 +855,13 @@
       "acao_sugerida": "`docs/PRIVACY_POLICY.md` (PT-BR + EN) cobrindo dados coletados, bases legais, direitos, retenção, sub-processadores, transferências; publicar na landing (rodapé), onboarding (checkbox obrigatório), mobile (tela inicial)",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "11f5f9d",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -861,7 +884,13 @@
       "acao_sugerida": "Modelo `ConsentLog(accountId, type, version, grantedAt, revokedAt, source)`; checkbox explícito no onboarding; relatório de consentimento exportável",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "19ca631",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -884,7 +913,13 @@
       "acao_sugerida": "Marcar campos como `SENSITIVE`; consentimento específico na criação de Client; redação automática em logs/Sentry",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "2b270f0",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -907,7 +942,13 @@
       "acao_sugerida": "SCCs com cada sub-processador (ou BCRs); redação de PII antes de enviar (Sentry beforeSend, prompts DeepSeek sem PII); documentar em `docs/SUB_PROCESSORS.md`; consentimento explícito para processamento em terceiro país",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "f3db2a7",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -1552,7 +1593,13 @@
       "acao_sugerida": "Produzir DPIA cobrindo inventário, bases legais, riscos, mitigações, revisões; revisão anual",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "3b90bfc",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -1575,7 +1622,13 @@
       "acao_sugerida": "Publicar `docs/SUB_PROCESSORS.md` com nome, país, finalidade, DPA/SCC, local de armazenamento; notificar titulares em mudança",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "d776734",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -1598,7 +1651,13 @@
       "acao_sugerida": "`beforeSend` que redacta `authorization`, `password`, `token`, e-mails e telefones; `beforeBreadcrumb` com mesma regra; elevar para exception pipeline com sampling coerente",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "e87884f",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -1621,7 +1680,13 @@
       "acao_sugerida": "Função de redação central (`maskPhone`, `maskEmail`, trunc ID), aplicada em todos os logs; regra ESLint para bloquear logs de PII",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "330c5d9",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -1644,7 +1709,13 @@
       "acao_sugerida": "Política por entidade (ex.: Client inativo 3 anos → anonimização; Sessions 14 dias; Logs 90 dias; OTP consumido 24 h); worker de cleanup/anonimização",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "619918f",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -1667,7 +1738,13 @@
       "acao_sugerida": "Função `anonymizeClient(id)` (substituir name/email/phone por valores opacos, marcar `anonymizedAt`); job que propaga anonimização aos backups antigos ou encurta retenção; registrar evento de esquecimento",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "63ff751",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -1690,7 +1767,13 @@
       "acao_sugerida": "Campo `marketingConsent` + `marketingConsentSource` + `marketingRevokedAt`; bloquear envio quando `false`; rodapé \"cancelar\" em templates; endpoint opt-out",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "aff45bb",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -1713,7 +1796,13 @@
       "acao_sugerida": "Nomear DPO (interno/externo); publicar nome, e-mail, telefone; incluir em PRIVACY_POLICY e rodapé",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "c540a74",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -1736,7 +1825,13 @@
       "acao_sugerida": "Volume do host com LUKS (se VPS) ou EBS encryption; `pgcrypto` para campos especialmente sensíveis; backups cifrados com GPG + chave gerida em secret manager",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "1d5a30f",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -1759,7 +1854,13 @@
       "acao_sugerida": "`docs/INCIDENT_RESPONSE_PRIVACY.md` com fluxograma, papéis, modelos de comunicação ANPD e titulares; drill anual",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "34d58e2",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -4847,7 +4948,13 @@
       "acao_sugerida": "Plug-in (ex.: `vanilla-cookieconsent`, `cookiebot`); documentar cookies em PRIVACY_POLICY; respeitar preferência",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "a6c6bf0",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -4870,7 +4977,13 @@
       "acao_sugerida": "Suite de testes (dois tenants, verificar isolamento com e sem middleware); executar em CI",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "aaec3d7",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -4893,7 +5006,13 @@
       "acao_sugerida": "Termos de serviço com cláusula DPA para cada tenant; modelo de PRIVACY_POLICY que consultora pode publicar aos seus clientes",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "c083f58",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -4916,7 +5035,13 @@
       "acao_sugerida": "Step de aviso + checkbox explícito; registrar consentimento em ConsentLog com versão",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "36d0572",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -4939,7 +5064,13 @@
       "acao_sugerida": "Modelo `AuditLog(tenantId, actorId, actorType, action, resource, resourceId, ip, userAgent, diff, createdAt)`; middleware para capturar mutations; visão filtrável por titular",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "3ecdd99",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -7781,7 +7912,13 @@
       "acao_sugerida": "Rodar revisão anual; registro \"última atualização\" + \"próxima revisão\"; checklist documental",
       "prioridade": "baixa",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "f5580bb",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -7804,7 +7941,13 @@
       "acao_sugerida": "Elemento textual \"Conheça seus direitos\" em rodapé/help dos forms sensíveis",
       "prioridade": "baixa",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "ca55860",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {

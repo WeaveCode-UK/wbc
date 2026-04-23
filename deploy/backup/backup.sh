@@ -21,12 +21,31 @@ FILENAME="wbc_${TIMESTAMP}.sql.gz"
 echo "[backup] Starting backup at $(date)"
 
 # Dump database from postgres container
-docker exec wbc-postgres pg_dump \
-  -U "${POSTGRES_USER:-wbc}" \
-  -d "${POSTGRES_DB:-wbc}" \
-  --no-owner \
-  --no-privileges \
-  | gzip > "${BACKUP_DIR}/${FILENAME}"
+# ACH-014 compliance-privacidade: optional GPG encryption when
+# BACKUP_GPG_RECIPIENT is set. Recipient must have an imported public key
+# in the host keyring (`gpg --import /path/to/pubkey.asc`). Without the env
+# var, we fall back to gzip-only (preserves dev-friendliness).
+if [ -n "${BACKUP_GPG_RECIPIENT:-}" ] && command -v gpg >/dev/null 2>&1; then
+  FILENAME="wbc_${TIMESTAMP}.sql.gz.gpg"
+  docker exec wbc-postgres pg_dump \
+    -U "${POSTGRES_USER:-wbc}" \
+    -d "${POSTGRES_DB:-wbc}" \
+    --no-owner \
+    --no-privileges \
+    | gzip \
+    | gpg --batch --yes --trust-model always \
+          --recipient "${BACKUP_GPG_RECIPIENT}" \
+          --encrypt \
+          --output "${BACKUP_DIR}/${FILENAME}"
+  echo "[backup] Encrypted with GPG (recipient: ${BACKUP_GPG_RECIPIENT})"
+else
+  docker exec wbc-postgres pg_dump \
+    -U "${POSTGRES_USER:-wbc}" \
+    -d "${POSTGRES_DB:-wbc}" \
+    --no-owner \
+    --no-privileges \
+    | gzip > "${BACKUP_DIR}/${FILENAME}"
+fi
 
 SIZE=$(du -h "${BACKUP_DIR}/${FILENAME}" | cut -f1)
 echo "[backup] Created ${FILENAME} (${SIZE})"

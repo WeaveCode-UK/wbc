@@ -49,6 +49,44 @@ send_grafana_annotation() {
     >/dev/null 2>&1 || warn "Grafana annotation failed (ignored)."
 }
 
+# ACH-012: Apply SQL files in packages/db/prisma/migrations/manual/ after
+# `prisma migrate deploy`. Tracked via the `_manual_migrations` table so each
+# file runs exactly once per database. A fresh environment therefore cannot
+# boot without RLS policies or other manual schema pieces.
+apply_manual_migrations() {
+  local manual_dir="packages/db/prisma/migrations/manual"
+  if [ ! -d "$manual_dir" ]; then
+    return 0
+  fi
+  log "Applying manual SQL migrations from ${manual_dir}..."
+  docker compose -f docker-compose.prod.yml exec -T postgres \
+    psql -U "${POSTGRES_USER:-postgres}" -d "${POSTGRES_DB:-wbc}" <<'SQL'
+CREATE TABLE IF NOT EXISTS _manual_migrations (
+  name TEXT PRIMARY KEY,
+  applied_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+SQL
+  for sql_file in "$manual_dir"/*.sql; do
+    [ -f "$sql_file" ] || continue
+    local name
+    name="$(basename "$sql_file")"
+    local already_applied
+    already_applied=$(docker compose -f docker-compose.prod.yml exec -T postgres \
+      psql -U "${POSTGRES_USER:-postgres}" -d "${POSTGRES_DB:-wbc}" -tAc \
+      "SELECT 1 FROM _manual_migrations WHERE name = '${name}'" 2>/dev/null || echo "")
+    if [ "$already_applied" = "1" ]; then
+      log "  skip ${name} (already applied)"
+      continue
+    fi
+    log "  applying ${name}"
+    docker compose -f docker-compose.prod.yml exec -T postgres \
+      psql -U "${POSTGRES_USER:-postgres}" -d "${POSTGRES_DB:-wbc}" < "$sql_file"
+    docker compose -f docker-compose.prod.yml exec -T postgres \
+      psql -U "${POSTGRES_USER:-postgres}" -d "${POSTGRES_DB:-wbc}" \
+      -c "INSERT INTO _manual_migrations (name) VALUES ('${name}')"
+  done
+}
+
 # ACH-009: block until /api/health reports ready; fail fast otherwise.
 wait_for_ready() {
   local url="${1:-http://localhost:3000/api/health}"
@@ -147,6 +185,9 @@ first_run() {
   log "Starting all services..."
   docker compose -f docker-compose.prod.yml up -d
 
+  # ACH-012: apply manual SQL migrations after Prisma finishes.
+  apply_manual_migrations
+
   log "Setup SSL..."
   setup_ssl
 
@@ -176,6 +217,9 @@ update() {
   log "Running database migrations..."
   docker compose -f docker-compose.prod.yml run --rm web \
     npx prisma migrate deploy
+
+  # ACH-012: apply manual SQL migrations on update too (each file runs once).
+  apply_manual_migrations
 
   log "Restarting services (zero-downtime)..."
   docker compose -f docker-compose.prod.yml up -d --no-deps web worker

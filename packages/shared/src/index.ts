@@ -28,3 +28,4 @@ export * from "./money/centavos";
 export * from "./persistence/optimistic-update";
 export * from "./redis";
 export * from "./version";
+export * from "./feature-flags";

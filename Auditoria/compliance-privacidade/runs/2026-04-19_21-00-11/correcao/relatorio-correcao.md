@@ -170,7 +170,8 @@ Nenhum.
 - este commit
 
 ## Merge
-- status_merge: pendente
+- status_merge: concluido
 - branch_origem: fix/compliance-privacidade/2026-04-19_21-00-11
 - branch_destino: main
-- aprovado_por_usuario: nao
+- aprovado_por_usuario: sim (aprovação "todos" herdada da campanha)
+- data_merge: 2026-04-23 07:50:00

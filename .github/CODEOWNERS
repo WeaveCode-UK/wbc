@@ -40,5 +40,8 @@
 # Audit framework — read-only history of past runs
 /Auditoria/                        @WeaveCode-UK/owners
 
+# Git hooks — ACH-015 supply-chain-dependencias: hooks rodam em pnpm install
+/.husky/                           @WeaveCode-UK/owners
+
 # This file itself
 /.github/CODEOWNERS                @WeaveCode-UK/owners

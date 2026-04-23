@@ -19,6 +19,10 @@ on:
 permissions:
   contents: read
   packages: write
+  # ACH-005 supply-chain-dependencias: id-token é necessário para cosign
+  # keyless signing (OIDC) e para actions/attest-build-provenance (SLSA).
+  id-token: write
+  attestations: write
 
 env:
   REGISTRY: ghcr.io
@@ -102,3 +106,35 @@ jobs:
           output-file: sbom-${{ matrix.component }}.cdx.json
           upload-artifact: true
           upload-artifact-retention: 30
+
+      # ACH-005 supply-chain-dependencias: cosign keyless signing via OIDC.
+      # Assinatura pública fica em Rekor (sigstore transparency log).
+      - name: Install cosign
+        uses: sigstore/cosign-installer@v3
+        with:
+          cosign-release: v2.4.0
+
+      - name: Sign container image (keyless, Rekor)
+        env:
+          COSIGN_EXPERIMENTAL: "1"
+          IMAGE_DIGEST: ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}-${{ matrix.component }}@${{ steps.build.outputs.digest }}
+        run: cosign sign --yes "$IMAGE_DIGEST"
+
+      # ACH-005 supply-chain-dependencias: SLSA build provenance attestation.
+      # Prova que este digest foi construído por este workflow neste commit.
+      - name: Generate SLSA build provenance
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}-${{ matrix.component }}
+          subject-digest: ${{ steps.build.outputs.digest }}
+          push-to-registry: true
+
+      # ACH-005 supply-chain-dependencias: attestation do SBOM — liga o
+      # SBOM gerado ao digest da imagem, verificável via `cosign verify-attestation`.
+      - name: Attach SBOM as attestation
+        uses: actions/attest-sbom@v1
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}-${{ matrix.component }}
+          subject-digest: ${{ steps.build.outputs.digest }}
+          sbom-path: sbom-${{ matrix.component }}.cdx.json
+          push-to-registry: true

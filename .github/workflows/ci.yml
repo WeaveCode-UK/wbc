@@ -16,7 +16,7 @@ jobs:
           version: 9.15.4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 20.18.1
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm db:generate
@@ -66,10 +66,96 @@ jobs:
           version: 9.15.4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 20.18.1
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm arch:check
+
+  # ACH-009 supply-chain-dependencias: checagem de integridade do lockfile.
+  # Compara sha256 atual com valor committed em docs/integrity/lockfile.sha256.
+  # Detecta tampering silencioso em branches que passam por `pnpm install
+  # --frozen-lockfile` sem reclamar.
+  lockfile-integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify pnpm-lock.yaml sha256
+        run: |
+          expected="$(cat docs/integrity/lockfile.sha256 | tr -d '[:space:]')"
+          actual="$(sha256sum pnpm-lock.yaml | awk '{print $1}')"
+          if [ "$expected" != "$actual" ]; then
+            echo "::error::Lockfile hash mismatch."
+            echo "expected: $expected"
+            echo "actual:   $actual"
+            echo "Se você alterou pnpm-lock.yaml legitimamente, rode:"
+            echo "  sha256sum pnpm-lock.yaml | awk '{print \$1}' > docs/integrity/lockfile.sha256"
+            echo "e commit o hash atualizado."
+            exit 1
+          fi
+          echo "Lockfile integrity OK ($actual)"
+
+  # ACH-003 supply-chain-dependencias: pnpm audit bloqueia merges com CVEs
+  # high/critical. Override de protobufjs/picomatch/vite em package.json root
+  # (ACH-001/010/011) garante que o lockfile atual passe. Se uma nova CVE
+  # aparecer, este job falha e força bump/override.
+  security-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.18.1
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: pnpm audit (high+critical)
+        run: pnpm audit --audit-level high --prod
+
+  # ACH-007 supply-chain-dependencias: enforce a licença allowlist antes do
+  # merge. Policy documentada em docs/LICENSING.md; allowlist no script
+  # `license:check` do package.json root. Licenças fora do allowlist
+  # quebram o job e precisam de review humano.
+  license-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.18.1
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm license:check
+
+  # ACH-016 supply-chain-dependencias: relatório não-bloqueante de peer-deps
+  # estritos. Job sobe, instala com --strict-peer-dependencies, e se houver
+  # mismatch o log indica — útil para detectar override que está escondendo
+  # incompatibilidade real. continue-on-error mantém o job informativo.
+  peer-deps-report:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.18.1
+          cache: pnpm
+      - name: Install with strict peer-deps
+        run: pnpm install --strict-peer-dependencies 2>&1 | tee peer-deps-report.txt
+      - name: Upload peer-deps report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: peer-deps-report
+          path: peer-deps-report.txt
+          retention-days: 14
 
   # ACH-015 — secret scanning. Catches credentials accidentally committed to
   # any branch before they reach `main`. Configuration lives in `.gitleaks.toml`

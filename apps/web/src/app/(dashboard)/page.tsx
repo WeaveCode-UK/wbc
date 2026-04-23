@@ -86,7 +86,7 @@ export default function DashboardPage() {
             <button
               type="button"
               aria-label={t("new_sale")}
-              className="flex items-center gap-3 rounded-md bg-[var(--color-primary-surface)] p-3 text-body-small text-[var(--color-primary)] hover:bg-[var(--color-primary-surface-hover)] transition-colors"
+              className="flex items-center gap-3 rounded-md bg-[var(--color-primary-surface)] p-3 text-body-small text-[var(--color-primary)] hover:bg-[var(--color-primary-surface-hover)] transition-all duration-150 active:scale-[0.98] active:opacity-90 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-offset-2"
             >
               <span
                 aria-hidden="true"
@@ -99,7 +99,7 @@ export default function DashboardPage() {
             <button
               type="button"
               aria-label={t("new_client")}
-              className="flex items-center gap-3 rounded-md bg-[var(--color-primary-surface)] p-3 text-body-small text-[var(--color-primary)] hover:bg-[var(--color-primary-surface-hover)] transition-colors"
+              className="flex items-center gap-3 rounded-md bg-[var(--color-primary-surface)] p-3 text-body-small text-[var(--color-primary)] hover:bg-[var(--color-primary-surface-hover)] transition-all duration-150 active:scale-[0.98] active:opacity-90 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-offset-2"
             >
               <span
                 aria-hidden="true"
@@ -112,7 +112,7 @@ export default function DashboardPage() {
             <button
               type="button"
               aria-label={t("send_message")}
-              className="flex items-center gap-3 rounded-md bg-[var(--color-primary-surface)] p-3 text-body-small text-[var(--color-primary)] hover:bg-[var(--color-primary-surface-hover)] transition-colors"
+              className="flex items-center gap-3 rounded-md bg-[var(--color-primary-surface)] p-3 text-body-small text-[var(--color-primary)] hover:bg-[var(--color-primary-surface-hover)] transition-all duration-150 active:scale-[0.98] active:opacity-90 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-offset-2"
             >
               <span
                 aria-hidden="true"
@@ -125,7 +125,7 @@ export default function DashboardPage() {
             <button
               type="button"
               aria-label={t("ask_ai")}
-              className="flex items-center gap-3 rounded-md bg-[var(--color-primary-surface)] p-3 text-body-small text-[var(--color-primary)] hover:bg-[var(--color-primary-surface-hover)] transition-colors"
+              className="flex items-center gap-3 rounded-md bg-[var(--color-primary-surface)] p-3 text-body-small text-[var(--color-primary)] hover:bg-[var(--color-primary-surface-hover)] transition-all duration-150 active:scale-[0.98] active:opacity-90 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-offset-2"
             >
               <span
                 aria-hidden="true"

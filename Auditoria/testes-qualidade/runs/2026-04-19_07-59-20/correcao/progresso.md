@@ -58,9 +58,10 @@ Projeto em Fase 4, CLAUDE.md proíbe testes até Fase 7. Correções seguem o pa
 - severidade: alto
 - classificacao: corrigivel_parcial
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado_direto
 - commit_executor: 414a006
 - descricao_correcao: roadmap Bloco 4.
+- nota_revisor: Bloco 4 do roadmap cobre os 4 mecanismos exigidos pelo ACH-004 — rate-limit middleware (bucket por rota + identificador), idempotent(key, fn) wrapper com cenário de cache + TTL, outbox publisher (traceparent metadata, cross-ref ACH-011 observabilidade) e subscriber (falhas propagadas + withIdempotentHandler, cross-ref ACH-002 confiabilidade), claimPending atômico com teste de concorrência dois workers em FOR UPDATE SKIP LOCKED. Aprovação parcial adequada pelo constraint CLAUDE.md "ZERO testes até Fase 7".
 
 ### ACH-005
 - titulo: Reset-password e forgot-password sem testes

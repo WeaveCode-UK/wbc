@@ -1,26 +1,30 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
-import { Button } from '@wbc/ui/components/button';
-import { Input } from '@wbc/ui/components/input';
-import { Label } from '@wbc/ui/components/label';
-import { useTranslations } from 'next-intl';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { Button } from "@wbc/ui/components/button";
+import { Input } from "@wbc/ui/components/input";
+import { Label } from "@wbc/ui/components/label";
+import { StepIndicator } from "@wbc/ui/components/step-indicator";
+import { useTranslations } from "next-intl";
 
 export default function OnboardingPage() {
-  const t = useTranslations('auth');
+  const t = useTranslations("auth");
   const router = useRouter();
   const { update } = useSession();
   const [step, setStep] = useState(1);
-  const [tenantName, setTenantName] = useState('');
-  const [slug, setSlug] = useState('');
-  const [phone, setPhone] = useState('');
+  const [tenantName, setTenantName] = useState("");
+  const [slug, setSlug] = useState("");
+  const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const generateSlug = (name: string) => {
-    return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    return name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "");
   };
 
   const handleNameChange = (value: string) => {
@@ -30,22 +34,22 @@ export default function OnboardingPage() {
 
   const handleSubmit = async () => {
     setLoading(true);
-    setError('');
+    setError("");
     try {
-      const res = await fetch('/api/trpc/auth.completeOnboarding', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/trpc/auth.completeOnboarding", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ tenantName, slug, phone }),
       });
       if (!res.ok) {
-        setError(t('onboarding.error'));
+        setError(t("onboarding.error"));
         return;
       }
       await update({});
-      router.push('/dashboard');
+      router.push("/dashboard");
       router.refresh();
     } catch {
-      setError(t('onboarding.error'));
+      setError(t("onboarding.error"));
     } finally {
       setLoading(false);
     }
@@ -54,25 +58,42 @@ export default function OnboardingPage() {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h1 className="text-2xl font-bold">{t('onboarding.title')}</h1>
-        <p className="mt-2 text-muted-foreground">
-          {t('onboarding.step', { current: step, total: 3 })}
+        <h1 className="text-2xl font-bold">{t("onboarding.title")}</h1>
+        <StepIndicator total={3} current={step - 1} className="mt-3" />
+        <p className="mt-2 text-sm text-muted-foreground">
+          {t("onboarding.step", { current: step, total: 3 })}
         </p>
       </div>
 
       {step === 1 && (
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label>{t('onboarding.businessName')}</Label>
-            <Input value={tenantName} onChange={(e) => handleNameChange(e.target.value)} required minLength={2} />
+            <Label>{t("onboarding.businessName")}</Label>
+            <Input
+              value={tenantName}
+              onChange={(e) => handleNameChange(e.target.value)}
+              required
+              minLength={2}
+            />
           </div>
           <div className="space-y-2">
-            <Label>{t('onboarding.slug')}</Label>
-            <Input value={slug} onChange={(e) => setSlug(e.target.value)} required pattern="^[a-z0-9-]+$" />
-            <p className="text-xs text-muted-foreground">{t('onboarding.slugHint')}</p>
+            <Label>{t("onboarding.slug")}</Label>
+            <Input
+              value={slug}
+              onChange={(e) => setSlug(e.target.value)}
+              required
+              pattern="^[a-z0-9-]+$"
+            />
+            <p className="text-xs text-muted-foreground">
+              {t("onboarding.slugHint")}
+            </p>
           </div>
-          <Button className="w-full" onClick={() => setStep(2)} disabled={!tenantName || !slug}>
-            {t('onboarding.next')}
+          <Button
+            className="w-full"
+            onClick={() => setStep(2)}
+            disabled={!tenantName || !slug}
+          >
+            {t("onboarding.next")}
           </Button>
         </div>
       )}
@@ -80,15 +101,28 @@ export default function OnboardingPage() {
       {step === 2 && (
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label>{t('onboarding.phone')}</Label>
-            <Input value={phone} onChange={(e) => setPhone(e.target.value)} required minLength={10} />
+            <Label>{t("onboarding.phone")}</Label>
+            <Input
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              required
+              minLength={10}
+            />
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" className="flex-1" onClick={() => setStep(1)}>
-              {t('onboarding.back')}
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => setStep(1)}
+            >
+              {t("onboarding.back")}
             </Button>
-            <Button className="flex-1" onClick={() => setStep(3)} disabled={!phone}>
-              {t('onboarding.next')}
+            <Button
+              className="flex-1"
+              onClick={() => setStep(3)}
+              disabled={!phone}
+            >
+              {t("onboarding.next")}
             </Button>
           </div>
         </div>
@@ -97,17 +131,31 @@ export default function OnboardingPage() {
       {step === 3 && (
         <div className="space-y-4">
           <div className="rounded-lg border p-4 space-y-2">
-            <p><strong>{t('onboarding.businessName')}:</strong> {tenantName}</p>
-            <p><strong>{t('onboarding.slug')}:</strong> {slug}</p>
-            <p><strong>{t('onboarding.phone')}:</strong> {phone}</p>
+            <p>
+              <strong>{t("onboarding.businessName")}:</strong> {tenantName}
+            </p>
+            <p>
+              <strong>{t("onboarding.slug")}:</strong> {slug}
+            </p>
+            <p>
+              <strong>{t("onboarding.phone")}:</strong> {phone}
+            </p>
           </div>
           {error && <p className="text-sm text-destructive">{error}</p>}
           <div className="flex gap-2">
-            <Button variant="outline" className="flex-1" onClick={() => setStep(2)}>
-              {t('onboarding.back')}
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => setStep(2)}
+            >
+              {t("onboarding.back")}
             </Button>
-            <Button className="flex-1" onClick={handleSubmit} disabled={loading}>
-              {loading ? '...' : t('onboarding.finish')}
+            <Button
+              className="flex-1"
+              onClick={handleSubmit}
+              disabled={loading}
+            >
+              {loading ? "..." : t("onboarding.finish")}
             </Button>
           </div>
         </div>

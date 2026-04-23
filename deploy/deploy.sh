@@ -58,12 +58,14 @@ setup_ssl() {
   docker cp deploy/ssl-temp/privkey.pem wbc-nginx:/etc/nginx/ssl/privkey.pem
   docker compose -f docker-compose.prod.yml restart nginx
 
-  # Request real certificate
+  # Request real certificate (ACH-013: --keep-until-expiring + --non-interactive
+  # so this step is idempotent across runs; only renews within ~30 days of expiry).
   docker compose -f docker-compose.prod.yml run --rm certbot \
     certonly --webroot -w /var/www/certbot \
     -d "$domain" \
     --email "admin@$domain" \
-    --agree-tos --no-eff-email
+    --agree-tos --no-eff-email \
+    --keep-until-expiring --non-interactive
 
   # Copy real certs
   docker compose -f docker-compose.prod.yml run --rm certbot \

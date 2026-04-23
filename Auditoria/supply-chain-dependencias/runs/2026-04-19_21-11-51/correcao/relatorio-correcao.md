@@ -100,7 +100,8 @@ Nenhum.
 Total: 19 commits (1 init + 16 fixes + 2 transições/revisor).
 
 ## Merge
-- status_merge: pendente
+- status_merge: concluido
 - branch_origem: fix/supply-chain-dependencias/2026-04-19_21-11-51
 - branch_destino: main
-- aprovado_por_usuario: nao
+- aprovado_por_usuario: sim
+- data_merge: 2026-04-23 23:08:00

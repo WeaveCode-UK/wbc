@@ -18,6 +18,37 @@ log()  { echo -e "${GREEN}[WBC]${NC} $1"; }
 warn() { echo -e "${YELLOW}[WBC]${NC} $1"; }
 err()  { echo -e "${RED}[WBC]${NC} $1" >&2; }
 
+# ACH-014: Sentry release marker. Silently no-ops if SENTRY_AUTH_TOKEN/ORG/PROJECT
+# are not set — this keeps local/manual deploys unaffected.
+send_sentry_release() {
+  local release="$1"
+  if [ -z "${SENTRY_AUTH_TOKEN:-}" ] || [ -z "${SENTRY_ORG:-}" ] || [ -z "${SENTRY_PROJECT:-}" ]; then
+    return 0
+  fi
+  curl -fsS -X POST \
+    "https://sentry.io/api/0/organizations/${SENTRY_ORG}/releases/" \
+    -H "Authorization: Bearer ${SENTRY_AUTH_TOKEN}" \
+    -H 'Content-Type: application/json' \
+    -d "{\"version\":\"${release}\",\"projects\":[\"${SENTRY_PROJECT}\"]}" \
+    >/dev/null 2>&1 || warn "Sentry release marker failed (ignored)."
+}
+
+# ACH-014: Grafana annotation with tag=deploy. Silently no-ops when vars absent.
+send_grafana_annotation() {
+  local text="$1"
+  if [ -z "${GRAFANA_URL:-}" ] || [ -z "${GRAFANA_API_KEY:-}" ]; then
+    return 0
+  fi
+  local now_ms
+  now_ms=$(($(date +%s) * 1000))
+  curl -fsS -X POST \
+    "${GRAFANA_URL%/}/api/annotations" \
+    -H "Authorization: Bearer ${GRAFANA_API_KEY}" \
+    -H 'Content-Type: application/json' \
+    -d "{\"time\":${now_ms},\"tags\":[\"deploy\"],\"text\":\"${text}\"}" \
+    >/dev/null 2>&1 || warn "Grafana annotation failed (ignored)."
+}
+
 # ACH-009: block until /api/health reports ready; fail fast otherwise.
 wait_for_ready() {
   local url="${1:-http://localhost:3000/api/health}"
@@ -122,6 +153,12 @@ first_run() {
   # ACH-009: block until the app is actually serving requests.
   wait_for_ready "http://localhost:3000/api/health" 30
 
+  # ACH-014: record the deploy in Sentry + Grafana (no-op when not configured).
+  local release
+  release="first-run-$(git rev-parse --short HEAD 2>/dev/null || date +%s)"
+  send_sentry_release "$release"
+  send_grafana_annotation "first-run: $release"
+
   log "Deploy complete! Services running:"
   docker compose -f docker-compose.prod.yml ps
 }
@@ -148,6 +185,12 @@ update() {
 
   # ACH-009: don't declare success until /api/health passes.
   wait_for_ready "http://localhost:3000/api/health" 30
+
+  # ACH-014: record the deploy.
+  local release
+  release="update-$(git rev-parse --short HEAD 2>/dev/null || date +%s)"
+  send_sentry_release "$release"
+  send_grafana_annotation "update: $release"
 
   log "Update complete!"
   docker compose -f docker-compose.prod.yml ps

@@ -13,6 +13,7 @@ import {
   Button,
   Avatar,
   Toggle,
+  textStyles,
 } from "@wbc/ui-native";
 
 type DeliveryMethod = "pessoal" | "correio" | "motoboy" | "retirada";
@@ -80,10 +81,13 @@ export function NewSaleScreen({
             </Text>
           </TouchableOpacity>
           <View>
-            <Text style={[styles.headerTitle, { color: c.onSurface }]}>
+            {/* ACH-020: migrated to centralized tokens */}
+            <Text style={[textStyles["heading-2"], { color: c.onSurface }]}>
               Nova Venda
             </Text>
-            <Text style={[styles.headerStep, { color: c.outline }]}>
+            <Text
+              style={[textStyles.caption, { color: c.outline, marginTop: 1 }]}
+            >
               Passo 4 de 4
             </Text>
           </View>

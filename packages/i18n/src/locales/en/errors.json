@@ -1,1 +1,20 @@
-{}
+{
+  "validation": {
+    "required": "Required field",
+    "invalid_email": "Invalid email",
+    "invalid_url": "Invalid URL",
+    "invalid_uuid": "Invalid identifier",
+    "too_small_string": "Minimum {minimum} characters",
+    "too_big_string": "Maximum {maximum} characters",
+    "too_small_number": "Minimum value is {minimum}",
+    "too_big_number": "Maximum value is {maximum}",
+    "regex_mismatch": "Invalid format",
+    "invalid_phone_br": "Invalid Brazilian phone. Use (11) 99999-9999",
+    "invalid_cpf": "Invalid CPF",
+    "invalid_cnpj": "Invalid CNPJ",
+    "passwords_do_not_match": "Passwords do not match",
+    "invalid_date": "Invalid date",
+    "invalid_credentials": "Invalid user or password",
+    "unknown": "Could not validate this field"
+  }
+}

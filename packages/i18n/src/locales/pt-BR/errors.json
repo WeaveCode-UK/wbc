@@ -1,1 +1,20 @@
-{}
+{
+  "validation": {
+    "required": "Campo obrigatório",
+    "invalid_email": "E-mail inválido",
+    "invalid_url": "URL inválida",
+    "invalid_uuid": "Identificador inválido",
+    "too_small_string": "Mínimo de {minimum} caracteres",
+    "too_big_string": "Máximo de {maximum} caracteres",
+    "too_small_number": "Valor mínimo é {minimum}",
+    "too_big_number": "Valor máximo é {maximum}",
+    "regex_mismatch": "Formato inválido",
+    "invalid_phone_br": "Telefone brasileiro inválido. Use (11) 99999-9999",
+    "invalid_cpf": "CPF inválido",
+    "invalid_cnpj": "CNPJ inválido",
+    "passwords_do_not_match": "As senhas não coincidem",
+    "invalid_date": "Data inválida",
+    "invalid_credentials": "Usuário ou senha inválidos",
+    "unknown": "Não foi possível validar este campo"
+  }
+}

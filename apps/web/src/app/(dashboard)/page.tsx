@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 
 export default function DashboardPage() {
   const t = useTranslations("analytics");
+  const tCommon = useTranslations("common");
   const hour = new Date().getHours();
   const greeting =
     hour < 12
@@ -14,14 +15,17 @@ export default function DashboardPage() {
 
   return (
     <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
-      <div>
+      <header>
         <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
-          {greeting}! 👋
+          {tCommon("nav_my_day")}
         </h1>
-        <p className="mt-1 text-caption sm:text-body-small text-[var(--color-text-tertiary)]">
+        <p className="mt-1 text-body-small sm:text-body text-[var(--color-text-secondary)]">
+          {greeting}! <span aria-hidden="true">👋</span>
+        </p>
+        <p className="mt-0.5 text-caption text-[var(--color-text-tertiary)]">
           {t("summary")}
         </p>
-      </div>
+      </header>
 
       <div className="grid gap-2 sm:gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-lg bg-[var(--color-bg-secondary)] p-3 sm:p-4 space-y-1">

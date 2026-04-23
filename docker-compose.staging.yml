@@ -1,0 +1,40 @@
+# ACH-011: Staging overlay.
+# Uso: docker compose -f docker-compose.prod.yml -f docker-compose.staging.yml up -d
+#
+# Objetivo: reaproveitar o compose de produção mudando apenas o que o
+# ambiente de staging precisa diferenciar (réplicas 1, recursos enxutos,
+# hostname, credenciais lidas de .env.staging).
+#
+# Dev continua usando docker-compose.yml puro; prod usa docker-compose.prod.yml
+# puro. Staging usa prod + este overlay. A convenção de overlay sobrepõe valores
+# existentes ao invés de fundi-los em listas, então propriedades como `volumes`
+# são reescritas inteiras quando mencionadas.
+
+services:
+  web:
+    env_file: .env.staging
+    environment:
+      NODE_ENV: staging
+    deploy:
+      replicas: 1
+
+  worker:
+    env_file: .env.staging
+    environment:
+      NODE_ENV: staging
+    deploy:
+      replicas: 1
+
+  postgres:
+    env_file: .env.staging
+
+  redis:
+    env_file: .env.staging
+
+  prometheus:
+    env_file: .env.staging
+
+  grafana:
+    env_file: .env.staging
+    environment:
+      GF_SERVER_ROOT_URL: https://staging-grafana.weavecode.internal

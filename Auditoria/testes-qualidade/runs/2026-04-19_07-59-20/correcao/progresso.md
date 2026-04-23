@@ -5,14 +5,14 @@
 - run_id: 2026-04-19_07-59-20
 - branch: fix/testes-qualidade/2026-04-19_07-59-20
 - data_inicio: 2026-04-22 01:35:00
-- ultima_atualizacao: 2026-04-22 01:55:00
+- ultima_atualizacao: 2026-04-22 02:05:00
 - fase_atual: revisor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 16
 - corrigidos_executor: 16
-- revisados_revisor: 0
+- revisados_revisor: 1
 - corrigidos_pelo_revisor: 0
 - nao_corrigiveis: 0
 - nao_aprovados: 0
@@ -28,9 +28,10 @@ Projeto em Fase 4, CLAUDE.md proíbe testes até Fase 7. Correções seguem o pa
 - severidade: alto
 - classificacao: corrigivel_parcial
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado_direto
 - commit_executor: 414a006
 - descricao_correcao: documentado em roadmap Fase 7, Bloco 1 (Persistência).
+- nota_revisor: Bloco 1 cobre setup (jest-mock-extended OU testcontainers-postgres), CRUD feliz, constraint violation (unique/FK), multi-tenant scoping e optimistic lock; alvos iniciais sale/client/product/outbox presentes. Aprovação parcial adequada pelo constraint CLAUDE.md "ZERO testes até Fase 7".
 
 ### ACH-002
 - titulo: Sem teste de isolamento multi-tenant (evil twin)

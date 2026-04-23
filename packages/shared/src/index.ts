@@ -29,3 +29,4 @@ export * from "./persistence/optimistic-update";
 export * from "./redis";
 export * from "./version";
 export * from "./feature-flags";
+export * from "./sensitive-fields";

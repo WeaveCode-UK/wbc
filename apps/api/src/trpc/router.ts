@@ -16,6 +16,7 @@ import { logisticsRouter } from "../routers/logistics";
 import { landingRouter } from "../routers/landing";
 import { platformRouter } from "../routers/platform";
 import { adminRouter } from "../routers/admin";
+import { privacyRouter } from "../routers/privacy";
 
 export const appRouter = router({
   auth: authRouter,
@@ -35,6 +36,9 @@ export const appRouter = router({
   landing: landingRouter,
   platform: platformRouter,
   admin: adminRouter,
+  // ACH-001 compliance-privacidade: LGPD/GDPR data-subject rights endpoints.
+  // Currently stubs — see docs/PRIVACY-ENDPOINTS.md.
+  privacy: privacyRouter,
 });
 
 export type AppRouter = typeof appRouter;

@@ -7,6 +7,7 @@ import { Input } from "@wbc/ui/components/input";
 import { Label } from "@wbc/ui/components/label";
 import { ConfirmModal } from "@wbc/ui/components/confirm-modal";
 import { useTranslations } from "next-intl";
+import { DataRightsLink } from "../../../components/data-rights-link";
 
 export default function ResetPasswordPage() {
   const t = useTranslations("auth");
@@ -92,6 +93,10 @@ export default function ResetPasswordPage() {
         <Link href="/login" className="text-primary hover:underline">
           {t("resetPassword.backToLogin")}
         </Link>
+      </div>
+
+      <div className="text-center">
+        <DataRightsLink />
       </div>
     </div>
   );

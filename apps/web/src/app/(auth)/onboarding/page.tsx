@@ -8,6 +8,7 @@ import { Input } from "@wbc/ui/components/input";
 import { Label } from "@wbc/ui/components/label";
 import { StepIndicator } from "@wbc/ui/components/step-indicator";
 import { useTranslations } from "next-intl";
+import { maskPhoneBR, phoneDigits } from "../../../lib/masks";
 
 export default function OnboardingPage() {
   const t = useTranslations("auth");
@@ -45,7 +46,7 @@ export default function OnboardingPage() {
       const res = await fetch("/api/trpc/auth.completeOnboarding", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tenantName, slug, phone }),
+        body: JSON.stringify({ tenantName, slug, phone: phoneDigits(phone) }),
       });
       if (!res.ok) {
         setError(t("onboarding.error"));
@@ -114,9 +115,10 @@ export default function OnboardingPage() {
             <Input
               id={phoneId}
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              onChange={(e) => setPhone(maskPhoneBR(e.target.value))}
+              placeholder="(11) 99999-9999"
               required
-              minLength={10}
+              minLength={14}
               inputMode="tel"
               autoComplete="tel"
             />

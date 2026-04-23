@@ -61,3 +61,29 @@ export function flag<T extends FlagValue>(name: string, defaultValue: T): T {
 export function __resetFlagsForTesting(): void {
   cache = null;
 }
+
+/**
+ * ACH-012 custos-finops: nomes canônicos de kill-switches de emergência
+ * para integrações pagas. Ver docs/FEATURE-FLAGS-FOLLOWUP.md seção
+ * "Emergency kill-switches (ACH-012)".
+ *
+ * Uso:
+ *   import { flag, KILL_SWITCH } from '@wbc/shared/feature-flags';
+ *
+ *   if (!flag(KILL_SWITCH.DEEPSEEK, true)) {
+ *     // DeepSeek desabilitado — cair para template offline
+ *     return fallbackTemplate();
+ *   }
+ *
+ * Defaults recomendados: `true` (ligado). O operador flipa para `false`
+ * em emergência de custo sem redeploy — basta atualizar FEATURE_FLAGS_JSON
+ * e reiniciar o container (ou aguardar o cache expirar em provider real).
+ */
+export const KILL_SWITCH = {
+  DEEPSEEK: "kill_switch.deepseek",
+  WHATSAPP: "kill_switch.whatsapp",
+  SENTRY: "kill_switch.sentry",
+  AI_GENERATIONS: "kill_switch.ai_generations",
+} as const;
+
+export type KillSwitchName = (typeof KILL_SWITCH)[keyof typeof KILL_SWITCH];

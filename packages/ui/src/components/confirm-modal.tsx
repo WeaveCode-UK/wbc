@@ -12,6 +12,7 @@ interface ConfirmModalProps {
   confirmLabel: string;
   cancelLabel: string;
   destructive?: boolean;
+  isLoading?: boolean;
 }
 
 export function ConfirmModal({
@@ -23,6 +24,7 @@ export function ConfirmModal({
   confirmLabel,
   cancelLabel,
   destructive,
+  isLoading = false,
 }: ConfirmModalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const confirmBtnRef = useRef<HTMLButtonElement>(null);
@@ -33,7 +35,6 @@ export function ConfirmModal({
     if (!dialog) return;
     if (open && !dialog.open) {
       dialog.showModal();
-      // auto-focus on confirm after the dialog paints
       queueMicrotask(() => confirmBtnRef.current?.focus());
     } else if (!open && dialog.open) {
       dialog.close();
@@ -71,6 +72,14 @@ export function ConfirmModal({
     [],
   );
 
+  const handleConfirm = () => {
+    if (isLoading) return;
+    onConfirm();
+    // Loading caller controls when to close via `open` prop.
+    // When not loading, close immediately after trigger.
+    if (!isLoading) onClose();
+  };
+
   return (
     <dialog
       ref={dialogRef}
@@ -78,6 +87,7 @@ export function ConfirmModal({
       onKeyDown={handleKeyDown}
       aria-labelledby="confirm-modal-title"
       aria-describedby={description ? "confirm-modal-description" : undefined}
+      aria-busy={isLoading}
       className="fixed z-50 w-full max-w-sm rounded-lg bg-[var(--color-bg-primary)] p-6 shadow-lg backdrop:bg-black/40"
     >
       <div className="space-y-4">
@@ -100,7 +110,8 @@ export function ConfirmModal({
             ref={cancelBtnRef}
             type="button"
             onClick={onClose}
-            className="h-10 px-4 rounded-md text-body-small font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-secondary)] transition-colors"
+            disabled={isLoading}
+            className="h-10 px-4 rounded-md text-body-small font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-secondary)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {cancelLabel}
           </button>
@@ -108,17 +119,23 @@ export function ConfirmModal({
             ref={confirmBtnRef}
             type="button"
             autoFocus
-            onClick={() => {
-              onConfirm();
-              onClose();
-            }}
+            onClick={handleConfirm}
+            disabled={isLoading}
+            aria-busy={isLoading}
             className={cn(
-              "h-10 px-4 rounded-md text-body-small font-medium text-white transition-colors",
+              "h-10 px-4 rounded-md text-body-small font-medium text-white transition-colors inline-flex items-center justify-center gap-2",
               destructive
                 ? "bg-[var(--color-danger)] hover:opacity-90"
                 : "bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)]",
+              "disabled:opacity-70 disabled:cursor-not-allowed",
             )}
           >
+            {isLoading && (
+              <span
+                aria-hidden="true"
+                className="inline-block h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin"
+              />
+            )}
             {confirmLabel}
           </button>
         </div>

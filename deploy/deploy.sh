@@ -18,6 +18,22 @@ log()  { echo -e "${GREEN}[WBC]${NC} $1"; }
 warn() { echo -e "${YELLOW}[WBC]${NC} $1"; }
 err()  { echo -e "${RED}[WBC]${NC} $1" >&2; }
 
+# ACH-009: block until /api/health reports ready; fail fast otherwise.
+wait_for_ready() {
+  local url="${1:-http://localhost:3000/api/health}"
+  local attempts="${2:-30}"
+  log "Waiting for readiness: $url"
+  for i in $(seq 1 "$attempts"); do
+    if curl -fsS --max-time 3 "$url" >/dev/null 2>&1; then
+      log "Service is ready after ${i} attempt(s)."
+      return 0
+    fi
+    sleep 2
+  done
+  err "Service did not become ready within $((attempts * 2))s."
+  return 1
+}
+
 # ── Pre-checks ────────────────────────────────────────────────
 check_deps() {
   for cmd in docker; do
@@ -103,6 +119,9 @@ first_run() {
   log "Setup SSL..."
   setup_ssl
 
+  # ACH-009: block until the app is actually serving requests.
+  wait_for_ready "http://localhost:3000/api/health" 30
+
   log "Deploy complete! Services running:"
   docker compose -f docker-compose.prod.yml ps
 }
@@ -126,6 +145,9 @@ update() {
 
   log "Cleaning old images..."
   docker image prune -f
+
+  # ACH-009: don't declare success until /api/health passes.
+  wait_for_ready "http://localhost:3000/api/health" 30
 
   log "Update complete!"
   docker compose -f docker-compose.prod.yml ps

@@ -71,6 +71,29 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm arch:check
 
+  # ACH-009 supply-chain-dependencias: checagem de integridade do lockfile.
+  # Compara sha256 atual com valor committed em docs/integrity/lockfile.sha256.
+  # Detecta tampering silencioso em branches que passam por `pnpm install
+  # --frozen-lockfile` sem reclamar.
+  lockfile-integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify pnpm-lock.yaml sha256
+        run: |
+          expected="$(cat docs/integrity/lockfile.sha256 | tr -d '[:space:]')"
+          actual="$(sha256sum pnpm-lock.yaml | awk '{print $1}')"
+          if [ "$expected" != "$actual" ]; then
+            echo "::error::Lockfile hash mismatch."
+            echo "expected: $expected"
+            echo "actual:   $actual"
+            echo "Se você alterou pnpm-lock.yaml legitimamente, rode:"
+            echo "  sha256sum pnpm-lock.yaml | awk '{print \$1}' > docs/integrity/lockfile.sha256"
+            echo "e commit o hash atualizado."
+            exit 1
+          fi
+          echo "Lockfile integrity OK ($actual)"
+
   # ACH-003 supply-chain-dependencias: pnpm audit bloqueia merges com CVEs
   # high/critical. Override de protobufjs/picomatch/vite em package.json root
   # (ACH-001/010/011) garante que o lockfile atual passe. Se uma nova CVE

@@ -1,10 +1,25 @@
 name: CI
 
 on:
+  # ACH-013 custos-finops: paths-ignore evita rodar CI completo em mudanças
+  # sem código (docs/Markdown/histórico de auditoria). Os jobs do CI fazem
+  # build/type-check/test/audit — nada disso é afetado por estes caminhos.
   push:
     branches: [main]
+    paths-ignore:
+      - "**/*.md"
+      - "docs/**"
+      - "Auditoria/**"
+      - ".github/ISSUE_TEMPLATE/**"
+      - "LICENSE"
   pull_request:
     branches: [main]
+    paths-ignore:
+      - "**/*.md"
+      - "docs/**"
+      - "Auditoria/**"
+      - ".github/ISSUE_TEMPLATE/**"
+      - "LICENSE"
 
 # ACH-009 custos-finops: Turborepo remote cache. Se TURBO_TOKEN/TURBO_TEAM
 # estiverem configurados como secrets (Vercel Free tier: 1GB), habilitam

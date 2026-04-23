@@ -13,8 +13,11 @@
  * the SDK package.
  */
 
+// ACH-008 compliance-privacidade: expand sensitive keys to include
+// phone / whatsapp / tax-id fields so PII from Brazilian consultoras
+// never leaks to Sentry (transferência internacional para USA).
 const SENSITIVE_KEYS_RE =
-  /^(authorization|cookie|set-cookie|password|token|access_token|refresh_token|id_token|secret|api[_-]?key|otp|email)$/i;
+  /^(authorization|cookie|set-cookie|password|token|access_token|refresh_token|id_token|secret|api[_-]?key|otp|email|phone|phone_number|phonenumber|telefone|whatsapp|whatsapp_id|cpf|cnpj|allergies|notes|preferences)$/i;
 const MAX_STRING_LEN = 2000;
 
 function redactValue(value: unknown, depth = 0): unknown {

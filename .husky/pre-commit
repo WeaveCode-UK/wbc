@@ -1,1 +1,7 @@
 npx lint-staged
+
+# ACH-013 testes-qualidade: na Fase 7, ativar testes relacionados no
+# pre-commit para feedback rápido. Mantido desligado até lá conforme
+# política "ZERO testes até Fase 7" (CLAUDE.md).
+# Quando ativar:
+#   pnpm vitest related --run --reporter=dot $(git diff --cached --name-only | tr '\n' ' ')

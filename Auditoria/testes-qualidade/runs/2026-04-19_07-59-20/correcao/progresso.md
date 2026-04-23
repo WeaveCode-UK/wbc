@@ -78,11 +78,12 @@ Projeto em Fase 4, CLAUDE.md proíbe testes até Fase 7. Correções seguem o pa
 - severidade: medio
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado_direto
 - commit_executor: bd876f9
 - arquivos_alterados:
   - .github/workflows/ci.yml (pnpm test:coverage + upload)
   - vitest.config.ts (reporter text/html/lcov)
+- nota_revisor: CI job test agora executa `pnpm test:coverage` (script já existente em package.json → `vitest run --coverage`), com upload-artifact v4 de `coverage/` (retention 14 dias, só no node 20 para evitar duplicação na matrix). vitest.config.ts declara `reporter: ["text","html","lcov"]` e thresholds lines/branches/functions/statements=20 — v8 provider falha o job via exit code ≠0 se coverage cair abaixo, satisfazendo o "falhar PR abaixo do threshold". Escalonamento (20→40→70→80) documentado no comment ACH-014. Recomendação atendida integralmente.
 
 ### ACH-007
 - titulo: arch:check não é gate de CI

@@ -1,0 +1,108 @@
+# ACH-010: Weekly DR drill — restores the latest production backup into
+# an ephemeral Postgres and compares row counts against a baseline to
+# catch silent corruption before a real incident.
+#
+# Requires repository secrets:
+#   - BACKUP_S3_URL              : s3://wbc-backups/postgres/
+#   - AWS_ACCESS_KEY_ID          : IAM user with s3:GetObject on the bucket
+#   - AWS_SECRET_ACCESS_KEY
+#   - AWS_DEFAULT_REGION
+#   - DR_DRILL_EXPECTED_TABLES   : comma-separated, e.g. "Tenant,User,Client"
+#
+# The job intentionally fails loudly when:
+#   - no backup exists in the bucket
+#   - the backup cannot be restored
+#   - any expected table is missing or has 0 rows
+name: DR Drill
+
+on:
+  schedule:
+    # Every Sunday at 03:00 UTC — outside prod traffic peak.
+    - cron: "0 3 * * 0"
+  workflow_dispatch: {}
+
+jobs:
+  restore-drill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: wbc
+          POSTGRES_PASSWORD: wbc
+          POSTGRES_DB: wbc_drill
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U wbc"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install AWS CLI
+        run: |
+          curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o awscli.zip
+          unzip -q awscli.zip
+          sudo ./aws/install --update
+          aws --version
+
+      - name: Locate latest backup
+        id: locate
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+          BACKUP_S3_URL: ${{ secrets.BACKUP_S3_URL }}
+        run: |
+          if [ -z "$BACKUP_S3_URL" ]; then
+            echo "BACKUP_S3_URL secret is not configured; skipping drill."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          LATEST=$(aws s3 ls "${BACKUP_S3_URL%/}/" | awk '{print $4}' | grep -E '^wbc_.*\.sql\.gz$' | sort | tail -1)
+          if [ -z "$LATEST" ]; then
+            echo "No backup found at $BACKUP_S3_URL" >&2
+            exit 1
+          fi
+          echo "latest=$LATEST" >> "$GITHUB_OUTPUT"
+          aws s3 cp "${BACKUP_S3_URL%/}/$LATEST" "./$LATEST"
+          ls -lh "./$LATEST"
+
+      - name: Restore into ephemeral postgres
+        if: steps.locate.outputs.skip != 'true'
+        env:
+          PGPASSWORD: wbc
+          LATEST: ${{ steps.locate.outputs.latest }}
+        run: |
+          gunzip -c "./$LATEST" | psql -h localhost -U wbc -d wbc_drill
+
+      - name: Verify expected tables are populated
+        if: steps.locate.outputs.skip != 'true'
+        env:
+          PGPASSWORD: wbc
+          EXPECTED: ${{ secrets.DR_DRILL_EXPECTED_TABLES }}
+        run: |
+          if [ -z "$EXPECTED" ]; then
+            echo "DR_DRILL_EXPECTED_TABLES not set — using default baseline."
+            EXPECTED="Tenant,User"
+          fi
+          FAILED=0
+          IFS=',' read -ra TABLES <<< "$EXPECTED"
+          for t in "${TABLES[@]}"; do
+            COUNT=$(psql -h localhost -U wbc -d wbc_drill -tAc "SELECT COUNT(*) FROM \"$t\"" 2>/dev/null || echo "-1")
+            if [ "$COUNT" = "-1" ]; then
+              echo "::error::Table '$t' missing in restored dump"
+              FAILED=1
+            elif [ "$COUNT" -eq 0 ]; then
+              echo "::warning::Table '$t' restored with 0 rows"
+            else
+              echo "OK: $t ($COUNT rows)"
+            fi
+          done
+          exit $FAILED

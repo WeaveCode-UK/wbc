@@ -19,11 +19,17 @@ RUN pnpm install --frozen-lockfile
 COPY --from=pruner /app/out/full/ .
 COPY packages/business/ ./packages/business/
 
-ARG DATABASE_URL
-ENV DATABASE_URL=${DATABASE_URL}
-
-RUN pnpm --filter @wbc/db db:generate
-RUN pnpm --filter @wbc/web build
+# ACH-015: DATABASE_URL delivered via BuildKit secret (never cached in layer).
+# Producers: `docker build --secret id=database_url,src=/path/to/file` or CI
+# workflow (see .github/workflows/docker-images.yml).
+# Fallback: if the secret is not mounted, `prisma generate` runs with the
+# default DATABASE_URL baked into the .env* files of the repo (for local dev).
+RUN --mount=type=secret,id=database_url \
+    if [ -f /run/secrets/database_url ]; then \
+      export DATABASE_URL="$(cat /run/secrets/database_url)"; \
+    fi && \
+    pnpm --filter @wbc/db db:generate && \
+    pnpm --filter @wbc/web build
 
 # ── Stage 4: Production runner ────────────────────────────────
 FROM node:20-alpine AS runner

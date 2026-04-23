@@ -17,10 +17,12 @@ RUN pnpm install --frozen-lockfile
 COPY packages/ ./packages/
 COPY apps/worker/ ./apps/worker/
 
-ARG DATABASE_URL
-ENV DATABASE_URL=${DATABASE_URL}
-
-RUN pnpm --filter @wbc/db db:generate
+# ACH-015: DATABASE_URL via BuildKit secret (never cached in layer).
+RUN --mount=type=secret,id=database_url \
+    if [ -f /run/secrets/database_url ]; then \
+      export DATABASE_URL="$(cat /run/secrets/database_url)"; \
+    fi && \
+    pnpm --filter @wbc/db db:generate
 
 # Worker uses tsx at runtime (TypeScript execution)
 # No build step needed — tsx runs .ts directly

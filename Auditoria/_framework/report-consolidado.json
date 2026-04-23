@@ -1,6 +1,6 @@
 {
   "schema_version": "2.2",
-  "generated_at": "2026-04-23T20:39:37.152Z",
+  "generated_at": "2026-04-23T21:01:21.580Z",
   "total": 294,
   "total_runs": 15,
   "distribution": {
@@ -37,17 +37,17 @@
   },
   "correction_summary": {
     "runs_by_correction_state": {
-      "not_started": 5,
-      "in_progress": 8,
+      "not_started": 4,
+      "in_progress": 9,
       "completed": 2
     },
-    "total_findings_corrected": 215,
-    "total_findings_not_correctable": 3,
+    "total_findings_corrected": 230,
+    "total_findings_not_correctable": 4,
     "total_findings_pending_correction": 0,
-    "total_commits": 174
+    "total_commits": 189
   },
   "progress": {
-    "last_updated": "2026-04-23T20:39:37.150Z",
+    "last_updated": "2026-04-23T21:01:21.578Z",
     "domains": {
       "arquitetura": {
         "domain": "arquitetura",
@@ -481,7 +481,18 @@
         "confirmado": 16
       },
       "correction": {
-        "state": "not_started"
+        "state": "in_progress",
+        "branch": "fix/infraestrutura-deploy-config/2026-04-19_09-03-12",
+        "started_at": "2026-04-23 03:00:00",
+        "finished_at": null,
+        "fase_atual": "revisor_concluido",
+        "corrected": 15,
+        "reviewed_ok": 15,
+        "not_correctable": 1,
+        "not_approved": 0,
+        "pending": 0,
+        "total_approved": 15,
+        "total_commits": 15
       }
     },
     {
@@ -2383,7 +2394,13 @@
       "acao_sugerida": "Adicionar job que faz `docker buildx` com tags `sha`, `semver` e push para GHCR; rodar Trivy/Grype; exportar SBOM (CycloneDX/Syft); assinar com Sigstore (cosign) opcionalmente",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "5c39b20",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -2406,7 +2423,13 @@
       "acao_sugerida": "Migrar para Terraform (se cloud homogêneo) ou Pulumi; versionar no repo; CI de `plan` em PR",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "7f75f35",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -2429,7 +2452,13 @@
       "acao_sugerida": "Ao final do backup, `aws s3 cp` (ou `mc cp`) para bucket remoto com versionamento e lifecycle; chaves IAM com escopo mínimo (cross-ref seguranca/ACH-016)",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "d5476f9",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -2452,7 +2481,13 @@
       "acao_sugerida": "Formalizar RTO/RPO com stakeholders; criar `docs/dr/{disk-full,db-corrupt,vm-down,redis-loss}.md`; validar em drill mensal (cross-ref dados-persistencia/ACH-018)",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "678e413",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -2475,7 +2510,13 @@
       "acao_sugerida": "Habilitar branch protection: `required_status_checks` (lint, type-check, test, arch:check), ≥1 review, dismiss stale; criar CODEOWNERS",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "9720e18",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -2498,7 +2539,13 @@
       "acao_sugerida": "Converter manuais para migrations Prisma nomeadas; ou executar `psql -f manual/*.sql` explicitamente em `deploy.sh`; gate de CI que falhe se `prisma migrate status` detectar drift",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "292d20d",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -5722,7 +5769,13 @@
       "acao_sugerida": "Fixar versões semver (`prom/prometheus:v2.52.0`, `grafana/grafana:11.1.0`); Dependabot para docker (já suporta)",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "1c2fe76",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -5745,7 +5798,13 @@
       "acao_sugerida": "Avaliar Growthbook (open-source) ou Unleash; wrapper em `packages/shared/src/feature-flags.ts` com fallback para env",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "1420f57",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -5768,7 +5827,13 @@
       "acao_sugerida": "Adicionar polling `for i in {1..30}; do curl -fsS http://localhost:3000/api/trpc/health.ready && break; sleep 2; done`; falhar script se não ficar ready",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "e51cd05",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -5791,7 +5856,13 @@
       "acao_sugerida": "Workflow GitHub Actions semanal: baixar último backup, restaurar em Postgres efêmero, comparar row counts contra snapshot esperado",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "1f56847",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -5814,7 +5885,13 @@
       "acao_sugerida": "Adotar `docker-compose.base.yml` + overlays por ambiente; criar ambiente `staging` com dados sintéticos e deploy automático",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "b4ca9bb",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -5837,7 +5914,13 @@
       "acao_sugerida": "Migrar para `RUN --mount=type=secret,id=database_url`; passar via buildx `--secret id=database_url,src=...`",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "6761fd5",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -8053,7 +8136,13 @@
       "acao_sugerida": "Adicionar `SENTRY_DSN`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `WHATSAPP_APP_SECRET`, `OTEL_EXPORTER_OTLP_ENDPOINT`",
       "prioridade": "baixa",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "e8099cf",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -8076,7 +8165,13 @@
       "acao_sugerida": "`certbot certonly --keep-until-expiring` ou check prévio com `certbot certificates`",
       "prioridade": "baixa",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "d8566c7",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -8099,7 +8194,13 @@
       "acao_sugerida": "Adicionar `curl -X POST $SENTRY_RELEASE_URL` após build; `/api/annotations` Grafana com tag `deploy`",
       "prioridade": "baixa",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "83688f4",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -8761,7 +8862,13 @@
       "acao_sugerida": "Incluir no plano de remediação junto com ACH-001..015 deste domínio",
       "prioridade": "informativo",
       "correction": {
-        "state": "not_started"
+        "state": "not_correctable",
+        "classificacao": "nao_corrigivel",
+        "status_executor": "nao_aplicavel",
+        "status_revisor": "nao_aplicavel",
+        "executor_commit": null,
+        "reviewer_commit": null,
+        "observacoes": "achado meta, documentação de cross-ref"
       }
     }
   ]

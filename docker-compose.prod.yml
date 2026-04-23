@@ -156,7 +156,7 @@ services:
 
   # ── Prometheus (metrics collection) ──────────────────────────
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v2.54.1
     container_name: wbc-prometheus
     restart: unless-stopped
     volumes:
@@ -175,7 +175,7 @@ services:
   # definidas em deploy/alerts.yml. Sem alertmanager os alertas
   # disparavam sem destino.
   alertmanager:
-    image: prom/alertmanager:latest
+    image: prom/alertmanager:v0.27.0
     container_name: wbc-alertmanager
     restart: unless-stopped
     env_file: .env.production
@@ -195,7 +195,7 @@ services:
 
   # ── Grafana (dashboards) ────────────────────────────────────
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:11.2.2
     container_name: wbc-grafana
     restart: unless-stopped
     environment:

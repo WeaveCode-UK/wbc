@@ -84,6 +84,7 @@ export default function DashboardPage() {
           </h2>
           <div className="grid grid-cols-2 gap-3">
             <button
+              type="button"
               aria-label={t("new_sale")}
               className="flex items-center gap-3 rounded-md bg-[var(--color-primary-surface)] p-3 text-body-small text-[var(--color-primary)] hover:bg-[var(--color-primary-surface-hover)] transition-colors"
             >
@@ -96,6 +97,7 @@ export default function DashboardPage() {
               {t("new_sale")}
             </button>
             <button
+              type="button"
               aria-label={t("new_client")}
               className="flex items-center gap-3 rounded-md bg-[var(--color-primary-surface)] p-3 text-body-small text-[var(--color-primary)] hover:bg-[var(--color-primary-surface-hover)] transition-colors"
             >
@@ -108,6 +110,7 @@ export default function DashboardPage() {
               {t("new_client")}
             </button>
             <button
+              type="button"
               aria-label={t("send_message")}
               className="flex items-center gap-3 rounded-md bg-[var(--color-primary-surface)] p-3 text-body-small text-[var(--color-primary)] hover:bg-[var(--color-primary-surface-hover)] transition-colors"
             >
@@ -120,6 +123,7 @@ export default function DashboardPage() {
               {t("send_message")}
             </button>
             <button
+              type="button"
               aria-label={t("ask_ai")}
               className="flex items-center gap-3 rounded-md bg-[var(--color-primary-surface)] p-3 text-body-small text-[var(--color-primary)] hover:bg-[var(--color-primary-surface-hover)] transition-colors"
             >
@@ -148,7 +152,10 @@ export default function DashboardPage() {
                   Ana Silva — R$ 150,00
                 </p>
               </div>
-              <button className="text-caption text-[var(--color-primary)] hover:underline">
+              <button
+                type="button"
+                className="text-caption text-[var(--color-primary)] hover:underline"
+              >
                 {t("charge")}
               </button>
             </div>
@@ -161,7 +168,10 @@ export default function DashboardPage() {
                   Beatriz Santos — Creme Hidratante
                 </p>
               </div>
-              <button className="text-caption text-[var(--color-primary)] hover:underline">
+              <button
+                type="button"
+                className="text-caption text-[var(--color-primary)] hover:underline"
+              >
                 {t("send")}
               </button>
             </div>
@@ -174,7 +184,10 @@ export default function DashboardPage() {
                   Carla Oliveira
                 </p>
               </div>
-              <button className="text-caption text-[var(--color-primary)] hover:underline">
+              <button
+                type="button"
+                className="text-caption text-[var(--color-primary)] hover:underline"
+              >
                 {t("congratulate")}
               </button>
             </div>

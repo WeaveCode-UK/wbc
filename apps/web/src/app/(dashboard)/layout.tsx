@@ -1,14 +1,18 @@
-'use client';
+"use client";
 
-import { useTranslations } from 'next-intl';
-import { Sidebar } from '../../components/sidebar';
-import { BottomNav } from '../../components/bottom-nav';
-import { ErrorBoundary } from '../../components/error-boundary';
-import { useTheme } from '../../providers/theme-provider';
+import { useTranslations } from "next-intl";
+import { Sidebar } from "../../components/sidebar";
+import { BottomNav } from "../../components/bottom-nav";
+import { ErrorBoundary } from "../../components/error-boundary";
+import { useTheme } from "../../providers/theme-provider";
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const { theme, mode, toggleMode, setTheme } = useTheme();
-  const t = useTranslations('common');
+  const t = useTranslations("common");
 
   return (
     <div className="flex min-h-screen bg-[var(--color-bg-tertiary)]">
@@ -18,16 +22,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div />
           <div className="flex items-center gap-4">
             <button
-              onClick={() => setTheme(theme === 'default' ? 'rose' : 'default')}
+              type="button"
+              onClick={() => setTheme(theme === "default" ? "rose" : "default")}
               className="text-caption text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)] transition-colors px-2 py-1 rounded-md hover:bg-[var(--color-bg-secondary)]"
             >
-              {theme === 'default' ? `💜 ${t('theme_default')}` : `🌹 ${t('theme_rose')}`}
+              {theme === "default"
+                ? `💜 ${t("theme_default")}`
+                : `🌹 ${t("theme_rose")}`}
             </button>
             <button
+              type="button"
               onClick={toggleMode}
               className="text-caption text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)] transition-colors px-2 py-1 rounded-md hover:bg-[var(--color-bg-secondary)]"
             >
-              {mode === 'light' ? '🌙 Dark' : '☀️ Light'}
+              {mode === "light" ? "🌙 Dark" : "☀️ Light"}
             </button>
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-primary)] text-white text-caption font-medium">
               MC
@@ -35,9 +43,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
         </header>
         <main className="flex-1 pb-16 md:pb-0 overflow-y-auto">
-          <ErrorBoundary>
-            {children}
-          </ErrorBoundary>
+          <ErrorBoundary>{children}</ErrorBoundary>
         </main>
       </div>
       <BottomNav />

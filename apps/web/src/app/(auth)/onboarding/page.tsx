@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Button } from "@wbc/ui/components/button";
@@ -19,6 +19,12 @@ export default function OnboardingPage() {
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // Stable ids — ACH-024: avoid relying on label-text derivation which breaks
+  // under i18n (accented/special chars) or name collisions.
+  const nameId = useId();
+  const slugId = useId();
+  const phoneId = useId();
 
   const generateSlug = (name: string) => {
     return name
@@ -68,8 +74,9 @@ export default function OnboardingPage() {
       {step === 1 && (
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label>{t("onboarding.businessName")}</Label>
+            <Label htmlFor={nameId}>{t("onboarding.businessName")}</Label>
             <Input
+              id={nameId}
               value={tenantName}
               onChange={(e) => handleNameChange(e.target.value)}
               required
@@ -77,14 +84,16 @@ export default function OnboardingPage() {
             />
           </div>
           <div className="space-y-2">
-            <Label>{t("onboarding.slug")}</Label>
+            <Label htmlFor={slugId}>{t("onboarding.slug")}</Label>
             <Input
+              id={slugId}
               value={slug}
               onChange={(e) => setSlug(e.target.value)}
               required
               pattern="^[a-z0-9-]+$"
+              aria-describedby={`${slugId}-hint`}
             />
-            <p className="text-xs text-muted-foreground">
+            <p id={`${slugId}-hint`} className="text-xs text-muted-foreground">
               {t("onboarding.slugHint")}
             </p>
           </div>
@@ -101,12 +110,15 @@ export default function OnboardingPage() {
       {step === 2 && (
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label>{t("onboarding.phone")}</Label>
+            <Label htmlFor={phoneId}>{t("onboarding.phone")}</Label>
             <Input
+              id={phoneId}
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               required
               minLength={10}
+              inputMode="tel"
+              autoComplete="tel"
             />
           </div>
           <div className="flex gap-2">

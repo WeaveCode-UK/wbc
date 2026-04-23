@@ -376,9 +376,12 @@ const styles = StyleSheet.create({
   },
   headerLeft: { flexDirection: "row", alignItems: "center", gap: 12 },
   backButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 12,
+    // ACH-004: Apple HIG + Material recommend 44×44 minimum.
+    minWidth: 44,
+    minHeight: 44,
+    width: 44,
+    height: 44,
+    borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -485,6 +488,8 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     alignItems: "center",
     justifyContent: "center",
+    // ACH-004: ensure >= 44×44 per HIG/Material.
+    minHeight: 48,
     paddingVertical: 16,
     borderRadius: 16,
     borderWidth: 0.5,
@@ -512,8 +517,9 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   toggleIconBox: {
-    width: 40,
-    height: 40,
+    // ACH-004: icon box aligns with 44×44 standard.
+    width: 44,
+    height: 44,
     alignItems: "center",
     justifyContent: "center",
   },

@@ -5,14 +5,14 @@
 - run_id: 2026-04-19_07-59-20
 - branch: fix/testes-qualidade/2026-04-19_07-59-20
 - data_inicio: 2026-04-22 01:35:00
-- ultima_atualizacao: 2026-04-22 03:55:00
+- ultima_atualizacao: 2026-04-22 04:00:00
 - fase_atual: revisor
 - status: em_andamento
 
 ## Resumo de Progresso
 - total_aprovados: 16
 - corrigidos_executor: 16
-- revisados_revisor: 14
+- revisados_revisor: 15
 - corrigidos_pelo_revisor: 0
 - nao_corrigiveis: 0
 - nao_aprovados: 0
@@ -187,7 +187,8 @@ Projeto em Fase 4, CLAUDE.md proíbe testes até Fase 7. Correções seguem o pa
 - severidade: baixo
 - classificacao: corrigivel
 - status_executor: corrigido
-- status_revisor: pendente
+- status_revisor: aprovado_direto
 - commit_executor: bd876f9
 - arquivos_alterados:
   - .github/workflows/ci.yml (strategy.matrix.node-version: [20, 22])
+- nota_revisor: Diff bd876f9^..bd876f9 em .github/workflows/ci.yml (linhas 28-34) adiciona `strategy.fail-fast: false` + `matrix.node-version: [20, 22]` no job `test`, conforme recomendação "Matrix com Node 20 + 22; fail-fast: false". O step `actions/setup-node@v4` passa a consumir `${{ matrix.node-version }}` (linha 42) em vez de literal `20`, garantindo que o job rode em paralelo nas duas versões. O upload-artifact v4 do coverage-report usa `if: matrix.node-version == 20` (linha 50) para evitar colisão de artefatos na matrix (upload-artifact v4 não permite mesmo nome duas vezes por run). `fail-fast: false` permite visualizar falhas em ambos runtimes simultaneamente em vez de parar no primeiro erro, alinhado ao objetivo de detectar quebras de upgrade. Recomendação atendida integralmente.

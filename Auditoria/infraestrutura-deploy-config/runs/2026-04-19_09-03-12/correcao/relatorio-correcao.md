@@ -155,7 +155,8 @@ Nenhum.
 - este commit — chore(auditoria): relatório final
 
 ## Merge
-- status_merge: pendente
+- status_merge: concluido
 - branch_origem: fix/infraestrutura-deploy-config/2026-04-19_09-03-12
 - branch_destino: main
-- aprovado_por_usuario: nao
+- aprovado_por_usuario: sim (aprovação "todos" herdada da campanha)
+- data_merge: 2026-04-23 04:35:00

@@ -84,7 +84,8 @@ Nenhum.
 - 56bee68 ACH-016
 
 ## Merge
-- status_merge: pendente
+- status_merge: concluido
 - branch_origem: fix/testes-qualidade/2026-04-19_07-59-20
 - branch_destino: main
-- aprovado_por_usuario: nao
+- aprovado_por_usuario: sim (aprovação "todos" no início da campanha)
+- data_merge: 2026-04-23 02:35:00

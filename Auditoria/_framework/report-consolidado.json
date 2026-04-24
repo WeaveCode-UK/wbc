@@ -1,6 +1,6 @@
 {
   "schema_version": "2.2",
-  "generated_at": "2026-04-23T22:37:35.852Z",
+  "generated_at": "2026-04-24T06:58:53.426Z",
   "total": 294,
   "total_runs": 15,
   "distribution": {
@@ -37,17 +37,17 @@
   },
   "correction_summary": {
     "runs_by_correction_state": {
-      "not_started": 1,
-      "in_progress": 12,
+      "not_started": 0,
+      "in_progress": 13,
       "completed": 2
     },
-    "total_findings_corrected": 282,
+    "total_findings_corrected": 300,
     "total_findings_not_correctable": 4,
     "total_findings_pending_correction": 0,
-    "total_commits": 241
+    "total_commits": 254
   },
   "progress": {
-    "last_updated": "2026-04-23T22:37:35.850Z",
+    "last_updated": "2026-04-24T06:58:53.425Z",
     "domains": {
       "arquitetura": {
         "domain": "arquitetura",
@@ -482,7 +482,18 @@
         "confirmado": 18
       },
       "correction": {
-        "state": "not_started"
+        "state": "in_progress",
+        "branch": "fix/documentacao-runbooks/2026-04-19_21-26-25",
+        "started_at": "2026-04-24 07:35:55",
+        "finished_at": null,
+        "fase_atual": "revisor",
+        "corrected": 18,
+        "reviewed_ok": 18,
+        "not_correctable": 0,
+        "not_approved": 0,
+        "pending": 0,
+        "total_approved": 18,
+        "total_commits": 13
       }
     },
     {
@@ -2438,7 +2449,13 @@
       "acao_sugerida": "`SECURITY.md` com `security@weavecode.co.uk`, SLA 24-48h, PGP opcional, cláusula de boa-fé e disclosure policy",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "838d2c9",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -2461,7 +2478,13 @@
       "acao_sugerida": "README com quickstart, stack, scripts úteis, links (docs/ARCHITECTURE.md, docs/DEPLOYMENT.md, begin/WBC_ORCHESTRATOR.md), badges CI/coverage",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "aae0df2",
+        "reviewer_commit": null,
+        "observacoes": "incluiu ACH-017 no mesmo commit"
       }
     },
     {
@@ -2484,7 +2507,13 @@
       "acao_sugerida": "`CONTRIBUTING.md` com commit template, PR checklist, branch naming, política de testes e link para CODE_OF_CONDUCT (cross-ref testes-qualidade/ACH-007)",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "5c70165",
+        "reviewer_commit": null,
+        "observacoes": "commit consolidado ACH-003 + ACH-011 + ACH-014 + ACH-016"
       }
     },
     {
@@ -2507,7 +2536,13 @@
       "acao_sugerida": "Executar drill, medir tempos, formalizar runbook passo-a-passo em `docs/runbooks/dr.md`; validar RPO ≤ 1h, RTO ≤ 4h com stakeholders",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "2f1490b",
+        "reviewer_commit": null,
+        "observacoes": "cabeçalho marca drill real não executado (parcial); RPO/RTO são meta não medida"
       }
     },
     {
@@ -2530,7 +2565,13 @@
       "acao_sugerida": "Acrescentar casos em `docs/runbooks/outbox-lag.md`, `dlq-replay.md`, `worker-scaling.md`, `certbot-ssl-expiring.md`; cada um com trigger, diagnóstico, mitigação, rollback",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "270d198",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -5817,7 +5858,13 @@
       "acao_sugerida": "Diagramas de sequência (Mermaid) para 3 fluxos (criar venda, enviar campanha, aceitar invite); acoplar com ADR-003 (outbox)",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "f167377",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -5840,7 +5887,13 @@
       "acao_sugerida": "Seção \"Apps\" com 3-5 linhas cada (tecnologia, URL, responsabilidade, integração)",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "0f9c06f",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -5863,7 +5916,13 @@
       "acao_sugerida": "`docs/OPERATIONS.md` com índice + link para cada runbook; referenciar no README",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "30d2ba2",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -5886,7 +5945,13 @@
       "acao_sugerida": "Documentar gatilhos e SLOs correspondentes; alinhar com performance/ACH-001",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "3fbf9ff",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -5909,7 +5974,13 @@
       "acao_sugerida": "`docs/GLOSSARY.md` com 15-25 termos, 2-3 linhas por termo + link para ADR/arquivo relevante",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "5e73b0d",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -5932,7 +6003,13 @@
       "acao_sugerida": "Substituir por comentário \"WHY\" + link para ADR/doc apropriado; manter referências ACH apenas em docs internas",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "5c70165",
+        "reviewer_commit": null,
+        "observacoes": "commit é o mesmo de ACH-003 (consolidado)"
       }
     },
     {
@@ -5955,7 +6032,13 @@
       "acao_sugerida": "`CHANGELOG.md` (Keep a Changelog pt-BR) com versões + Unreleased; manter em cada release",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "8932b29",
+        "reviewer_commit": null,
+        "observacoes": "commit consolidado ACH-012 + ACH-015"
       }
     },
     {
@@ -5978,7 +6061,13 @@
       "acao_sugerida": "Acrescentar \"Decisão esperada até YYYY-MM-DD, responsável: <nome>, fallback padrão: <opção>",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "b544b96",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -6001,7 +6090,13 @@
       "acao_sugerida": "Rodapé \"Última revisão: YYYY-MM-DD · Próxima revisão esperada: YYYY-MM-DD\"; CI opcional para flag obsoleto",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "5c70165",
+        "reviewer_commit": null,
+        "observacoes": "commit é o mesmo de ACH-003 (consolidado); parcial por design (rollout gradual)"
       }
     },
     {
@@ -8388,7 +8483,13 @@
       "acao_sugerida": "`CODE_OF_CONDUCT.md` (Contributor Covenant 2.1 pt-BR)",
       "prioridade": "baixa",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "8932b29",
+        "reviewer_commit": null,
+        "observacoes": "commit é o mesmo de ACH-012 (consolidado)"
       }
     },
     {
@@ -8411,7 +8512,13 @@
       "acao_sugerida": "Documentar a decisão (ADR ou CONTRIBUTING): \"docs técnicas em inglês; begin docs em pt-BR; tradução manual conforme necessidade",
       "prioridade": "baixa",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "5c70165",
+        "reviewer_commit": null,
+        "observacoes": "commit é o mesmo de ACH-003"
       }
     },
     {
@@ -8434,7 +8541,13 @@
       "acao_sugerida": "Quando CI estável, adicionar badges `[![Tests](…)]`, `[![Coverage](…)]`, `[![Version](…)]`",
       "prioridade": "baixa",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "aae0df2",
+        "reviewer_commit": null,
+        "observacoes": "commit é o mesmo de ACH-002"
       }
     },
     {
@@ -9184,7 +9297,13 @@
       "acao_sugerida": "Consolidar num plano de documentação (roadmap) com priorização (primeiro os itens críticos de compliance/security)",
       "prioridade": "informativo",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "da82ded",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {

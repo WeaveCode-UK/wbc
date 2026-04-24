@@ -108,7 +108,8 @@ Nenhum.
 | 16 | (revisor) | chore | revisor aprovou 14 achados |
 
 ## Merge
-- status_merge: pendente
+- status_merge: concluido
 - branch_origem: fix/custos-finops/2026-04-19_21-19-13
 - branch_destino: main
-- aprovado_por_usuario: nao
+- aprovado_por_usuario: sim
+- data_merge: 2026-04-24 00:00:00

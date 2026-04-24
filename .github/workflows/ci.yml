@@ -44,7 +44,7 @@ jobs:
       # ACH-009 custos-finops: cache local do Turborepo por hash do lockfile +
       # branch. Hit reduz minutos de CI em no-op changes (docs, readme).
       - name: Restore Turborepo cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .turbo
           key: turbo-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.ref_name }}
@@ -76,7 +76,7 @@ jobs:
           cache: pnpm
       # ACH-009 custos-finops: cache por matrix-node e lockfile.
       - name: Restore Turborepo cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .turbo
           key: turbo-test-${{ runner.os }}-node${{ matrix.node-version }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.ref_name }}

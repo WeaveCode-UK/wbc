@@ -3,6 +3,15 @@
 - **Status:** proposto (aguardando decisões humanas — ACH-013 da auditoria de arquitetura)
 - **Data:** 2026-04-18
 
+<!-- ACH-013 documentacao-runbooks: SLA de decisão explícito para evitar ADR em limbo. -->
+
+- **Decisão esperada até:** 2026-07-18 (3 meses) — **OU** antes se a `queue depth` ou o `outbox lag` cruzarem os gatilhos definidos em `docs/DEPLOYMENT.md#failover` (forçando a mão).
+- **Responsável:** Tech Lead (Robson) + Platform team.
+- **Fallback padrão se prazo expirar:**
+  - Modelo de pool: **pool global** (todos os jobs no mesmo worker), `WORKER_CONCURRENCY=5` (default atual).
+  - Scaling: **horizontal via Docker Compose `--scale worker=N`** (manual); HPA/auto-scaling fica para quando migrarmos para Kubernetes.
+  - Job affinity: **nenhum** (BullMQ distribui round-robin; aceitar tradeoff até volume exigir particionamento por tenant).
+
 ## Contexto
 
 O app `apps/worker` é um container Node separado que roda 5 workers BullMQ (messaging, campaigns, schedule, analytics, dlq) + outbox processor + cleanup + DLQ scanner. No MVP atual, existe **uma única instância** do container.

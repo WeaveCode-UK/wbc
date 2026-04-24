@@ -49,10 +49,52 @@ export const StockDepletedPayloadSchema = z
   })
   .passthrough();
 
+// Post-audit (ACH-001/003/012 custos-finops): finops event schemas.
+// Consumidos pelo worker para agregar TenantCostSnapshot + Prometheus metrics.
+
+const CostProviderSchema = z.enum(["deepseek", "whatsapp", "sentry"]);
+const PeriodSchema = z.string().regex(/^\d{4}-\d{2}$/);
+
+export const AiCostWarningPayloadSchema = z
+  .object({
+    tenantId: z.string().uuid(),
+    provider: CostProviderSchema,
+    period: PeriodSchema,
+    thresholdPct: z.number().min(0).max(1), // 0.8 = 80%
+    accumulatedUsd: z.number().nonnegative(),
+    budgetUsd: z.number().nonnegative(),
+  })
+  .passthrough();
+
+export const AiCostBlockedPayloadSchema = z
+  .object({
+    tenantId: z.string().uuid(),
+    provider: CostProviderSchema,
+    period: PeriodSchema,
+    accumulatedUsd: z.number().nonnegative(),
+    budgetUsd: z.number().nonnegative(),
+  })
+  .passthrough();
+
+export const MessageBilledPayloadSchema = z
+  .object({
+    tenantId: z.string().uuid(),
+    messageId: z.string(),
+    toPhoneRedacted: z.string(),
+    category: z.enum(["utility", "marketing", "service", "authentication"]),
+    costUsd: z.number().nonnegative(),
+    sentAt: z.string().datetime(),
+    conversationAlreadyOpen: z.boolean(),
+  })
+  .passthrough();
+
 export const eventSchemaRegistry: Partial<Record<EventType, z.ZodTypeAny>> = {
   [EVENTS.SALE_CONFIRMED]: SaleConfirmedPayloadSchema,
   [EVENTS.CAMPAIGN_DISPATCHED]: CampaignDispatchedPayloadSchema,
   [EVENTS.STOCK_DEPLETED]: StockDepletedPayloadSchema,
+  [EVENTS.AI_COST_WARNING]: AiCostWarningPayloadSchema,
+  [EVENTS.AI_COST_BLOCKED]: AiCostBlockedPayloadSchema,
+  [EVENTS.MESSAGE_BILLED]: MessageBilledPayloadSchema,
 };
 
 export interface ValidateEventPayloadResult {

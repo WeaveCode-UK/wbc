@@ -64,17 +64,17 @@ Este é um doc **vivo**: conforme runs futuras ou trabalho regular gerarem novas
 
 ### APIs (gap conhecido)
 
-| Doc                             | Status                                            | Domínio                    |
-| ------------------------------- | ------------------------------------------------- | -------------------------- |
-| `docs/VERSIONING.md`            | ❌ ausente                                        | `apis-integracoes/ACH-002` |
-| `docs/FILTERING_AND_SORTING.md` | ❌ ausente                                        | `apis-integracoes/ACH-011` |
-| `docs/EVENTS_SCHEMAS.md`        | ⚠ parcial em `docs/architecture/event-schemas.md` | `apis-integracoes/ACH-014` |
+| Doc                             | Status                                      | Domínio                    |
+| ------------------------------- | ------------------------------------------- | -------------------------- |
+| `docs/VERSIONING.md`            | ✅ completo (follow-up 2026-04-24)          | `apis-integracoes/ACH-002` |
+| `docs/FILTERING_AND_SORTING.md` | ✅ completo (follow-up 2026-04-24)          | `apis-integracoes/ACH-011` |
+| `docs/EVENTS_SCHEMAS.md`        | ✅ catálogo completo (follow-up 2026-04-24) | `apis-integracoes/ACH-014` |
 
 ### Observabilidade (gap conhecido)
 
-| Doc           | Status                                    | Domínio                            |
-| ------------- | ----------------------------------------- | ---------------------------------- |
-| `docs/SLO.md` | ❌ ausente (mencionado em múltiplos docs) | `observabilidade-operacao/ACH-007` |
+| Doc           | Status                                                                  | Domínio                            |
+| ------------- | ----------------------------------------------------------------------- | ---------------------------------- |
+| `docs/SLO.md` | ✅ presente (criado em performance-escalabilidade; validado 2026-04-24) | `observabilidade-operacao/ACH-007` |
 
 ### Arquitetura (gap conhecido)
 

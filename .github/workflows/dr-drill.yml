@@ -106,3 +106,30 @@ jobs:
             fi
           done
           exit $FAILED
+
+      # Post-audit (ACH-004 documentacao-runbooks): smoke-tests.sql é a
+      # suite mais completa (invariantes multi-tenant, outbox health,
+      # freshness). Roda depois do baseline de tabelas; continue-on-error
+      # porque o backup pode ser válido mesmo com warnings (p.ex. sem
+      # sessions ativas em janela quieta).
+      - name: Run smoke-tests.sql
+        if: steps.locate.outputs.skip != 'true'
+        env:
+          PGPASSWORD: wbc
+        run: |
+          psql -h localhost -U wbc -d wbc_drill \
+            -v ON_ERROR_STOP=1 \
+            -f deploy/dr/smoke-tests.sql \
+            2>&1 | tee smoke-output.log
+          # Resume no step summary
+          echo "### DR Drill smoke-tests" >> $GITHUB_STEP_SUMMARY
+          grep -E '\[dr-smoke\]' smoke-output.log >> $GITHUB_STEP_SUMMARY || true
+
+      - name: Upload drill artifact
+        if: always() && steps.locate.outputs.skip != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: dr-drill-${{ github.run_number }}
+          path: |
+            smoke-output.log
+          retention-days: 90

@@ -57,6 +57,10 @@ model Tenant {
   referralsMade     Referral[]        @relation("referrer")
   referralsReceived Referral[]        @relation("referred")
   onboarding        OnboardingProgress?
+  // Post-audit custos-finops (back-references dos modelos finops):
+  messageCosts               MessageCost[]
+  monthlyWhatsAppCosts       TenantMonthlyWhatsAppCost[]
+  costSnapshots              TenantCostSnapshot[]
 
   @@map("tenants")
 }
@@ -86,6 +90,15 @@ model Subscription {
   // monthlyCostBudgetUSD/monthlyCostAccumulatedUSD neste model.
   // Ver docs/FINOPS-PLAN-LIMITS.md para roadmap de migration.
   aiGenerationsLimit  Int      @default(30)
+  // Post-audit ACH-001/ACH-002 custos-finops: colunas finops adicionadas em
+  // migration additive 006_finops_schema.sql. Todas nullable para não
+  // exigir data migration; backfill via PlanQuota.defaultMonthlyCostBudgetUSD
+  // quando o `CostBudgetService` for ativado.
+  monthlyCostBudgetUSD      Decimal?  @db.Decimal(10, 2)
+  monthlyCostAccumulatedUSD Decimal?  @default(0) @db.Decimal(10, 2)
+  monthlyCostBlockedAt      DateTime?
+  billingCycleStart         DateTime?
+  billingCycleEnd           DateTime?
   // ACH-003 dados-persistencia: optimistic-locking version. Writers
   // that care about lost-update semantics call `optimisticUpdate`
   // which bumps this field and conditions the WHERE on it, so two
@@ -1265,4 +1278,119 @@ enum InviteStatus {
 enum OtpPurpose {
   TWO_FACTOR
   EMAIL_VERIFICATION
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// FinOps (post-audit 2026-04-24 — ACH-001/002/003/010 custos-finops)
+//
+// Migration SQL em packages/db/prisma/migrations/manual/006_finops_schema.sql.
+// Modelos abaixo são a camada de leitura/escrita via Prisma. Runtime
+// (CostBudgetService, MessageBillingPort) vive em packages/business/finops/.
+// ═══════════════════════════════════════════════════════════════════════════
+
+/// Cotas por plano — ACH-002 custos-finops.
+/// Seed via scripts/seed-plan-quotas.ts (humano roda na primeira deploy).
+model PlanQuota {
+  id                          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  plan                        Plan     @unique
+  aiGenerationsLimit          Int
+  whatsappUtilityLimit        Int
+  whatsappMarketingLimit      Int
+  clientsLimit                Int
+  usersLimit                  Int
+  workspacesLimit             Int
+  defaultMonthlyCostBudgetUSD Decimal  @db.Decimal(10, 2)
+  updatedAt                   DateTime @updatedAt
+
+  @@map("plan_quotas")
+}
+
+/// Custo unitário por mensagem WhatsApp enviada — ACH-003 custos-finops.
+/// Escrito pelo OutboxMessageBillingPort em fire-and-forget no adapter.
+model MessageCost {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId   String   @db.Uuid
+  messageId  String   @unique // idempotência natural
+  category   String // utility|marketing|service|authentication
+  costUsd    Decimal  @db.Decimal(10, 6)
+  sentAt     DateTime
+  createdAt  DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, sentAt])
+  @@map("message_costs")
+}
+
+/// Agregado mensal de custo WhatsApp por tenant — ACH-003 custos-finops.
+/// Recalculado pelo worker whatsapp-cost-aggregation (cron diário).
+model TenantMonthlyWhatsAppCost {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId     String   @db.Uuid
+  period       String // "YYYY-MM"
+  utilityUsd   Decimal  @db.Decimal(10, 4)
+  marketingUsd Decimal  @db.Decimal(10, 4)
+  authUsd      Decimal  @db.Decimal(10, 4)
+  totalUsd     Decimal  @db.Decimal(10, 4)
+  updatedAt    DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, period])
+  @@map("tenant_monthly_whatsapp_costs")
+}
+
+/// Snapshot interno de custo por tenant × provider — ACH-010 custos-finops.
+/// Escrito pelo worker cost-snapshot-closer (dia 1 do mês).
+model TenantCostSnapshot {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId   String   @db.Uuid
+  provider   String // deepseek|whatsapp|sentry
+  period     String // "YYYY-MM"
+  totalUsd   Decimal  @db.Decimal(10, 4)
+  breakdown  Json?
+  eventCount Int
+  closedAt   DateTime
+  createdAt  DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, provider, period])
+  @@index([period])
+  @@map("tenant_cost_snapshots")
+}
+
+/// Fatura externa do provider — ACH-010 custos-finops.
+/// Escrito por webhook handler (Meta billing, etc.) ou por job fetcher.
+model ProviderInvoice {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  provider   String
+  period     String
+  totalUsd   Decimal  @db.Decimal(10, 4)
+  breakdown  Json?
+  receivedAt DateTime
+  sourceUri  String?
+
+  @@unique([provider, period])
+  @@map("provider_invoices")
+}
+
+/// Reconciliação snapshot vs invoice — ACH-010 custos-finops.
+/// Escrito pelo worker reconciliation-runner (dia 5 do mês).
+model Reconciliation {
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  provider         String
+  period           String
+  snapshotTotalUsd Decimal   @db.Decimal(10, 4)
+  invoiceTotalUsd  Decimal   @db.Decimal(10, 4)
+  diffUsd          Decimal   @db.Decimal(10, 4)
+  diffPct          Decimal   @db.Decimal(6, 4)
+  tolerancePct     Decimal   @db.Decimal(6, 4)
+  status           String // matched|divergent_within_tolerance|divergent_above_tolerance
+  resolvedAt       DateTime?
+  resolution       String?
+  createdAt        DateTime  @default(now())
+
+  @@unique([provider, period])
+  @@map("reconciliations")
 }

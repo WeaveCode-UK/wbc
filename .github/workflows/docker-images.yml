@@ -132,7 +132,7 @@ jobs:
       # ACH-005 supply-chain-dependencias: attestation do SBOM — liga o
       # SBOM gerado ao digest da imagem, verificável via `cosign verify-attestation`.
       - name: Attach SBOM as attestation
-        uses: actions/attest-sbom@v1
+        uses: actions/attest-sbom@v4
         with:
           subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}-${{ matrix.component }}
           subject-digest: ${{ steps.build.outputs.digest }}

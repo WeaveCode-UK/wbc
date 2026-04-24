@@ -74,15 +74,60 @@ Na API, Next.js 15 gerencia shutdown automaticamente em SIGTERM.
 | Backup: retenção               | 30 dias                                                           | `[humano validar]`              |
 | Procedimento de restore        | `pg_restore` em instância nova + redeploy compose                 | `[humano documentar]`           |
 
-## Failover (pendente)
+## Failover — gatilhos de escalonamento (ACH-009 custos-finops / documentacao-runbooks)
 
-> ⚠️ Setup MVP é single-host. Para HA, migrar para:
->
-> - Postgres com replicação streaming (primary + 1 replica).
-> - Redis Sentinel ou Redis Cluster.
-> - Múltiplas réplicas de `web` e `worker` atrás do nginx.
->
-> Decisão de produção depende de SLA acordado. Ver também ADR-008 (worker scaling).
+Setup MVP é single-host: 1 VPS com todos os containers; Postgres e Redis locais sem réplica. Isso é **intencionalmente** econômico até atingirmos os gatilhos abaixo. Migração para HA é uma decisão de custo × disponibilidade; cada linha indica a métrica e o alvo arquitetural.
+
+| Gatilho                                                  | Limiar                        | Alvo arquitetural                                           | Prazo para decisão                          |
+| -------------------------------------------------------- | ----------------------------- | ----------------------------------------------------------- | ------------------------------------------- |
+| **Tenants ativos mensais**                               | > 100                         | Postgres com replica + PgBouncer                            | Planejar quando atingir 80; executar em 100 |
+| **Requests p95 em rotas tRPC críticas (sales/schedule)** | > 500ms sustentado por 7 dias | Split `apps/api` como service separado + cache read-through | Quando p95 cruzar 400ms por 3 dias          |
+| **Queue depth `wbc:messaging` (média 1h)**               | > 500 waiting                 | Segundo worker replica com `--scale worker=2` (ADR-008)     | Ativar auto-scaling quando cruzar 300       |
+| **Postgres CPU p95 em janela de 24h**                    | > 60% sustentado              | Postgres managed (ex.: Supabase/Neon) ou self-hosted HA     | Iniciar POC quando > 50%                    |
+| **Redis memory**                                         | > 80% de 256MB                | Aumentar para 512MB; depois Redis Sentinel                  | 75% ⇒ aumento vertical; 90% ⇒ Sentinel      |
+| **Disponibilidade mensal observada**                     | < 99.5%                       | Replica Postgres + 2× `web` atrás do nginx                  | Próxima fatura de SLA                       |
+
+### Arquitetura HA alvo (quando múltiplos gatilhos disparam)
+
+```
+                       ┌─────────────┐
+                       │  CloudFlare │
+                       │     CDN     │
+                       └──────┬──────┘
+                              │
+                       ┌──────▼──────┐
+                       │ Nginx LB    │
+                       │  (active)   │
+                       └┬────────────┬┘
+                        │            │
+                  ┌─────▼─────┐  ┌───▼───────┐
+                  │  web #1   │  │  web #2   │
+                  └─────┬─────┘  └───┬───────┘
+                        │            │
+                        ├────────────┤
+                        │            │
+                  ┌─────▼─────┐  ┌───▼───────┐
+                  │ Postgres  │→→│  Postgres │
+                  │ (primary) │  │  (replica)│
+                  └───────────┘  └───────────┘
+                        │
+                  ┌─────▼─────┐
+                  │   Redis   │
+                  │ Sentinel  │
+                  └───────────┘
+```
+
+### SLOs alinhados (ver `docs/SLO.md` — roadmap)
+
+Os gatilhos acima atendem os SLOs:
+
+- **Disponibilidade:** 99.9% (permite ~43 min downtime/mês).
+- **Latência:** p95 < 300ms em rotas tRPC críticas.
+- **Outbox lag:** p95 < 30s; p99 < 2 min.
+- **RPO:** ≤ 1h (`docs/DR-BACKUP-POLICY.md`).
+- **RTO:** ≤ 4h (`docs/runbooks/dr.md`).
+
+Cross-ref: `performance-escalabilidade/ACH-001`, ADR-008 (worker scaling), `docs/architecture/postgres-ha.md`, `docs/architecture/redis-ha.md`.
 
 ## Rollback
 

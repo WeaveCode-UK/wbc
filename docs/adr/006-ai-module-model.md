@@ -4,6 +4,12 @@
 - **Data:** 2026-04-18
 - **Contexto:** ACH-006 da auditoria de arquitetura (run `2026-04-18_18-17-50`).
 
+<!-- ACH-013 documentacao-runbooks: SLA de decisão explícito para evitar ADR em limbo. -->
+
+- **Decisão esperada até:** 2026-07-18 (3 meses).
+- **Responsável:** Tech Lead (Robson) + Product Owner.
+- **Fallback padrão se prazo expirar:** Opção A (gateway anêmico). Racional: (1) não há regra de negócio rica emergindo nos use-cases de AI hoje; (2) mudar depois para Opção B é possível sem quebrar API.
+
 ## Contexto
 
 O monorepo contém 16 módulos em `packages/business/*`. Quinze deles seguem a estrutura hexagonal canônica (`domain/`, `ports/`, `adapters/`, `use-cases/`). O módulo `ai/` diverge: não possui pasta `domain/`. Use-cases de geração de texto são procedurais — chamam `AIProvider` e `AIRepository` via ports, sem encapsular regras de domínio em entidades ou value-objects.

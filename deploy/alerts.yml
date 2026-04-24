@@ -62,3 +62,57 @@ groups:
         annotations:
           summary: "Queue {{ $labels.queue }} waiting > 1000 for 5m"
           runbook_url: "https://github.com/WeaveCode-UK/wbc/blob/main/docs/runbooks/queue-depth.md"
+
+  # ──────────────────────────────────────────────────────────────
+  # ACH-004 custos-finops: regras de FinOps.
+  # Placeholders: as métricas wbc_tenant_cost_* ainda não existem no código.
+  # Elas serão emitidas após a implementação de ACH-001 (CostBudgetService)
+  # e ACH-003 (MessageBilling). Até lá, estas regras não disparam (métricas
+  # ausentes = expressão vazia = silêncio). Quando as métricas existirem,
+  # os alertas passam a funcionar sem mais nenhuma mudança em alerts.yml.
+  # Ver docs/FINOPS-OBSERVABILITY.md.
+  # ──────────────────────────────────────────────────────────────
+  - name: wbc-finops-alerts
+    rules:
+      - alert: TenantBudget80PctReached
+        expr: |
+          (wbc_tenant_monthly_cost_usd / wbc_tenant_monthly_cost_budget_usd) > 0.8
+          and
+          (wbc_tenant_monthly_cost_usd / wbc_tenant_monthly_cost_budget_usd) < 1.0
+        for: 10m
+        labels:
+          severity: warning
+          category: finops
+        annotations:
+          summary: "Tenant {{ $labels.tenant }} atingiu 80% do budget ({{ $labels.provider }})"
+          runbook_url: "https://github.com/WeaveCode-UK/wbc/blob/main/docs/FINOPS-KILL-SWITCH.md"
+
+      - alert: TenantBudgetExhausted
+        expr: wbc_tenant_monthly_cost_usd >= wbc_tenant_monthly_cost_budget_usd
+        for: 5m
+        labels:
+          severity: critical
+          category: finops
+        annotations:
+          summary: "Tenant {{ $labels.tenant }} esgotou budget de {{ $labels.provider }}"
+          runbook_url: "https://github.com/WeaveCode-UK/wbc/blob/main/docs/FINOPS-KILL-SWITCH.md"
+
+      - alert: GlobalCostSpike
+        expr: sum(increase(wbc_tenant_cost_usd_total[1h])) > sum(increase(wbc_tenant_cost_usd_total[1h] offset 24h)) * 2
+        for: 30m
+        labels:
+          severity: warning
+          category: finops
+        annotations:
+          summary: "Custo global nas últimas 1h > 2x o mesmo período de ontem"
+          runbook_url: "https://github.com/WeaveCode-UK/wbc/blob/main/docs/FINOPS-OBSERVABILITY.md"
+
+      - alert: ReconciliationDivergence
+        expr: wbc_reconciliation_diff_abs_pct > 0.05
+        for: 0m
+        labels:
+          severity: warning
+          category: finops
+        annotations:
+          summary: "Divergência > 5% entre snapshot e fatura ({{ $labels.provider }} / {{ $labels.period }})"
+          runbook_url: "https://github.com/WeaveCode-UK/wbc/blob/main/docs/FINOPS-COST-RECONCILIATION.md"

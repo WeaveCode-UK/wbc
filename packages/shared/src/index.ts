@@ -12,6 +12,7 @@ export * from "./prisma-helpers";
 export * from "./security-logger";
 export * from "./redaction";
 export * from "./sentry-redaction";
+export * from "./sentry-noise-filter";
 export * from "./logger";
 export * from "./observability/trace-context";
 export * from "./observability/with-span";

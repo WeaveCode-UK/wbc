@@ -1,6 +1,6 @@
 {
   "schema_version": "2.2",
-  "generated_at": "2026-04-23T22:07:46.109Z",
+  "generated_at": "2026-04-23T22:37:35.852Z",
   "total": 294,
   "total_runs": 15,
   "distribution": {
@@ -37,17 +37,17 @@
   },
   "correction_summary": {
     "runs_by_correction_state": {
-      "not_started": 2,
-      "in_progress": 11,
+      "not_started": 1,
+      "in_progress": 12,
       "completed": 2
     },
-    "total_findings_corrected": 268,
+    "total_findings_corrected": 282,
     "total_findings_not_correctable": 4,
     "total_findings_pending_correction": 0,
-    "total_commits": 227
+    "total_commits": 241
   },
   "progress": {
-    "last_updated": "2026-04-23T22:07:46.108Z",
+    "last_updated": "2026-04-23T22:37:35.850Z",
     "domains": {
       "arquitetura": {
         "domain": "arquitetura",
@@ -417,7 +417,18 @@
         "confirmado": 14
       },
       "correction": {
-        "state": "not_started"
+        "state": "in_progress",
+        "branch": "fix/custos-finops/2026-04-19_21-19-13",
+        "started_at": "2026-04-23 23:15:04",
+        "finished_at": null,
+        "fase_atual": "revisor",
+        "corrected": 14,
+        "reviewed_ok": 14,
+        "not_correctable": 0,
+        "not_approved": 0,
+        "pending": 0,
+        "total_approved": 14,
+        "total_commits": 14
       }
     },
     {
@@ -2076,7 +2087,13 @@
       "acao_sugerida": "`CostBudgetService.checkAndDeduct(tenantId, provider, estimatedCostUsd)`; eventos `AI_COST_WARNING` / `AI_COST_BLOCKED`; override manual por admin",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "dddaf46",
+        "reviewer_commit": null,
+        "observacoes": "adapter Prisma+Redis + integrações em adapters + UI admin ficam como trabalho humano (parcial)"
       }
     },
     {
@@ -2099,7 +2116,13 @@
       "acao_sugerida": "Separar limites por plano; introduzir `monthlyCostBudgetUSD`; documentar em `docs/PRICING.md` com COGS",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "49f082f",
+        "reviewer_commit": null,
+        "observacoes": "migration SQL + backfill + refactor do repositório fica para humano — produção tem dados (parcial)"
       }
     },
     {
@@ -2122,7 +2145,13 @@
       "acao_sugerida": "Coluna `whatsappMessagesUsed`/`whatsappCostCents` em Subscription; evento outbox `MessageBilled`; agregação diária + reconciliação com fatura Meta",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "5b66b20",
+        "reviewer_commit": null,
+        "observacoes": "adapter real + integração + migration ficam para humano (parcial)"
       }
     },
     {
@@ -2145,7 +2174,13 @@
       "acao_sugerida": "Métricas `tenant_monthly_cost_usd{provider,tenant}`, alertas (`>80%` do budget), dashboards Grafana; relatório semanal via Slack",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "fe84f86",
+        "reviewer_commit": null,
+        "observacoes": "regras só disparam quando ACH-001/010 emitirem as métricas; dashboards JSON + webhook Slack ficam para humano (parcial)"
       }
     },
     {
@@ -2168,7 +2203,13 @@
       "acao_sugerida": "`beforeSend` rejeitando 404s/timeouts; reduzir `replaysOnErrorSampleRate` para 0.3; unificar sample entre apps",
       "prioridade": "alta",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "ba6fc7f",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -5343,7 +5384,13 @@
       "acao_sugerida": "Cache Redis de resultados recentes; template local (mock) com aviso; ou fallback a modelo mais barato",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "302f729",
+        "reviewer_commit": null,
+        "observacoes": "implementação de cache e templates offline fica para humano (parcial)"
       }
     },
     {
@@ -5366,7 +5413,13 @@
       "acao_sugerida": "Política por entidade (Clients inativos > 2a → arquivar, OTP > 1h → purge, Outbox FAILED > 7d → purge); partitioning em Sales/Campaign",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "6a68408",
+        "reviewer_commit": null,
+        "observacoes": "demais workers pendentes (session-cleanup, otp-cleanup, inactive-client-anonymizer) são cross-ref a outro domínio"
       }
     },
     {
@@ -5389,7 +5442,13 @@
       "acao_sugerida": "`docs/PRICING.md` com planos, quotas, transaction fees (MP), COGS por linha, margem alvo",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "eb1acfe",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -5412,7 +5471,13 @@
       "acao_sugerida": "Cache explícito com `actions/cache@v4` por `pnpm-lock.yaml`; Turborepo Remote Cache (free tier 1GB) ou Nx Cloud; paralelismo em testes",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "6af2abb",
+        "reviewer_commit": null,
+        "observacoes": "TURBO_TOKEN/TURBO_TEAM ausentes = no-op (benign), segue usando cache local"
       }
     },
     {
@@ -5435,7 +5500,13 @@
       "acao_sugerida": "Modelo `TenantCostSnapshot { tenantId, provider, period, amountUsd }`; worker mensal; reconciliação com webhook/nota fiscal",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "f52ec51",
+        "reviewer_commit": null,
+        "observacoes": "migrations + workers + webhook handlers ficam para humano (parcial)"
       }
     },
     {
@@ -5458,7 +5529,13 @@
       "acao_sugerida": "Backup diário S3/GCS com lifecycle; RPO ≤ 1h, RTO ≤ 4h documentados; drill mensal",
       "prioridade": "media",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "f786d6a",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -8111,7 +8188,13 @@
       "acao_sugerida": "Feature flag system (Growthbook) com `enable-deepseek`, `enable-whatsapp`, etc.; fallback controlado",
       "prioridade": "baixa",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel_parcial",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "ef93391",
+        "reviewer_commit": null,
+        "observacoes": "integração nos adapters fica para humano (parcial)"
       }
     },
     {
@@ -8134,7 +8217,13 @@
       "acao_sugerida": "`paths-ignore` para .md, docs/; matrix por package alterado via Turborepo `--filter`",
       "prioridade": "baixa",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "1792539",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {
@@ -8157,7 +8246,13 @@
       "acao_sugerida": "Documentar `docker compose stop` em playbook de dev; se VPS compartilhada, shutdown à noite via cron",
       "prioridade": "baixa",
       "correction": {
-        "state": "not_started"
+        "state": "reviewed_ok",
+        "classificacao": "corrigivel",
+        "status_executor": "corrigido",
+        "status_revisor": "aprovado",
+        "executor_commit": "bd016fc",
+        "reviewer_commit": null,
+        "observacoes": null
       }
     },
     {

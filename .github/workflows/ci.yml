@@ -1,10 +1,33 @@
 name: CI
 
 on:
+  # ACH-013 custos-finops: paths-ignore evita rodar CI completo em mudanças
+  # sem código (docs/Markdown/histórico de auditoria). Os jobs do CI fazem
+  # build/type-check/test/audit — nada disso é afetado por estes caminhos.
   push:
     branches: [main]
+    paths-ignore:
+      - "**/*.md"
+      - "docs/**"
+      - "Auditoria/**"
+      - ".github/ISSUE_TEMPLATE/**"
+      - "LICENSE"
   pull_request:
     branches: [main]
+    paths-ignore:
+      - "**/*.md"
+      - "docs/**"
+      - "Auditoria/**"
+      - ".github/ISSUE_TEMPLATE/**"
+      - "LICENSE"
+
+# ACH-009 custos-finops: Turborepo remote cache. Se TURBO_TOKEN/TURBO_TEAM
+# estiverem configurados como secrets (Vercel Free tier: 1GB), habilitam
+# cache distribuído entre jobs e PRs. Sem os secrets, turbo usa apenas
+# cache local — benign no-op, sem falha.
+env:
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
 
 jobs:
   lint-and-typecheck:
@@ -18,6 +41,16 @@ jobs:
         with:
           node-version: 20.18.1
           cache: pnpm
+      # ACH-009 custos-finops: cache local do Turborepo por hash do lockfile +
+      # branch. Hit reduz minutos de CI em no-op changes (docs, readme).
+      - name: Restore Turborepo cache
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.ref_name }}
+          restore-keys: |
+            turbo-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
+            turbo-${{ runner.os }}-
       - run: pnpm install --frozen-lockfile
       - run: pnpm db:generate
       - run: pnpm lint
@@ -41,6 +74,15 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: pnpm
+      # ACH-009 custos-finops: cache por matrix-node e lockfile.
+      - name: Restore Turborepo cache
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-test-${{ runner.os }}-node${{ matrix.node-version }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.ref_name }}
+          restore-keys: |
+            turbo-test-${{ runner.os }}-node${{ matrix.node-version }}-${{ hashFiles('pnpm-lock.yaml') }}-
+            turbo-test-${{ runner.os }}-node${{ matrix.node-version }}-
       - run: pnpm install --frozen-lockfile
       - run: pnpm db:generate
       # ACH-006 testes-qualidade: coverage enforcement. O threshold

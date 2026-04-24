@@ -60,7 +60,10 @@ import { startCampaignWorker } from "./processors/campaign-processor";
 import { startScheduleWorker } from "./processors/schedule-processor";
 import { startAnalyticsWorker } from "./processors/analytics-processor";
 import { startDLQWorker } from "./processors/dlq-processor";
-import { cleanupProcessedOutboxEvents } from "./processors/outbox-cleanup";
+import {
+  cleanupProcessedOutboxEvents,
+  cleanupFailedOutboxEvents,
+} from "./processors/outbox-cleanup";
 import { scanFailedForDLQ } from "./processors/dlq-scanner";
 import {
   archiveDlqEntriesOlderThan,
@@ -171,9 +174,11 @@ subscribe(EVENTS.TENANT_PLAN_CHANGED, async (event) => {
 });
 
 // Outbox cleanup: interval from shared constants (ACH-010).
+// ACH-007 custos-finops: também purga FAILED com retries esgotados.
 const cleanupInterval = setInterval(async () => {
   try {
     await cleanupProcessedOutboxEvents();
+    await cleanupFailedOutboxEvents();
   } catch (error) {
     logger.error({ error }, "Outbox cleanup failed");
   }

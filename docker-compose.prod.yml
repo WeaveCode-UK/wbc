@@ -202,7 +202,7 @@ services:
   # ── Grafana (dashboards) ────────────────────────────────────
   grafana:
     # ACH-004 supply-chain-dependencias: pin por digest. Tag grafana/grafana:11.2.2 em 2026-04-23.
-    image: grafana/grafana:11.2.2@sha256:d5133220d770aba5cb655147b619fa8770b90f41d8489a821d33b1cd34d16f89
+    image: grafana/grafana:13.0.1@sha256:0f86bada30d65ef9d0183b90c1e2682ac92d53d95da8bed322b984ea78a4a73a
     container_name: wbc-grafana
     restart: unless-stopped
     environment:

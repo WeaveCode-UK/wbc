@@ -68,6 +68,27 @@ flowchart TB
   db -.eventos outbox.-> worker
 ```
 
+## Apps (contêineres de execução)
+
+Cada app em `apps/*` tem um propósito distinto e uma superfície de execução diferente. Os apps **compartilham código** via `packages/shared`, `packages/business`, `packages/db`, `packages/ui` (web) e `packages/ui-native` (mobile), mas não se comunicam entre si em runtime (proíbido por ADR-001).
+
+| App            | Tecnologia                      | URL/Porta (prod)          | Responsabilidade                                                                                                                                                                                                      |
+| -------------- | ------------------------------- | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `apps/web`     | Next.js 15 App Router + tRPC 11 | `https://<dominio>` :3000 | Interface da consultora. **Hospeda o tRPC server** (dev + prod). Autentica via next-auth (credentials + OTP). SSR + Client Components.                                                                                |
+| `apps/api`     | tRPC standalone + OTEL          | `:4000` (interno)         | **Serviço dedicado de tRPC** usado como alvo futuro de isolamento (hoje apenas uma skeleton executável e alvo para testes de performance). Ver ADR-005 para roadmap de "api extraído".                                |
+| `apps/worker`  | BullMQ + Prisma                 | `:9100` (health check)    | **Processa eventos de outbox** + jobs BullMQ. Único consumidor das filas `wbc:messaging`, `wbc:campaigns`, `wbc:schedule`, `wbc:analytics`, `wbc:dlq`. Shutdown gracioso de 40s (ACH-005 confiabilidade-resiliencia). |
+| `apps/mobile`  | React Native Expo               | Store (iOS/Android)       | App da consultora. **Consome `apps/web` via tRPC** (mesmo servidor). Compartilha tipos via `@wbc/shared`.                                                                                                             |
+| `apps/landing` | Next.js SSG                     | `https://<dominio>/`      | Site público de marketing. **Não toca Postgres em produção** — consome tRPC apenas para formulários de captação (rate-limited).                                                                                       |
+
+### Regras de comunicação entre apps
+
+- `web` → Postgres/Redis: OK (é o BFF).
+- `mobile` → `web` via tRPC HTTPS: OK (autenticado).
+- `landing` → `web` via tRPC HTTPS: OK apenas para endpoints marcados como `public` (captação).
+- `worker` ↔ Postgres/Redis: OK (mesmo DB do `web`).
+- `worker` → providers externos (WA/DeepSeek/Resend): OK.
+- **Proíbido:** `worker` chamar tRPC do `web`; `web` chamar `worker` diretamente (usar outbox).
+
 ## Módulos de negócio (`packages/business/*`)
 
 Todos os 15 módulos seguem o shape hexagonal (`domain/`, `ports/`, `adapters/`, `use-cases/`), com 1 exceção em análise (`ai/`, ADR-006 — skeleton de `domain/` criado; decisão final pendente).

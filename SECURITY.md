@@ -9,8 +9,77 @@ operational policies that the platform relies on.
 Please email **security@weavecode.co.uk** with a description, reproduction
 steps, and the impact you observed. Do not open a public GitHub issue.
 
-We will acknowledge within 2 working days and provide a remediation timeline
-within 5 working days.
+We will **acknowledge within 2 working days** and provide a **remediation
+timeline within 5 working days**. Critical issues (RCE, auth bypass, data
+exposure of multiple tenants) are triaged within 24 hours.
+
+### PGP (optional)
+
+For sensitive reports you can encrypt your email to the WeaveCode security
+team. The public key is published at:
+
+```
+https://weavecode.co.uk/.well-known/security-pgp.asc
+```
+
+Fingerprint (short) is available under the same URL. If the URL is
+unreachable, send the report unencrypted — we would rather receive it late
+than not at all.
+
+## Safe-harbor (responsible disclosure)
+
+We welcome security research conducted in good faith. If you follow this
+policy when reporting, WeaveCode Ltd commits to:
+
+- **Not pursue or support legal action** for security research that adheres
+  to the rules below.
+- **Work with you** to understand and resolve the issue quickly.
+- **Credit you publicly** (in release notes or a dedicated hall of fame) if
+  you wish.
+
+### Rules for safe-harbor
+
+1. **Make a good-faith effort** to avoid privacy violations, destruction of
+   data, and interruption or degradation of the service.
+2. **Do not access, modify or download data belonging to other tenants**.
+   If you inadvertently encounter PII, stop, erase any copies you made, and
+   include that in the report.
+3. **Use only your own account** (or one you own the data for) when testing.
+4. **Do not run automated scanners** against production without prior
+   agreement — they add noise and may trigger rate limits that affect real
+   users.
+5. **Give us reasonable time to fix** before any public disclosure. Our
+   default embargo is **90 days** from acknowledgement; we may request an
+   extension for particularly complex issues.
+
+Acting outside these rules is not covered by safe-harbor and may violate
+law or our Terms of Service.
+
+## Disclosure timeline
+
+| Step                                     | Timeframe                       |
+| ---------------------------------------- | ------------------------------- |
+| Acknowledgement                          | ≤ 2 working days                |
+| Initial triage with remediation timeline | ≤ 5 working days                |
+| Fix released for critical issues         | ≤ 30 days                       |
+| Fix released for high issues             | ≤ 60 days                       |
+| Fix released for medium/low issues       | best-effort, next release cycle |
+| Public disclosure (if agreed)            | ≥ 30 days after fix is live     |
+
+Reporters are included in the release notes and (with consent) a security
+acknowledgements page.
+
+## Out of scope
+
+These do NOT qualify as vulnerabilities under this policy:
+
+- Self-XSS that requires the user to paste into DevTools.
+- Missing best-practice headers (we'll still fix them, but not as part of
+  a disclosure bounty).
+- Rate-limit bypasses on non-auth endpoints that require > 1 rps sustained.
+- Social-engineering of WeaveCode staff or contractors.
+- Denial-of-service through volumetric traffic.
+- Clickjacking on pages without sensitive actions.
 
 ## Supported versions
 

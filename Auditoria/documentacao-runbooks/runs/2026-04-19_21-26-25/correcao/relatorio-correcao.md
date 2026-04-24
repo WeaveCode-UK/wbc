@@ -98,7 +98,8 @@ Nenhum.
 | 15 | (revisor) | revisor aprovou 18 achados |
 
 ## Merge
-- status_merge: pendente
+- status_merge: concluido
 - branch_origem: fix/documentacao-runbooks/2026-04-19_21-26-25
 - branch_destino: main
-- aprovado_por_usuario: nao
+- aprovado_por_usuario: sim
+- data_merge: 2026-04-24 09:00:00

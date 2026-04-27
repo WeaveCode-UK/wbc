@@ -26,6 +26,17 @@ function buildCsp(nonce: string): string {
   const styleSrc = isProduction
     ? `'self' 'nonce-${nonce}'`
     : "'self' 'unsafe-inline'";
+  // ACH-040: when the runtime sets CSP_REPORT_URI/CSP_REPORT_TO, plumb the
+  // CSP violations to the SRE collector so we see real-world XSS attempts.
+  // Both directives are emitted in tandem so legacy Chromium still reports
+  // while modern browsers prefer report-to (group "csp-endpoint").
+  const reportDirectives: string[] = [];
+  if (process.env.CSP_REPORT_URI) {
+    reportDirectives.push(`report-uri ${process.env.CSP_REPORT_URI}`);
+  }
+  if (process.env.CSP_REPORT_TO) {
+    reportDirectives.push(`report-to ${process.env.CSP_REPORT_TO}`);
+  }
   return [
     "default-src 'self'",
     `script-src ${scriptSrc}`,
@@ -37,6 +48,7 @@ function buildCsp(nonce: string): string {
     "base-uri 'self'",
     "form-action 'self'",
     "object-src 'none'",
+    ...reportDirectives,
   ].join("; ");
 }
 
@@ -49,6 +61,44 @@ function applyCspHeaders(req: NextRequest): NextResponse {
 
   const response = NextResponse.next({ request: { headers: requestHeaders } });
   response.headers.set("Content-Security-Policy", buildCsp(nonce));
+
+  // ACH-040: Report-To group definition. Browsers buffer violations and
+  // POST them to `endpoints[].url` after the page exits.
+  if (process.env.CSP_REPORT_TO_ENDPOINT) {
+    response.headers.set(
+      "Report-To",
+      JSON.stringify({
+        group: "csp-endpoint",
+        max_age: 10886400,
+        endpoints: [{ url: process.env.CSP_REPORT_TO_ENDPOINT }],
+      }),
+    );
+  }
+
+  // ACH-041: Cross-Origin isolation. Prevents a window opener from reading
+  // page state and stops cross-origin embedding of static resources.
+  response.headers.set("Cross-Origin-Opener-Policy", "same-origin");
+  response.headers.set("Cross-Origin-Resource-Policy", "same-origin");
+
+  // ACH-042: complete Permissions-Policy whitelist. The previous middleware
+  // emitted no policy at all; the explicit-deny list below is the OWASP
+  // baseline plus the WBC-specific opt-outs.
+  response.headers.set(
+    "Permissions-Policy",
+    [
+      "accelerometer=()",
+      "camera=()",
+      "geolocation=()",
+      "gyroscope=()",
+      "magnetometer=()",
+      "microphone=()",
+      "payment=()",
+      "usb=()",
+      "fullscreen=(self)",
+      "interest-cohort=()",
+    ].join(", "),
+  );
+
   return response;
 }
 
@@ -57,8 +107,13 @@ export default auth((req) => {
   if (publicPaths.some((p) => pathname.startsWith(p))) {
     return applyCspHeaders(req);
   }
+  // ACH-039: previously /_next and /api skipped header injection entirely.
+  // /_next assets benefit from CSP/X-Content-Type-Options/COOP/CORP just
+  // as the rendered pages do (a stale chunk on a CDN must not leak as a
+  // module via cross-origin embedding); /api routes inherit the same
+  // baseline so JSON responses also carry the hardening headers.
   if (pathname.startsWith("/_next") || pathname.startsWith("/api")) {
-    return NextResponse.next();
+    return applyCspHeaders(req);
   }
 
   const token = req.auth;

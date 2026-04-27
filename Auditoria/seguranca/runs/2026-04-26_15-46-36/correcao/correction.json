@@ -4,18 +4,18 @@
   "run_id": "2026-04-26_15-46-36",
   "branch": "fix/seguranca/2026-04-26_15-46-36",
   "started_at": "2026-04-27T08:47:26Z",
-  "ultima_atualizacao": "2026-04-27T08:47:26Z",
+  "ultima_atualizacao": "2026-04-27T09:50:00Z",
   "finished_at": null,
   "fase_atual": "executor",
   "status": "em_andamento",
   "summary": {
     "total_aprovados": 71,
-    "corrigidos_executor": 0,
-    "revisados_revisor": 0,
-    "corrigidos_pelo_revisor": 0,
+    "corrigidos_executor": 7,
+    "revisados_revisor": 7,
+    "corrigidos_pelo_revisor": 1,
     "nao_corrigiveis": 2,
     "nao_aprovados": 0,
-    "pendentes": 71
+    "pendentes": 64
   },
   "by_finding": [
     {
@@ -23,77 +23,77 @@
       "titulo": "createSale aceita cashbackUsed do cliente, desconta do total mas NUNCA debita o saldo de Cashback — desconto infinito",
       "severidade": "critico",
       "classificacao": "corrigivel",
-      "status_executor": "pendente",
-      "status_revisor": "pendente",
-      "commit_executor": null,
-      "commit_revisor": null,
-      "observacoes": null
+      "status_executor": "corrigido",
+      "status_revisor": "corrigido_pelo_revisor",
+      "commit_executor": "e4518dccce92",
+      "commit_revisor": "145a08d06255",
+      "observacoes": "Revisor renomeou cashback_debit→cashbackDebit em port/use-case/adapter (camelCase consistency)."
     },
     {
       "finding_id": "ACH-028",
       "titulo": "Token de showcase público gerado com Math.random — previsível, 41 bits de entropia, expõe vitrines de qualquer tenant",
       "severidade": "critico",
       "classificacao": "corrigivel",
-      "status_executor": "pendente",
-      "status_revisor": "pendente",
-      "commit_executor": null,
+      "status_executor": "corrigido",
+      "status_revisor": "aprovado",
+      "commit_executor": "7c426cd635d2",
       "commit_revisor": null,
-      "observacoes": null
+      "observacoes": "Migration de tokens existentes deferida — operacionalmente requer notificação a usuários ou janela de cutover; rate-limit endpoint coberto separadamente em ACH-071 | Revisor: aprovado sem alteração; CSPRNG correto, 128 bits."
     },
     {
       "finding_id": "ACH-022",
       "titulo": "updateSaleStatus sem state machine — aceita qualquer transição (DRAFT→DELIVERED, CANCELLED→CONFIRMED, etc.)",
       "severidade": "alto",
       "classificacao": "corrigivel",
-      "status_executor": "pendente",
-      "status_revisor": "pendente",
-      "commit_executor": null,
+      "status_executor": "corrigido",
+      "status_revisor": "aprovado",
+      "commit_executor": "ac239e8ed7e1",
       "commit_revisor": null,
-      "observacoes": null
+      "observacoes": "Revisor: aprovado; matriz mais restritiva que recomendação (DRAFT→CONFIRMED só via confirmSale) é design coerente. Validator inventory.ts ainda permite 'CONFIRMED' no enum mas domain rejeita — comportamento aceitável (400 em vez de 500)."
     },
     {
       "finding_id": "ACH-024",
       "titulo": "createReturn sem teto de valor, sem proteção contra refund múltiplo, sem validação de status da venda",
       "severidade": "alto",
       "classificacao": "corrigivel",
-      "status_executor": "pendente",
-      "status_revisor": "pendente",
-      "commit_executor": null,
+      "status_executor": "corrigido",
+      "status_revisor": "aprovado",
+      "commit_executor": "f6f576953096",
       "commit_revisor": null,
-      "observacoes": null
+      "observacoes": "Atomicidade tx Serializable (refund + payment.REFUNDED + reverter cashback + reincrementar estoque + outbox SALE_REFUNDED) e roleProtectedProcedure(DIRECTOR) deferidos — escopo maior; correção atual cobre validações de teto, status e dedup | Revisor: aprovado; ReturnRepository.findBySaleId com tenantId enforcement defesa em profundidade."
     },
     {
       "finding_id": "ACH-023",
       "titulo": "markPaid não verifica status atual do Payment nem da Sale — re-pagamento e pagamento de venda cancelada",
       "severidade": "medio",
       "classificacao": "corrigivel",
-      "status_executor": "pendente",
-      "status_revisor": "pendente",
-      "commit_executor": null,
+      "status_executor": "corrigido",
+      "status_revisor": "aprovado",
+      "commit_executor": "23b8cddf7de4",
       "commit_revisor": null,
-      "observacoes": null
+      "observacoes": "Revisor: aprovado; updateMany atomic + distinção PaymentNotFoundError vs InvalidPaymentTransitionError."
     },
     {
       "finding_id": "ACH-025",
       "titulo": "inventory.adjustStock aceita adjustment negativo arbitrário, leva quantity a negativo e ignora tenantId no WHERE",
       "severidade": "alto",
       "classificacao": "corrigivel",
-      "status_executor": "pendente",
-      "status_revisor": "pendente",
-      "commit_executor": null,
+      "status_executor": "corrigido",
+      "status_revisor": "aprovado",
+      "commit_executor": "45e0fbc1ec48",
       "commit_revisor": null,
-      "observacoes": null
+      "observacoes": "CHECK constraint stock_quantity_nonnegative na migration e roleProtectedProcedure(MANAGER) deferidos — guarda atual via UPDATE...WHERE protege em runtime | Revisor: aprovado; $queryRaw guard atomic e tenantId no WHERE composite."
     },
     {
       "finding_id": "ACH-027",
       "titulo": "inventory.receiveOrder e cancelOrder sem validação de transição de estado — RECEIVED↔CANCELLED arbitrário",
       "severidade": "medio",
       "classificacao": "corrigivel",
-      "status_executor": "pendente",
-      "status_revisor": "pendente",
-      "commit_executor": null,
+      "status_executor": "corrigido",
+      "status_revisor": "aprovado",
+      "commit_executor": "c3a58e162d0f",
       "commit_revisor": null,
-      "observacoes": null
+      "observacoes": "Revisor: aprovado; matriz PENDING→{RECEIVED,CANCELLED}, terminais corretos."
     },
     {
       "finding_id": "ACH-003",

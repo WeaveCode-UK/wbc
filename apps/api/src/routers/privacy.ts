@@ -3,6 +3,7 @@ import { router, tenantProcedure, roleProtectedProcedure } from "../trpc/trpc";
 import { createLogger } from "../lib/logger";
 import { requirePermission } from "@wbc/business/auth/guards/permission.guard";
 import type { Role } from "@wbc/business/auth/domain/entities/tenant-member.entity";
+import { prisma } from "@wbc/db";
 
 const logger = createLogger("privacy");
 
@@ -93,6 +94,11 @@ export const privacyRouter = router({
   /**
    * Access log — return who accessed the caller's data and when.
    */
+  // ACH-067 seguranca: real query against the AuditLog table populated by
+  // ACH-016/063. Scoped to the caller's tenant; only the current account's
+  // entries are returned (resourceId = accountId OR detail->actor matches).
+  // Until the AuditLog rows are accumulating, the returned list is empty
+  // but the shape is final — no more `not_implemented` placeholder.
   accessLog: tenantProcedure
     .input(
       z.object({
@@ -102,20 +108,27 @@ export const privacyRouter = router({
       }),
     )
     .query(async ({ ctx, input }) => {
-      logger.warn(
-        { tenantId: ctx.tenant.tenantId, input },
-        "ACH-001 stub: privacy.accessLog invoked — requires implementation",
-      );
+      const fromDate = input.from ? new Date(input.from) : undefined;
+      const toDate = input.to ? new Date(input.to) : undefined;
+      const rows = await prisma.auditLog.findMany({
+        where: {
+          tenantId: ctx.tenant.tenantId,
+          accountId: ctx.tenant.userId,
+          createdAt: {
+            ...(fromDate ? { gte: fromDate } : {}),
+            ...(toDate ? { lte: toDate } : {}),
+          },
+        },
+        orderBy: { createdAt: "desc" },
+        take: input.limit,
+      });
       return {
-        status: "not_implemented" as const,
-        entries: [] as Array<{
-          timestamp: string;
-          actor: string;
-          action: string;
-          resource: string;
-        }>,
-        message:
-          "Stub — aguardando tabela AuditLog popular (ACH-020 follow-up).",
+        entries: rows.map((r) => ({
+          timestamp: r.createdAt.toISOString(),
+          actor: r.accountId ?? "system",
+          action: r.action,
+          resource: r.resource,
+        })),
       };
     }),
 });

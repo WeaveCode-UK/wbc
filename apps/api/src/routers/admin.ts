@@ -8,6 +8,7 @@ import { router, roleProtectedProcedure } from "../trpc/trpc";
 import type { RedisLike } from "@wbc/shared";
 import { getRedis } from "../lib/redis";
 import { RedisJwtBlacklist } from "@wbc/business/auth/adapters/redis-jwt-blacklist.adapter";
+import { PrismaAuditLog } from "@wbc/business/platform/audit-log/adapters/prisma-audit-log.adapter";
 
 const outboxRepo = new PrismaOutboxRepository();
 
@@ -19,6 +20,9 @@ const incidentJwtBlacklist = new RedisJwtBlacklist(
 );
 
 const REVOKE_TTL_SECONDS = 60 * 60;
+
+// ACH-016/063: persist sensitive admin actions for forensic review.
+const auditLog = new PrismaAuditLog();
 
 export const adminRouter = router({
   dlq: router({
@@ -41,7 +45,7 @@ export const adminRouter = router({
 
     replay: adminProcedure
       .input(z.object({ id: z.string().uuid() }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         const ok = await outboxRepo.replayFromDLQ(input.id);
         if (!ok) {
           throw new TRPCError({
@@ -49,6 +53,15 @@ export const adminRouter = router({
             message: `Outbox event ${input.id} not found in DLQ`,
           });
         }
+        // ACH-016/063: replay rewrites event flow — audit-worthy.
+        void auditLog.record({
+          tenantId: ctx.tenant.tenantId,
+          accountId: ctx.tenant.userId,
+          action: "admin.dlq.replayed",
+          resource: "outbox.dlq",
+          resourceId: input.id,
+          status: "success",
+        });
         return { replayed: true, id: input.id };
       }),
   }),
@@ -61,12 +74,21 @@ export const adminRouter = router({
   sessions: router({
     revokeAllForTenant: adminProcedure
       .input(z.object({ tenantId: z.string().uuid() }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         const nowUnix = Math.floor(Date.now() / 1000);
         await incidentJwtBlacklist.revokeAllForTenant({
           tenantId: input.tenantId,
           revokedBeforeUnix: nowUnix,
           ttlSeconds: REVOKE_TTL_SECONDS,
+        });
+        void auditLog.record({
+          tenantId: ctx.tenant.tenantId,
+          accountId: ctx.tenant.userId,
+          action: "auth.session.revoked",
+          resource: "tenant",
+          resourceId: input.tenantId,
+          status: "success",
+          detail: { scope: "tenant", at: nowUnix },
         });
         return { revoked: true, tenantId: input.tenantId, at: nowUnix };
       }),
@@ -77,11 +99,20 @@ export const adminRouter = router({
           confirmation: z.literal("REVOKE-ALL-SESSIONS"),
         }),
       )
-      .mutation(async () => {
+      .mutation(async ({ ctx }) => {
         const nowUnix = Math.floor(Date.now() / 1000);
         await incidentJwtBlacklist.revokeAllGlobal({
           revokedBeforeUnix: nowUnix,
           ttlSeconds: REVOKE_TTL_SECONDS,
+        });
+        void auditLog.record({
+          tenantId: ctx.tenant.tenantId,
+          accountId: ctx.tenant.userId,
+          action: "auth.session.revoked",
+          resource: "platform",
+          resourceId: null,
+          status: "success",
+          detail: { scope: "global", at: nowUnix },
         });
         return { revoked: true, scope: "global" as const, at: nowUnix };
       }),

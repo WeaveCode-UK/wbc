@@ -39,6 +39,8 @@ import { PrismaSubscriptionRepository } from "@wbc/business/auth/adapters/prisma
 import { RedisJwtBlacklist } from "@wbc/business/auth/adapters/redis-jwt-blacklist.adapter";
 import { HibpPasswordBreachChecker } from "@wbc/business/auth/adapters/hibp-password-breach-checker.adapter";
 import { escapeHtml } from "@wbc/shared";
+import { PrismaAuditLog } from "@wbc/business/platform/audit-log/adapters/prisma-audit-log.adapter";
+import { makeAuditMiddleware } from "../trpc/audit-middleware";
 
 // Use cases
 import { ListWorkspaces } from "@wbc/business/auth/use-cases/list-workspaces.use-case";
@@ -112,6 +114,38 @@ const jwtBlacklistForAuth = new RedisJwtBlacklist(
 // ACH-004: HIBP k-anonymity breach checker. Fail-open on infra error so
 // outages do not deny password rotations.
 const passwordBreachChecker = new HibpPasswordBreachChecker();
+
+// ACH-016 + ACH-063: AuditLog for sensitive mutations. PrismaAuditLog
+// swallows failures so an audit hiccup never breaks user flow. The
+// `audit` helper below is the explicit-call variant — used inline at
+// the end of mutation bodies for the procedures listed in ACH-016.
+// (The makeAuditMiddleware factory in trpc/audit-middleware.ts is
+// preserved for future declarative wiring once its types are aligned
+// with the tRPC middleware factory.)
+const auditLog = new PrismaAuditLog();
+async function audit(
+  ctx: { tenant: { tenantId?: string; userId?: string } | null },
+  entry: {
+    action: string;
+    resource: string;
+    resourceId?: string | null;
+    status?: "success" | "failure" | "denied";
+    detail?: Record<string, unknown>;
+  },
+): Promise<void> {
+  void auditLog.record({
+    tenantId: ctx.tenant?.tenantId ?? null,
+    accountId: ctx.tenant?.userId ?? null,
+    action: entry.action,
+    resource: entry.resource,
+    resourceId: entry.resourceId ?? null,
+    status: entry.status ?? "success",
+    detail: entry.detail,
+  });
+}
+// Suppress unused-import warning while makeAuditMiddleware sleeps. The
+// declarative wiring path it powers will land in a follow-up PR.
+void makeAuditMiddleware;
 
 // Helper to extract accountId from context (works for authed procedures without tenant)
 function getAccountId(ctx: { tenant: { userId: string } | null }): string {
@@ -272,9 +306,17 @@ export const authRouter = router({
         accountRepo,
         jwtBlacklistForAuth,
       );
+      // ACH-016/063: capture id BEFORE deletion (the cleanup nukes ctx).
+      const accountIdForAudit = ctx.tenant.userId;
       await uc.execute({
         accountId: ctx.tenant.userId,
         confirmation: input.confirmation,
+      });
+      await audit(ctx, {
+        action: "tenant.member.removed",
+        resource: "account",
+        resourceId: accountIdForAudit,
+        detail: { reason: "self-delete" },
       });
       return { success: true };
     }),
@@ -293,6 +335,11 @@ export const authRouter = router({
         accountId: ctx.tenant.userId,
         currentPassword: input.currentPassword,
         newPassword: input.newPassword,
+      });
+      await audit(ctx, {
+        action: "auth.password.change",
+        resource: "account",
+        resourceId: ctx.tenant.userId,
       });
       return { success: true };
     }),
@@ -414,13 +461,20 @@ export const authRouter = router({
         where: { id: ctx.tenant.tenantId },
       });
       const uc = new CreateInvite(inviteRepo, emailSender);
-      return uc.execute({
+      const result = await uc.execute({
         tenantId: ctx.tenant.tenantId,
         email: input.email,
         role: input.role,
         invitedBy: ctx.tenant.userId,
         tenantName: tenant?.name ?? "",
       });
+      await audit(ctx, {
+        action: "auth.invite.accepted",
+        resource: "invite",
+        resourceId: result.inviteId,
+        detail: { email: input.email, role: input.role },
+      });
+      return result;
     }),
 
   listInvites: roleProtectedProcedure("LEADER")
@@ -440,6 +494,11 @@ export const authRouter = router({
       await uc.execute({
         inviteId: input.inviteId,
         tenantId: ctx.tenant.tenantId,
+      });
+      await audit(ctx, {
+        action: "auth.invite.cancelled",
+        resource: "invite",
+        resourceId: input.inviteId,
       });
       return { success: true };
     }),
@@ -509,6 +568,12 @@ export const authRouter = router({
         memberId: input.memberId,
         newRole: input.newRole,
       });
+      await audit(ctx, {
+        action: "tenant.member.role.changed",
+        resource: "member",
+        resourceId: input.memberId,
+        detail: { newRole: input.newRole },
+      });
       return { success: true };
     }),
 
@@ -520,6 +585,11 @@ export const authRouter = router({
         callerAccountId: ctx.tenant.userId,
         tenantId: ctx.tenant.tenantId,
         memberId: input.memberId,
+      });
+      await audit(ctx, {
+        action: "tenant.member.removed",
+        resource: "member",
+        resourceId: input.memberId,
       });
       return { success: true };
     }),

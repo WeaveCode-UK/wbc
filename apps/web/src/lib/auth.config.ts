@@ -170,6 +170,13 @@ export default {
           token.sub = dbAccount.id;
           token.jti = randomUUID();
           token.iat = Math.floor(Date.now() / 1000);
+          // ACH-009: stamp last successful login. Done here (jwt callback
+          // on initial issuance) so both Credentials and OAuth providers
+          // hit it. We do not await — a slow DB write must not block login
+          // and a missed stamp self-heals on the next session refresh.
+          void accountRepo.markLoggedIn(dbAccount.id, new Date()).catch(() => {
+            /* swallowed — best-effort write */
+          });
         }
       }
 

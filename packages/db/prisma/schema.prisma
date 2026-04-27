@@ -1159,6 +1159,15 @@ model Account {
   totpActivatedAt    DateTime?
   totpRecoveryCodes  String[] @default([]) // one-shot hashes (sha256 hex)
 
+  // ACH-009 seguranca: stamped on every successful login (Credentials or
+  // OAuth). Used by the dormant-account scheduler to flag, notify and
+  // force-reset accounts that have been idle for too long.
+  lastLoginAt    DateTime?
+  // Set to a future date once a dormant-flow notification has been sent;
+  // null while the account is healthy. The scheduler keys off this field
+  // to avoid re-notifying every run.
+  dormantNotifiedAt DateTime?
+
   oauthAccounts OAuthAccount[]
   tenantMembers TenantMember[]
   sessions      Session[]

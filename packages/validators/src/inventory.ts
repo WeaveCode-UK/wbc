@@ -1,5 +1,10 @@
 import { z } from "zod";
-import { paginationSchema, uuidSchema } from "./common";
+import {
+  paginationSchema,
+  uuidSchema,
+  TEXT_SHORT_MAX,
+  TEXT_LONG_MAX,
+} from "./common";
 
 export const listStockSchema = z.object({ lowOnly: z.boolean().optional() });
 export const updateStockSchema = z.object({
@@ -19,19 +24,21 @@ export const adjustStockSchema = z.object({
       message: "adjustment magnitude must not exceed 100000",
     }),
 });
-export const listOrdersSchema = z.object({ status: z.string().optional() });
+export const listOrdersSchema = z.object({
+  status: z.string().max(64).optional(),
+});
 // ACH-001 apis-integracoes: optional idempotencyKey accepted on the wire.
 export const createOrderSchema = z.object({
   idempotencyKey: z.string().min(1).optional(),
   brandId: uuidSchema,
   items: z.array(
     z.object({
-      productName: z.string(),
+      productName: z.string().max(TEXT_SHORT_MAX),
       quantity: z.number().int().positive(),
       unitCost: z.number().positive(),
     }),
   ),
-  notes: z.string().optional(),
+  notes: z.string().max(TEXT_LONG_MAX).optional(),
 });
 export const receiveOrderSchema = z.object({
   idempotencyKey: z.string().min(1).optional(),

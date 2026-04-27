@@ -119,3 +119,4 @@
 {"format_version":1,"ts":"2026-04-27T06:38:00Z","event":"phase_completed","phase":"fase-20","phase_name":"Consolidação de Achados e Preparação para Finalização","checks_executados":12,"findings_count":0,"files_analyzed":["Auditoria/seguranca/current/findings.json","Auditoria/seguranca/current/report.json","Auditoria/seguranca/current/state.json","Auditoria/seguranca/current/run.json"],"findings_created":[]}
 {"format_version":1,"ts":"2026-04-27T06:38:15Z","event":"run_status_changed","from":"in_progress","to":"ready_for_finalize"}
 {"format_version":1,"ts":"2026-04-27T06:57:22Z","event":"run_finalized","run_id":"2026-04-26_15-46-36","total_findings":73,"by_severity":{"critico":2,"alto":13,"medio":30,"baixo":18,"informativo":9},"avaliacao_score":6.0}
+{"format_version":1,"ts":"2026-04-27T08:47:26Z","event":"correction_started","branch":"fix/seguranca/2026-04-26_15-46-36"}

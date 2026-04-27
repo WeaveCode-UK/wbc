@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import Redis from "ioredis";
 import {
   MercadoPagoWebhookSignatureError,
   MercadoPagoWebhookNotConfiguredError,
@@ -14,6 +15,22 @@ import {
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
+
+// ACH-026 seguranca: dedup window for replay protection. MP retries on
+// timeout, so 10 min is generous enough to dedup legitimate retries
+// without holding state forever. Key = data.id + request-id (latter
+// changes on every retry attempt; we dedup on data.id alone but include
+// request-id in the value for forensic logging).
+const REPLAY_DEDUP_TTL_SECONDS = 10 * 60;
+let replayRedis: Redis | undefined;
+function getReplayRedis(): Redis {
+  if (!replayRedis) {
+    replayRedis = new Redis(
+      process.env.REDIS_URL ?? "redis://localhost:6379/0",
+    );
+  }
+  return replayRedis;
+}
 
 export async function POST(req: NextRequest) {
   // ACH-052: short-circuit on missing signature headers BEFORE doing the
@@ -53,6 +70,35 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "invalid signature" }, { status: 401 });
     }
     throw error;
+  }
+
+  // ACH-026: replay protection. After signature passes, take an exclusive
+  // lock keyed on data.id. Subsequent retries of the same delivery (same
+  // dataId) get 200 immediately without re-running side effects, but a
+  // legitimate first delivery proceeds normally. SET NX EX is atomic.
+  const dedupKey = payload.data?.id
+    ? `webhook:mp:dedup:${payload.data.id}`
+    : null;
+  if (dedupKey) {
+    try {
+      const claimed = await getReplayRedis().set(
+        dedupKey,
+        requestIdHeader,
+        "EX",
+        REPLAY_DEDUP_TTL_SECONDS,
+        "NX",
+      );
+      if (claimed === null) {
+        return NextResponse.json(
+          { received: true, deduped: true },
+          { status: 200 },
+        );
+      }
+    } catch {
+      // Redis hiccup — better to risk a duplicate process than reject a
+      // legitimate webhook. Side-effect handlers downstream should already
+      // be idempotent (Payment.markPaid via updateMany after ACH-023).
+    }
   }
 
   // TODO(ACH-003 follow-up): forward `payload` to a payment-sync use-case

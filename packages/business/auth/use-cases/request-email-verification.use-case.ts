@@ -34,7 +34,9 @@ export class RequestEmailVerification {
       ttlSeconds: EMAIL_VERIFICATION_TTL_SECONDS,
     });
 
-    const verifyUrl = `${this.appBaseUrl}/verify-email?token=${issued.token}`;
+    // ACH-019: encodeURIComponent the token. Same forward-safety rationale
+    // as in request-password-reset.use-case.ts.
+    const verifyUrl = `${this.appBaseUrl}/verify-email?token=${encodeURIComponent(issued.token)}`;
 
     await this.emailSender.send({
       to: account.email,

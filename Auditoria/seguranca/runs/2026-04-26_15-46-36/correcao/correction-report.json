@@ -4,7 +4,7 @@
   "run_id": "2026-04-26_15-46-36",
   "finalizado_em": "2026-04-27T10:35:00Z",
   "branch": "fix/seguranca/2026-04-26_15-46-36",
-  "merged_to": null,
+  "merged_to": "main",
   "summary": {
     "total_aprovados": 71,
     "corrigidos_executor": 71,

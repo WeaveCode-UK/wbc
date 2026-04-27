@@ -18,9 +18,21 @@ import { httpRequestDuration, httpRequestTotal } from "../lib/metrics";
 
 const apiLogger = createLogger("api");
 
+// ACH-032: only `production` strips the domain-error class name; dev and
+// test runs keep it so we can debug locally. Outside production, the field
+// is a tiny convenience for the developer console — in production it is
+// the difference between leaking that an account is locked vs. not, or
+// that a credential was wrong vs. unknown email (cf. AccountLockedError
+// vs InvalidCredentialsError, both deliberately share the same user-facing
+// message — exposing the class name reverses that protection).
+const STRIP_DOMAIN_ERROR_NAME = process.env.NODE_ENV === "production";
+
 const t = initTRPC.context<TRPCContext>().create({
   transformer: superjson,
   errorFormatter({ shape, error }) {
+    if (STRIP_DOMAIN_ERROR_NAME) {
+      return shape;
+    }
     return {
       ...shape,
       data: {

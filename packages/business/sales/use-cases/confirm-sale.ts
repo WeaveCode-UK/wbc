@@ -55,6 +55,19 @@ export async function confirmSale(
             originSaleId: saleId,
           }
         : undefined,
+    // ACH-021 seguranca: debit the cashback the customer used at
+    // checkout in the same Serializable tx as the confirmation. Before
+    // this, sale.cashbackUsed was recorded but the balance was never
+    // touched — letting any tenant member zero out totals without
+    // limit. saleId acts as the idempotency key so retries don't
+    // double-spend.
+    cashback_debit:
+      sale.cashbackUsed > 0
+        ? {
+            clientId: sale.clientId,
+            amount: sale.cashbackUsed,
+          }
+        : undefined,
     stockDecrements: sale.items.map((i) => ({
       productId: i.productId,
       quantity: i.quantity,

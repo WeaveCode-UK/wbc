@@ -82,7 +82,11 @@ export const salesRouter = router({
     .mutation(async ({ ctx, input }) => {
       const { idempotencyKey, ...saleInput } = input;
       return idempotent(idempotencyKey, () =>
-        createSale({ ...saleInput, tenantId: ctx.tenant.tenantId }, saleRepo),
+        createSale(
+          { ...saleInput, tenantId: ctx.tenant.tenantId },
+          saleRepo,
+          cashbackRepo,
+        ),
       );
     }),
 

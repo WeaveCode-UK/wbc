@@ -12,6 +12,7 @@ import {
   computeSaleSubtotal,
   computeSaleTotal,
 } from "../domain/value-objects";
+import { computeCashbackAllocation } from "../domain/cashback";
 
 // ACH-009 revisor follow-up: use Prisma.*GetPayload instead of
 // `as unknown as Record<string, unknown>`. Narrow, auto-generated types
@@ -168,6 +169,73 @@ export class PrismaSaleRepository implements SaleRepository {
           if (updated.count === 0) {
             throw new Error(
               `Insufficient stock for product ${d.productId} (needed ${d.quantity})`,
+            );
+          }
+        }
+
+        // ACH-021 seguranca: debit cashback atomically with the sale
+        // confirmation. saleId is the idempotencyKey — a retried
+        // confirmAtomic for the same sale collides on the
+        // CashbackRedemption PK and becomes a no-op instead of
+        // double-spending. Mirrors PrismaCashbackRepository.use logic
+        // but reuses the surrounding tx so the whole confirmation is
+        // all-or-nothing.
+        if (params.cashback_debit && params.cashback_debit.amount > 0) {
+          try {
+            await tx.cashbackRedemption.create({
+              data: {
+                tenantId: params.tenantId,
+                idempotencyKey: params.saleId,
+                clientId: params.cashback_debit.clientId,
+                amount: params.cashback_debit.amount,
+              },
+            });
+          } catch (err) {
+            if (
+              err instanceof Prisma.PrismaClientKnownRequestError &&
+              err.code === "P2002"
+            ) {
+              // Already debited for this sale — proceed without
+              // touching balances again.
+              await tx.outboxEvent.create({
+                data: {
+                  type: params.eventType,
+                  tenantId: params.tenantId,
+                  payload: params.eventPayload as Prisma.JsonObject,
+                },
+              });
+              return mapSaleFromPrisma(sale);
+            }
+            throw err;
+          }
+
+          const cashbacks = await tx.cashback.findMany({
+            where: {
+              tenantId: params.tenantId,
+              clientId: params.cashback_debit.clientId,
+              expiresAt: { gt: new Date() },
+            },
+            orderBy: { expiresAt: "asc" },
+          });
+
+          let remaining = params.cashback_debit.amount;
+          for (const c of cashbacks) {
+            if (remaining <= 0) break;
+            const available = Number(c.amount) - Number(c.usedAmount);
+            const toUse = computeCashbackAllocation(available, remaining);
+            await tx.cashback.update({
+              where: { id: c.id },
+              data: { usedAmount: Number(c.usedAmount) + toUse },
+            });
+            remaining -= toUse;
+          }
+
+          if (remaining > 0) {
+            // Race: between createSale validation and confirmAtomic
+            // execution the balance dropped below cashbackUsed. Abort
+            // the whole tx instead of partially debiting.
+            throw new Error(
+              `Insufficient cashback balance for client ${params.cashback_debit.clientId} (needed ${params.cashback_debit.amount})`,
             );
           }
         }

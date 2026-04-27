@@ -11,7 +11,10 @@ import {
   MfaRequiredError,
 } from "@wbc/business/auth/use-cases/authenticate-with-credentials.use-case";
 import { AuthenticateWithOAuth } from "@wbc/business/auth/use-cases/authenticate-with-oauth.use-case";
-import { RedisLoginAttemptTracker } from "@wbc/business/auth/adapters/redis-login-attempt-tracker.adapter";
+import {
+  RedisLoginAttemptTracker,
+  DEFAULT_IP_ONLY_LOCKOUT_POLICY,
+} from "@wbc/business/auth/adapters/redis-login-attempt-tracker.adapter";
 import { RedisJwtBlacklist } from "@wbc/business/auth/adapters/redis-jwt-blacklist.adapter";
 import { OtplibTotpService } from "@wbc/business/auth/adapters/otplib-totp-service.adapter";
 import { VerifyTotp } from "@wbc/business/auth/use-cases/verify-totp.use-case";
@@ -33,6 +36,13 @@ const authRedis = new Redis(
   process.env.REDIS_URL ?? "redis://localhost:6379/0",
 ) as unknown as RedisLike;
 const loginAttemptTracker = new RedisLoginAttemptTracker(authRedis);
+// ACH-006: separate IP-only tracker (100 failures / 1h) catches credential
+// stuffing patterns invisible to the per-(email,IP) counter.
+const ipOnlyAttemptTracker = new RedisLoginAttemptTracker(
+  authRedis,
+  DEFAULT_IP_ONLY_LOCKOUT_POLICY,
+  "auth:login-attempts:ip",
+);
 export const jwtBlacklist = new RedisJwtBlacklist(authRedis);
 
 const SESSION_MAX_AGE_SECONDS = 15 * 60;
@@ -46,6 +56,7 @@ const authWithCredentials = new AuthenticateWithCredentials(
   passwordHasher,
   loginAttemptTracker,
   verifyTotp,
+  ipOnlyAttemptTracker,
 );
 const authWithOAuth = new AuthenticateWithOAuth(accountRepo, oauthRepo);
 

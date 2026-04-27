@@ -86,6 +86,14 @@ export class AuthenticateWithCredentials {
      * left optional so unit tests of the password path stay focused.
      */
     private readonly verifyTotp?: VerifyTotp,
+    /**
+     * ACH-006: complementary IP-only tracker. The base `attemptTracker` keys
+     * on (email, IP) — which credential stuffing trivially evades by
+     * walking through many emails from one IP. This second tracker keys on
+     * IP alone with a larger window/threshold and trips when a single host
+     * floods attempts across many accounts.
+     */
+    private readonly ipOnlyAttemptTracker?: LoginAttemptTracker,
   ) {}
 
   async execute(input: AuthenticateWithCredentialsInput): Promise<Account> {
@@ -95,6 +103,16 @@ export class AuthenticateWithCredentials {
     if (
       this.attemptTracker &&
       (await this.attemptTracker.isLocked(trackerKey))
+    ) {
+      throw new AccountLockedError();
+    }
+
+    // ACH-006: IP-pure check. Same opaque error so attacker cannot tell
+    // the lockout is firing from a different counter.
+    if (
+      input.ipAddress &&
+      this.ipOnlyAttemptTracker &&
+      (await this.ipOnlyAttemptTracker.isLocked(input.ipAddress))
     ) {
       throw new AccountLockedError();
     }
@@ -112,6 +130,10 @@ export class AuthenticateWithCredentials {
     if (!account || !account.hasPassword() || !isValid) {
       if (this.attemptTracker) {
         await this.attemptTracker.recordFailure(trackerKey);
+      }
+      // ACH-006: also bump the IP-only counter on every credential failure.
+      if (input.ipAddress && this.ipOnlyAttemptTracker) {
+        await this.ipOnlyAttemptTracker.recordFailure(input.ipAddress);
       }
       throw new InvalidCredentialsError();
     }
@@ -131,12 +153,20 @@ export class AuthenticateWithCredentials {
         if (this.attemptTracker) {
           await this.attemptTracker.recordFailure(trackerKey);
         }
+        if (input.ipAddress && this.ipOnlyAttemptTracker) {
+          await this.ipOnlyAttemptTracker.recordFailure(input.ipAddress);
+        }
         throw new InvalidMfaTokenError();
       }
     }
 
     if (this.attemptTracker) {
       await this.attemptTracker.clearAttempts(trackerKey);
+    }
+    // ACH-006: clear the IP-only counter on success too. A legitimate user
+    // arriving from a previously-noisy IP otherwise stays locked out.
+    if (input.ipAddress && this.ipOnlyAttemptTracker) {
+      await this.ipOnlyAttemptTracker.clearAttempts(input.ipAddress);
     }
     return account;
   }

@@ -41,3 +41,25 @@ export type PaymentMethod = PayMethod;
 export function statusIn<T extends string>(values: readonly T[]): { in: T[] } {
   return { in: [...values] };
 }
+
+// ACH-022 seguranca: state machine for Sale status. Without this, the
+// updateSaleStatus use-case accepted any transition (e.g.
+// CANCELLED → CONFIRMED, DELIVERED → DRAFT) and triggered side effects
+// downstream as if the move were legitimate. Terminal states
+// (DELIVERED, CANCELLED) have no outgoing transitions; CONFIRMED is
+// reached via the dedicated confirm-sale flow, not via updateStatus.
+const SALE_TRANSITIONS: Record<SaleStatus, readonly SaleStatus[]> = {
+  DRAFT: ["CANCELLED"],
+  CONFIRMED: ["SEPARATED", "CANCELLED"],
+  SEPARATED: ["SHIPPED", "CANCELLED"],
+  SHIPPED: ["DELIVERED", "CANCELLED"],
+  DELIVERED: [],
+  CANCELLED: [],
+};
+
+export function isValidSaleTransition(
+  from: SaleStatus,
+  to: SaleStatus,
+): boolean {
+  return SALE_TRANSITIONS[from]?.includes(to) ?? false;
+}

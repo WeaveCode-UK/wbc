@@ -38,11 +38,13 @@ export interface ShowcaseProduct {
   sortOrder: number;
 }
 
+// ACH-028 seguranca: 8 chars from Math.random gave ~41 bits of entropy
+// from a non-CSPRNG, and catalog.getPublicShowcase exposed cross-tenant
+// catalog data behind that token. randomBytes(16) → 128 bits via the
+// platform CSPRNG; base64url keeps URL-safe characters and yields a
+// 22-character token.
+import { randomBytes } from "crypto";
+
 export function generateShareLink(): string {
-  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-  let result = '';
-  for (let i = 0; i < 8; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return result;
+  return randomBytes(16).toString("base64url");
 }

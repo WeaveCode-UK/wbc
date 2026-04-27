@@ -29,6 +29,15 @@ export interface ConfirmAtomicParams {
    */
   eventType: string;
   eventPayload: Record<string, unknown>;
+  /**
+   * ACH-021 seguranca: cashback debit applied inside the same
+   * Serializable tx as the sale confirmation. saleId is reused as
+   * idempotencyKey so retried confirmations don't double-spend.
+   */
+  cashbackDebit?: {
+    clientId: string;
+    amount: number;
+  };
 }
 
 export interface SaleRepository {

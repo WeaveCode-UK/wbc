@@ -6,9 +6,18 @@ export const updateStockSchema = z.object({
   productId: uuidSchema,
   quantity: z.number().int().min(0),
 });
+// ACH-025 seguranca: bound the adjustment magnitude on the wire so a
+// single call can't request a million-unit swing. Direction is kept
+// signed to preserve the existing API; large legitimate corrections
+// require two calls and are easier to spot in audit logs.
 export const adjustStockSchema = z.object({
   productId: uuidSchema,
-  adjustment: z.number().int(),
+  adjustment: z
+    .number()
+    .int()
+    .refine((n) => Math.abs(n) <= 100_000, {
+      message: "adjustment magnitude must not exceed 100000",
+    }),
 });
 export const listOrdersSchema = z.object({ status: z.string().optional() });
 // ACH-001 apis-integracoes: optional idempotencyKey accepted on the wire.

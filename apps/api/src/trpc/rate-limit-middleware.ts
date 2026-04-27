@@ -50,6 +50,20 @@ const SENSITIVE_ROUTE_LIMITS: Array<{
   },
   { prefix: "auth.sendOtp", config: { windowMs: 60 * 60_000, maxRequests: 5 } },
   { prefix: "auth.verifyOtp", config: { windowMs: 60_000, maxRequests: 5 } },
+  // ACH-071 seguranca: anti-enumeration on public showcase + landing.
+  // The default 30/60s lets an attacker walk ~1800 slugs per hour from a
+  // single IP — comfortable enough to harvest the entire workspace
+  // catalog over a weekend. Tighten to 10/60s and pair with the bucket
+  // also keying on the slug/shareLink (callers do that via path), so a
+  // sustained scan trips even when the slugs change.
+  {
+    prefix: "catalog.getPublicShowcase",
+    config: { windowMs: 60_000, maxRequests: 10 },
+  },
+  {
+    prefix: "landing.getPublic",
+    config: { windowMs: 60_000, maxRequests: 10 },
+  },
 ];
 
 function getKey(prefix: string, identifier: string, path: string): string {

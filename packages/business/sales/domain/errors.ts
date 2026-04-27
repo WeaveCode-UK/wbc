@@ -16,6 +16,12 @@ export class PaymentNotFoundError extends Error {
     this.name = "PaymentNotFoundError";
   }
 }
+export class InvalidPaymentTransitionError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "InvalidPaymentTransitionError";
+  }
+}
 export class InsufficientCashbackError extends Error {
   constructor() {
     super("Insufficient cashback balance");

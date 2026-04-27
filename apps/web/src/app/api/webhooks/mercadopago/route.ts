@@ -16,6 +16,17 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
+  // ACH-052: short-circuit on missing signature headers BEFORE doing the
+  // JSON.parse so we don't burn CPU on bodies that are obviously not
+  // legitimate webhooks (e.g. unauthenticated probes). The HMAC check
+  // itself still requires `dataId` from the parsed body, but at least we
+  // refuse the unsigned ones up front.
+  const signatureHeader = req.headers.get("x-signature") ?? undefined;
+  const requestIdHeader = req.headers.get("x-request-id") ?? undefined;
+  if (!signatureHeader || !requestIdHeader) {
+    return NextResponse.json({ error: "invalid signature" }, { status: 401 });
+  }
+
   const rawBody = await req.text();
   let payload: ReturnType<typeof parseMercadoPagoPayload>;
   try {
@@ -27,8 +38,8 @@ export async function POST(req: NextRequest) {
   try {
     verifyMercadoPagoSignature({
       rawBody,
-      signatureHeader: req.headers.get("x-signature") ?? undefined,
-      requestIdHeader: req.headers.get("x-request-id") ?? undefined,
+      signatureHeader,
+      requestIdHeader,
       dataId: payload.data?.id,
     });
   } catch (error) {

@@ -100,6 +100,46 @@ fixes. Older tags are best-effort.
 | Secret scanning: gitleaks pre-commit + CI; GitHub native push protection     | Platform team    | `.gitleaks.toml`, GitHub settings (ACH-015)                             |
 | Sentry / log redaction: PII never sent to third parties in clear             | Enforced in code | `packages/shared/src/{redaction,sentry-redaction}.ts` (ACH-019/020/021) |
 | Audit log retention: 12 months minimum                                       | Platform team    | `audit_logs` table (ACH-024) — exporter to be implemented               |
+| External pentest cadence: yearly + on major releases                         | Platform team    | Engagement letter on file; reports archived in `Auditoria/_external/`   |
+| DAST cadence: nightly OWASP ZAP baseline against staging                     | Platform team    | `.github/workflows/dast.yml` (planned) + `docs/security/dast.md`        |
+| Scanner findings triage: gitleaks/Trivy/CodeQL/Semgrep                       | Platform team    | "Scanner triage SLA" below                                              |
+
+## Pentest cadence (ACH-061)
+
+WeaveCode commits to:
+
+- **Annual external pentest** by an independent third party covering the
+  WBC web app, tRPC API surface and webhook ingestors. Reports are stored
+  under `Auditoria/_external/` in the private security mirror and findings
+  are translated into ACH-style entries in the next audit run.
+- **Pre-release pentest** for every `vX.0.0` major release before
+  promotion to general availability.
+- **Quarterly internal red-team exercise** (lighter scope: auth flows,
+  RBAC, multi-tenant isolation) executed via the audit framework.
+
+## DAST cadence (ACH-058)
+
+- **Nightly OWASP ZAP baseline scan** against staging from a scheduled
+  GitHub Actions workflow (`dast.yml` — to land in the next infra PR).
+  Output is archived as a workflow artifact and tracked over time.
+- **On-demand Nuclei templates run** before any release that touches the
+  webhook handlers or public endpoints.
+
+## Scanner triage SLA (ACH-062)
+
+Findings flowing in from gitleaks (CI + pre-commit), Trivy (image scan in
+`docker-images.yml`), CodeQL + Semgrep (`sast.yml` — ACH-057), and
+`pnpm audit` are owned by the **Platform team** with the following SLA:
+
+| Severity   | Acknowledge    | Remediate          |
+| ---------- | -------------- | ------------------ |
+| Critical   | 1 working day  | 7 working days     |
+| High       | 3 working days | 30 working days    |
+| Medium     | 7 working days | next release cycle |
+| Low / Info | best-effort    | quarterly cleanup  |
+
+False-positive suppressions are reviewed quarterly (in the Q3 audit run)
+to ensure none have silently become real vulnerabilities under code drift.
 
 ## Pending — Secret Manager adoption (ACH-016)
 

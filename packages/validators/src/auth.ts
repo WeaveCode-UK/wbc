@@ -134,3 +134,22 @@ export const leaveTenantSchema = z.object({
 export const revokeSessionSchema = z.object({
   sessionId: z.string().uuid(),
 });
+
+// ACH-003: MFA/TOTP integration. The 6-digit live code or one of the
+// 24-char recovery codes (`XXXX-XXXX-XXXX-XXXX-XXXX`) — the verifier
+// distinguishes them.
+export const mfaTotpTokenSchema = z
+  .string()
+  .trim()
+  .min(6)
+  .max(32)
+  .regex(/^[A-Z0-9-]+$/i, "Token TOTP inválido");
+
+export const mfaConfirmEnrollmentSchema = z.object({
+  secret: z.string().min(16).max(64),
+  token: mfaTotpTokenSchema,
+});
+
+export const mfaDisableSchema = z.object({
+  currentToken: mfaTotpTokenSchema,
+});

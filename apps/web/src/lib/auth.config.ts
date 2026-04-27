@@ -5,10 +5,16 @@ import { PrismaAccountRepository } from "@wbc/business/auth/adapters/prisma-acco
 import { PrismaOAuthAccountRepository } from "@wbc/business/auth/adapters/prisma-oauth-account.repository";
 import { PrismaTenantMemberRepository } from "@wbc/business/auth/adapters/prisma-tenant-member.repository";
 import { BcryptPasswordHasher } from "@wbc/business/auth/adapters/bcrypt-password-hasher.adapter";
-import { AuthenticateWithCredentials } from "@wbc/business/auth/use-cases/authenticate-with-credentials.use-case";
+import {
+  AuthenticateWithCredentials,
+  InvalidMfaTokenError,
+  MfaRequiredError,
+} from "@wbc/business/auth/use-cases/authenticate-with-credentials.use-case";
 import { AuthenticateWithOAuth } from "@wbc/business/auth/use-cases/authenticate-with-oauth.use-case";
 import { RedisLoginAttemptTracker } from "@wbc/business/auth/adapters/redis-login-attempt-tracker.adapter";
 import { RedisJwtBlacklist } from "@wbc/business/auth/adapters/redis-jwt-blacklist.adapter";
+import { OtplibTotpService } from "@wbc/business/auth/adapters/otplib-totp-service.adapter";
+import { VerifyTotp } from "@wbc/business/auth/use-cases/verify-totp.use-case";
 import { logSecurityEvent, type RedisLike } from "@wbc/shared";
 import { randomUUID } from "crypto";
 import Redis from "ioredis";
@@ -30,10 +36,16 @@ const loginAttemptTracker = new RedisLoginAttemptTracker(authRedis);
 export const jwtBlacklist = new RedisJwtBlacklist(authRedis);
 
 const SESSION_MAX_AGE_SECONDS = 15 * 60;
+// ACH-003: enforce TOTP at login when the account has it enabled. The
+// VerifyTotp use-case loads the encrypted secret + recovery codes for the
+// account and consumes recovery codes one-shot.
+const totpService = new OtplibTotpService();
+const verifyTotp = new VerifyTotp(totpService);
 const authWithCredentials = new AuthenticateWithCredentials(
   accountRepo,
   passwordHasher,
   loginAttemptTracker,
+  verifyTotp,
 );
 const authWithOAuth = new AuthenticateWithOAuth(accountRepo, oauthRepo);
 
@@ -55,14 +67,20 @@ export default {
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
+        // ACH-003: optional second-factor token. Empty when the user has
+        // never enrolled TOTP; required (and verified) when totpEnabled.
+        totp: { label: "TOTP", type: "text" },
       },
       async authorize(credentials, request) {
         if (!credentials?.email || !credentials?.password) return null;
         try {
+          const totpRaw =
+            typeof credentials.totp === "string" ? credentials.totp.trim() : "";
           const account = await authWithCredentials.execute({
             email: credentials.email as string,
             password: credentials.password as string,
             ipAddress: extractIp(request as unknown as Request | undefined),
+            totpToken: totpRaw === "" ? undefined : totpRaw,
           });
           logSecurityEvent({
             event: "auth.login.success",
@@ -71,7 +89,33 @@ export default {
             detail: "credentials",
           });
           return { id: account.id, email: account.email, name: account.name };
-        } catch {
+        } catch (err) {
+          // ACH-003: surface MFA-specific failures as distinct codes so the
+          // login UI can ask only for the second factor instead of the full
+          // password again. NextAuth re-throws Errors on the
+          // CredentialsSignin path, so callers receive the `code` we set.
+          if (err instanceof MfaRequiredError) {
+            logSecurityEvent({
+              event: "auth.login.failed",
+              success: false,
+              email: credentials.email as string,
+              detail: "mfa-required",
+            });
+            const e = new Error("mfa_required");
+            (e as Error & { code: string }).code = "mfa_required";
+            throw e;
+          }
+          if (err instanceof InvalidMfaTokenError) {
+            logSecurityEvent({
+              event: "auth.login.failed",
+              success: false,
+              email: credentials.email as string,
+              detail: "mfa-invalid",
+            });
+            const e = new Error("mfa_invalid");
+            (e as Error & { code: string }).code = "mfa_invalid";
+            throw e;
+          }
           logSecurityEvent({
             event: "auth.login.failed",
             success: false,

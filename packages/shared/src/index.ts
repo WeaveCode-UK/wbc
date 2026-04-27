@@ -28,6 +28,8 @@ export * from "./jobs/schemas";
 export * from "./money/centavos";
 export * from "./persistence/optimistic-update";
 export * from "./redis";
+// ACH-053 / ACH-019: HTML escape helper for transactional email templates.
+export * from "./html/escape-html";
 export * from "./version";
 export * from "./feature-flags";
 export * from "./sensitive-fields";

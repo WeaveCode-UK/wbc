@@ -38,6 +38,7 @@ import { RedisAuthTokenStore } from "@wbc/business/auth/adapters/redis-auth-toke
 import { PrismaSubscriptionRepository } from "@wbc/business/auth/adapters/prisma-subscription-repository";
 import { RedisJwtBlacklist } from "@wbc/business/auth/adapters/redis-jwt-blacklist.adapter";
 import { HibpPasswordBreachChecker } from "@wbc/business/auth/adapters/hibp-password-breach-checker.adapter";
+import { escapeHtml } from "@wbc/shared";
 
 // Use cases
 import { ListWorkspaces } from "@wbc/business/auth/use-cases/list-workspaces.use-case";
@@ -460,11 +461,14 @@ export const authRouter = router({
       const tenant = await prisma.tenant.findUnique({
         where: { id: ctx.tenant.tenantId },
       });
-      const inviteUrl = `${process.env.NEXTAUTH_URL}/invite?token=${invite.token}`;
+      // ACH-053: same defense as create-invite.use-case — escape the
+      // admin-controlled tenant name before interpolating into HTML.
+      const inviteUrl = `${process.env.NEXTAUTH_URL}/invite?token=${encodeURIComponent(invite.token)}`;
+      const safeTenantName = escapeHtml(tenant?.name ?? "");
       await emailSender.send({
         to: invite.email,
         subject: `Convite para ${tenant?.name ?? ""}`,
-        html: `<p>Voce foi convidado(a) para o time de <strong>${tenant?.name ?? ""}</strong>.</p>
+        html: `<p>Voce foi convidado(a) para o time de <strong>${safeTenantName}</strong>.</p>
                <p><a href="${inviteUrl}">Aceitar convite</a></p>
                <p>Este convite expira em 7 dias.</p>`,
       });

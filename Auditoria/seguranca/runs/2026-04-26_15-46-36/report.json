@@ -1,0 +1,147 @@
+{
+  "format_version": 1,
+  "domain": "seguranca",
+  "run_id": "2026-04-26_15-46-36",
+  "atualizado_em": "2026-04-27T06:38:00Z",
+  "resumo_executivo": "Auditoria de segurança do WBC Platform cobriu 19 fases técnicas (threat modeling até bot/abuse protection) e produziu 73 achados, dos quais 72 ativos no escopo de segurança (ACH-017 reclassificado como cross-domain para infraestrutura-deploy-config). A postura geral é aceitável com ressalvas: as fundações criptográficas (AES-256-GCM, bcrypt cost 12, CSPRNG, HMAC com timingSafeEqual), a higiene de segredos (env.ts com refine anti-placeholder, gitleaks no CI + pre-commit, RLS migration idempotente), o container hardening (read-only, cap_drop ALL, no-new-privileges, digest-pinned images, cosign+SLSA+SBOM), e os headers de segurança no app web autenticado (CSP nonce + strict-dynamic, HSTS preload 2 anos, cookies __Secure-/__Host-) são state-of-the-art. As ressalvas concentram-se em sete frentes prioritárias: (1) abuse de fluxo de negócio sem state machines em sales/payments/orders e cashback sem débito atômico (1 crítico + 4 altos); (2) MFA implementada mas não integrada ao callback de login + ausência de revogação massiva de sessões; (3) RLS configurado no schema mas sem ativação em runtime (set_config tenant.id por request); (4) infraestrutura de audit log e métricas de security pronta mas desconectada (zero usos de auditLogPort, alerts.yml sem grupo security); (5) borda sem WAF/CDN/CAPTCHA e nginx sem rate-limit zones; (6) CI sem SAST/DAST e Trivy gate permissivo; (7) DNS email auth (SPF/DKIM/DMARC) e controles operacionais de domínio não documentados. Nenhum achado bloqueia a finalização da run.",
+  "consolidacao_por_severidade": {
+    "critico": 2,
+    "alto": 13,
+    "medio": 30,
+    "baixo": 18,
+    "informativo": 9,
+    "nao_aplicavel": 1
+  },
+  "consolidacao_por_categoria": {
+    "threat-modeling": 1,
+    "surface-mapping": 1,
+    "autenticacao-mfa": 1,
+    "autenticacao-password-policy": 1,
+    "session-revocation": 2,
+    "brute-force-protection": 1,
+    "session-state-dual": 1,
+    "account-lifecycle": 1,
+    "surface-mismatch": 1,
+    "broken-function-level-authz": 1,
+    "broken-object-level-authz": 1,
+    "rls-not-enforced": 1,
+    "rls-coverage": 1,
+    "cache-tenant-scoping": 1,
+    "audit-log-administrativo": 1,
+    "iam-cloud-iac": 0,
+    "input-size-limits": 1,
+    "html-injection": 1,
+    "prompt-injection": 1,
+    "abuse-fluxo-cashback": 1,
+    "state-machine-bypass": 1,
+    "state-machine-bypass-payment": 1,
+    "abuse-fluxo-refund": 1,
+    "abuse-fluxo-estoque": 1,
+    "webhook-replay": 1,
+    "state-machine-bypass-order": 1,
+    "rng-inseguro-token-publico": 1,
+    "tls-interno-postgres": 1,
+    "tls-interno-redis": 1,
+    "encryption-at-rest-pii": 1,
+    "info-leakage-em-erros": 1,
+    "pii-em-logs": 3,
+    "minimizacao-de-dados-em-resposta": 1,
+    "headers-seguranca": 6,
+    "segredos-config-sensivel": 4,
+    "webhook-rate-limit": 1,
+    "outbound-timeout-ausente": 2,
+    "webhook-payload-size": 1,
+    "webhook-origin-validation": 1,
+    "webhook-ordem-validacao": 1,
+    "email-template-injection": 1,
+    "dns-email-authentication": 1,
+    "dns-domain-protection": 1,
+    "host-header-validation": 1,
+    "ci-sast-ausente": 1,
+    "ci-dast-ausente": 1,
+    "ci-gate-permissivo": 1,
+    "disclosure-channel-ausente": 1,
+    "pentest-cadencia-ausente": 1,
+    "triagem-findings-sem-processo": 1,
+    "audit-log-nao-conectado": 1,
+    "security-alerting-ausente": 1,
+    "audit-log-imutabilidade-e-retencao": 1,
+    "incident-mass-revocation-impossivel": 1,
+    "lgpd-access-log-stub": 1,
+    "captcha-ausente": 1,
+    "waf-ausente": 1,
+    "rate-limit-borda-ausente": 1,
+    "anti-scraping-ausente": 1,
+    "bot-detection-ausente": 1,
+    "landing-sem-protecao": 1
+  },
+  "consolidacao_por_tema_priorizado": [
+    {
+      "tema": "abuse-de-fluxo-de-negocio",
+      "achados": ["ACH-021", "ACH-022", "ACH-023", "ACH-024", "ACH-025", "ACH-027"],
+      "impacto": "critico-financeiro",
+      "nota": "Cashback sem débito atômico (ACH-021 critico) + state machines ausentes em Sale/Payment/Order + refund sem teto + adjustStock sem gate de sinal. Resolver em batch via use-case CashbackUseLedger + máquina de estados Sale/Payment/Order + saga createReturn."
+    },
+    {
+      "tema": "borda-sem-defesa",
+      "achados": ["ACH-068", "ACH-069", "ACH-070", "ACH-071", "ACH-072", "ACH-073"],
+      "impacto": "alto-operacional",
+      "nota": "Sem CAPTCHA/WAF/CDN/rate-limit nginx. VPS Hostinger absorve tráfego diretamente. Mitigação rápida: ligar Cloudflare Free + Turnstile em fluxos sensíveis + nginx limit_req_zone."
+    },
+    {
+      "tema": "audit-log-e-deteccao",
+      "achados": ["ACH-016", "ACH-063", "ACH-064", "ACH-065", "ACH-066", "ACH-067"],
+      "impacto": "alto-conformidade",
+      "nota": "Infraestrutura pronta mas zero wiring: AuditLogPort + middleware tRPC existem mas não usados; alerts.yml sem grupo security; mass session revocation per-tenant/global ausente; privacy.accessLog stub. Bloqueia LGPD art. 9 (direito de acesso) e SOC2 CC7."
+    },
+    {
+      "tema": "headers-seguranca-cobertura",
+      "achados": ["ACH-037", "ACH-038", "ACH-039", "ACH-040", "ACH-041", "ACH-042"],
+      "impacto": "medio-defesa-em-profundidade",
+      "nota": "App de landing sem headers; CSP só em rotas HTML do middleware (não em /api/_next); SRI/COOP/CORP/Permissions-Policy incompletos; CSP sem report-uri. Postura do app autenticado é forte; gaps são em sub-apps e edges."
+    },
+    {
+      "tema": "ci-security-gaps",
+      "achados": ["ACH-057", "ACH-058", "ACH-059", "ACH-060", "ACH-061", "ACH-062"],
+      "impacto": "medio-processo",
+      "nota": "SAST/DAST ausentes; Trivy não bloqueia merge em CRITICAL; security.txt RFC 9116 ausente; pentest cadência não declarada; triagem de findings sem processo. Resolver com CodeQL/Semgrep + ZAP baseline + Trivy --exit-code 1 + .well-known/security.txt + SECURITY-REVIEW-PROCESS.md."
+    },
+    {
+      "tema": "auth-sessao-lifecycle",
+      "achados": ["ACH-003", "ACH-004", "ACH-005", "ACH-006", "ACH-007", "ACH-008", "ACH-009"],
+      "impacto": "alto-conta",
+      "nota": "MFA não integrada ao callback NextAuth (ACH-003 alto); password policy fraca (sem breach check); changePassword/deleteAccount não revogam JWTs ativos; Session table morta; sem detecção de contas dormentes."
+    },
+    {
+      "tema": "webhooks-integracoes-outbound",
+      "achados": ["ACH-026", "ACH-047", "ACH-048", "ACH-049", "ACH-050", "ACH-051", "ACH-052"],
+      "impacto": "medio-resiliencia",
+      "nota": "MercadoPago sem replay protection; webhooks sem rate-limit; ResendEmailSender + DLQ Slack fanout sem timeout outbound; sem validação origem (IP allowlist); MP faz JSON.parse antes do HMAC verify."
+    },
+    {
+      "tema": "multi-tenant-rls-cache",
+      "achados": ["ACH-011", "ACH-012", "ACH-013", "ACH-014", "ACH-015"],
+      "impacto": "alto-tenant-isolation",
+      "nota": "RLS no schema mas sem set_config em runtime (ACH-013); BFLA permissions tenant:manage/billing não enforce; BOLA via assignment ausente em Client/Sale; RLS coverage drift; cache helper inconsistente."
+    },
+    {
+      "tema": "pii-data-leak",
+      "achados": ["ACH-031", "ACH-032", "ACH-033", "ACH-034", "ACH-035", "ACH-036"],
+      "impacto": "medio-privacy",
+      "nota": "PII em texto claro at rest (ACH-031); errorFormatter expõe nome de classe domínio; /api/vitals console.log raw; privacy.correctField loga input bruto; loggingMiddleware tRPC raw userId/tenantId; admin.dlq.list retorna payload completo."
+    },
+    {
+      "tema": "dns-email-domain",
+      "achados": ["ACH-053", "ACH-054", "ACH-055", "ACH-056"],
+      "impacto": "medio-reputacao",
+      "nota": "HTML injection em template invite (tenantName); SPF/DKIM/DMARC não documentados; DNSSEC + registrar lock + inventário subdomínios ausentes; nginx aceita qualquer Host header (server_name _)."
+    }
+  ],
+  "avaliacao": {
+    "score": 6.0,
+    "nota_qualitativa": "aceitavel_com_ressalvas"
+  },
+  "conclusoes": "O WBC Platform demonstra maturidade técnica acima da média para um produto pré-launch: criptografia adequada, hardening de container state-of-the-art, validação Zod sistemática, RLS no schema, secret scanning ativo no CI e supply-chain (cosign + SLSA + SBOM) bem montado. As 73 ressalvas levantadas refletem em grande parte um padrão recorrente: 'infraestrutura pronta, wiring pendente' — MFA, RLS runtime, audit log, métricas de security e máquinas de estado de venda existem como peças isoladas mas não estão conectadas no fluxo crítico. Antes de finalizar a run e encaminhar para o Prompt 05 (Executor de Correções), recomenda-se priorizar: (a) ACH-021 (cashback débito) por ser crítico financeiro com perda direta de receita; (b) ACH-028 (RNG inseguro tokens) por ser crítico técnico e fácil de explorar; (c) o batch de state machines (ACH-022/023/024/025/027) que tem causa-raiz comum; (d) wiring do AuditLogPort (ACH-063) que destrava conformidade LGPD/SOC2; (e) ativação RLS runtime (ACH-013) que fecha o último gap de tenant isolation. Os demais achados podem ser endereçados em sprints sucessivas conforme priorização do produto. Nenhum achado bloqueia transição para ready_for_finalize.",
+  "pronto_para_finalizar": true,
+  "bloqueadores_para_finalizar": []
+}

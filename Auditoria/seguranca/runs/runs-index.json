@@ -1,0 +1,27 @@
+{
+  "format_version": 1,
+  "domain": "seguranca",
+  "updated_at": "2026-04-27T06:57:22Z",
+  "runs": [
+    {
+      "run_id": "2026-04-26_15-46-36",
+      "iniciado_em": "2026-04-26T15:47:36Z",
+      "finalizado_em": "2026-04-27T06:57:22Z",
+      "status": "completed",
+      "framework_version": "4.0.0-beta.6",
+      "playbook_version": "2.0",
+      "model_ativo": "claude-opus-4-7",
+      "total_findings": 73,
+      "by_severity": {
+        "critico": 2,
+        "alto": 13,
+        "medio": 30,
+        "baixo": 18,
+        "informativo": 9
+      },
+      "avaliacao_score": 6.0,
+      "has_correction": false,
+      "correction_status": null
+    }
+  ]
+}

@@ -1,0 +1,509 @@
+{
+  "format_version": 1,
+  "domain": "seguranca",
+  "run_id": "2026-04-26_15-46-36",
+  "objetivo": "Avaliar se o sistema possui controles de segurança robustos para reduzir risco de exploração, exposição indevida, manipulação não autorizada, vazamento de dados, abuso de fluxo, comprometimento de identidade, vazamento entre tenants e degradação operacional. Cobre desde mapeamento proativo de superfície até detecção e resposta a incidente.",
+  "escopo": "- modelo de ameaça e superfície exposta\n- autenticação\n- sessão, tokens e cookies\n- autorização e controle de acesso\n- isolamento multi-tenant\n- IAM administrativo\n- validação e sanitização de entrada\n- injeção clássica\n- vetores modernos de injeção\n- lógica de negócio e abuse de fluxo\n- criptografia e transporte seguro\n- proteção de dados em I/O\n- headers de segurança e browser hardening\n- segredos, lifecycle e configuração sensível\n- webhooks e integrações externas\n- e-mail, domínio e DNS\n- esteira CI de segurança (SAST/DAST/secret scanning)\n- detecção, audit log e resposta a incidente\n- bot/abuse protection e hardening operacional",
+  "phases": [
+    {
+      "id": "fase-01",
+      "nome": "Threat Modeling e Mapeamento de Superfície",
+      "status": "concluida",
+      "checks_total": 8,
+      "checks_executados": 8,
+      "started_at": "2026-04-26T15:50:06Z",
+      "completed_at": "2026-04-26T15:52:25Z",
+      "skip_reason": null,
+      "findings_created": [
+        "ACH-001",
+        "ACH-002"
+      ],
+      "limitations": [
+        "Surface map (Fase 1): apps/api (tRPC) com 18 routers (admin, ai, analytics, auth, campaigns, catalog, clients, finance, health, inventory, landing, logistics, messaging, platform, privacy, sales, schedule, team), middlewares: auth/rate-limit/idempotency/audit/logging/error-handler/outbox-backpressure. apps/web (Next 15) com 8 API routes (vitals, metrics, send-otp, health, register, [...nextauth], webhooks/mercadopago, webhooks/whatsapp); web/src/middleware.ts aplica CSP-nonce em produção e gating de publicPaths. apps/worker com 9 BullMQ processors (outbox/dlq/messaging/schedule/campaign/analytics + cleanup/scanner/archive). Trust boundaries: Browser↔Web, Web↔API (tRPC), API↔DB (Prisma + applyTenantMiddleware), API↔Redis, API↔WhatsApp/Resend/MercadoPago, Worker↔Redis, tenant↔tenant (via tenantId obrigatório). Fluxos sensíveis com rate-limit por endpoint (auth.login/requestPasswordReset/resetPassword/requestEmailVerification/verifyEmail/acceptInvite/sendOtp/verifyOtp). Variantes de input: tRPC procedures (Zod), Next.js route handlers, BullMQ jobs, webhooks externos."
+      ]
+    },
+    {
+      "id": "fase-02",
+      "nome": "Autenticação",
+      "status": "concluida",
+      "checks_total": 8,
+      "checks_executados": 8,
+      "started_at": "2026-04-26T15:52:53Z",
+      "completed_at": "2026-04-26T15:55:59Z",
+      "skip_reason": null,
+      "findings_created": [
+        "ACH-003",
+        "ACH-004",
+        "ACH-005",
+        "ACH-006"
+      ],
+      "limitations": []
+    },
+    {
+      "id": "fase-03",
+      "nome": "Sessão, Tokens e Cookies de Segurança",
+      "status": "concluida",
+      "checks_total": 8,
+      "checks_executados": 8,
+      "started_at": "2026-04-26T15:56:14Z",
+      "completed_at": "2026-04-26T15:57:58Z",
+      "skip_reason": null,
+      "findings_created": [
+        "ACH-007",
+        "ACH-008",
+        "ACH-009"
+      ],
+      "limitations": [
+        "Cookies (httpOnly, sameSite=lax, __Secure-/__Host- prefix em prod) e CSRF token configurados explicitamente em auth.config.ts:228-275 — adequado.",
+        "AUTH_SECRET valida >32 chars + rejeita placeholders (env.ts:14-23) — bom.",
+        "JWT algorithm: HS256 default do NextAuth, sem risco de 'none' algorithm.",
+        "Logout: events.signOut adiciona jti à RedisJwtBlacklist com TTL = remaining session lifetime (auth.config.ts:285-303) — efetivo."
+      ]
+    },
+    {
+      "id": "fase-04",
+      "nome": "Autorização e Controle de Acesso",
+      "status": "concluida",
+      "checks_total": 8,
+      "checks_executados": 8,
+      "started_at": "2026-04-26T15:58:18Z",
+      "completed_at": "2026-04-26T16:01:44Z",
+      "skip_reason": null,
+      "findings_created": [
+        "ACH-010",
+        "ACH-011",
+        "ACH-012"
+      ],
+      "limitations": [
+        "RBAC de baseline funciona: roleProtectedProcedure(min) valida ROLE_HIERARCHY e emite security event em FORBIDDEN. roleProtectedProcedure usado em admin/team/auth (createInvite/listInvites/cancelInvite/resendInvite/updateMemberRole/removeMember).",
+        "CSRF: cookies sameSite=lax (auth.config.ts:206) + csrfToken NextAuth (auth.config.ts:217-227); tRPC POSTs preflighted via Content-Type — proteção baseline OK; sem double-submit explícito.",
+        "Tenant scoping: applyTenantMiddleware Prisma ($use) injeta tenantId em queries (apps/api/src/index.ts:26 + packages/db/src/middleware/tenant-injection.middleware.ts) — defesa em profundidade ao filtro explícito nos use-cases."
+      ]
+    },
+    {
+      "id": "fase-05",
+      "nome": "Isolamento Multi-Tenant",
+      "status": "concluida",
+      "checks_total": 7,
+      "checks_executados": 7,
+      "started_at": "2026-04-26T16:02:00Z",
+      "completed_at": "2026-04-26T16:04:48Z",
+      "skip_reason": null,
+      "findings_created": [
+        "ACH-013",
+        "ACH-014",
+        "ACH-015"
+      ],
+      "limitations": [
+        "Prisma applyTenantMiddleware (packages/db/src/middleware/tenant-injection.middleware.ts) injeta tenantId em READ/CREATE/UPDATE/DELETE para 39 models — adequado.",
+        "BullMQ jobs e workers carregam tenantId no payload (apps/worker/src/index.ts:159, dlq-processor.ts:60) e validam — adequado.",
+        "TenantScopedRedis enforça AsyncLocalStorage tenant context para cache namespace — bom design, parcialmente subutilizado (ACH-015).",
+        "Audit log (security-logger.ts) inclui tenantId nos eventos — sem cross-tenant leak observável."
+      ]
+    },
+    {
+      "id": "fase-06",
+      "nome": "IAM Administrativo",
+      "status": "concluida",
+      "checks_total": 9,
+      "checks_executados": 9,
+      "started_at": "2026-04-26T16:05:18Z",
+      "completed_at": "2026-04-26T16:06:27Z",
+      "skip_reason": null,
+      "findings_created": [
+        "ACH-016",
+        "ACH-017"
+      ],
+      "limitations": [
+        "IAM cloud não auditável neste repo (ACH-017) — checks de role excessiva (*:*), tokens efêmeros vs longa duração, MFA admin cloud, JIT access ficam sem evidência. Avaliação restrita ao código.",
+        "Service account separation (humano vs máquina) também depende de IaC ausente.",
+        "Tokens de integração (WHATSAPP/MERCADOPAGO/RESEND) carregados de env via packages/shared/src/env.ts com requireInProduction (boa higiene de carregamento), mas escopo do token é responsabilidade da plataforma externa."
+      ]
+    },
+    {
+      "id": "fase-07",
+      "nome": "Validação e Sanitização de Entrada",
+      "status": "concluida",
+      "checks_total": 8,
+      "checks_executados": 8,
+      "started_at": "2026-04-26T16:06:37Z",
+      "completed_at": "2026-04-26T16:08:07Z",
+      "skip_reason": null,
+      "findings_created": [
+        "ACH-018",
+        "ACH-019"
+      ],
+      "limitations": [
+        "Cobertura de validação Zod via @wbc/validators é ampla — 18 arquivos cobrindo todos os domínios; cada router .input(schemaX) aplica validação no backend.",
+        "Webhooks externos validam corretamente: MercadoPago (parseMercadoPagoPayload + verifyMercadoPagoSignature + dataId check) e WhatsApp (verifyWebhookSignature + verifyWebhookTimestamp + ensureNotReplayed via Redis NX) — bom padrão.",
+        "Email lowercased em authenticate-with-credentials.use-case.ts:60 (input.email.trim().toLowerCase()) — normalização correta para evitar bypass case-sensitive.",
+        "Mass assignment: schemas Zod operam por allowlist (campos explícitos) — proteção implícita contra mass binding.",
+        "Sem upload de arquivo direto na superfície (sem multer/formidable/busboy nem rotas /api/upload) — surface de upload zero ou via signed URL externa que não foi auditada por falta de evidência."
+      ]
+    },
+    {
+      "id": "fase-08",
+      "nome": "Injeção Clássica",
+      "status": "concluida",
+      "checks_total": 10,
+      "checks_executados": 10,
+      "started_at": "2026-04-26T16:08:25Z",
+      "completed_at": "2026-04-26T16:09:35Z",
+      "skip_reason": null,
+      "findings_created": [],
+      "limitations": [
+        "Zero usos de prisma.\\$queryRawUnsafe / \\$executeRawUnsafe em apps/* e packages/* — todas as queries cruas usam template literal tag (parameterizado).",
+        "\\$queryRaw em outbox (claimPendingRoundRobin / claimPending) e healthchecks: ${limit} é parameterizado — sem SQLi.",
+        "Zero usos de child_process / exec / spawn / execSync — sem command injection surface.",
+        "Zero usos de eval() / new Function() em código próprio — sem template injection direto.",
+        "Zero fetch() com URL controlada por usuário — sem SSRF surface (ai router envia para constante DEEPSEEK_API_URL; webhooks recebem URL fixa do externo).",
+        "Zero patrão path.join(...input.) ou fs.readFile(input.) — sem path traversal observado.",
+        "Não há rotas /api/upload nem multer/formidable/busboy — surface de upload zero ou via signed URL externa.",
+        "Header injection: Next.js NextResponse impede CRLF injection automaticamente.",
+        "Conclusão Phase 8: postura de injeção clássica é forte. Risco residual concentrado em Phase 9 (prompt injection na ai router) e Phase 13 (headers, já cobertos por CSP nonce em web/middleware.ts)."
+      ]
+    },
+    {
+      "id": "fase-09",
+      "nome": "Vetores Modernos de Injeção",
+      "status": "concluida",
+      "checks_total": 8,
+      "checks_executados": 8,
+      "started_at": "2026-04-26T16:09:50Z",
+      "completed_at": "2026-04-26T16:10:52Z",
+      "skip_reason": null,
+      "findings_created": [
+        "ACH-020"
+      ],
+      "limitations": [
+        "Prototype pollution: object spread `...input` em apps/api/src/routers/team.ts:42 é seguro porque o schema Zod inline (createTask em team.ts:38) usa shape estrito sem .passthrough(); Zod por default strips unknown keys. Grep por '.passthrough()' em packages/validators e apps retorna VAZIO — ausência sistemática protege spread.",
+        "JSON.parse em untrusted (mercadopago/whatsapp webhooks) está sempre dentro de try/catch retornando 400 — sem prototype pollution porque parsers JSON nativos ignoram __proto__/constructor (V8 desde 2018).",
+        "superjson como tRPC transformer: validado/conhecido, sem deserialization gadget exposure (não desserializa Functions ou classes complexas em payload).",
+        "NoSQL: zero — sistema usa Prisma+Postgres, sem MongoDB, Cassandra, etc.",
+        "GraphQL: zero — sistema usa tRPC."
+      ]
+    },
+    {
+      "id": "fase-10",
+      "nome": "Lógica de Negócio e Abuse de Fluxo",
+      "status": "concluida",
+      "checks_total": 7,
+      "checks_executados": 7,
+      "started_at": "2026-04-26T19:54:08Z",
+      "completed_at": "2026-04-26T19:57:14Z",
+      "skip_reason": null,
+      "findings_created": [
+        "ACH-021",
+        "ACH-022",
+        "ACH-023",
+        "ACH-024",
+        "ACH-025",
+        "ACH-026",
+        "ACH-027"
+      ],
+      "limitations": [
+        "Frontend não executa lógica financeira crítica (preço/total): grep por 'calculateSaleTotal|calculateCashback|calculateMargin' em apps/web/src retorna VAZIO; única página com cálculo é apps/web/src/app/(auth)/onboarding/page.tsx (não financeiro). Backend é fonte única de total (computeSaleTotal em domain/value-objects.ts) — bom design.",
+        "createSale.confirmAtomic decrementa estoque dentro de Serializable transaction com guard `quantity: { gte: d.quantity }` (prisma-sale-repository.ts:160-172) — race condition de oversell mitigada corretamente. PrismaCashbackRepository.use também usa Serializable + cashbackRedemption idempotency table (linhas 50-95) — race condition de overspend de cashback mitigada quando o use é chamado, mas o use NÃO é chamado no fluxo de venda (ACH-021).",
+        "Webhook WhatsApp tem ensureNotReplayed (Redis NX) + verifyWebhookTimestamp — bom padrão; serviu de baseline para identificar gap em MercadoPago (ACH-026).",
+        "Idempotency middleware (apps/api/src/trpc/idempotency-middleware.ts) é maduro: deriveIdempotencyKey via canonicaliseForHash recursivo (correção do ACH-001 apis-integracoes está aplicada — replacer bug evitado), TTL 24h, fallback graceful sem Redis. Cobertura: sales.create, sales.confirm, sales.markPaid, sales.createReturn, finance.createExpense, campaigns.confirm, inventory.createOrder, inventory.receiveOrder. Gap: cancelSale e updateSaleStatus sem idempotency (mas state machine ausente é problema maior).",
+        "Tabela CashbackRedemption (idempotency PK key) já existe no schema e é usada corretamente em PrismaCashbackRepository.use — quando ACH-021 for resolvido (chamar use no fluxo), a infraestrutura de idempotency está pronta.",
+        "Fluxo de payment-sync MercadoPago é stub — TODO em mercadopago/route.ts:47. Auditoria de markPaid downstream (ACH-023) cobre o impacto quando esse handler for ligado.",
+        "Não há cupom/discount code/promoção implementados (não há tabela Coupon nem CouponRedemption no schema; campaigns.* dispara mensagens, não cria descontos): checks de coupon stacking, cupom duplicado por usuário, refund loop em cupom = não-aplicável por ausência de surface.",
+        "Não há fluxo de signup público com risco de mass account creation (apps/web/src/app/api/register/route.ts retorna 503 — Auth 2.0 in progress, vide ACH-010); checks de signup com domínio descartável = não-aplicáveis até religar.",
+        "Não há plan-bound limits ativos no fluxo (entitlements.ts existe mas é stub; plano Essential/Pro não tem gate enforce em código de business); abuse de plan limits = não-aplicável até ligar enforcement.",
+        "schedule.* (appointments) é interno (consultora marca compromisso para si própria); sem booking público — sem race condition de overbooking observável."
+      ]
+    },
+    {
+      "id": "fase-11",
+      "nome": "Criptografia e Transporte Seguro",
+      "status": "concluida",
+      "checks_total": 9,
+      "checks_executados": 9,
+      "started_at": "2026-04-26T20:00:00Z",
+      "completed_at": "2026-04-26T20:08:00Z",
+      "skip_reason": null,
+      "findings_created": [
+        "ACH-028",
+        "ACH-029",
+        "ACH-030",
+        "ACH-031"
+      ],
+      "limitations": [
+        "TLS público (nginx em deploy/nginx.conf:43-62): TLSv1.2/1.3, ciphers ECDHE-AES-GCM modernos, HSTS 2 anos com includeSubDomains+preload, X-Frame-Options DENY, X-Content-Type-Options nosniff — postura adequada para borda. Certbot Let's Encrypt configurado com renovação automática (compose linhas 150-160).",
+        "Algoritmos: AES-256-GCM em totp-secret-crypto.ts (algoritmo moderno, autenticado), HMAC-SHA256 em mercadopago-webhook-handler.ts:81 e whatsapp-webhook-handler.ts:56 (ambos com timingSafeEqual em constant-time — adequado), SHA-256 em redis-login-attempt-tracker.ts:21 e create-session.use-case.ts:22 (hash não-reversível para identifiers e refresh tokens — adequado). Zero MD5/SHA-1/DES/RC4 em uso sensível observado.",
+        "RNG: crypto.randomBytes em redis-auth-token-store.adapter.ts:39 (32 bytes = 256 bits), create-session.use-case.ts:21 (32 bytes), enable-totp.use-case.ts:29 (10 bytes = 80 bits — adequado para códigos one-shot), totp-secret-crypto.ts:34 (12 bytes IV), randomUUID em auth.config.ts:116 e trpc/context.ts:19 — todos CSPRNG. Math.random aparece em outros 4 lugares todos com uso operacional (catalog/entities.ts é o caso sensível e virou ACH-028; os demais — slow-query-middleware.ts:35 sampling, prisma-outbox-repository.ts:150 jitter, http/client.ts:48 request-id correlation, post-sale-flow.ts:22 message variant — não são tokens de segurança).",
+        "JWT: NextAuth com strategy=jwt (auth.config.ts:196), HS256 default (sem 'none' algorithm risk), AUTH_SECRET validada >32 chars + rejeita placeholders (env.ts:14-22), jti randomUUID por issuance (auth.config.ts:116) — adequado.",
+        "Hashing de senha: bcrypt cost=12 (bcrypt-password-hasher.adapter.ts:6) — apropriado para 2026 (recomendação OWASP é cost ≥10 para bcrypt; 12 é robusto sem ser dolorosamente lento). KDF para derivação de chave TOTP master: scrypt (totp-secret-crypto.ts:29) com salt fixo aceitável porque entrada já é high-entropy (TOTP_ENCRYPTION_KEY validada como secret de produção via requireEnv).",
+        "Gestão de chaves: TOTP_ENCRYPTION_KEY documentada em SECURITY.md:95 com rotação anual e armazenamento em Secret Manager / .env.production. AUTH_SECRET com validação anti-placeholder. Sem KMS managed (ACH-016 já aberto na fase-06).",
+        "IV/nonce reuse: totp-secret-crypto.ts:34 gera novo IV de 12 bytes por encrypt (randomBytes) — sem reuso. AES-GCM sob mesma chave permite até 2^32 IVs sem colisão prática — adequado para volume de TOTP enrollments.",
+        "Recovery codes (enable-totp.use-case.ts:27-31): 10 bytes randomBytes = 80 bits, hash SHA-256 puro (sem KDF). 80 bits é suficiente para uso one-shot offline (paradoxo do aniversário em 80 bits exige 2^40 tentativas — impraticável). SHA-256 sem KDF é aceitável porque entropia já é alta. Não vira finding.",
+        "Mobile (apps/mobile): app embrionário sem dependências de fetch/HTTP/auth (package.json sem axios/ky/auth client) — certificate pinning N/A até existir camada de comunicação real. Quando ligar, usar react-native-ssl-pinning ou ssl-pinning do Expo SDK 54+.",
+        "Webhook signature replay: WhatsApp tem ensureNotReplayed via Redis NX (whatsapp-webhook-handler.ts:113-127); MercadoPago não tem (gap registrado em ACH-026 fase-10) — sem duplicação aqui.",
+        "DEEPSEEK_API_URL hardcoded para https:// (deepseek-adapter.ts:13) — sem fallback HTTP."
+      ]
+    },
+    {
+      "id": "fase-12",
+      "nome": "Proteção de Dados em I/O",
+      "status": "concluida",
+      "checks_total": 8,
+      "checks_executados": 8,
+      "started_at": "2026-04-26T20:10:00Z",
+      "completed_at": "2026-04-26T20:14:00Z",
+      "skip_reason": null,
+      "findings_created": [
+        "ACH-032",
+        "ACH-033",
+        "ACH-034",
+        "ACH-035",
+        "ACH-036"
+      ],
+      "limitations": [
+        "Pino REDACT_PATHS (packages/shared/src/logger.ts:28-46) cobre password/passwordHash/token/accessToken/refreshToken/apiKey/authorization/email/phone — adequado como rede de segurança para a maioria dos paths nominados. Não cobre `userId`/`tenantId`/`accountId` (que ACH-035 endereça via redactId em vez de [REDACTED] para preservar correlação).",
+        "Helpers de redaction (packages/shared/src/redaction.ts) — redactPhone (mantém últimos 4), redactId (8 chars + …), redactEmail (sha256+12) — são bem desenhados; problema é a aplicação inconsistente (alguns loggers usam, outros não — ACH-035).",
+        "logSecurityEvent (packages/shared/src/security-logger.ts:27-61) aplica redactSecurityFields antes do log — adequado; é o padrão a seguir.",
+        "Resend email sender (packages/business/auth/adapters/resend-email-sender.adapter.ts:42-52) loga `to: message.to` (e-mail bruto) APENAS no dev path quando RESEND_API_KEY está ausente — comportamento dev-only aceitável; em produção (com chave) não loga `to`.",
+        "Webhooks externos (apps/web/src/app/api/webhooks/whatsapp/route.ts) NÃO logam payload — bom; respondem com erros opacos ('invalid signature', 'stale webhook', 'replay').",
+        "WhatsApp adapter (packages/business/messaging/adapters/whatsapp-n2-adapter.ts:139-185) usa `phone: phoneRedacted` em todos os logs de send/error — adequado.",
+        "outbox-processor.ts:33-45 loga `{ eventId, type, tenantId }` em sucesso (sem payload) e `{ eventId, type, error }` em falha — error pode ser pino-serializado; em produção level=warn drena INFO.",
+        "Health endpoint (apps/api/src/routers/health.ts:78-157) filtra detalhes para callers não-internos via INTERNAL_IP_RE + READY_DETAILS_TOKEN — bom.",
+        "tRPC errorFormatter (trpc.ts:23-31) NÃO retorna stack trace, NÃO retorna SQL — apenas `domainError: error.cause?.constructor.name` (problema é justamente esse, ACH-032).",
+        "next.config.mjs e nginx.conf não emitem `X-Powered-By`/`Server` (ambas as camadas aceitam a remoção default; Next.js suprime por default e nginx suprime via padrão de build do alpine). X-XSS-Protection: 1; mode=block é deprecado mas não vaza dados — assunto da fase-13.",
+        "Account entity (packages/business/auth/domain/entities/account.entity.ts) expõe `passwordHash` getter público — risco residual de vazamento se algum router futuro fizer `return account` sem mapping. Hoje, todos os call-sites (auth.getProfile, auth.config callbacks, updateAccount, etc.) fazem mapping explícito {id, email, name, emailVerified} — adequado. Vira recomendação preventiva, não finding observável."
+      ]
+    },
+    {
+      "id": "fase-13",
+      "nome": "Headers de Segurança e Browser Hardening",
+      "status": "concluida",
+      "checks_total": 10,
+      "checks_executados": 10,
+      "started_at": "2026-04-26T20:20:00Z",
+      "completed_at": "2026-04-26T20:25:00Z",
+      "skip_reason": null,
+      "findings_created": [
+        "ACH-037",
+        "ACH-038",
+        "ACH-039",
+        "ACH-040",
+        "ACH-041",
+        "ACH-042"
+      ],
+      "limitations": [
+        "apps/web (dashboard, autenticado) tem postura forte: CSP nonce + strict-dynamic em produção (middleware.ts:22-41), HSTS 2 anos com preload (next.config.mjs:32), X-Frame-Options DENY (next.config.mjs:34) + frame-ancestors 'none' na CSP (defesa em profundidade), X-Content-Type-Options nosniff, Referrer-Policy strict-origin-when-cross-origin, Permissions-Policy mínima (camera/microphone/geolocation negadas), cookies __Secure-/__Host- prefix em prod com httpOnly/sameSite=lax (auth.config.ts:204-240) — adequado.",
+        "nginx em deploy/nginx.conf:43-62 reforça mesmos headers na borda (defesa em profundidade) + TLS 1.2/1.3 com ciphers ECDHE-AES-GCM modernos.",
+        "X-Powered-By: zero matches em código próprio; Next.js suprime por default; nginx alpine não emite Server detalhado — adequado.",
+        "CORS no apps/web/next.config.mjs:50-61 usa AUTH_URL como allowedOrigin (não usa '*' em endpoint autenticado) — adequado; Access-Control-Allow-Credentials NÃO está presente, mas as rotas /api/* da web não são consumidas cross-origin (são internas para o próprio dashboard) — não bloqueia.",
+        "apps/api não expõe HTTP server independente (tRPC importa via Next.js route handler em apps/web/src/app/api/trpc/[trpc]/route.ts presumido) — não há configuração de CORS dedicada para api separada.",
+        "Terceiros embarcados: zero <script src=\"http\"> no source; Sentry SDK via npm (bundle local), Sora font self-hosted via next/font/google — surface de terceiros via CDN é zero hoje (ver ACH-038).",
+        "Cookies de NextAuth com prefixos __Secure- (sessionToken, callbackUrl) e __Host- (csrfToken) em produção — best-practice."
+      ]
+    },
+    {
+      "id": "fase-14",
+      "nome": "Segredos, Lifecycle e Configuração Sensível",
+      "status": "concluida",
+      "checks_total": 13,
+      "checks_executados": 13,
+      "started_at": "2026-04-26T20:23:00Z",
+      "completed_at": "2026-04-26T20:31:00Z",
+      "skip_reason": null,
+      "findings_created": [
+        "ACH-043",
+        "ACH-044",
+        "ACH-045",
+        "ACH-046"
+      ],
+      "limitations": [
+        "env.ts (packages/shared/src/env.ts) é modelo de boas práticas: schema Zod por app (web/api/worker), AUTH_SECRET min(32) + rejeita placeholders (change/secret/wbc-dev/placeholder/generate) via .refine, validateEnv() falha early no boot e REQUIRED_IN_PRODUCTION enforce vars críticas em prod (WHATSAPP_*, MERCADOPAGO_ACCESS_TOKEN, RESEND_API_KEY, DEEPSEEK_API_KEY).",
+        ".gitignore exclui .env, .env.local, .env.*.local, .auditoria-backup-*, .claude/.credentials.json — adequado. git log para .env retorna VAZIO (nunca commitado). git log -S 'AUTH_SECRET=' não traz commits de secret real.",
+        ".gitleaks.toml com extend useDefault=true + allowlist específica para fixtures (Auditoria/, playbook/, *.example, bcrypt timing-decoy, REPLACE_WITH_OPENSSL_RAND_BASE64_*, CHANGE_ME_*, your-{deepseek,whatsapp,resend,mercadopago}-{key,token}). Job CI .github/workflows/ci.yml:205-216 roda gitleaks-action@v2 com fetch-depth: 0 — secret scanning ativo.",
+        ".env.example e .env.production.example usam placeholders que casam com gitleaks allowlist (REPLACE_WITH_OPENSSL_RAND_BASE64_*, CHANGE_ME_FROM_*, your-*-token). AUTH_SECRET dev exemplo é REPLACE_WITH_OUTPUT_OF_openssl_rand_base64_48 — adequado.",
+        "docker-compose.prod.yml: zero secrets inline; todos via ${VAR} sem default ou com :? para fail-fast (GRAFANA_PASSWORD); usa env_file: .env.production. POSTGRES_PASSWORD/REDIS_PASSWORD/WBC_*_DB_PASSWORD vêm de env. docker-compose.yml (dev) tem POSTGRES_PASSWORD: wbc_dev_2026 inline mas é dev-only, porta 5433 local — risco zero em prod (compose dev nunca executa em VPS).",
+        "docker-images.yml workflow usa secrets: BUILD_DATABASE_URL via build-secret (não baked em layer), cosign keyless signing + SLSA build-provenance + Trivy scan + SBOM upload — postura excelente.",
+        "Padrão consistente em adapters: production (NODE_ENV==='production') usa requireEnv() que lança em ausência; dev usa process.env.X ?? fallback-seguro. Aplicado em totp-secret-crypto.ts, deepseek-adapter.ts, whatsapp-n2-adapter.ts, resend-email-sender.adapter.ts.",
+        "TOTP_ENCRYPTION_KEY: requireEnv em prod (totp-secret-crypto.ts:24-26); dev fallback 'wbc-dev-totp-key' apenas em NODE_ENV != production. Documentado em SECURITY.md com rotação anual.",
+        "SECURITY.md tem tabela de Defesas em Operação com rotação documentada (90 dias geral, AUTH_SECRET no env enforce, TOTP rotacionado yearly, Postgres role separation wbc_app/wbc_migrations/wbc_readonly via setup-roles.sql, branch protection main + signed commits + CODEOWNERS, gitleaks pre-commit + CI + GitHub native push protection).",
+        "Configuração sensível NÃO exposta no client bundle: única var NEXT_PUBLIC_* é NEXT_PUBLIC_SENTRY_DSN (apps/web/sentry.client.config.ts:8) — DSN do Sentry é público por design (write-only ingestion endpoint), não vaza segredo. apps/landing não usa env vars de processo.",
+        "RLS policies (packages/db/prisma/migrations/20260421000005_rls_policies/migration.sql, 79 linhas) idempotente, cobre tabelas com tenantId direto OU derivado via parent (post_sale_flows.saleId, deliveries.saleId, team_members.teamId, etc.) — config sensível de banco bem feita.",
+        "Sem hardcoded API keys reais: grep por 'Bearer eyJ', 'sk_live_', 'sk_test_', 'pk_live_', 'AKIA[A-Z0-9]{16}', 'BEGIN PRIVATE KEY' em todo o repo (excluindo node_modules/Auditoria/.git) retorna VAZIO.",
+        "Sem rotas admin protegidas só por obscuridade: apps/api/src/routers/admin.ts usa adminProcedure = roleProtectedProcedure('ADMIN') — gating por role + auditável; apps/web/src/middleware.ts não tem caminho 'oculto'.",
+        "Sem debug mode em produção: grep por DEBUG=, debug:true em apps/* não revela override permissivo; sentry envs todos via NODE_ENV. Sem next.config.mjs.experimental flags inseguras.",
+        "EMAIL_FROM com fallback FROM_DEFAULT='WBC <noreply@weavecode.co.uk>' — não é segredo (endereço público), mas falta no .env*.example (vide ACH-046).",
+        "Ausência de KMS managed (já registrada como ACH-016 fase-06 IAM). TOTP_ENCRYPTION_KEY vive em .env.production / Secret Manager externo conforme SECURITY.md — sem regressão nesta fase.",
+        "Sem evidência de arquivos de backup (.bak/.backup/.swp/.dump/.sql.gz) commitados ou expostos via web — find retorna VAZIO."
+      ]
+    },
+    {
+      "id": "fase-15",
+      "nome": "Webhooks e Integrações Externas",
+      "status": "concluida",
+      "checks_total": 8,
+      "checks_executados": 8,
+      "started_at": "2026-04-26T20:35:00Z",
+      "completed_at": "2026-04-26T20:46:00Z",
+      "skip_reason": null,
+      "findings_created": [
+        "ACH-047",
+        "ACH-048",
+        "ACH-049",
+        "ACH-050",
+        "ACH-051",
+        "ACH-052"
+      ],
+      "limitations": [
+        "Verificação HMAC de assinatura: WhatsApp (whatsapp-webhook-handler.ts:42-66) e MercadoPago (mercadopago-webhook-handler.ts:51-88) — ambos com createHmac sha256 + timingSafeEqual em constant-time + length check. Adequado.",
+        "Replay protection: WhatsApp completa (whatsapp-webhook-handler.ts:113-127 ensureNotReplayed Redis SET NX EX 600s + verifyWebhookTimestamp 300s drift). MercadoPago NÃO tem (gap já registrado em ACH-026 fase-10 — 'webhook-replay'); não duplicar aqui.",
+        "Idempotência de operações disparadas: hoje ambos os handlers só fazem parse+log+TODO (linhas 47-48 mp/route.ts, 122 wa/route.ts) — não chamam use-cases downstream. Quando o payment-sync use-case do MP for ligado, deve usar PrismaCashbackRepository pattern (Serializable + idempotency table), análogo ao que ACH-021 levantou. Sem implementação observável hoje, vira limitação até wiring real.",
+        "Retry/backoff/DLQ outbound: WhatsApp (whatsapp-n2-adapter.ts:81-191) tem retry com baseDelayMs * (attempt+1) + circuit breaker; DeepSeek (deepseek-adapter.ts:67-121) idem; ambos via @wbc/shared resilience policies. Outbox processor (apps/worker/src/processors/outbox-processor.ts) marca failed e tem DLQ scanner+processor com Slack+Sentry fanout (dlq-processor.ts:24-69). Postura geral boa; gap específico do Resend (ACH-048) e do fanout DLQ (ACH-050).",
+        "Credenciais outbound: env.ts requireInProduction enforce WHATSAPP_API_TOKEN, WHATSAPP_PHONE_NUMBER_ID, WHATSAPP_APP_SECRET, MERCADOPAGO_ACCESS_TOKEN, RESEND_API_KEY, DEEPSEEK_API_KEY (já validado em fase-14). MERCADOPAGO_WEBHOOK_SECRET é exceção registrada em ACH-043. Cada credencial tem escopo correspondente ao seu provider (não há reuso de token entre integrações).",
+        "Tratamento de erro outbound: WhatsApp/DeepSeek falham para `{success:false}` ou texto de fallback ('AI indisponível'); circuit breaker abre após threshold. Resend (ACH-048) joga erro sem fallback — pior padrão.",
+        "Logging de eventos de integração: whatsapp-n2-adapter usa phoneRedacted em todos os logs; outbox-processor loga {eventId, type, tenantId} sem payload em sucesso e {eventId, type, error} em falha (error é Error.message via pino, sem payload). Resend dev path loga `to: message.to` apenas quando RESEND_API_KEY ausente (fase-12 limit já registrou). DeepSeek não loga prompt/response. Webhooks (route handlers) NÃO logam payload — apenas erros opacos. Postura adequada.",
+        "Validação de payload: ambos os webhooks fazem JSON.parse + parser tipado (parseMercadoPagoPayload, JSON.parse cast WhatsAppWebhookPayload). MP usa shallow parser por enquanto; quando o payment-sync use-case landar, deve passar para Zod (TODO documentado no próprio handler:91-93). WhatsApp send response é Zod-validated (WhatsAppSendResponseSchema em @wbc/shared, aplicado em whatsapp-n2-adapter.ts:157-168) — bom.",
+        "Validação de origem (mTLS): nenhum dos providers usa mTLS para webhook; HMAC é o único gate. mTLS não é exigido por Meta/MP. ACH-051 cobre IP allowlist como defesa em profundidade.",
+        "Token verify GET (Meta): apps/web/src/app/api/webhooks/whatsapp/route.ts:30-50 valida `hub.mode=subscribe` + token === WHATSAPP_VERIFY_TOKEN antes de ecoar `hub.challenge` — adequado contra rogue subscription."
+      ]
+    },
+    {
+      "id": "fase-16",
+      "nome": "E-mail, Domínio e DNS",
+      "status": "concluida",
+      "checks_total": 9,
+      "checks_executados": 9,
+      "started_at": "2026-04-26T20:48:00Z",
+      "completed_at": "2026-04-26T20:52:00Z",
+      "skip_reason": null,
+      "findings_created": [
+        "ACH-053",
+        "ACH-054",
+        "ACH-055",
+        "ACH-056"
+      ],
+      "limitations": [
+        "Auditoria estática do repo: não consegue verificar registros DNS publicados (SPF/DKIM/DMARC/DNSSEC) — requer `dig`/`mxtoolbox` externo. Findings ACH-054 e ACH-055 cobrem a AUSÊNCIA de documentação interna desses controles, que é o gap auditável.",
+        "Inventário real de subdomínios depende de fonte externa (CT logs, subfinder) — registrado como recomendação operacional em ACH-055, não como achado técnico individualizado por subdomínio.",
+        "Configuração do dashboard Resend (chave DKIM emitida, domínio verificado) não auditável neste repo — área `external-resend-dashboard`.",
+        "Configuração do registrar (Hostinger/CloudFlare/outro) para registrar lock e DNSSEC não auditável neste repo — área `external-registrar-config`.",
+        "BIMI não auditado individualmente — recomendação subordinada a DMARC=reject (vide ACH-054).",
+        "Templates de e-mail são pequenos (3 use-cases: invite, password-reset, email-verification). Apenas invite tem variável dinâmica controlável (`tenantName`) — únicos onde HTML injection é exploitable hoje (ACH-053).",
+        "Resend adapter (resend-email-sender.adapter.ts) usa `from: this.fromAddress` (string fixa do env, não user-controlled) e `to: [message.to]` em array — sem CRLF/header injection vector via campo `to`/`from`. Subject não é sanitizado de \\r\\n hoje (parte da recomendação ACH-053).",
+        "Web app (apps/web) NÃO usa `req.headers.host` em construção de URL para emails (use-cases usam env), o que MITIGA o vetor de host header injection latente em deploy/nginx.conf (ACH-056) — risco residual baixo, mas regressão fácil.",
+        "Cookies de auth usam prefixos `__Secure-`/`__Host-` (auth.config.ts:228-275), o que IMPEDE escopo wildcard `.weavecode.co.uk` — mitiga parcialmente o impacto de subdomain takeover sobre cookies. Vetor de phishing em subdomínio assinado permanece.",
+        "Sem Email Reply-To customizado nas mensagens transacionais (Resend usa from default) — não há vetor de reply-to spoofing.",
+        "EMAIL_FROM via env override (resend-email-sender.adapter.ts:38: `process.env.EMAIL_FROM ?? FROM_DEFAULT`) — quem controla EMAIL_FROM em produção controla o sender. ACH-046 (fase-14) já registrou que EMAIL_FROM falta no .env*.example."
+      ]
+    },
+    {
+      "id": "fase-17",
+      "nome": "Esteira CI de Segurança (SAST/DAST/Secret Scanning)",
+      "status": "concluida",
+      "checks_total": 8,
+      "checks_executados": 8,
+      "started_at": "2026-04-27T06:14:30Z",
+      "completed_at": "2026-04-27T06:19:30Z",
+      "skip_reason": null,
+      "findings_created": [
+        "ACH-057",
+        "ACH-058",
+        "ACH-059",
+        "ACH-060",
+        "ACH-061",
+        "ACH-062"
+      ],
+      "limitations": [
+        "Branch protection rules (required reviews ≥1, signed commits, CODEOWNERS) declarados em SECURITY.md:99 e CONTRIBUTING.md mas NÃO auditáveis por inspeção do repo — requerem acesso à GitHub API (`gh api repos/WeaveCode-UK/wbc/branches/main/protection`). Registrado como limitation; recomendação operacional: validar via `audit-status` futuro com gh CLI.",
+        "GitHub native push protection (mencionada em SECURITY.md:100, 'gitleaks pre-commit + CI + GitHub native push protection') é setting da org/repo no GitHub (Settings → Code security and analysis → Secret scanning → Push protection) — não auditável no repo. Confiamos na linha do SECURITY.md.",
+        "GitHub Advanced Security tier (necessário para CodeQL em repos privados) não verificável aqui — repo `WeaveCode-UK/wbc` parece privado pelo contexto; assumir que recomendação ACH-057 implica habilitar GHAS ou usar Semgrep OSS como alternativa.",
+        "Esteira CI atual (ci.yml + docker-images.yml + dr-drill.yml + next-auth-watch.yml) tem postura SECRET SCANNING (gitleaks pre-commit + CI gateado) e DEPENDENCY SCANNING (pnpm audit gateado, Dependabot weekly, lockfile-integrity, license:check, peer-deps report) MUITO BOAS — gaps específicos são SAST (ACH-057) e DAST (ACH-058) ausentes, e gate de Trivy permissivo (ACH-059).",
+        "Pre-commit hook (.husky/pre-commit) é minimalista: apenas `npx lint-staged` que roda prettier + gitleaks-protect. Não roda type-check nem SAST local — adequado para velocidade do dev loop, com CI sendo o gate final.",
+        "Trivy (container scanning) via `aquasecurity/trivy-action@0.24.0` em docker-images.yml:85-92 cobre CVEs de base image; SBOM via Syft (linhas 101-108); cosign keyless signing (linhas 117-121); SLSA build provenance (linhas 125-130); attest-sbom (linhas 134-140) — supply-chain hardening de imagem é state-of-the-art. Único gap: gate permissivo (ACH-059).",
+        "IaC scanning (checkov/tfsec/kics) não-aplicável: o projeto NÃO usa Terraform/Pulumi/CloudFormation. Único IaC é docker-compose.yml + nginx.conf — auditados manualmente nas fases 11/13/15/16. Quando migrar para IaC managed, adicionar checkov ao CI.",
+        "next-auth-watch.yml (workflow proativo que abre issue em bumps de next-auth) é padrão excelente — deveria ser replicado para outras deps críticas (prisma, NextJS, ioredis, otplib, bcrypt) — recomendação subordinada não-finding.",
+        "Dependabot (.github/dependabot.yml) cobre npm + docker (deploy/) + docker-compose + github-actions com grupos minor-and-patch + major separado para review humano — adequado e maduro."
+      ]
+    },
+    {
+      "id": "fase-18",
+      "nome": "Detecção, Audit Log e Resposta a Incidente",
+      "status": "concluida",
+      "checks_total": 9,
+      "checks_executados": 9,
+      "started_at": "2026-04-27T06:21:00Z",
+      "completed_at": "2026-04-27T06:24:00Z",
+      "skip_reason": null,
+      "findings_created": [
+        "ACH-063",
+        "ACH-064",
+        "ACH-065",
+        "ACH-066",
+        "ACH-067"
+      ],
+      "limitations": [
+        "Audit log infraestrutura (modelo Prisma AuditLog schema.prisma:1173-1191 com índices, port AuditLogPort com 14 ações tipadas, adapter PrismaAuditLog fire-and-forget, middleware tRPC makeAuditMiddleware/auditedAs) está PRONTA mas DESCONECTADA (ACH-063) — gap mais crítico desta fase.",
+        "Security event logging via packages/shared/src/security-logger.ts já cobre 4 eventos (auth.login.success/failed, rbac.forbidden, otp.verify.success/failed/locked, tenant.cross_tenant_blocked) com redação PII (redactSecurityFields) — log para console.warn JSON-serializado vai para log aggregator. Gap é: não emite métrica Prometheus (ACH-064) e não escreve em AuditLog durável (ACH-063).",
+        "Sentry está configurado em web (sentry.client.config.ts), api (apps/api/src/lib/sentry.ts) e edge (sentry.edge.config.ts) com DSN, sample rate 0.1, beforeSend redaction (filterCostNoise + redactSentryEvent) — captura erros TRPCError automaticamente. Mas Sentry não substitui alerting estruturado (Prometheus + Alertmanager + PagerDuty) para SECURITY events — ACH-064 cobre o gap.",
+        "Alertmanager (deploy/alertmanager.yml) tem routing para Slack default + PagerDuty critical — pipeline operacional pronto, falta apenas as REGRAS de security alerting (ACH-064).",
+        "DLQ alerting (apps/worker/src/processors/dlq-processor.ts:24-69) faz fanout para Slack (SLACK_WEBHOOK_URL) + Sentry (captureMessage warning) + métrica Prometheus (dlqEventsTotal) + log structured warn — modelo a replicar para security events.",
+        "Runbook de incident response (docs/INCIDENT_RESPONSE_PRIVACY.md, 105 linhas) está MADURO: matriz de severidade (critico/alto/medio/baixo), 6 fases (detecção/contenção/avaliação/notificação ANPD em 2 dias úteis/remediação/postmortem), tabela de comunicação (Slack #incident-war-room + email DPO + status page), métricas de drill (MTTD ≤15min, MTTR ≤1h crítico, notificação ANPD ≤36h, postmortem ≤2 semanas), pendências humanas claras (templates ANPD/notificação titulares, definir DPO nominal, drill anual, integrar runbook executável Slack/PagerDuty). Postura excelente — sem finding aqui, é referência.",
+        "deploy/RUNBOOKS.md cobre runbooks operacionais (deploy/backup/logs/restart/db/redis) — sem runbook de incident SECURITY específico (auth-bruteforce, cross-tenant-blocked, mass-revocation) — recomendação subordinada a ACH-064.",
+        "security.txt RFC 9116 (apps/web/public/.well-known/security.txt) — gap já registrado em ACH-060 fase-17 (disclosure-channel-ausente) — não duplicar aqui; mesmo problema, mesma evidência. Este check da fase-18 reforça com o ângulo IR (canal de disclosure responsável é parte do plano de IR).",
+        "Bug bounty / safe-harbor: SECURITY.md:29-56 declara safe-harbor formal (não pursue legal action, work with reporter, public credit) com 5 regras (good-faith, no other-tenant data, own account, no automated scanners, embargo 90 dias) + tabela de disclosure timeline (acknowledge ≤2 wd, triage ≤5 wd, fix critical ≤30d/high ≤60d, public disclosure ≥30d after fix). Postura adequada — sem finding.",
+        "Proteção de backups: registrada em docs/dr/ + DR_BACKUP_POLICY.md + cron diário (deploy/backup/install-cron.sh) — auditoria de imutabilidade vs ransomware é responsabilidade do domínio confiabilidade-resiliencia (referência cruzada conforme playbook fase-18.check-protecao-de-backups). Não duplicar aqui.",
+        "Forensic readiness: AuditLog imutabilidade está em ACH-065 (mutável + sem hash chain + sem retenção worker). Snapshot de logs e bancos para forense é citado em INCIDENT_RESPONSE_PRIVACY.md:32 ('Snapshot de logs e bancos relevantes para forense — Não apagar evidências') — processo declarado, sem implementação automatizada (manual via DBA durante incidente).",
+        "Mass session revocation: per-account funciona (auth.revokeAllSessions:302 + RevokeAllSessions use-case + tokenStore.revokeAllForAccount + RedisJwtBlacklist.revoke per-jti) — gap é per-tenant e global (ACH-066). Workaround atual é trocar AUTH_SECRET (downtime para 100% dos users, sem comunicação prévia, sem rollback fácil)."
+      ]
+    },
+    {
+      "id": "fase-19",
+      "nome": "Bot/Abuse Protection e Hardening Operacional",
+      "status": "concluida",
+      "checks_total": 9,
+      "checks_executados": 9,
+      "started_at": "2026-04-27T06:30:00Z",
+      "completed_at": "2026-04-27T06:33:00Z",
+      "skip_reason": null,
+      "findings_created": [
+        "ACH-068",
+        "ACH-069",
+        "ACH-070",
+        "ACH-071",
+        "ACH-072",
+        "ACH-073"
+      ],
+      "limitations": [
+        "Rate limit per-IP existe via rate-limit-middleware.ts (Redis INCR + EXPIRE) com sensitive limits para auth.* (5/min login, 3/h password reset, etc.); per-account via tenantId+accountId; per-endpoint via SENSITIVE_ROUTE_LIMITS — postura aplicacional adequada. Gap de borda (nginx limit_req_zone) é ACH-070; gap de captcha é ACH-068.",
+        "Container hardening em docker-compose.prod.yml é state-of-the-art: read_only: true em web/worker (com tmpfs para /tmp e /app/.next/cache), cap_drop:[ALL] + cap_add:[NET_BIND_SERVICE] em web/nginx, security_opt: no-new-privileges:true em todos, non-root user (uid 1001 nextjs/worker em Dockerfile.web:44-51 e Dockerfile.worker:41-46), pin de digest em todas as base images (postgres:16-alpine@sha256:..., redis:7-alpine@..., nginx:alpine@..., node:20.18.1-alpine@...). Sem AppArmor/seccomp profile customizado declarado, mas no-new-privileges + cap_drop ALL fornecem baseline robusto. Sem finding aqui — postura adequada.",
+        "Defaults de produção: NODE_ENV=production em web/worker, NEXT_TELEMETRY_DISABLED=1, sem debug flags, validateEnv() falha early (ACH-043 fase-14 já cobriu segredos). CORS restritivo via auth url AUTH_URL (next.config.mjs). Headers de segurança via middleware.ts CSP nonce + strict-dynamic em prod. Sem regressões nesta fase.",
+        "Endpoints administrativos protegidos via roleProtectedProcedure('ADMIN') (admin.ts:11) — RBAC adequado, sem 'caminho oculto'. Grafana atrás de basic auth com GRAFANA_PASSWORD enforce em compose. Prometheus/Alertmanager em rede internal:bridge sem expose externo.",
+        "Upload de arquivo: ZERO surface — grep por FormData/multipart/formidable/busboy/multer/clamav em apps/api+apps/web+packages/business retorna VAZIO. Antivírus / sandbox de processamento N/A até existir upload. Quando ligar (showcase com foto custom, talvez), avaliar pipeline (signed URL via S3/R2 + scan via VirusTotal/ClamAV-as-a-service no upload-success webhook).",
+        "Hostinger KVM8 OS hardening (firewall/ufw rules, ssh hardening, fail2ban no host) — N/A neste repo (responsabilidade do operador Robson). Recomendação documentada subordinada a ACH-069 (mover IPs Cloudflare para iptables allowlist quando habilitar CF Free).",
+        "DDoS mitigation tier do Hostinger: documentação contratual não está em SECURITY.md — Hostinger KVM8 typically inclui Layer 3/4 baseline grátis até 1Gbps, suficiente para script-kiddie tier. Para volumetric attacks >1Gbps depende de tier upgrade ou de Cloudflare na frente (ACH-069).",
+        "tRPC HTTP boundary: appRouter declarado em apps/api/src/trpc/router.ts mas SEM fetchRequestHandler/route handler exposto em /api/trpc/[trpc]/route.ts no apps/web. apps/api/src/index.ts não inicia HTTP server (apenas validateEnv+initSentry+composition-root+metrics-server). Significa que tRPC ainda não é exposto em produção — potencial bloqueio de feature em pré-launch (vide referências em fases anteriores). Como NÃO é exposto, abuse via tRPC não está exploitable hoje, mas TODO o ecossistema de rate-limit middleware fica ocioso até o handler land. Recomendação subordinada: ao expor /api/trpc, garantir extractIpFromHeaders + createContext(tenant, ip) — ver auth.config.ts:42-65 já faz para credentials provider. Sem finding novo (problema arquitetural mais amplo é fora-de-escopo desta fase)."
+      ]
+    },
+    {
+      "id": "fase-20",
+      "nome": "Consolidação de Achados e Preparação para Finalização",
+      "status": "concluida",
+      "checks_total": 12,
+      "checks_executados": 12,
+      "started_at": "2026-04-27T06:36:00Z",
+      "completed_at": "2026-04-27T06:38:00Z",
+      "skip_reason": null,
+      "findings_created": [],
+      "limitations": [
+        "Consolidação executada sobre 73 achados das fases 1-19. ACH-017 (iac-ausente) reclassificado como nao_aplicavel (cross-domain — pertence a infraestrutura-deploy-config). Demais 72 achados confirmados em escopo de seguranca, sem duplicatas exatas detectadas.",
+        "Cross-references intencionais mantidos sem reauditoria: backup/DR (referência cruzada para confiabilidade-resiliencia em ACH-065 e fase-18), IaC IAM (cross-domain), tier de DDoS Hostinger (operacional, fora de código).",
+        "Severidades confirmadas: 2 críticos (ACH-021 cashback-débito, ACH-028 RNG-inseguro), 13 altos, 30 médios, 18 baixos, 9 informativos, 1 nao_aplicavel.",
+        "Top temas priorizados agrupados em report.json.consolidacao_por_tema_priorizado para facilitar correção em batch via Prompt 05.",
+        "Score qualitativo: aceitavel_com_ressalvas (6.0/10) — postura técnica madura com gaps recorrentes de wiring (infra pronta, ligação pendente)."
+      ]
+    }
+  ],
+  "fase_atual": "fase-20",
+  "proximo_passo_obrigatorio": "executar Prompt 04 — Finalizar Run",
+  "blocked": false,
+  "open_blockers": [],
+  "atualizado_em": "2026-04-27T06:38:00Z"
+}

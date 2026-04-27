@@ -73,6 +73,10 @@ O Prompt 02 — Iniciar Run deve:
     - arquivo: `/Auditoria/_framework/playbooks/documentacao-runbooks.playbook.md`
     - foco: documentação técnica, ADRs, runbooks operacionais, incident response e continuidade de conhecimento
 
+16. ai-ml-governanca
+    - arquivo: `/Auditoria/_framework/playbooks/ai-ml-governanca.playbook.md`
+    - foco: governança de modelos de IA, prompt versioning, datasets/KB, evals, drift, guardrails, custo por inferência, supervisão humana e privacidade do dado para o modelo
+
 ## Regras Operacionais dos Playbooks
 - Cada run deve usar apenas um playbook por vez.
 - O playbook selecionado define objetivo, escopo, fases internas, checks obrigatórios, critérios de bloqueio e critérios de `ready_for_finalize`.

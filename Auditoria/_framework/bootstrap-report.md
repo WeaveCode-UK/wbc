@@ -1,38 +1,29 @@
-# Bootstrap Core Report do Framework de Auditoria
+# Bootstrap Core Report
 
 ## Identificação
-- data_hora_execucao: 2026-04-18 18:05:06
-- versao_framework: 3.3.0
+- data_hora_execucao: 2026-04-26T15:37:12Z
+- versao_framework: 4.0.0-beta.6
 - status_resultado: completed
 
-## Objetivo
-Registrar o resultado da execução do Bootstrap Core que criou ou inicializou a estrutura principal do framework no projeto.
-
 ## Estrutura Criada
-- pasta `/Auditoria`: criada
-- pasta `/Auditoria/_framework`: criada
-- pasta `/Auditoria/_framework/templates`: criada
-- pasta `/Auditoria/_framework/playbooks`: criada
+- /Auditoria: criado
+- /Auditoria/_framework: criado
+- /Auditoria/_framework/templates: criado
+- /Auditoria/_framework/playbooks: criado (vazio — populado pelo Prompt 01B)
 
-## Arquivos do Núcleo
-- framework.md: criado
-- convencoes.md: criado
-- lifecycle.md: criado
-- domains.md: criado
-- execution-rules.md: criado
-- state-machine.md: criado
-- glossario.md: criado
-- checklist-global.md: criado
-- status-geral.md: criado
-- bootstrap-report.md: criado
-- playbook-seed-report.md: criado
+## audit-index.json
+- criado: sim
+- 16 domínios populados: sim
+- playbook_version lido de cada playbook: sim
 
-## Templates
-- metadata.template.md: criado
-- acompanhamento.template.md: criado
-- achados.template.md: criado
-- relatorio-final.template.md: criado
-- runs-index.template.md: criado
+## Templates JSON
+- run.template.json: criado
+- state.template.json: criado
+- findings.template.json: criado
+- report.template.json: criado
+- runs-index.template.json: criado
+- correction.template.json: criado
+- correction-report.template.json: criado
 
 ## Domínios Inicializados
 - arquitetura: criado
@@ -50,28 +41,13 @@ Registrar o resultado da execução do Bootstrap Core que criou ou inicializou a
 - supply-chain-dependencias: criado
 - custos-finops: criado
 - documentacao-runbooks: criado
-
-## Seed de Playbooks
-- status: pending
-- observacao: sera executado em seguida pelo Prompt 01B; a pasta playbook/ na raiz do projeto sera usada como fonte transitoria (copia canonica) e removida ao final do seed
+- ai-ml-governanca: criado
 
 ## Conflitos ou Inconsistências Detectadas
-- backup timestamped `.auditoria-backup-20260418-180415/playbook/` criado pelo install.sh do framework ao preservar instalacao anterior (nao conflita com a nova estrutura)
+- none
+
+## Formato Legado Detectado
+- nao
 
 ## Resumo Final
-O Bootstrap Core v3.3.0 foi concluido com sucesso. A estrutura `/Auditoria/` esta completa:
-- 4 pastas raiz do core (`_framework`, `_framework/templates`, `_framework/playbooks`)
-- 11 arquivos centrais do nucleo
-- 5 templates oficiais
-- 15 dominios oficiais inicializados, cada um com `current/` contendo metadata, acompanhamento, achados e relatorio-final com placeholders do template
-
-A estrutura esta integra. Nao houve sobrescrita de conteudo historico (nao havia historico preexistente em `runs/` neste projeto). Nao foi executada auditoria tecnica de nenhum dominio nesta etapa.
-
-Pronto para avancar para a etapa 01B (Seed de Playbooks).
-
-## Resultado Esperado
-Ao final do Bootstrap Core, este arquivo deve deixar claro:
-- o que foi criado: toda a estrutura `_framework/`, templates, dominios e arquivos operacionais iniciais
-- o que ja existia: nenhum conteudo oficial preexistente (pasta Auditoria/ estava limpa apos commit 438514e)
-- se houve conflito: nao
-- se o core ficou pronto para o Seed de Playbooks: sim
+- Bootstrap Core 4.0.0-beta.6 concluído com sucesso. Estrutura `/Auditoria/` íntegra com 16 domínios oficiais, 7 templates JSON canônicos e audit-index.json validado. Pronto para Seed Playbooks (Prompt 01B).

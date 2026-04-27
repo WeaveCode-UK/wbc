@@ -1,0 +1,168 @@
+{
+  "format_version": 1,
+  "framework_version": "4.0.0-beta.6",
+  "updated_at": "2026-04-27T06:57:22Z",
+  "playbooks_seed_status": "completed",
+  "domains": [
+    {
+      "slug": "arquitetura",
+      "ordem": 1,
+      "playbook_version": "1.0",
+      "status_current": "not_started",
+      "active_run_id": null,
+      "ultima_run_finalizada": null,
+      "total_runs": 0,
+      "last_finalized_at": null
+    },
+    {
+      "slug": "codigo-manutenibilidade",
+      "ordem": 2,
+      "playbook_version": "1.0",
+      "status_current": "not_started",
+      "active_run_id": null,
+      "ultima_run_finalizada": null,
+      "total_runs": 0,
+      "last_finalized_at": null
+    },
+    {
+      "slug": "seguranca",
+      "ordem": 3,
+      "playbook_version": "2.0",
+      "status_current": "not_started",
+      "active_run_id": null,
+      "ultima_run_finalizada": "2026-04-26_15-46-36",
+      "total_runs": 1,
+      "last_finalized_at": "2026-04-27T06:57:22Z"
+    },
+    {
+      "slug": "apis-integracoes",
+      "ordem": 4,
+      "playbook_version": "1.0",
+      "status_current": "not_started",
+      "active_run_id": null,
+      "ultima_run_finalizada": null,
+      "total_runs": 0,
+      "last_finalized_at": null
+    },
+    {
+      "slug": "dados-persistencia",
+      "ordem": 5,
+      "playbook_version": "1.0",
+      "status_current": "not_started",
+      "active_run_id": null,
+      "ultima_run_finalizada": null,
+      "total_runs": 0,
+      "last_finalized_at": null
+    },
+    {
+      "slug": "performance-escalabilidade",
+      "ordem": 6,
+      "playbook_version": "1.0",
+      "status_current": "not_started",
+      "active_run_id": null,
+      "ultima_run_finalizada": null,
+      "total_runs": 0,
+      "last_finalized_at": null
+    },
+    {
+      "slug": "confiabilidade-resiliencia",
+      "ordem": 7,
+      "playbook_version": "1.0",
+      "status_current": "not_started",
+      "active_run_id": null,
+      "ultima_run_finalizada": null,
+      "total_runs": 0,
+      "last_finalized_at": null
+    },
+    {
+      "slug": "observabilidade-operacao",
+      "ordem": 8,
+      "playbook_version": "1.0",
+      "status_current": "not_started",
+      "active_run_id": null,
+      "ultima_run_finalizada": null,
+      "total_runs": 0,
+      "last_finalized_at": null
+    },
+    {
+      "slug": "testes-qualidade",
+      "ordem": 9,
+      "playbook_version": "1.0",
+      "status_current": "not_started",
+      "active_run_id": null,
+      "ultima_run_finalizada": null,
+      "total_runs": 0,
+      "last_finalized_at": null
+    },
+    {
+      "slug": "ui-ux-fluxos",
+      "ordem": 10,
+      "playbook_version": "1.0",
+      "status_current": "not_started",
+      "active_run_id": null,
+      "ultima_run_finalizada": null,
+      "total_runs": 0,
+      "last_finalized_at": null
+    },
+    {
+      "slug": "infraestrutura-deploy-config",
+      "ordem": 11,
+      "playbook_version": "1.0",
+      "status_current": "not_started",
+      "active_run_id": null,
+      "ultima_run_finalizada": null,
+      "total_runs": 0,
+      "last_finalized_at": null
+    },
+    {
+      "slug": "compliance-privacidade",
+      "ordem": 12,
+      "playbook_version": "1.0",
+      "status_current": "not_started",
+      "active_run_id": null,
+      "ultima_run_finalizada": null,
+      "total_runs": 0,
+      "last_finalized_at": null
+    },
+    {
+      "slug": "supply-chain-dependencias",
+      "ordem": 13,
+      "playbook_version": "1.0",
+      "status_current": "not_started",
+      "active_run_id": null,
+      "ultima_run_finalizada": null,
+      "total_runs": 0,
+      "last_finalized_at": null
+    },
+    {
+      "slug": "custos-finops",
+      "ordem": 14,
+      "playbook_version": "1.0",
+      "status_current": "not_started",
+      "active_run_id": null,
+      "ultima_run_finalizada": null,
+      "total_runs": 0,
+      "last_finalized_at": null
+    },
+    {
+      "slug": "documentacao-runbooks",
+      "ordem": 15,
+      "playbook_version": "1.0",
+      "status_current": "not_started",
+      "active_run_id": null,
+      "ultima_run_finalizada": null,
+      "total_runs": 0,
+      "last_finalized_at": null
+    },
+    {
+      "slug": "ai-ml-governanca",
+      "ordem": 16,
+      "playbook_version": "1.0",
+      "status_current": "not_started",
+      "active_run_id": null,
+      "ultima_run_finalizada": null,
+      "total_runs": 0,
+      "last_finalized_at": null
+    }
+  ]
+}

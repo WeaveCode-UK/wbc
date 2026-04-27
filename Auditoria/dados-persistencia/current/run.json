@@ -1,0 +1,15 @@
+{
+  "format_version": 1,
+  "domain": "dados-persistencia",
+  "run_id": "none",
+  "status": "not_started",
+  "iniciado_em": null,
+  "finalizado_em": null,
+  "capability_tier_declarado": null,
+  "model_ativo": null,
+  "framework_version": "4.0.0-beta.6",
+  "playbook_version": null,
+  "branch": null,
+  "commit": null,
+  "avaliacao": null
+}

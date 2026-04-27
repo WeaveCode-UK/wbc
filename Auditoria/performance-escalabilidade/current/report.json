@@ -1,0 +1,19 @@
+{
+  "format_version": 1,
+  "domain": "performance-escalabilidade",
+  "run_id": "none",
+  "atualizado_em": "2026-04-26T15:37:12Z",
+  "resumo_executivo": "",
+  "consolidacao_por_severidade": {
+    "critico": 0,
+    "alto": 0,
+    "medio": 0,
+    "baixo": 0,
+    "informativo": 0
+  },
+  "consolidacao_por_categoria": {},
+  "avaliacao": null,
+  "conclusoes": null,
+  "pronto_para_finalizar": false,
+  "bloqueadores_para_finalizar": []
+}

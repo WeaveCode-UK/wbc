@@ -306,6 +306,11 @@ export const authRouter = router({
     return { success: true };
   }),
 
+  // ACH-007: until a database-session strategy is wired, the Session table
+  // stays empty. We respond with the (stable, empty) shape callers already
+  // depend on plus a `notice` so the UI can render the limitation honestly
+  // instead of pretending revocation worked. revokeAllSessions (below)
+  // performs real JWT-level invalidation.
   listSessions: protectedProcedure.query(async ({ ctx }) => {
     const sessions = await sessionRepo.findByAccountId(ctx.tenant.userId);
     return {
@@ -317,9 +322,13 @@ export const authRouter = router({
         createdAt: s.createdAt,
         isExpired: s.isExpired(),
       })),
+      notice:
+        "Sessões individuais não são listáveis até a migração para sessão em DB. Use 'Encerrar todas' para revogar imediatamente.",
     };
   }),
 
+  // ACH-007: kept for API stability. With an empty DB table the operation is
+  // a structural no-op — surface as such instead of pretending success.
   revokeSession: protectedProcedure
     .input(revokeSessionSchema)
     .mutation(async ({ input, ctx }) => {
@@ -328,11 +337,18 @@ export const authRouter = router({
         sessionId: input.sessionId,
         accountId: ctx.tenant.userId,
       });
-      return { success: true };
+      return {
+        success: true,
+        notice:
+          "Revogação por sessão individual sem efeito até a migração para sessão em DB. Use 'Encerrar todas' para revogar imediatamente.",
+      };
     }),
 
   revokeAllSessions: protectedProcedure.mutation(async ({ ctx }) => {
-    const uc = new RevokeAllSessions(sessionRepo);
+    // ACH-007: pass jwtBlacklistForAuth so the call effectively kills every
+    // outstanding JWT — the DB Session table is empty until a future
+    // database-strategy migration lands.
+    const uc = new RevokeAllSessions(sessionRepo, jwtBlacklistForAuth);
     await uc.execute({ accountId: ctx.tenant.userId });
     return { success: true };
   }),

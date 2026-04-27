@@ -36,6 +36,7 @@ import { BcryptPasswordHasher } from "@wbc/business/auth/adapters/bcrypt-passwor
 import { ResendEmailSender } from "@wbc/business/auth/adapters/resend-email-sender.adapter";
 import { RedisAuthTokenStore } from "@wbc/business/auth/adapters/redis-auth-token-store.adapter";
 import { PrismaSubscriptionRepository } from "@wbc/business/auth/adapters/prisma-subscription-repository";
+import { RedisJwtBlacklist } from "@wbc/business/auth/adapters/redis-jwt-blacklist.adapter";
 
 // Use cases
 import { ListWorkspaces } from "@wbc/business/auth/use-cases/list-workspaces.use-case";
@@ -100,6 +101,12 @@ const authTokenStore = new RedisAuthTokenStore(
   getRedis() as unknown as RedisLike,
 );
 const subscriptionRepo = new PrismaSubscriptionRepository();
+// ACH-005: shared JWT blacklist for mass-revocation flows (changePassword,
+// resetPassword, deleteAccount). Reuses the same Redis the rate-limit and
+// cache layers do.
+const jwtBlacklistForAuth = new RedisJwtBlacklist(
+  getRedis() as unknown as RedisLike,
+);
 
 // Helper to extract accountId from context (works for authed procedures without tenant)
 function getAccountId(ctx: { tenant: { userId: string } | null }): string {
@@ -129,7 +136,12 @@ export const authRouter = router({
   resetPassword: publicProcedure
     .input(resetPasswordSchema)
     .mutation(async ({ input }) => {
-      const uc = new ResetPassword(accountRepo, passwordHasher, authTokenStore);
+      const uc = new ResetPassword(
+        accountRepo,
+        passwordHasher,
+        authTokenStore,
+        jwtBlacklistForAuth,
+      );
       await uc.execute({ token: input.token, newPassword: input.newPassword });
       return { success: true };
     }),
@@ -255,7 +267,11 @@ export const authRouter = router({
   changePassword: protectedProcedure
     .input(changePasswordSchema)
     .mutation(async ({ input, ctx }) => {
-      const uc = new ChangePassword(accountRepo, passwordHasher);
+      const uc = new ChangePassword(
+        accountRepo,
+        passwordHasher,
+        jwtBlacklistForAuth,
+      );
       await uc.execute({
         accountId: ctx.tenant.userId,
         currentPassword: input.currentPassword,

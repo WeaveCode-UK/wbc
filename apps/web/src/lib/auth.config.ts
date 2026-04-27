@@ -171,6 +171,21 @@ export default {
         }
       }
 
+      // ACH-005: account-level mass revocation. ChangePassword,
+      // ResetPassword and DeleteAccount stamp a `revokedBefore` Unix second
+      // on the account; tokens whose `iat` falls at or before that stamp
+      // are considered invalid even if their jti is not individually
+      // blacklisted. Closes the window where a hijacked session would
+      // outlive a password rotation.
+      if (typeof token.sub === "string" && typeof token.iat === "number") {
+        const revokedBefore = await jwtBlacklist.getAccountRevokedBefore(
+          token.sub,
+        );
+        if (revokedBefore !== null && token.iat <= revokedBefore) {
+          return {};
+        }
+      }
+
       // ACH-007: resolve membership once via a pure function and collapse
       // the five-field mutation into a single branch per kind. `preferred`
       // is either the tid already in the token (steady-state reads) or the

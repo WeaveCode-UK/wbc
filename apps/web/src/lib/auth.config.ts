@@ -189,18 +189,33 @@ export default {
         }
       }
 
-      // ACH-005: account-level mass revocation. ChangePassword,
-      // ResetPassword and DeleteAccount stamp a `revokedBefore` Unix second
-      // on the account; tokens whose `iat` falls at or before that stamp
-      // are considered invalid even if their jti is not individually
-      // blacklisted. Closes the window where a hijacked session would
-      // outlive a password rotation.
-      if (typeof token.sub === "string" && typeof token.iat === "number") {
-        const revokedBefore = await jwtBlacklist.getAccountRevokedBefore(
-          token.sub,
-        );
-        if (revokedBefore !== null && token.iat <= revokedBefore) {
+      // ACH-005 / ACH-066: tiered mass revocation. Order is global → tenant
+      // → account, increasing specificity. Stamps are set by:
+      //   - admin.revokeAllGlobal             (global break-glass)
+      //   - admin.revokeAllForTenant          (per-tenant incident)
+      //   - ChangePassword/ResetPassword/
+      //     DeleteAccount/RevokeAllSessions   (per-account)
+      // The first threshold the token fails kills it.
+      if (typeof token.iat === "number") {
+        const globalBefore = await jwtBlacklist.getGlobalRevokedBefore();
+        if (globalBefore !== null && token.iat <= globalBefore) {
           return {};
+        }
+        if (typeof token.tid === "string") {
+          const tenantBefore = await jwtBlacklist.getTenantRevokedBefore(
+            token.tid,
+          );
+          if (tenantBefore !== null && token.iat <= tenantBefore) {
+            return {};
+          }
+        }
+        if (typeof token.sub === "string") {
+          const accountBefore = await jwtBlacklist.getAccountRevokedBefore(
+            token.sub,
+          );
+          if (accountBefore !== null && token.iat <= accountBefore) {
+            return {};
+          }
         }
       }
 

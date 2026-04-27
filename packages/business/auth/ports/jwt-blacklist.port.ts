@@ -35,4 +35,32 @@ export interface JwtBlacklist {
    * with this value and rejects tokens issued at or before it.
    */
   getAccountRevokedBefore(accountId: string): Promise<number | null>;
+
+  /**
+   * ACH-066: tenant-wide mass revocation. Used in incident response when a
+   * specific workspace is compromised and every active member token must
+   * be cut. Tokens are matched by `token.tid`.
+   */
+  revokeAllForTenant(input: {
+    tenantId: string;
+    revokedBeforeUnix: number;
+    ttlSeconds: number;
+  }): Promise<void>;
+
+  /** Returns the most recent tenant-wide revocation threshold or null. */
+  getTenantRevokedBefore(tenantId: string): Promise<number | null>;
+
+  /**
+   * ACH-066: global break-glass mass revocation. Burns every JWT issued
+   * before `revokedBeforeUnix` regardless of account or tenant. Reserved
+   * for whole-platform incident response — exposing this in an admin UI
+   * MUST require strong confirmation, since it logs every user out.
+   */
+  revokeAllGlobal(input: {
+    revokedBeforeUnix: number;
+    ttlSeconds: number;
+  }): Promise<void>;
+
+  /** Returns the most recent global revocation threshold or null. */
+  getGlobalRevokedBefore(): Promise<number | null>;
 }

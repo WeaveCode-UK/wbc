@@ -1179,6 +1179,11 @@ model Account {
 // ACH-024: AuditLog persiste eventos de segurança e administração para
 // forense pós-incidente e cumprimento de requisitos de auditoria LGPD.
 // Aplicação grava aqui via AuditLogPort; export periódico fica para Fase 7.
+// ACH-065 seguranca: tabela é append-only via trigger SQL
+// (ver migration 20260427105000_audit_log_append_only) e cada linha
+// carrega prev_hash + row_hash formando uma cadeia detectável de
+// adulteração. As colunas prevHash/rowHash são preenchidas pelo
+// trigger BEFORE INSERT — a aplicação nunca define esses campos.
 model AuditLog {
   id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   tenantId   String?  @db.Uuid

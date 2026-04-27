@@ -30,6 +30,8 @@ export * from "./persistence/optimistic-update";
 export * from "./redis";
 // ACH-053 / ACH-019: HTML escape helper for transactional email templates.
 export * from "./html/escape-html";
+// ACH-072: honeypot helper for public-facing forms.
+export * from "./anti-bot/honeypot";
 export * from "./version";
 export * from "./feature-flags";
 export * from "./sensitive-fields";

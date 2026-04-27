@@ -27,6 +27,12 @@ async function fanoutAlert(
 ): Promise<void> {
   const slackUrl = process.env.SLACK_WEBHOOK_URL;
   if (slackUrl) {
+    // ACH-050: Slack ingest is normally fast but the DLQ processor cannot
+    // afford an indefinite hang on the alerting path. 3 s upper bound;
+    // we'd rather miss a notification than freeze the consumer.
+    const SLACK_TIMEOUT_MS = 3000;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), SLACK_TIMEOUT_MS);
     try {
       await fetch(slackUrl, {
         method: "POST",
@@ -34,6 +40,7 @@ async function fanoutAlert(
         body: JSON.stringify({
           text: `DLQ: ${data.originalQueue} failed job ${data.originalJobId} (tenant=${data.tenantId ?? "?"}, attempts=${data.attempts ?? "?"})\n${data.error.slice(0, 500)}`,
         }),
+        signal: controller.signal,
       });
     } catch (err) {
       // Never let an alert failure flap the processor.
@@ -41,6 +48,8 @@ async function fanoutAlert(
         { err: err instanceof Error ? err.message : String(err) },
         "DLQ Slack fanout failed",
       );
+    } finally {
+      clearTimeout(timer);
     }
   }
 

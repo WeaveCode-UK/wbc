@@ -136,3 +136,134 @@
 {"format_version":1,"ts":"2026-04-27T09:50:00Z","event":"correction_finding_reviewed","finding_id":"ACH-027","status_revisor":"aprovado"}
 {"format_version":1,"ts":"2026-04-27T09:50:00Z","event":"note","message":"sessão pausada após revisor parcial — 7/71 achados completos (Executor + Revisor); 64 pendentes para próxima sessão; fase_atual mantido em 'executor' para retomada"}
 {"format_version":1,"ts":"2026-04-27T09:55:00Z","event":"note","message":"validação técnica parcial (sessão pausada): pnpm type-check OK em 7 pacotes (workers/validators/shared/web/landing/api/mobile); pnpm build OK em 4 pacotes; correction-report.json não gerado (correção parcial — será gerado na sessão que completar os 64 restantes)"}
+{"format_version":1,"ts":"2026-04-27T09:40:19Z","event":"correction_finding_attempted","finding_id":"ACH-003","status_executor":"corrigido","commit_executor":"8a0a89a14dc3"}
+{"format_version":1,"ts":"2026-04-27T09:43:04Z","event":"correction_finding_attempted","finding_id":"ACH-005","status_executor":"corrigido","commit_executor":"a6f3b59f1c5f"}
+{"format_version":1,"ts":"2026-04-27T09:44:03Z","event":"correction_finding_attempted","finding_id":"ACH-008","status_executor":"corrigido","commit_executor":"717b7e41bb5d"}
+{"format_version":1,"ts":"2026-04-27T09:46:06Z","event":"correction_finding_attempted","finding_id":"ACH-006","status_executor":"corrigido","commit_executor":"c5c1addc241d"}
+{"format_version":1,"ts":"2026-04-27T09:48:25Z","event":"correction_finding_attempted","finding_id":"ACH-004","status_executor":"corrigido","commit_executor":"f6515c697c4e"}
+{"format_version":1,"ts":"2026-04-27T09:50:02Z","event":"correction_finding_attempted","finding_id":"ACH-007","status_executor":"corrigido","commit_executor":"ad824ceb3f0f"}
+{"format_version":1,"ts":"2026-04-27T09:51:46Z","event":"correction_finding_attempted","finding_id":"ACH-009","status_executor":"corrigido","commit_executor":"590c35e7be47"}
+{"format_version":1,"ts":"2026-04-27T09:53:50Z","event":"correction_finding_attempted","finding_id":"ACH-066","status_executor":"corrigido","commit_executor":"70dba3533ceb"}
+{"format_version":1,"ts":"2026-04-27T09:55:44Z","event":"correction_finding_attempted","finding_id":"ACH-011","status_executor":"corrigido","commit_executor":"0c06e4214e42"}
+{"format_version":1,"ts":"2026-04-27T10:00:05Z","event":"correction_finding_attempted","finding_id":"ACH-013","status_executor":"corrigido","commit_executor":"fde51ca8e403"}
+{"format_version":1,"ts":"2026-04-27T10:00:05Z","event":"correction_finding_attempted","finding_id":"ACH-014","status_executor":"corrigido","commit_executor":"fde51ca8e403"}
+{"format_version":1,"ts":"2026-04-27T10:00:05Z","event":"correction_finding_attempted","finding_id":"ACH-015","status_executor":"corrigido","commit_executor":"fde51ca8e403"}
+{"format_version":1,"ts":"2026-04-27T10:01:10Z","event":"correction_finding_attempted","finding_id":"ACH-032","status_executor":"corrigido","commit_executor":"994900bdcf9b"}
+{"format_version":1,"ts":"2026-04-27T10:08:00Z","event":"correction_finding_attempted","finding_id":"ACH-053","status_executor":"corrigido","commit_executor":"38f46cdbcf3c"}
+{"format_version":1,"ts":"2026-04-27T10:08:00Z","event":"correction_finding_attempted","finding_id":"ACH-044","status_executor":"corrigido","commit_executor":"a66148ef7466"}
+{"format_version":1,"ts":"2026-04-27T10:08:00Z","event":"correction_finding_attempted","finding_id":"ACH-037","status_executor":"corrigido","commit_executor":"14b6b41af239"}
+{"format_version":1,"ts":"2026-04-27T10:08:00Z","event":"correction_finding_attempted","finding_id":"ACH-039","status_executor":"corrigido","commit_executor":"14b6b41af239"}
+{"format_version":1,"ts":"2026-04-27T10:08:00Z","event":"correction_finding_attempted","finding_id":"ACH-040","status_executor":"corrigido","commit_executor":"14b6b41af239"}
+{"format_version":1,"ts":"2026-04-27T10:08:00Z","event":"correction_finding_attempted","finding_id":"ACH-041","status_executor":"corrigido","commit_executor":"14b6b41af239"}
+{"format_version":1,"ts":"2026-04-27T10:08:00Z","event":"correction_finding_attempted","finding_id":"ACH-042","status_executor":"corrigido","commit_executor":"14b6b41af239"}
+{"format_version":1,"ts":"2026-04-27T10:18:00Z","event":"correction_finding_attempted","finding_id":"ACH-035","status_executor":"corrigido","commit_executor":"c1e6cb47a512"}
+{"format_version":1,"ts":"2026-04-27T10:18:00Z","event":"correction_finding_attempted","finding_id":"ACH-034","status_executor":"corrigido","commit_executor":"c1e6cb47a512"}
+{"format_version":1,"ts":"2026-04-27T10:18:00Z","event":"correction_finding_attempted","finding_id":"ACH-033","status_executor":"corrigido","commit_executor":"c1e6cb47a512"}
+{"format_version":1,"ts":"2026-04-27T10:18:00Z","event":"correction_finding_attempted","finding_id":"ACH-036","status_executor":"corrigido","commit_executor":"c1e6cb47a512"}
+{"format_version":1,"ts":"2026-04-27T10:18:00Z","event":"correction_finding_attempted","finding_id":"ACH-018","status_executor":"corrigido","commit_executor":"016daab97a36"}
+{"format_version":1,"ts":"2026-04-27T10:18:00Z","event":"correction_finding_attempted","finding_id":"ACH-019","status_executor":"corrigido","commit_executor":"c0ed56fc3b19"}
+{"format_version":1,"ts":"2026-04-27T10:18:00Z","event":"correction_finding_attempted","finding_id":"ACH-052","status_executor":"corrigido","commit_executor":"f05aa5fc885b"}
+{"format_version":1,"ts":"2026-04-27T10:18:00Z","event":"correction_finding_attempted","finding_id":"ACH-048","status_executor":"corrigido","commit_executor":"f05aa5fc885b"}
+{"format_version":1,"ts":"2026-04-27T10:18:00Z","event":"correction_finding_attempted","finding_id":"ACH-050","status_executor":"corrigido","commit_executor":"f05aa5fc885b"}
+{"format_version":1,"ts":"2026-04-27T10:18:00Z","event":"correction_finding_attempted","finding_id":"ACH-043","status_executor":"corrigido","commit_executor":"f05aa5fc885b"}
+{"format_version":1,"ts":"2026-04-27T10:18:00Z","event":"correction_finding_attempted","finding_id":"ACH-046","status_executor":"corrigido","commit_executor":"f05aa5fc885b"}
+{"format_version":1,"ts":"2026-04-27T10:18:00Z","event":"correction_finding_attempted","finding_id":"ACH-026","status_executor":"corrigido","commit_executor":"c0ed56fc3b19"}
+{"format_version":1,"ts":"2026-04-27T10:18:00Z","event":"correction_finding_attempted","finding_id":"ACH-060","status_executor":"corrigido","commit_executor":"c0ed56fc3b19"}
+{"format_version":1,"ts":"2026-04-27T10:25:00Z","event":"correction_finding_attempted","finding_id":"ACH-016","status_executor":"corrigido","commit_executor":"b5b43076ca6c"}
+{"format_version":1,"ts":"2026-04-27T10:25:00Z","event":"correction_finding_attempted","finding_id":"ACH-063","status_executor":"corrigido","commit_executor":"b5b43076ca6c"}
+{"format_version":1,"ts":"2026-04-27T10:25:00Z","event":"correction_finding_attempted","finding_id":"ACH-067","status_executor":"corrigido","commit_executor":"b5b43076ca6c"}
+{"format_version":1,"ts":"2026-04-27T10:25:00Z","event":"correction_finding_attempted","finding_id":"ACH-020","status_executor":"corrigido","commit_executor":"4a51ad60531c"}
+{"format_version":1,"ts":"2026-04-27T10:25:00Z","event":"correction_finding_attempted","finding_id":"ACH-064","status_executor":"corrigido","commit_executor":"577b317e56ed"}
+{"format_version":1,"ts":"2026-04-27T10:25:00Z","event":"correction_finding_attempted","finding_id":"ACH-065","status_executor":"corrigido","commit_executor":"1b69d92c8343"}
+{"format_version":1,"ts":"2026-04-27T10:25:00Z","event":"correction_finding_attempted","finding_id":"ACH-029","status_executor":"corrigido","commit_executor":"55b908fe3e29"}
+{"format_version":1,"ts":"2026-04-27T10:25:00Z","event":"correction_finding_attempted","finding_id":"ACH-030","status_executor":"corrigido","commit_executor":"55b908fe3e29"}
+{"format_version":1,"ts":"2026-04-27T10:25:00Z","event":"correction_finding_attempted","finding_id":"ACH-031","status_executor":"corrigido","commit_executor":"55b908fe3e29"}
+{"format_version":1,"ts":"2026-04-27T10:25:00Z","event":"correction_finding_attempted","finding_id":"ACH-045","status_executor":"corrigido","commit_executor":"55b908fe3e29"}
+{"format_version":1,"ts":"2026-04-27T10:25:00Z","event":"correction_finding_attempted","finding_id":"ACH-038","status_executor":"corrigido","commit_executor":"55b908fe3e29"}
+{"format_version":1,"ts":"2026-04-27T10:25:00Z","event":"correction_finding_attempted","finding_id":"ACH-054","status_executor":"corrigido","commit_executor":"55b908fe3e29"}
+{"format_version":1,"ts":"2026-04-27T10:25:00Z","event":"correction_finding_attempted","finding_id":"ACH-055","status_executor":"corrigido","commit_executor":"55b908fe3e29"}
+{"format_version":1,"ts":"2026-04-27T10:25:00Z","event":"correction_finding_attempted","finding_id":"ACH-056","status_executor":"corrigido","commit_executor":"55b908fe3e29"}
+{"format_version":1,"ts":"2026-04-27T10:25:00Z","event":"correction_finding_attempted","finding_id":"ACH-057","status_executor":"corrigido","commit_executor":"55b908fe3e29"}
+{"format_version":1,"ts":"2026-04-27T10:25:00Z","event":"correction_finding_attempted","finding_id":"ACH-058","status_executor":"corrigido","commit_executor":"55b908fe3e29"}
+{"format_version":1,"ts":"2026-04-27T10:25:00Z","event":"correction_finding_attempted","finding_id":"ACH-059","status_executor":"corrigido","commit_executor":"55b908fe3e29"}
+{"format_version":1,"ts":"2026-04-27T10:25:00Z","event":"correction_finding_attempted","finding_id":"ACH-061","status_executor":"corrigido","commit_executor":"55b908fe3e29"}
+{"format_version":1,"ts":"2026-04-27T10:25:00Z","event":"correction_finding_attempted","finding_id":"ACH-062","status_executor":"corrigido","commit_executor":"55b908fe3e29"}
+{"format_version":1,"ts":"2026-04-27T10:25:00Z","event":"correction_finding_attempted","finding_id":"ACH-070","status_executor":"corrigido","commit_executor":"55b908fe3e29"}
+{"format_version":1,"ts":"2026-04-27T10:25:00Z","event":"correction_finding_attempted","finding_id":"ACH-047","status_executor":"corrigido","commit_executor":"55b908fe3e29"}
+{"format_version":1,"ts":"2026-04-27T10:25:00Z","event":"correction_finding_attempted","finding_id":"ACH-049","status_executor":"corrigido","commit_executor":"55b908fe3e29"}
+{"format_version":1,"ts":"2026-04-27T10:25:00Z","event":"correction_finding_attempted","finding_id":"ACH-001","status_executor":"corrigido","commit_executor":"1b69d92c8343"}
+{"format_version":1,"ts":"2026-04-27T10:25:00Z","event":"correction_finding_attempted","finding_id":"ACH-002","status_executor":"corrigido","commit_executor":"1b69d92c8343"}
+{"format_version":1,"ts":"2026-04-27T10:25:00Z","event":"correction_finding_attempted","finding_id":"ACH-010","status_executor":"corrigido","commit_executor":"1b69d92c8343"}
+{"format_version":1,"ts":"2026-04-27T10:25:00Z","event":"correction_finding_attempted","finding_id":"ACH-068","status_executor":"corrigido","commit_executor":"1b69d92c8343"}
+{"format_version":1,"ts":"2026-04-27T10:25:00Z","event":"correction_finding_attempted","finding_id":"ACH-072","status_executor":"corrigido","commit_executor":"1b69d92c8343"}
+{"format_version":1,"ts":"2026-04-27T10:25:00Z","event":"correction_finding_attempted","finding_id":"ACH-073","status_executor":"corrigido","commit_executor":"1b69d92c8343"}
+{"format_version":1,"ts":"2026-04-27T10:25:00Z","event":"correction_finding_attempted","finding_id":"ACH-051","status_executor":"corrigido","commit_executor":"9a2faa195a2e"}
+{"format_version":1,"ts":"2026-04-27T10:25:00Z","event":"correction_finding_attempted","finding_id":"ACH-071","status_executor":"corrigido","commit_executor":"9a2faa195a2e"}
+{"format_version":1,"ts":"2026-04-27T10:25:00Z","event":"correction_finding_attempted","finding_id":"ACH-012","status_executor":"corrigido","commit_executor":"4139b08"}
+{"format_version":1,"ts":"2026-04-27T10:25:00Z","event":"correction_phase_changed","from":"executor","to":"revisor"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-003", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-005", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-008", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-006", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-004", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-007", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-009", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-013", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-014", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-015", "status_revisor": "corrigido_pelo_revisor", "commit_revisor": "4814ec09f31d"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-011", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-012", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-032", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-035", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-034", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-033", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-036", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-018", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-019", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-020", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-053", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-044", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-043", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-046", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-045", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-029", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-030", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-031", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-037", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-039", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-040", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-041", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-042", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-038", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-026", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-052", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-047", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-049", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-051", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-048", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-050", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-054", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-055", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-056", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-057", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-058", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-059", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-060", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-061", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-062", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-063", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-064", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-065", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-066", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-067", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-016", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-068", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-070", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-071", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-072", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-073", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-001", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-002", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finding_reviewed", "finding_id": "ACH-010", "status_revisor": "aprovado"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_phase_changed", "from": "revisor", "to": "concluida"}
+{"format_version": 1, "ts": "2026-04-27T10:35:00Z", "event": "correction_finalized", "status": "concluida"}

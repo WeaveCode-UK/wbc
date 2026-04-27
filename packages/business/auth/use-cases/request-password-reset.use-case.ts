@@ -40,7 +40,13 @@ export class RequestPasswordReset {
       ttlSeconds: PASSWORD_RESET_TTL_SECONDS,
     });
 
-    const resetUrl = `${this.appBaseUrl}/reset-password?token=${issued.token}`;
+    // ACH-019: encodeURIComponent the token; the URL itself goes into an
+    // href so the (single, opaque) token interpolation is the only
+    // user-influenceable surface — but the tenant ID, account name, etc.
+    // are NOT in this template, so no escapeHtml needed today. Kept the
+    // encodeURIComponent guard for forward-safety against future template
+    // changes that include account.name or similar.
+    const resetUrl = `${this.appBaseUrl}/reset-password?token=${encodeURIComponent(issued.token)}`;
 
     await this.emailSender.send({
       to: account.email,

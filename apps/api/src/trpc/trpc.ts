@@ -2,7 +2,7 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import type { TRPCContext } from "./context";
 import type { Role } from "@wbc/shared";
-import { runWithTenant, logSecurityEvent } from "@wbc/shared";
+import { runWithTenant, logSecurityEvent, redactId } from "@wbc/shared";
 import {
   applyPublicRateLimit,
   applyProtectedRateLimit,
@@ -18,9 +18,21 @@ import { httpRequestDuration, httpRequestTotal } from "../lib/metrics";
 
 const apiLogger = createLogger("api");
 
+// ACH-032: only `production` strips the domain-error class name; dev and
+// test runs keep it so we can debug locally. Outside production, the field
+// is a tiny convenience for the developer console — in production it is
+// the difference between leaking that an account is locked vs. not, or
+// that a credential was wrong vs. unknown email (cf. AccountLockedError
+// vs InvalidCredentialsError, both deliberately share the same user-facing
+// message — exposing the class name reverses that protection).
+const STRIP_DOMAIN_ERROR_NAME = process.env.NODE_ENV === "production";
+
 const t = initTRPC.context<TRPCContext>().create({
   transformer: superjson,
   errorFormatter({ shape, error }) {
+    if (STRIP_DOMAIN_ERROR_NAME) {
+      return shape;
+    }
     return {
       ...shape,
       data: {
@@ -40,11 +52,14 @@ const loggingMiddleware = t.middleware(async ({ path, type, ctx, next }) => {
   const durationSec = durationMs / 1000;
   httpRequestDuration.observe({ path, type, status: "ok" }, durationSec);
   httpRequestTotal.inc({ path, type, status: "ok" });
+  // ACH-035: never log raw account/tenant UUIDs — they are PII handles.
+  // redactId hashes to an 8-char prefix (sha256[:8]) which is stable across
+  // calls (correlation works) but unrecoverable without the original value.
   apiLogger.info(
     {
       requestId: ctx.requestId,
-      userId: ctx.tenant?.userId,
-      tenantId: ctx.tenant?.tenantId,
+      userId: redactId(ctx.tenant?.userId),
+      tenantId: redactId(ctx.tenant?.tenantId),
       path,
       type,
       durationMs,

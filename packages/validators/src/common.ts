@@ -39,3 +39,11 @@ export const dateRangeSchema = z
 // client omits it (compatibility during rollout), so this field stays
 // optional at the validator level but the router path is guarded.
 export const idempotencyKeySchema = z.string().min(1);
+
+// ACH-018 seguranca: shared length caps for free-text inputs. Centralised so
+// every validator picks the same ceiling (and changing it is a one-line
+// edit, not grep-and-pray). Caps are deliberately generous — they bound
+// pathological input, not legitimate use.
+export const TEXT_SHORT_MAX = 1000;
+export const TEXT_LONG_MAX = 5000;
+export const URL_MAX = 2048;

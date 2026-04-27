@@ -54,6 +54,15 @@ export class PrismaAccountRepository implements AccountRepository {
     await prisma.account.delete({ where: { id } });
   }
 
+  async markLoggedIn(accountId: string, when: Date): Promise<void> {
+    // ACH-009: best-effort stamp. Caller is fire-and-forget so we don't
+    // need to throw on a missing account (race with deletion).
+    await prisma.account.updateMany({
+      where: { id: accountId },
+      data: { lastLoginAt: when, dormantNotifiedAt: null },
+    });
+  }
+
   async deleteWithCleanup(accountId: string): Promise<void> {
     await prisma.$transaction(async (tx) => {
       await tx.account.update({

@@ -1,0 +1,61 @@
+# ACH-057 seguranca: SAST baseline. CodeQL on push/PR + weekly scheduled
+# scan. Findings flow to GitHub's "Security" tab and are visible to anyone
+# with read access; high-severity rules block PR merge via the
+# `security-and-quality` query suite.
+name: sast
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Weekly Monday 04:30 UTC — gives operators a fresh scan over the
+    # weekend's commits without competing with the daily CI window.
+    - cron: "30 4 * * 1"
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+jobs:
+  codeql:
+    name: codeql
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [javascript-typescript]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          # `security-and-quality` is the broader suite — adds reliability
+          # rules on top of `security-extended`. Trade-off: more findings,
+          # higher false-positive surface that has to be triaged.
+          queries: security-and-quality
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"
+
+  semgrep:
+    # ACH-057: complementary OWASP-rule SAST. Catches per-pattern issues
+    # CodeQL's data-flow misses (hardcoded secrets, dangerous functions).
+    name: semgrep
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container:
+      image: returntocorp/semgrep:latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: semgrep ci --config=p/owasp-top-ten --config=p/typescript --error

@@ -5,10 +5,19 @@ import { PrismaAccountRepository } from "@wbc/business/auth/adapters/prisma-acco
 import { PrismaOAuthAccountRepository } from "@wbc/business/auth/adapters/prisma-oauth-account.repository";
 import { PrismaTenantMemberRepository } from "@wbc/business/auth/adapters/prisma-tenant-member.repository";
 import { BcryptPasswordHasher } from "@wbc/business/auth/adapters/bcrypt-password-hasher.adapter";
-import { AuthenticateWithCredentials } from "@wbc/business/auth/use-cases/authenticate-with-credentials.use-case";
+import {
+  AuthenticateWithCredentials,
+  InvalidMfaTokenError,
+  MfaRequiredError,
+} from "@wbc/business/auth/use-cases/authenticate-with-credentials.use-case";
 import { AuthenticateWithOAuth } from "@wbc/business/auth/use-cases/authenticate-with-oauth.use-case";
-import { RedisLoginAttemptTracker } from "@wbc/business/auth/adapters/redis-login-attempt-tracker.adapter";
+import {
+  RedisLoginAttemptTracker,
+  DEFAULT_IP_ONLY_LOCKOUT_POLICY,
+} from "@wbc/business/auth/adapters/redis-login-attempt-tracker.adapter";
 import { RedisJwtBlacklist } from "@wbc/business/auth/adapters/redis-jwt-blacklist.adapter";
+import { OtplibTotpService } from "@wbc/business/auth/adapters/otplib-totp-service.adapter";
+import { VerifyTotp } from "@wbc/business/auth/use-cases/verify-totp.use-case";
 import { logSecurityEvent, type RedisLike } from "@wbc/shared";
 import { randomUUID } from "crypto";
 import Redis from "ioredis";
@@ -27,13 +36,27 @@ const authRedis = new Redis(
   process.env.REDIS_URL ?? "redis://localhost:6379/0",
 ) as unknown as RedisLike;
 const loginAttemptTracker = new RedisLoginAttemptTracker(authRedis);
+// ACH-006: separate IP-only tracker (100 failures / 1h) catches credential
+// stuffing patterns invisible to the per-(email,IP) counter.
+const ipOnlyAttemptTracker = new RedisLoginAttemptTracker(
+  authRedis,
+  DEFAULT_IP_ONLY_LOCKOUT_POLICY,
+  "auth:login-attempts:ip",
+);
 export const jwtBlacklist = new RedisJwtBlacklist(authRedis);
 
 const SESSION_MAX_AGE_SECONDS = 15 * 60;
+// ACH-003: enforce TOTP at login when the account has it enabled. The
+// VerifyTotp use-case loads the encrypted secret + recovery codes for the
+// account and consumes recovery codes one-shot.
+const totpService = new OtplibTotpService();
+const verifyTotp = new VerifyTotp(totpService);
 const authWithCredentials = new AuthenticateWithCredentials(
   accountRepo,
   passwordHasher,
   loginAttemptTracker,
+  verifyTotp,
+  ipOnlyAttemptTracker,
 );
 const authWithOAuth = new AuthenticateWithOAuth(accountRepo, oauthRepo);
 
@@ -55,14 +78,20 @@ export default {
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
+        // ACH-003: optional second-factor token. Empty when the user has
+        // never enrolled TOTP; required (and verified) when totpEnabled.
+        totp: { label: "TOTP", type: "text" },
       },
       async authorize(credentials, request) {
         if (!credentials?.email || !credentials?.password) return null;
         try {
+          const totpRaw =
+            typeof credentials.totp === "string" ? credentials.totp.trim() : "";
           const account = await authWithCredentials.execute({
             email: credentials.email as string,
             password: credentials.password as string,
             ipAddress: extractIp(request as unknown as Request | undefined),
+            totpToken: totpRaw === "" ? undefined : totpRaw,
           });
           logSecurityEvent({
             event: "auth.login.success",
@@ -71,7 +100,33 @@ export default {
             detail: "credentials",
           });
           return { id: account.id, email: account.email, name: account.name };
-        } catch {
+        } catch (err) {
+          // ACH-003: surface MFA-specific failures as distinct codes so the
+          // login UI can ask only for the second factor instead of the full
+          // password again. NextAuth re-throws Errors on the
+          // CredentialsSignin path, so callers receive the `code` we set.
+          if (err instanceof MfaRequiredError) {
+            logSecurityEvent({
+              event: "auth.login.failed",
+              success: false,
+              email: credentials.email as string,
+              detail: "mfa-required",
+            });
+            const e = new Error("mfa_required");
+            (e as Error & { code: string }).code = "mfa_required";
+            throw e;
+          }
+          if (err instanceof InvalidMfaTokenError) {
+            logSecurityEvent({
+              event: "auth.login.failed",
+              success: false,
+              email: credentials.email as string,
+              detail: "mfa-invalid",
+            });
+            const e = new Error("mfa_invalid");
+            (e as Error & { code: string }).code = "mfa_invalid";
+            throw e;
+          }
           logSecurityEvent({
             event: "auth.login.failed",
             success: false,
@@ -115,6 +170,13 @@ export default {
           token.sub = dbAccount.id;
           token.jti = randomUUID();
           token.iat = Math.floor(Date.now() / 1000);
+          // ACH-009: stamp last successful login. Done here (jwt callback
+          // on initial issuance) so both Credentials and OAuth providers
+          // hit it. We do not await — a slow DB write must not block login
+          // and a missed stamp self-heals on the next session refresh.
+          void accountRepo.markLoggedIn(dbAccount.id, new Date()).catch(() => {
+            /* swallowed — best-effort write */
+          });
         }
       }
 
@@ -124,6 +186,36 @@ export default {
       if (token.jti && typeof token.jti === "string") {
         if (await jwtBlacklist.isRevoked(token.jti)) {
           return {};
+        }
+      }
+
+      // ACH-005 / ACH-066: tiered mass revocation. Order is global → tenant
+      // → account, increasing specificity. Stamps are set by:
+      //   - admin.revokeAllGlobal             (global break-glass)
+      //   - admin.revokeAllForTenant          (per-tenant incident)
+      //   - ChangePassword/ResetPassword/
+      //     DeleteAccount/RevokeAllSessions   (per-account)
+      // The first threshold the token fails kills it.
+      if (typeof token.iat === "number") {
+        const globalBefore = await jwtBlacklist.getGlobalRevokedBefore();
+        if (globalBefore !== null && token.iat <= globalBefore) {
+          return {};
+        }
+        if (typeof token.tid === "string") {
+          const tenantBefore = await jwtBlacklist.getTenantRevokedBefore(
+            token.tid,
+          );
+          if (tenantBefore !== null && token.iat <= tenantBefore) {
+            return {};
+          }
+        }
+        if (typeof token.sub === "string") {
+          const accountBefore = await jwtBlacklist.getAccountRevokedBefore(
+            token.sub,
+          );
+          if (accountBefore !== null && token.iat <= accountBefore) {
+            return {};
+          }
         }
       }
 

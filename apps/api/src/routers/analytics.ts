@@ -12,36 +12,42 @@ import {
   getProductRankingSchema,
   getSalesStatsSchema,
 } from "@wbc/validators";
-import { cacheGet, cacheSet } from "../lib/cache";
+// ACH-015: tenant-scoped cache helpers prefix the key automatically and
+// throw TenantContextMissingError if invoked outside a runWithTenant
+// context — refactor-safe replacement for the raw cacheGet/cacheSet pair.
+import { cacheGetForTenant, cacheSetForTenant } from "../lib/cache";
 import { enqueueJob, getAnalyticsQueue } from "../lib/queues";
 
 const analyticsRepo = new PrismaAnalyticsRepository();
 
 export const analyticsRouter = router({
   getDashboard: protectedProcedure.query(async ({ ctx }) => {
-    const cacheKey = `analytics:dashboard:${ctx.tenant.tenantId}`;
-    const cached = await cacheGet(cacheKey);
+    // ACH-015: tenant prefix is now derived inside getTenantScopedRedis()
+    // from the AsyncLocalStorage context — the explicit `:${tenantId}`
+    // suffix is no longer needed (and would double-scope the key).
+    const cacheKey = "analytics:dashboard";
+    const cached = await cacheGetForTenant(cacheKey);
     if (cached) return cached;
     const result = await getAnalyticsDashboard(
       ctx.tenant.tenantId,
       analyticsRepo,
     );
-    await cacheSet(cacheKey, result, 300);
+    await cacheSetForTenant(cacheKey, result, 300);
     return result;
   }),
 
   getSalesStats: protectedProcedure
     .input(getSalesStatsSchema)
     .query(async ({ ctx, input }) => {
-      const cacheKey = `analytics:sales:${ctx.tenant.tenantId}:${input.period ?? "current"}`;
-      const cached = await cacheGet(cacheKey);
+      const cacheKey = `analytics:sales:${input.period ?? "current"}`;
+      const cached = await cacheGetForTenant(cacheKey);
       if (cached) return cached;
       const result = await getSalesStats(
         ctx.tenant.tenantId,
         input.period,
         analyticsRepo,
       );
-      await cacheSet(cacheKey, result, 180);
+      await cacheSetForTenant(cacheKey, result, 180);
       return result;
     }),
 

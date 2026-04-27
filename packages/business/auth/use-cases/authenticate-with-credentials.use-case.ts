@@ -2,6 +2,7 @@ import type { AccountRepository } from "../ports/account.repository";
 import type { PasswordHasher } from "../ports/password-hasher.port";
 import type { Account } from "../domain/entities/account.entity";
 import type { LoginAttemptTracker } from "../ports/login-attempt-tracker.port";
+import type { VerifyTotp } from "./verify-totp.use-case";
 
 export interface AuthenticateWithCredentialsInput {
   email: string;
@@ -11,6 +12,11 @@ export interface AuthenticateWithCredentialsInput {
    * present, falling back to email-only otherwise.
    */
   ipAddress?: string;
+  /**
+   * Optional 6-digit TOTP token (or 24-char recovery code). Required only
+   * when the resolved account has `totpEnabled = true` (ACH-003).
+   */
+  totpToken?: string;
 }
 
 /**
@@ -37,6 +43,30 @@ export class AccountLockedError extends Error {
   }
 }
 
+/**
+ * Raised when password is correct but the account has TOTP enabled and the
+ * caller did not supply a TOTP token. The frontend uses this to render a
+ * second-factor prompt without re-collecting the password (ACH-003).
+ */
+export class MfaRequiredError extends Error {
+  constructor() {
+    super("Código de autenticação em dois fatores obrigatório");
+    this.name = "MfaRequiredError";
+  }
+}
+
+/**
+ * Raised when the supplied TOTP token (or recovery code) does not match the
+ * account secret. Distinct from `InvalidCredentialsError` so the UI can
+ * keep the password field and re-prompt only the TOTP field (ACH-003).
+ */
+export class InvalidMfaTokenError extends Error {
+  constructor() {
+    super("Código de autenticação inválido");
+    this.name = "InvalidMfaTokenError";
+  }
+}
+
 // Pre-computed bcrypt hash used to equalize timing when the account does not
 // exist. Keeps `passwordHasher.verify` on the hot path even when there is no
 // real hash to compare against — defeats account enumeration via response
@@ -49,6 +79,21 @@ export class AuthenticateWithCredentials {
     private readonly accountRepo: AccountRepository,
     private readonly passwordHasher: PasswordHasher,
     private readonly attemptTracker?: LoginAttemptTracker,
+    /**
+     * Optional TOTP verifier. When supplied, accounts with `totpEnabled=true`
+     * must provide a valid token in `input.totpToken`. Wired in
+     * `apps/web/src/lib/auth.config.ts` so production logins enforce MFA;
+     * left optional so unit tests of the password path stay focused.
+     */
+    private readonly verifyTotp?: VerifyTotp,
+    /**
+     * ACH-006: complementary IP-only tracker. The base `attemptTracker` keys
+     * on (email, IP) — which credential stuffing trivially evades by
+     * walking through many emails from one IP. This second tracker keys on
+     * IP alone with a larger window/threshold and trips when a single host
+     * floods attempts across many accounts.
+     */
+    private readonly ipOnlyAttemptTracker?: LoginAttemptTracker,
   ) {}
 
   async execute(input: AuthenticateWithCredentialsInput): Promise<Account> {
@@ -58,6 +103,16 @@ export class AuthenticateWithCredentials {
     if (
       this.attemptTracker &&
       (await this.attemptTracker.isLocked(trackerKey))
+    ) {
+      throw new AccountLockedError();
+    }
+
+    // ACH-006: IP-pure check. Same opaque error so attacker cannot tell
+    // the lockout is firing from a different counter.
+    if (
+      input.ipAddress &&
+      this.ipOnlyAttemptTracker &&
+      (await this.ipOnlyAttemptTracker.isLocked(input.ipAddress))
     ) {
       throw new AccountLockedError();
     }
@@ -76,11 +131,42 @@ export class AuthenticateWithCredentials {
       if (this.attemptTracker) {
         await this.attemptTracker.recordFailure(trackerKey);
       }
+      // ACH-006: also bump the IP-only counter on every credential failure.
+      if (input.ipAddress && this.ipOnlyAttemptTracker) {
+        await this.ipOnlyAttemptTracker.recordFailure(input.ipAddress);
+      }
       throw new InvalidCredentialsError();
+    }
+
+    // ACH-003: enforce TOTP second factor when the account opted in.
+    // Failures here do NOT clear the lockout — the password was right but
+    // the second factor must complete before we count it as a real login.
+    if (account.totpEnabled && this.verifyTotp) {
+      if (!input.totpToken) {
+        throw new MfaRequiredError();
+      }
+      const ok = await this.verifyTotp.execute({
+        accountId: account.id,
+        token: input.totpToken,
+      });
+      if (!ok) {
+        if (this.attemptTracker) {
+          await this.attemptTracker.recordFailure(trackerKey);
+        }
+        if (input.ipAddress && this.ipOnlyAttemptTracker) {
+          await this.ipOnlyAttemptTracker.recordFailure(input.ipAddress);
+        }
+        throw new InvalidMfaTokenError();
+      }
     }
 
     if (this.attemptTracker) {
       await this.attemptTracker.clearAttempts(trackerKey);
+    }
+    // ACH-006: clear the IP-only counter on success too. A legitimate user
+    // arriving from a previously-noisy IP otherwise stays locked out.
+    if (input.ipAddress && this.ipOnlyAttemptTracker) {
+      await this.ipOnlyAttemptTracker.clearAttempts(input.ipAddress);
     }
     return account;
   }

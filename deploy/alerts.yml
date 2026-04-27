@@ -116,3 +116,62 @@ groups:
         annotations:
           summary: "Divergência > 5% entre snapshot e fatura ({{ $labels.provider }} / {{ $labels.period }})"
           runbook_url: "https://github.com/WeaveCode-UK/wbc/blob/main/docs/FINOPS-COST-RECONCILIATION.md"
+
+      # ACH-064 seguranca: pipeline de alertas SECURITY. Antes 0 regras com
+      # category=security; agora cobre auth abuse + RBAC denials + DLQ-spike
+      # + audit-log-write-failures + webhook signature failures.
+      - alert: HighLoginFailureRate
+        expr: rate(wbc_security_login_failed_total[5m]) > 1
+        for: 5m
+        labels:
+          severity: warning
+          category: security
+        annotations:
+          summary: "Taxa elevada de falhas de login (> 1/s por 5m) — credential stuffing suspeito"
+          runbook_url: "https://github.com/WeaveCode-UK/wbc/blob/main/SECURITY.md#credential-stuffing"
+
+      - alert: AuthLockoutSpike
+        expr: rate(wbc_security_account_locked_total[10m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          category: security
+        annotations:
+          summary: "Pico de lockouts de conta (> 6/min sustentado) — verificar tentativas distribuídas"
+
+      - alert: RBACForbiddenSpike
+        expr: rate(wbc_security_rbac_forbidden_total[5m]) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+          category: security
+        annotations:
+          summary: "Pico de FORBIDDEN do RBAC — possível tentativa de escalação de privilégio"
+
+      - alert: WebhookSignatureFailures
+        expr: rate(wbc_security_webhook_signature_failed_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          category: security
+        annotations:
+          summary: "Webhook com assinatura inválida em volume — replay/spoofing suspeito"
+
+      - alert: AuditLogWriteFailures
+        expr: rate(wbc_audit_log_write_failed_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+          category: security
+        annotations:
+          summary: "AuditLog falhando — perda de rastreabilidade forense em curso"
+          runbook_url: "https://github.com/WeaveCode-UK/wbc/blob/main/docs/runbooks/audit-log-down.md"
+
+      - alert: MfaDisabledOnAdmin
+        expr: wbc_security_admin_without_mfa > 0
+        for: 1h
+        labels:
+          severity: warning
+          category: security
+        annotations:
+          summary: "Conta ADMIN sem MFA detectada — gate de enrolment exigido"

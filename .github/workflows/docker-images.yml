@@ -82,6 +82,13 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      # ACH-059 seguranca: Trivy now BLOCKS merge on CRITICAL/HIGH
+      # findings (exit-code: 1). The SARIF upload still runs via the
+      # subsequent step's `if: always()` so reviewers see the rich diff
+      # even when the gate fails. Use `ignore-unfixed: true` so a
+      # vulnerability without an upstream fix doesn't lock the pipeline
+      # forever — those still surface in the SARIF and need a triage
+      # decision per ACH-062.
       - name: Trivy vulnerability scan
         uses: aquasecurity/trivy-action@0.24.0
         with:
@@ -89,7 +96,8 @@ jobs:
           format: sarif
           output: trivy-${{ matrix.component }}.sarif
           severity: CRITICAL,HIGH
-          exit-code: 0   # don't fail the build; upload SARIF for review
+          exit-code: 1
+          ignore-unfixed: true
 
       - name: Upload Trivy SARIF
         if: always()

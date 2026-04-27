@@ -71,13 +71,21 @@ export const updateMemberSchema = z.object({
   avatar: avatarUrlSchema.optional().nullable(),
 });
 
+// ACH-004: NIST 800-63B alignment. min length 12, max 128 (DoS guard at the
+// validator layer; bcrypt itself caps at 72 bytes but we check the user-typed
+// string before hashing). Composition regex (letter + number) kept for
+// compatibility with existing UX hints; breach-check is enforced in the
+// use-case via PasswordBreachChecker port.
+export const passwordPolicySchema = z
+  .string()
+  .min(12, "A senha deve ter pelo menos 12 caracteres")
+  .max(128, "A senha é longa demais")
+  .regex(/[a-zA-Z]/, "Deve conter ao menos uma letra")
+  .regex(/[0-9]/, "Deve conter ao menos um número");
+
 export const changePasswordSchema = z.object({
   currentPassword: z.string().min(1),
-  newPassword: z
-    .string()
-    .min(8)
-    .regex(/[a-zA-Z]/, "Must contain at least one letter")
-    .regex(/[0-9]/, "Must contain at least one number"),
+  newPassword: passwordPolicySchema,
 });
 
 export const requestPasswordResetSchema = z.object({
@@ -86,11 +94,7 @@ export const requestPasswordResetSchema = z.object({
 
 export const resetPasswordSchema = z.object({
   token: z.string().min(1),
-  newPassword: z
-    .string()
-    .min(8)
-    .regex(/[a-zA-Z]/, "Must contain at least one letter")
-    .regex(/[0-9]/, "Must contain at least one number"),
+  newPassword: passwordPolicySchema,
 });
 
 export const verifyEmailSchema = z.object({
@@ -133,4 +137,23 @@ export const leaveTenantSchema = z.object({
 
 export const revokeSessionSchema = z.object({
   sessionId: z.string().uuid(),
+});
+
+// ACH-003: MFA/TOTP integration. The 6-digit live code or one of the
+// 24-char recovery codes (`XXXX-XXXX-XXXX-XXXX-XXXX`) — the verifier
+// distinguishes them.
+export const mfaTotpTokenSchema = z
+  .string()
+  .trim()
+  .min(6)
+  .max(32)
+  .regex(/^[A-Z0-9-]+$/i, "Token TOTP inválido");
+
+export const mfaConfirmEnrollmentSchema = z.object({
+  secret: z.string().min(16).max(64),
+  token: mfaTotpTokenSchema,
+});
+
+export const mfaDisableSchema = z.object({
+  currentToken: mfaTotpTokenSchema,
 });

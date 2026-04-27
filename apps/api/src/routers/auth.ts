@@ -36,6 +36,11 @@ import { BcryptPasswordHasher } from "@wbc/business/auth/adapters/bcrypt-passwor
 import { ResendEmailSender } from "@wbc/business/auth/adapters/resend-email-sender.adapter";
 import { RedisAuthTokenStore } from "@wbc/business/auth/adapters/redis-auth-token-store.adapter";
 import { PrismaSubscriptionRepository } from "@wbc/business/auth/adapters/prisma-subscription-repository";
+import { RedisJwtBlacklist } from "@wbc/business/auth/adapters/redis-jwt-blacklist.adapter";
+import { HibpPasswordBreachChecker } from "@wbc/business/auth/adapters/hibp-password-breach-checker.adapter";
+import { escapeHtml } from "@wbc/shared";
+import { PrismaAuditLog } from "@wbc/business/platform/audit-log/adapters/prisma-audit-log.adapter";
+import { makeAuditMiddleware } from "../trpc/audit-middleware";
 
 // Use cases
 import { ListWorkspaces } from "@wbc/business/auth/use-cases/list-workspaces.use-case";
@@ -100,6 +105,47 @@ const authTokenStore = new RedisAuthTokenStore(
   getRedis() as unknown as RedisLike,
 );
 const subscriptionRepo = new PrismaSubscriptionRepository();
+// ACH-005: shared JWT blacklist for mass-revocation flows (changePassword,
+// resetPassword, deleteAccount). Reuses the same Redis the rate-limit and
+// cache layers do.
+const jwtBlacklistForAuth = new RedisJwtBlacklist(
+  getRedis() as unknown as RedisLike,
+);
+// ACH-004: HIBP k-anonymity breach checker. Fail-open on infra error so
+// outages do not deny password rotations.
+const passwordBreachChecker = new HibpPasswordBreachChecker();
+
+// ACH-016 + ACH-063: AuditLog for sensitive mutations. PrismaAuditLog
+// swallows failures so an audit hiccup never breaks user flow. The
+// `audit` helper below is the explicit-call variant — used inline at
+// the end of mutation bodies for the procedures listed in ACH-016.
+// (The makeAuditMiddleware factory in trpc/audit-middleware.ts is
+// preserved for future declarative wiring once its types are aligned
+// with the tRPC middleware factory.)
+const auditLog = new PrismaAuditLog();
+async function audit(
+  ctx: { tenant: { tenantId?: string; userId?: string } | null },
+  entry: {
+    action: string;
+    resource: string;
+    resourceId?: string | null;
+    status?: "success" | "failure" | "denied";
+    detail?: Record<string, unknown>;
+  },
+): Promise<void> {
+  void auditLog.record({
+    tenantId: ctx.tenant?.tenantId ?? null,
+    accountId: ctx.tenant?.userId ?? null,
+    action: entry.action,
+    resource: entry.resource,
+    resourceId: entry.resourceId ?? null,
+    status: entry.status ?? "success",
+    detail: entry.detail,
+  });
+}
+// Suppress unused-import warning while makeAuditMiddleware sleeps. The
+// declarative wiring path it powers will land in a follow-up PR.
+void makeAuditMiddleware;
 
 // Helper to extract accountId from context (works for authed procedures without tenant)
 function getAccountId(ctx: { tenant: { userId: string } | null }): string {
@@ -129,7 +175,14 @@ export const authRouter = router({
   resetPassword: publicProcedure
     .input(resetPasswordSchema)
     .mutation(async ({ input }) => {
-      const uc = new ResetPassword(accountRepo, passwordHasher, authTokenStore);
+      const uc = new ResetPassword(
+        accountRepo,
+        passwordHasher,
+        authTokenStore,
+        jwtBlacklistForAuth,
+        60 * 60,
+        passwordBreachChecker,
+      );
       await uc.execute({ token: input.token, newPassword: input.newPassword });
       return { success: true };
     }),
@@ -244,10 +297,26 @@ export const authRouter = router({
   deleteAccount: protectedProcedure
     .input(deleteAccountSchema)
     .mutation(async ({ input, ctx }) => {
-      const uc = new DeleteAccount(memberRepo);
+      // ACH-008: pass accountRepo + jwtBlacklist so the use-case actually
+      // hard-deletes the account and stamps the JWT mass-revocation
+      // threshold. Previously only memberRepo was wired and the deletion
+      // was a no-op.
+      const uc = new DeleteAccount(
+        memberRepo,
+        accountRepo,
+        jwtBlacklistForAuth,
+      );
+      // ACH-016/063: capture id BEFORE deletion (the cleanup nukes ctx).
+      const accountIdForAudit = ctx.tenant.userId;
       await uc.execute({
         accountId: ctx.tenant.userId,
         confirmation: input.confirmation,
+      });
+      await audit(ctx, {
+        action: "tenant.member.removed",
+        resource: "account",
+        resourceId: accountIdForAudit,
+        detail: { reason: "self-delete" },
       });
       return { success: true };
     }),
@@ -255,11 +324,22 @@ export const authRouter = router({
   changePassword: protectedProcedure
     .input(changePasswordSchema)
     .mutation(async ({ input, ctx }) => {
-      const uc = new ChangePassword(accountRepo, passwordHasher);
+      const uc = new ChangePassword(
+        accountRepo,
+        passwordHasher,
+        jwtBlacklistForAuth,
+        60 * 60,
+        passwordBreachChecker,
+      );
       await uc.execute({
         accountId: ctx.tenant.userId,
         currentPassword: input.currentPassword,
         newPassword: input.newPassword,
+      });
+      await audit(ctx, {
+        action: "auth.password.change",
+        resource: "account",
+        resourceId: ctx.tenant.userId,
       });
       return { success: true };
     }),
@@ -274,6 +354,11 @@ export const authRouter = router({
     return { success: true };
   }),
 
+  // ACH-007: until a database-session strategy is wired, the Session table
+  // stays empty. We respond with the (stable, empty) shape callers already
+  // depend on plus a `notice` so the UI can render the limitation honestly
+  // instead of pretending revocation worked. revokeAllSessions (below)
+  // performs real JWT-level invalidation.
   listSessions: protectedProcedure.query(async ({ ctx }) => {
     const sessions = await sessionRepo.findByAccountId(ctx.tenant.userId);
     return {
@@ -285,9 +370,13 @@ export const authRouter = router({
         createdAt: s.createdAt,
         isExpired: s.isExpired(),
       })),
+      notice:
+        "Sessões individuais não são listáveis até a migração para sessão em DB. Use 'Encerrar todas' para revogar imediatamente.",
     };
   }),
 
+  // ACH-007: kept for API stability. With an empty DB table the operation is
+  // a structural no-op — surface as such instead of pretending success.
   revokeSession: protectedProcedure
     .input(revokeSessionSchema)
     .mutation(async ({ input, ctx }) => {
@@ -296,11 +385,18 @@ export const authRouter = router({
         sessionId: input.sessionId,
         accountId: ctx.tenant.userId,
       });
-      return { success: true };
+      return {
+        success: true,
+        notice:
+          "Revogação por sessão individual sem efeito até a migração para sessão em DB. Use 'Encerrar todas' para revogar imediatamente.",
+      };
     }),
 
   revokeAllSessions: protectedProcedure.mutation(async ({ ctx }) => {
-    const uc = new RevokeAllSessions(sessionRepo);
+    // ACH-007: pass jwtBlacklistForAuth so the call effectively kills every
+    // outstanding JWT — the DB Session table is empty until a future
+    // database-strategy migration lands.
+    const uc = new RevokeAllSessions(sessionRepo, jwtBlacklistForAuth);
     await uc.execute({ accountId: ctx.tenant.userId });
     return { success: true };
   }),
@@ -365,13 +461,20 @@ export const authRouter = router({
         where: { id: ctx.tenant.tenantId },
       });
       const uc = new CreateInvite(inviteRepo, emailSender);
-      return uc.execute({
+      const result = await uc.execute({
         tenantId: ctx.tenant.tenantId,
         email: input.email,
         role: input.role,
         invitedBy: ctx.tenant.userId,
         tenantName: tenant?.name ?? "",
       });
+      await audit(ctx, {
+        action: "auth.invite.accepted",
+        resource: "invite",
+        resourceId: result.inviteId,
+        detail: { email: input.email, role: input.role },
+      });
+      return result;
     }),
 
   listInvites: roleProtectedProcedure("LEADER")
@@ -391,6 +494,11 @@ export const authRouter = router({
       await uc.execute({
         inviteId: input.inviteId,
         tenantId: ctx.tenant.tenantId,
+      });
+      await audit(ctx, {
+        action: "auth.invite.cancelled",
+        resource: "invite",
+        resourceId: input.inviteId,
       });
       return { success: true };
     }),
@@ -412,11 +520,14 @@ export const authRouter = router({
       const tenant = await prisma.tenant.findUnique({
         where: { id: ctx.tenant.tenantId },
       });
-      const inviteUrl = `${process.env.NEXTAUTH_URL}/invite?token=${invite.token}`;
+      // ACH-053: same defense as create-invite.use-case — escape the
+      // admin-controlled tenant name before interpolating into HTML.
+      const inviteUrl = `${process.env.NEXTAUTH_URL}/invite?token=${encodeURIComponent(invite.token)}`;
+      const safeTenantName = escapeHtml(tenant?.name ?? "");
       await emailSender.send({
         to: invite.email,
         subject: `Convite para ${tenant?.name ?? ""}`,
-        html: `<p>Voce foi convidado(a) para o time de <strong>${tenant?.name ?? ""}</strong>.</p>
+        html: `<p>Voce foi convidado(a) para o time de <strong>${safeTenantName}</strong>.</p>
                <p><a href="${inviteUrl}">Aceitar convite</a></p>
                <p>Este convite expira em 7 dias.</p>`,
       });
@@ -457,6 +568,12 @@ export const authRouter = router({
         memberId: input.memberId,
         newRole: input.newRole,
       });
+      await audit(ctx, {
+        action: "tenant.member.role.changed",
+        resource: "member",
+        resourceId: input.memberId,
+        detail: { newRole: input.newRole },
+      });
       return { success: true };
     }),
 
@@ -468,6 +585,11 @@ export const authRouter = router({
         callerAccountId: ctx.tenant.userId,
         tenantId: ctx.tenant.tenantId,
         memberId: input.memberId,
+      });
+      await audit(ctx, {
+        action: "tenant.member.removed",
+        resource: "member",
+        resourceId: input.memberId,
       });
       return { success: true };
     }),

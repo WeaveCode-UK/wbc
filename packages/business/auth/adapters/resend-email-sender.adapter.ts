@@ -65,16 +65,28 @@ export class ResendEmailSender implements EmailSender {
       headers["Idempotency-Key"] = message.idempotencyKey;
     }
 
-    const response = await fetch(RESEND_API_URL, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
-        from: this.fromAddress,
-        to: [message.to],
-        subject: message.subject,
-        html: message.html,
-      }),
-    });
+    // ACH-048: bound the outbound fetch so a slow / hung Resend cannot
+    // pin the request handler or worker indefinitely. 5 s is plenty for a
+    // transactional send; AbortController unrolls on completion either way.
+    const RESEND_TIMEOUT_MS = 5000;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), RESEND_TIMEOUT_MS);
+    let response: Response;
+    try {
+      response = await fetch(RESEND_API_URL, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          from: this.fromAddress,
+          to: [message.to],
+          subject: message.subject,
+          html: message.html,
+        }),
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timer);
+    }
 
     if (!response.ok) {
       const errorBody = await response.text().catch(() => "");

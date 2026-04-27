@@ -37,7 +37,15 @@ const apiEnvSchema = baseEnvSchema.extend({
   WHATSAPP_PHONE_NUMBER_ID: z.string().min(1).optional(),
   WHATSAPP_APP_SECRET: z.string().min(1).optional(),
   MERCADOPAGO_ACCESS_TOKEN: z.string().min(1).optional(),
+  // ACH-043: webhook signing secret for MercadoPago. Read by
+  // `verifyMercadoPagoSignature` — without it the webhook handler returns 500.
+  MERCADOPAGO_WEBHOOK_SECRET: z.string().min(1).optional(),
   RESEND_API_KEY: z.string().min(1).optional(),
+  // ACH-046: from-address for transactional emails (Resend) and CDN base
+  // URL for static assets. Both used in code; previously absent from the
+  // env contract — drift between consumer and config.
+  EMAIL_FROM: z.string().email().optional(),
+  CDN_URL: z.string().url().optional(),
 });
 
 const workerEnvSchema = baseEnvSchema.extend({
@@ -46,7 +54,9 @@ const workerEnvSchema = baseEnvSchema.extend({
   WHATSAPP_PHONE_NUMBER_ID: z.string().min(1).optional(),
   WHATSAPP_APP_SECRET: z.string().min(1).optional(),
   MERCADOPAGO_ACCESS_TOKEN: z.string().min(1).optional(),
+  MERCADOPAGO_WEBHOOK_SECRET: z.string().min(1).optional(),
   RESEND_API_KEY: z.string().min(1).optional(),
+  EMAIL_FROM: z.string().email().optional(),
 });
 
 export type BaseEnv = z.infer<typeof baseEnvSchema>;
@@ -61,7 +71,9 @@ const REQUIRED_IN_PRODUCTION: Record<"web" | "api" | "worker", string[]> = {
     "WHATSAPP_PHONE_NUMBER_ID",
     "WHATSAPP_APP_SECRET",
     "MERCADOPAGO_ACCESS_TOKEN",
+    "MERCADOPAGO_WEBHOOK_SECRET",
     "RESEND_API_KEY",
+    "EMAIL_FROM",
   ],
   worker: [
     "DEEPSEEK_API_KEY",
@@ -69,7 +81,9 @@ const REQUIRED_IN_PRODUCTION: Record<"web" | "api" | "worker", string[]> = {
     "WHATSAPP_PHONE_NUMBER_ID",
     "WHATSAPP_APP_SECRET",
     "MERCADOPAGO_ACCESS_TOKEN",
+    "MERCADOPAGO_WEBHOOK_SECRET",
     "RESEND_API_KEY",
+    "EMAIL_FROM",
   ],
 };
 

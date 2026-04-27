@@ -1,5 +1,6 @@
 import { router } from "./trpc";
 import { authRouter } from "../routers/auth";
+import { mfaRouter } from "../routers/mfa";
 import { healthRouter } from "../routers/health";
 import { clientsRouter } from "../routers/clients";
 import { catalogRouter } from "../routers/catalog";
@@ -20,6 +21,9 @@ import { privacyRouter } from "../routers/privacy";
 
 export const appRouter = router({
   auth: authRouter,
+  // ACH-003: TOTP/MFA enrolment, disable and status endpoints. Login flow
+  // enforces the second factor via NextAuth Credentials.authorize.
+  mfa: mfaRouter,
   health: healthRouter,
   clients: clientsRouter,
   catalog: catalogRouter,

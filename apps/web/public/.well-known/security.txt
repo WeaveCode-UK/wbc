@@ -1,0 +1,6 @@
+Contact: mailto:security@weavecode.co.uk
+Expires: 2027-04-26T23:59:59Z
+Preferred-Languages: pt, en
+Canonical: https://app.weavecode.co.uk/.well-known/security.txt
+Policy: https://github.com/WeaveCode-UK/wbc/blob/main/SECURITY.md
+Acknowledgments: https://github.com/WeaveCode-UK/wbc/blob/main/SECURITY.md#hall-of-fame

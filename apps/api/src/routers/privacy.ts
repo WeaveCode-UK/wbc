@@ -54,8 +54,15 @@ export const privacyRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      // ACH-034: never log `input` — newValue may be PII (phone, e-mail,
+      // CPF). Whitelist the structural metadata; the actual value is the
+      // sensitive bit and stays out of the log line.
       logger.warn(
-        { tenantId: ctx.tenant.tenantId, input },
+        {
+          tenantId: ctx.tenant.tenantId,
+          resource: input.resource,
+          field: input.field,
+        },
         "ACH-001 stub: privacy.correctField invoked — requires implementation",
       );
       return {

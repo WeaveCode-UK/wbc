@@ -26,7 +26,17 @@ export const adminRouter = router({
       .input(z.object({ limit: z.number().int().min(1).max(200).default(50) }))
       .query(async ({ input }) => {
         const rows = await outboxRepo.listDLQ(input.limit);
-        return { items: rows, count: rows.length };
+        // ACH-036: DLQ rows carry the original event payload, which for
+        // domain events like CLIENT_CREATED / SALE_CREATED includes PII.
+        // Strip payloads from the list view; admins fetch the full record
+        // by id when actually replaying via `dlq.replay`.
+        const redacted = rows.map((row: Record<string, unknown>) => {
+          const { payload: _payload, ...rest } = row as {
+            payload?: unknown;
+          } & Record<string, unknown>;
+          return { ...rest, payloadRedacted: true as const };
+        });
+        return { items: redacted, count: redacted.length };
       }),
 
     replay: adminProcedure

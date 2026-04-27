@@ -2,7 +2,7 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import type { TRPCContext } from "./context";
 import type { Role } from "@wbc/shared";
-import { runWithTenant, logSecurityEvent } from "@wbc/shared";
+import { runWithTenant, logSecurityEvent, redactId } from "@wbc/shared";
 import {
   applyPublicRateLimit,
   applyProtectedRateLimit,
@@ -52,11 +52,14 @@ const loggingMiddleware = t.middleware(async ({ path, type, ctx, next }) => {
   const durationSec = durationMs / 1000;
   httpRequestDuration.observe({ path, type, status: "ok" }, durationSec);
   httpRequestTotal.inc({ path, type, status: "ok" });
+  // ACH-035: never log raw account/tenant UUIDs — they are PII handles.
+  // redactId hashes to an 8-char prefix (sha256[:8]) which is stable across
+  // calls (correlation works) but unrecoverable without the original value.
   apiLogger.info(
     {
       requestId: ctx.requestId,
-      userId: ctx.tenant?.userId,
-      tenantId: ctx.tenant?.tenantId,
+      userId: redactId(ctx.tenant?.userId),
+      tenantId: redactId(ctx.tenant?.tenantId),
       path,
       type,
       durationMs,

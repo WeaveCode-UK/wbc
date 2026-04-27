@@ -32,3 +32,7 @@ export { createTenantMiddleware } from "./middleware/tenant-middleware";
 export { createSlowQueryMiddleware } from "./middleware/slow-query-middleware";
 export { PrismaOutboxRepository } from "./outbox/prisma-outbox-repository";
 export { ProcessedEventRepository } from "./outbox/processed-event-repository";
+// ACH-013 seguranca: opt-in helper that activates RLS policies at runtime
+// by stamping `app.current_tenant_id` per transaction. See file header
+// for the rollout pattern.
+export { withRlsTenantContext } from "./rls/with-rls-tenant-context";

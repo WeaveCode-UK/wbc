@@ -37,6 +37,7 @@ import { ResendEmailSender } from "@wbc/business/auth/adapters/resend-email-send
 import { RedisAuthTokenStore } from "@wbc/business/auth/adapters/redis-auth-token-store.adapter";
 import { PrismaSubscriptionRepository } from "@wbc/business/auth/adapters/prisma-subscription-repository";
 import { RedisJwtBlacklist } from "@wbc/business/auth/adapters/redis-jwt-blacklist.adapter";
+import { HibpPasswordBreachChecker } from "@wbc/business/auth/adapters/hibp-password-breach-checker.adapter";
 
 // Use cases
 import { ListWorkspaces } from "@wbc/business/auth/use-cases/list-workspaces.use-case";
@@ -107,6 +108,9 @@ const subscriptionRepo = new PrismaSubscriptionRepository();
 const jwtBlacklistForAuth = new RedisJwtBlacklist(
   getRedis() as unknown as RedisLike,
 );
+// ACH-004: HIBP k-anonymity breach checker. Fail-open on infra error so
+// outages do not deny password rotations.
+const passwordBreachChecker = new HibpPasswordBreachChecker();
 
 // Helper to extract accountId from context (works for authed procedures without tenant)
 function getAccountId(ctx: { tenant: { userId: string } | null }): string {
@@ -141,6 +145,8 @@ export const authRouter = router({
         passwordHasher,
         authTokenStore,
         jwtBlacklistForAuth,
+        60 * 60,
+        passwordBreachChecker,
       );
       await uc.execute({ token: input.token, newPassword: input.newPassword });
       return { success: true };
@@ -279,6 +285,8 @@ export const authRouter = router({
         accountRepo,
         passwordHasher,
         jwtBlacklistForAuth,
+        60 * 60,
+        passwordBreachChecker,
       );
       await uc.execute({
         accountId: ctx.tenant.userId,

@@ -1,11 +1,27 @@
 import type { AccountRepository } from "../ports/account.repository";
 import type { PasswordHasher } from "../ports/password-hasher.port";
 import type { JwtBlacklist } from "../ports/jwt-blacklist.port";
+import type { PasswordBreachChecker } from "../ports/password-breach-checker.port";
 
 export interface ChangePasswordInput {
   accountId: string;
   currentPassword: string;
   newPassword: string;
+}
+
+/**
+ * ACH-004: raised when the candidate password appears in a known breach
+ * corpus (HaveIBeenPwned). Distinct error so the UI can show a targeted
+ * message ("essa senha apareceu em vazamentos públicos — escolha outra")
+ * instead of the generic policy-violation banner.
+ */
+export class BreachedPasswordError extends Error {
+  constructor(public readonly count: number) {
+    super(
+      `Esta senha aparece em vazamentos públicos (${count} ocorrências). Escolha outra.`,
+    );
+    this.name = "BreachedPasswordError";
+  }
 }
 
 export class ChangePassword {
@@ -24,6 +40,12 @@ export class ChangePassword {
      * session window is bumped later. Caller can override.
      */
     private readonly revokeTtlSeconds: number = 60 * 60,
+    /**
+     * Optional breach checker (HaveIBeenPwned k-anonymity). When supplied,
+     * candidate passwords seen at least once in the corpus are rejected
+     * with `BreachedPasswordError` (ACH-004). Fail-open on infra errors.
+     */
+    private readonly breachChecker?: PasswordBreachChecker,
   ) {}
 
   async execute(input: ChangePasswordInput): Promise<void> {
@@ -37,6 +59,18 @@ export class ChangePassword {
       account.passwordHash!,
     );
     if (!isValid) throw new Error("Senha atual incorreta");
+
+    // ACH-004: refuse to set a known-breached password. `null` means HIBP
+    // was unreachable — fail-open so we do not block legitimate rotations
+    // during external outages.
+    if (this.breachChecker) {
+      const breachCount = await this.breachChecker.countBreaches(
+        input.newPassword,
+      );
+      if (breachCount !== null && breachCount > 0) {
+        throw new BreachedPasswordError(breachCount);
+      }
+    }
 
     const newHash = await this.passwordHasher.hash(input.newPassword);
     await this.accountRepo.update(input.accountId, { passwordHash: newHash });

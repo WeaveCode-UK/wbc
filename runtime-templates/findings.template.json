@@ -1,0 +1,7 @@
+{
+  "format_version": 1,
+  "domain": "{{DOMINIO}}",
+  "run_id": "none",
+  "ultima_atualizacao": "{{TIMESTAMP_ISO_8601}}",
+  "findings": []
+}

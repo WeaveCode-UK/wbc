@@ -1,0 +1,19 @@
+{
+  "format_version": 1,
+  "domain": "{{DOMINIO}}",
+  "run_id": "{{RUN_ID}}",
+  "finalizado_em": "{{TIMESTAMP_ISO_8601}}",
+  "branch": "{{BRANCH}}",
+  "merged_to": null,
+  "summary": {
+    "total_aprovados": 0,
+    "corrigidos_executor": 0,
+    "revisados_revisor": 0,
+    "corrigidos_pelo_revisor": 0,
+    "nao_corrigiveis": 0,
+    "nao_aprovados": 0
+  },
+  "by_finding": [],
+  "build_attempts": [],
+  "blocked": []
+}

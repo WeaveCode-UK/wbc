@@ -1,4 +1,8 @@
-import type { AIProvider, AIGenerateResult } from "../ports/ai-provider";
+import type {
+  AIProvider,
+  AIGenerateInput,
+  AIGenerateResult,
+} from "../ports/ai-provider";
 import {
   CircuitBreaker,
   type RetryPolicy,
@@ -44,17 +48,23 @@ export class DeepSeekAdapter implements AIProvider {
   }
 
   async generate(prompt: string): Promise<AIGenerateResult> {
+    // Legacy entry — wrap as a single user message so adapters that require
+    // the chat shape internally still work. Prefer generateChat().
+    return this.generateChat({ system: "", user: prompt });
+  }
+
+  async generateChat(input: AIGenerateInput): Promise<AIGenerateResult> {
     if (!this.apiKey) {
       return {
-        text: `[DEV] Generated text for prompt: ${prompt.substring(0, 50)}...`,
-        inputTokens: prompt.length,
+        text: `[DEV] Generated text for input: ${input.user.substring(0, 50)}...`,
+        inputTokens: input.user.length,
         outputTokens: 50,
         model: this.model,
       };
     }
 
     return deepseekCircuit.execute(
-      () => this.callApi(prompt),
+      () => this.callApi(input),
       () => ({
         text: "[AI indisponível no momento. Tente novamente em breve.]",
         inputTokens: 0,
@@ -64,7 +74,7 @@ export class DeepSeekAdapter implements AIProvider {
     );
   }
 
-  private async callApi(prompt: string): Promise<AIGenerateResult> {
+  private async callApi(input: AIGenerateInput): Promise<AIGenerateResult> {
     const { maxRetries, baseDelayMs } = this.retryPolicy;
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
@@ -78,8 +88,17 @@ export class DeepSeekAdapter implements AIProvider {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
+            // ACH-020: split system / user. Anything we control as
+            // instruction goes into `system`; the untrusted input lives in
+            // `user`. The provider's role separation is the model-side
+            // half of the prompt-injection defence.
             model: this.model,
-            messages: [{ role: "user", content: prompt }],
+            messages: [
+              ...(input.system
+                ? [{ role: "system" as const, content: input.system }]
+                : []),
+              { role: "user" as const, content: input.user },
+            ],
             max_tokens: 500,
             temperature: 0.7,
           }),

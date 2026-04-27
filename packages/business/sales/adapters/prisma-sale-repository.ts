@@ -180,14 +180,14 @@ export class PrismaSaleRepository implements SaleRepository {
         // double-spending. Mirrors PrismaCashbackRepository.use logic
         // but reuses the surrounding tx so the whole confirmation is
         // all-or-nothing.
-        if (params.cashback_debit && params.cashback_debit.amount > 0) {
+        if (params.cashbackDebit && params.cashbackDebit.amount > 0) {
           try {
             await tx.cashbackRedemption.create({
               data: {
                 tenantId: params.tenantId,
                 idempotencyKey: params.saleId,
-                clientId: params.cashback_debit.clientId,
-                amount: params.cashback_debit.amount,
+                clientId: params.cashbackDebit.clientId,
+                amount: params.cashbackDebit.amount,
               },
             });
           } catch (err) {
@@ -212,13 +212,13 @@ export class PrismaSaleRepository implements SaleRepository {
           const cashbacks = await tx.cashback.findMany({
             where: {
               tenantId: params.tenantId,
-              clientId: params.cashback_debit.clientId,
+              clientId: params.cashbackDebit.clientId,
               expiresAt: { gt: new Date() },
             },
             orderBy: { expiresAt: "asc" },
           });
 
-          let remaining = params.cashback_debit.amount;
+          let remaining = params.cashbackDebit.amount;
           for (const c of cashbacks) {
             if (remaining <= 0) break;
             const available = Number(c.amount) - Number(c.usedAmount);
@@ -235,7 +235,7 @@ export class PrismaSaleRepository implements SaleRepository {
             // execution the balance dropped below cashbackUsed. Abort
             // the whole tx instead of partially debiting.
             throw new Error(
-              `Insufficient cashback balance for client ${params.cashback_debit.clientId} (needed ${params.cashback_debit.amount})`,
+              `Insufficient cashback balance for client ${params.cashbackDebit.clientId} (needed ${params.cashbackDebit.amount})`,
             );
           }
         }

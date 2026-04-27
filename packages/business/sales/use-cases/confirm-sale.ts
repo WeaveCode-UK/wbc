@@ -61,7 +61,7 @@ export async function confirmSale(
     // touched — letting any tenant member zero out totals without
     // limit. saleId acts as the idempotency key so retries don't
     // double-spend.
-    cashback_debit:
+    cashbackDebit:
       sale.cashbackUsed > 0
         ? {
             clientId: sale.clientId,

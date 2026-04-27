@@ -34,7 +34,7 @@ export interface ConfirmAtomicParams {
    * Serializable tx as the sale confirmation. saleId is reused as
    * idempotencyKey so retried confirmations don't double-spend.
    */
-  cashback_debit?: {
+  cashbackDebit?: {
     clientId: string;
     amount: number;
   };

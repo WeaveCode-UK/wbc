@@ -4,18 +4,18 @@
   "run_id": "2026-04-26_15-46-36",
   "branch": "fix/seguranca/2026-04-26_15-46-36",
   "started_at": "2026-04-27T08:47:26Z",
-  "ultima_atualizacao": "2026-04-27T09:50:00Z",
+  "ultima_atualizacao": "2026-04-27T10:18:00Z",
   "finished_at": null,
   "fase_atual": "executor",
   "status": "em_andamento",
   "summary": {
     "total_aprovados": 71,
-    "corrigidos_executor": 7,
+    "corrigidos_executor": 40,
     "revisados_revisor": 7,
     "corrigidos_pelo_revisor": 1,
     "nao_corrigiveis": 2,
     "nao_aprovados": 0,
-    "pendentes": 64
+    "pendentes": 31
   },
   "by_finding": [
     {
@@ -100,121 +100,121 @@
       "titulo": "MFA/TOTP implementado em código mas não integrado ao login nem a qualquer fluxo",
       "severidade": "alto",
       "classificacao": "corrigivel",
-      "status_executor": "pendente",
+      "status_executor": "corrigido",
       "status_revisor": "pendente",
-      "commit_executor": null,
+      "commit_executor": "8a0a89a14dc3",
       "commit_revisor": null,
-      "observacoes": null
+      "observacoes": "Backend completo: VerifyTotp wired no AuthenticateWithCredentials, NextAuth aceita campo `totp` e propaga MfaRequiredError/InvalidMfaTokenError, novo router auth.mfa.{getStatus,beginEnrollment,confirmEnrollment,disable}. Limitação deferida: UI /settings/security (QR code + entrada de código) e gate ADMIN obrigatório (forçar enrolment) são PR de UI separado — escopo de frontend grande não cabe em correção via código backend."
     },
     {
       "finding_id": "ACH-005",
       "titulo": "changePassword não revoga sessões/JTIs ativas após troca",
       "severidade": "medio",
       "classificacao": "corrigivel",
-      "status_executor": "pendente",
+      "status_executor": "corrigido",
       "status_revisor": "pendente",
-      "commit_executor": null,
+      "commit_executor": "a6f3b59f1c5f",
       "commit_revisor": null,
-      "observacoes": null
+      "observacoes": "JwtBlacklist port estendido com revokeAllForAccount/getAccountRevokedBefore (timestamp-based). ChangePassword e ResetPassword carimbam revokedBeforeUnix=now via jwtBlacklist; jwt callback rejeita tokens com iat<=revokedBefore. Cobre tanto a sessão atual quanto outras sessões pré-existentes."
     },
     {
       "finding_id": "ACH-008",
       "titulo": "delete-account não revoga JWT/sessões ativas — janela de uso pós-exclusão",
       "severidade": "medio",
       "classificacao": "corrigivel",
-      "status_executor": "pendente",
+      "status_executor": "corrigido",
       "status_revisor": "pendente",
-      "commit_executor": null,
+      "commit_executor": "717b7e41bb5d",
       "commit_revisor": null,
-      "observacoes": null
+      "observacoes": "DeleteAccount aceita JwtBlacklist e carimba revokedBefore=now após cleanup. Bug colateral: router auth.deleteAccount instanciava DeleteAccount apenas com memberRepo (accountRepo era undefined → cleanup era no-op silencioso); agora passa memberRepo + accountRepo + jwtBlacklistForAuth."
     },
     {
       "finding_id": "ACH-006",
       "titulo": "Lockout per-(email,IP) não protege contra credential stuffing per-IP",
       "severidade": "medio",
       "classificacao": "corrigivel",
-      "status_executor": "pendente",
+      "status_executor": "corrigido",
       "status_revisor": "pendente",
-      "commit_executor": null,
+      "commit_executor": "c5c1addc241d",
       "commit_revisor": null,
-      "observacoes": null
+      "observacoes": "Segundo tracker per-IP-puro (100/h) com prefix `auth:login-attempts:ip` complementa o per-(email,IP) (5/15min). Use-case verifica + record + clear ambos. Limitação: CAPTCHA progressivo deferido para ACH-068."
     },
     {
       "finding_id": "ACH-004",
       "titulo": "Política de senha fraca: min 8 chars + letra/número, sem checagem de senha vazada",
       "severidade": "medio",
       "classificacao": "corrigivel",
-      "status_executor": "pendente",
+      "status_executor": "corrigido",
       "status_revisor": "pendente",
-      "commit_executor": null,
+      "commit_executor": "f6515c697c4e",
       "commit_revisor": null,
-      "observacoes": null
+      "observacoes": "passwordPolicySchema (12-128 chars + letra/número), PasswordBreachChecker port + HibpPasswordBreachChecker adapter (k-anonymity, fail-open em outage). ChangePassword e ResetPassword integram breach-check. Top-1000 lista local cacheada não implementada (overhead vs. HIBP fail-open suficiente)."
     },
     {
       "finding_id": "ACH-007",
       "titulo": "Tabela Session do Prisma é estado morto: nenhum INSERT, mas listSessions/revokeSession dependem dela",
       "severidade": "medio",
-      "classificacao": "corrigivel",
-      "status_executor": "pendente",
+      "classificacao": "corrigivel_parcial",
+      "status_executor": "corrigido",
       "status_revisor": "pendente",
-      "commit_executor": null,
+      "commit_executor": "ad824ceb3f0f",
       "commit_revisor": null,
-      "observacoes": null
+      "observacoes": "RevokeAllSessions aceita JwtBlacklist e dispara mass-revoke real (efetiva 'Encerrar todas'). listSessions/revokeSession ganham campo `notice` explícito sobre limitação. Migração para strategy:'database' (ou remoção da Session table) deferida — refactor de NextAuth fora de escopo."
     },
     {
       "finding_id": "ACH-009",
       "titulo": "Sem detecção/expiração de contas dormentes (Account.lastLoginAt ausente)",
       "severidade": "baixo",
-      "classificacao": "corrigivel",
-      "status_executor": "pendente",
+      "classificacao": "corrigivel_parcial",
+      "status_executor": "corrigido",
       "status_revisor": "pendente",
-      "commit_executor": null,
+      "commit_executor": "590c35e7be47",
       "commit_revisor": null,
-      "observacoes": null
+      "observacoes": "Schema + migration adicionam Account.lastLoginAt + dormantNotifiedAt + index. AccountRepository.markLoggedIn é fire-and-forget no jwt callback. Scheduler de detecção (90d notify, 180d force-reset) deferido para PR de worker dedicado — depende de coleta de dados que esta correção habilita."
     },
     {
       "finding_id": "ACH-013",
       "titulo": "RLS configurado no banco mas nunca ativado em runtime — defesa em profundidade ausente",
       "severidade": "medio",
-      "classificacao": "corrigivel",
-      "status_executor": "pendente",
+      "classificacao": "corrigivel_parcial",
+      "status_executor": "corrigido",
       "status_revisor": "pendente",
-      "commit_executor": null,
+      "commit_executor": "fde51ca8e403",
       "commit_revisor": null,
-      "observacoes": null
+      "observacoes": "withRlsTenantContext helper em packages/db/src/rls/ — abre transação, faz SET LOCAL app.current_tenant_id (UUID validado) e executa fn contra tx client. Wiring repo-by-repo é refactor maior — base estável agora; PR de migração incremental por área deferido."
     },
     {
       "finding_id": "ACH-014",
       "titulo": "TENANT_MODELS (Prisma middleware) cobre 39 models mas RLS migrations cobrem apenas ~32 — gap de cobertura",
       "severidade": "baixo",
-      "classificacao": "corrigivel_parcial",
-      "status_executor": "pendente",
+      "classificacao": "corrigivel",
+      "status_executor": "corrigido",
       "status_revisor": "pendente",
-      "commit_executor": null,
+      "commit_executor": "fde51ca8e403",
       "commit_revisor": null,
-      "observacoes": null
+      "observacoes": "Migration 20260427100000_rls_coverage_complement adiciona policies para 11 tabelas faltantes: 5 com tenantId direto (tenant_members, invites, client_wishlists, gift_suggestors, teams) e 6 derivadas via subselect do parent (client_tags→clients, showcase_products→showcases, sale_items/payments/returns→sales, brand_order_items→brand_orders, campaign_recipients→campaigns)."
     },
     {
       "finding_id": "ACH-015",
       "titulo": "Cache em analytics e entitlements usa cacheGet/Set raw com tenantId no key — TenantScopedRedis ignorado",
       "severidade": "informativo",
       "classificacao": "corrigivel",
-      "status_executor": "pendente",
+      "status_executor": "corrigido",
       "status_revisor": "pendente",
-      "commit_executor": null,
+      "commit_executor": "fde51ca8e403",
       "commit_revisor": null,
-      "observacoes": null
+      "observacoes": "analytics e entitlements migrados para cacheGetForTenant/cacheSetForTenant. Removido `:${tenantId}` redundante das keys (prefixo automático via ALS). entitlements.invalidate usa getTenantScopedRedis().del fallback."
     },
     {
       "finding_id": "ACH-011",
       "titulo": "Permissions tenant:manage/billing/export e team:multi-view definidas mas nunca verificadas (BFLA latente)",
       "severidade": "medio",
       "classificacao": "corrigivel",
-      "status_executor": "pendente",
+      "status_executor": "corrigido",
       "status_revisor": "pendente",
-      "commit_executor": null,
+      "commit_executor": "0c06e4214e42",
       "commit_revisor": null,
-      "observacoes": null
+      "observacoes": "finance.{createExpense,updateExpense}=DIRECTOR+; finance.{connect,disconnect}MercadoPago=ADMIN+tenant:billing; privacy.{export,correct,requestDeletion}=DIRECTOR+tenant:export. Reads (dashboard, calculators, accessLog) seguem accessíveis a toda equipe."
     },
     {
       "finding_id": "ACH-012",
@@ -232,77 +232,77 @@
       "titulo": "errorFormatter expõe nome da classe de erro de domínio (data.domainError) e quebra a indistinguibilidade de InvalidCredentialsError vs AccountLockedError",
       "severidade": "alto",
       "classificacao": "corrigivel",
-      "status_executor": "pendente",
+      "status_executor": "corrigido",
       "status_revisor": "pendente",
-      "commit_executor": null,
+      "commit_executor": "994900bdcf9b",
       "commit_revisor": null,
-      "observacoes": null
+      "observacoes": "errorFormatter retorna shape sem data.domainError em NODE_ENV=production; mantém em dev/test para debug. Restaura indistinguibilidade Invalid/AccountLocked."
     },
     {
       "finding_id": "ACH-035",
       "titulo": "loggingMiddleware do tRPC registra userId/tenantId raw — diverge do logging-middleware adjacente que usa redactId",
       "severidade": "medio",
       "classificacao": "corrigivel",
-      "status_executor": "pendente",
+      "status_executor": "corrigido",
       "status_revisor": "pendente",
-      "commit_executor": null,
+      "commit_executor": "c1e6cb47a512",
       "commit_revisor": null,
-      "observacoes": null
+      "observacoes": "trpc loggingMiddleware passa userId/tenantId por redactId (sha256[:8]) — correlação preservada, valor irrecuperável."
     },
     {
       "finding_id": "ACH-034",
       "titulo": "privacy.correctField loga `input` cru — campo + novo valor podem ser PII (telefone, e-mail, CPF)",
       "severidade": "medio",
       "classificacao": "corrigivel",
-      "status_executor": "pendente",
+      "status_executor": "corrigido",
       "status_revisor": "pendente",
-      "commit_executor": null,
+      "commit_executor": "c1e6cb47a512",
       "commit_revisor": null,
-      "observacoes": null
+      "observacoes": "Loga somente resource+field; newValue (potencialmente PII) sai do log line."
     },
     {
       "finding_id": "ACH-033",
       "titulo": "Endpoint /api/vitals serializa body cru via console.log — vaza URL completa e referrer com query strings",
       "severidade": "medio",
       "classificacao": "corrigivel",
-      "status_executor": "pendente",
+      "status_executor": "corrigido",
       "status_revisor": "pendente",
-      "commit_executor": null,
+      "commit_executor": "c1e6cb47a512",
       "commit_revisor": null,
-      "observacoes": null
+      "observacoes": "Whitelist de campos métricos + stripQuery em url/referrer (preserva origin+pathname, descarta query/hash com tokens/PII)."
     },
     {
       "finding_id": "ACH-036",
       "titulo": "admin.dlq.list retorna eventos DLQ com payload completo — vaza PII de eventos de domínio (CLIENT_CREATED/SALE_CREATED) sem redaction",
       "severidade": "medio",
       "classificacao": "corrigivel",
-      "status_executor": "pendente",
+      "status_executor": "corrigido",
       "status_revisor": "pendente",
-      "commit_executor": null,
+      "commit_executor": "c1e6cb47a512",
       "commit_revisor": null,
-      "observacoes": null
+      "observacoes": "Strip payload das rows; payloadRedacted=true como flag; replay segue funcionando via id."
     },
     {
       "finding_id": "ACH-018",
       "titulo": "14 campos z.string() sem .max() em validators — payload bloat e DoS leve",
       "severidade": "baixo",
       "classificacao": "corrigivel",
-      "status_executor": "pendente",
+      "status_executor": "corrigido",
       "status_revisor": "pendente",
-      "commit_executor": null,
+      "commit_executor": "016daab97a36",
       "commit_revisor": null,
-      "observacoes": null
+      "observacoes": "TEXT_SHORT_MAX/TEXT_LONG_MAX/URL_MAX centralizados em common. clients/sales/inventory/messaging com .max() apropriado. messaging.audioUrl agora .url() + max."
     },
     {
       "finding_id": "ACH-019",
       "titulo": "Templates de email construídos via interpolação de string sem autoescape — XSS latente em emails transacionais",
       "severidade": "informativo",
-      "classificacao": "corrigivel",
-      "status_executor": "pendente",
+      "classificacao": "corrigivel_parcial",
+      "status_executor": "corrigido",
       "status_revisor": "pendente",
-      "commit_executor": null,
+      "commit_executor": "c0ed56fc3b19",
       "commit_revisor": null,
-      "observacoes": null
+      "observacoes": "encodeURIComponent em tokens nos templates de password-reset e email-verification. escapeHtml já aplicado em ACH-053. Migração full p/ React Email/Handlebars deferida — escopo separado."
     },
     {
       "finding_id": "ACH-020",
@@ -320,44 +320,44 @@
       "titulo": "HTML injection em template de e-mail de convite — `tenantName` interpolado bruto, abre vetor de phishing direcionado",
       "severidade": "alto",
       "classificacao": "corrigivel",
-      "status_executor": "pendente",
+      "status_executor": "corrigido",
       "status_revisor": "pendente",
-      "commit_executor": null,
+      "commit_executor": "38f46cdbcf3c",
       "commit_revisor": null,
-      "observacoes": null
+      "observacoes": "escapeHtml helper em packages/shared/src/html. create-invite e auth.resendInvite escapam tenantName + encodeURIComponent no token."
     },
     {
       "finding_id": "ACH-044",
       "titulo": "seed.ts cria conta de demo com password fixa 'Teste@123' sem guard de NODE_ENV — risco se executado em produção",
       "severidade": "alto",
       "classificacao": "corrigivel",
-      "status_executor": "pendente",
+      "status_executor": "corrigido",
       "status_revisor": "pendente",
-      "commit_executor": null,
+      "commit_executor": "a66148ef7466",
       "commit_revisor": null,
-      "observacoes": null
+      "observacoes": "assertSafeEnvironment() lança em NODE_ENV=production sem WBC_ALLOW_PROD_SEED=1."
     },
     {
       "finding_id": "ACH-043",
       "titulo": "MERCADOPAGO_WEBHOOK_SECRET ausente do schema env (env.ts) e dos .env.example — config drift entre handler e contrato de env",
       "severidade": "medio",
       "classificacao": "corrigivel",
-      "status_executor": "pendente",
+      "status_executor": "corrigido",
       "status_revisor": "pendente",
-      "commit_executor": null,
+      "commit_executor": "f05aa5fc885b",
       "commit_revisor": null,
-      "observacoes": null
+      "observacoes": "Adicionado a apiEnvSchema, workerEnvSchema, REQUIRED_IN_PRODUCTION e .env.example."
     },
     {
       "finding_id": "ACH-046",
       "titulo": "EMAIL_FROM e CDN_URL referenciados no código sem entrada nos .env*.example — gap menor de documentação",
       "severidade": "informativo",
       "classificacao": "corrigivel",
-      "status_executor": "pendente",
+      "status_executor": "corrigido",
       "status_revisor": "pendente",
-      "commit_executor": null,
+      "commit_executor": "f05aa5fc885b",
       "commit_revisor": null,
-      "observacoes": null
+      "observacoes": "EMAIL_FROM (z.string().email()) e CDN_URL (z.string().url()) em apiEnvSchema/workerEnvSchema. .env.example com valores exemplo. CSP_REPORT_URI/REPORT_TO/ENDPOINT também documentados (introduzidos em ACH-040)."
     },
     {
       "finding_id": "ACH-045",
@@ -408,55 +408,55 @@
       "titulo": "App de landing (apps/landing) sem nenhum header de segurança nem CSP",
       "severidade": "alto",
       "classificacao": "corrigivel",
-      "status_executor": "pendente",
+      "status_executor": "corrigido",
       "status_revisor": "pendente",
-      "commit_executor": null,
+      "commit_executor": "14b6b41af239",
       "commit_revisor": null,
-      "observacoes": null
+      "observacoes": "apps/landing/src/middleware.ts criado: CSP (nonce-based em prod), HSTS (prod-only), X-Frame-Options=DENY, X-Content-Type-Options=nosniff, Referrer-Policy, Permissions-Policy completa, COOP/CORP=same-origin."
     },
     {
       "finding_id": "ACH-039",
       "titulo": "Content-Security-Policy não aplicada em rotas /api e /_next no middleware",
       "severidade": "baixo",
       "classificacao": "corrigivel",
-      "status_executor": "pendente",
+      "status_executor": "corrigido",
       "status_revisor": "pendente",
-      "commit_executor": null,
+      "commit_executor": "14b6b41af239",
       "commit_revisor": null,
-      "observacoes": null
+      "observacoes": "apps/web middleware passa /_next e /api por applyCspHeaders em vez de NextResponse.next() bare."
     },
     {
       "finding_id": "ACH-040",
       "titulo": "CSP sem report-uri/report-to — violações XSS reais não chegam ao SRE",
       "severidade": "baixo",
       "classificacao": "corrigivel",
-      "status_executor": "pendente",
+      "status_executor": "corrigido",
       "status_revisor": "pendente",
-      "commit_executor": null,
+      "commit_executor": "14b6b41af239",
       "commit_revisor": null,
-      "observacoes": null
+      "observacoes": "Diretivas report-uri / report-to + header Report-To controlados via CSP_REPORT_URI / CSP_REPORT_TO / CSP_REPORT_TO_ENDPOINT envs — só emitidos quando configurados."
     },
     {
       "finding_id": "ACH-041",
       "titulo": "Cross-Origin-Opener-Policy (COOP) e Cross-Origin-Resource-Policy (CORP) ausentes",
       "severidade": "baixo",
       "classificacao": "corrigivel",
-      "status_executor": "pendente",
+      "status_executor": "corrigido",
       "status_revisor": "pendente",
-      "commit_executor": null,
+      "commit_executor": "14b6b41af239",
       "commit_revisor": null,
-      "observacoes": null
+      "observacoes": "COOP=same-origin e CORP=same-origin em apps/web e apps/landing."
     },
     {
       "finding_id": "ACH-042",
       "titulo": "Permissions-Policy incompleta — falta payment, usb, fullscreen, etc.",
       "severidade": "informativo",
       "classificacao": "corrigivel",
-      "status_executor": "pendente",
+      "status_executor": "corrigido",
       "status_revisor": "pendente",
-      "commit_executor": null,
+      "commit_executor": "14b6b41af239",
       "commit_revisor": null,
-      "observacoes": null
+      "observacoes": "Permissions-Policy completa: accelerometer, camera, geolocation, gyroscope, magnetometer, microphone, payment, usb, fullscreen=(self), interest-cohort=()."
     },
     {
       "finding_id": "ACH-038",
@@ -474,22 +474,22 @@
       "titulo": "Webhook MercadoPago sem proteção de replay (sem dedup por data.id, sem nonce/timestamp window)",
       "severidade": "medio",
       "classificacao": "corrigivel",
-      "status_executor": "pendente",
+      "status_executor": "corrigido",
       "status_revisor": "pendente",
-      "commit_executor": null,
+      "commit_executor": "c0ed56fc3b19",
       "commit_revisor": null,
-      "observacoes": null
+      "observacoes": "Redis SET NX EX em webhook:mp:dedup:<dataId> com TTL=10min. Retry da mesma delivery responde 200 deduped sem re-disparar handler. Hiccup do Redis fail-open."
     },
     {
       "finding_id": "ACH-052",
       "titulo": "MercadoPago webhook: JSON.parse executado ANTES da verificação HMAC — desperdício de trabalho em payload inválido",
       "severidade": "baixo",
       "classificacao": "corrigivel",
-      "status_executor": "pendente",
+      "status_executor": "corrigido",
       "status_revisor": "pendente",
-      "commit_executor": null,
+      "commit_executor": "f05aa5fc885b",
       "commit_revisor": null,
-      "observacoes": null
+      "observacoes": "Short-circuit 401 quando x-signature/x-request-id ausentes, antes de JSON.parse. HMAC ainda exige dataId do parsed body — primeiro filtro elimina probes não autenticadas."
     },
     {
       "finding_id": "ACH-047",
@@ -529,22 +529,22 @@
       "titulo": "ResendEmailSender.send() faz fetch outbound SEM timeout — pode pendurar request handler / worker",
       "severidade": "medio",
       "classificacao": "corrigivel",
-      "status_executor": "pendente",
+      "status_executor": "corrigido",
       "status_revisor": "pendente",
-      "commit_executor": null,
+      "commit_executor": "f05aa5fc885b",
       "commit_revisor": null,
-      "observacoes": null
+      "observacoes": "AbortController com 5s. clearTimeout no finally — não vaza handler ativo após sucesso."
     },
     {
       "finding_id": "ACH-050",
       "titulo": "DLQ alert fanout (Slack webhook) faz fetch outbound sem timeout — pode pendurar processor da DLQ",
       "severidade": "baixo",
       "classificacao": "corrigivel",
-      "status_executor": "pendente",
+      "status_executor": "corrigido",
       "status_revisor": "pendente",
-      "commit_executor": null,
+      "commit_executor": "f05aa5fc885b",
       "commit_revisor": null,
-      "observacoes": null
+      "observacoes": "AbortController com 3s. Notificação perdida preferível a worker freezado."
     },
     {
       "finding_id": "ACH-054",
@@ -617,11 +617,11 @@
       "titulo": "`.well-known/security.txt` ausente — canal de disclosure não publicado em endpoint padrão RFC 9116",
       "severidade": "baixo",
       "classificacao": "corrigivel",
-      "status_executor": "pendente",
+      "status_executor": "corrigido",
       "status_revisor": "pendente",
-      "commit_executor": null,
+      "commit_executor": "c0ed56fc3b19",
       "commit_revisor": null,
-      "observacoes": null
+      "observacoes": "apps/web/public/.well-known/security.txt RFC 9116 conformant: Contact, Expires=2027-04-26, Preferred-Languages=pt+en, Canonical, Policy=SECURITY.md."
     },
     {
       "finding_id": "ACH-061",
@@ -683,11 +683,11 @@
       "titulo": "Sem mecanismo de invalidação massiva de sessões/tokens em incidente (revogação só per-account, sem comando admin global ou per-tenant)",
       "severidade": "medio",
       "classificacao": "corrigivel",
-      "status_executor": "pendente",
+      "status_executor": "corrigido",
       "status_revisor": "pendente",
-      "commit_executor": null,
+      "commit_executor": "70dba3533ceb",
       "commit_revisor": null,
-      "observacoes": null
+      "observacoes": "JwtBlacklist port estendido com revokeAllForTenant + revokeAllGlobal. jwt callback verifica em ordem global→tenant→account. Endpoints admin.sessions.revokeAllForTenant({tenantId}) e revokeAllGlobal({confirmation:'REVOKE-ALL-SESSIONS'}). Confirmação literal exigida no break-glass."
     },
     {
       "finding_id": "ACH-067",

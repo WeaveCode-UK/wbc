@@ -256,7 +256,15 @@ export const authRouter = router({
   deleteAccount: protectedProcedure
     .input(deleteAccountSchema)
     .mutation(async ({ input, ctx }) => {
-      const uc = new DeleteAccount(memberRepo);
+      // ACH-008: pass accountRepo + jwtBlacklist so the use-case actually
+      // hard-deletes the account and stamps the JWT mass-revocation
+      // threshold. Previously only memberRepo was wired and the deletion
+      // was a no-op.
+      const uc = new DeleteAccount(
+        memberRepo,
+        accountRepo,
+        jwtBlacklistForAuth,
+      );
       await uc.execute({
         accountId: ctx.tenant.userId,
         confirmation: input.confirmation,

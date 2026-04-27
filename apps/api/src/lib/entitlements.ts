@@ -1,15 +1,19 @@
 import { TRPCError } from "@trpc/server";
 // ACH-015: tenant-scoped helpers throw on missing ALS context, killing the
 // silent-cross-tenant-leak class of bug at the helper boundary.
-import { cacheGetForTenant, cacheSetForTenant, CACHE_TTL } from "./cache";
+import {
+  cacheGetForTenant,
+  cacheSetForTenant,
+  CACHE_TTL,
+  getTenantScopedRedis,
+} from "./cache";
 import { PrismaSubscriptionRepository } from "../../../../packages/business/auth/adapters/prisma-subscription-repository";
 import {
   canUseFeature,
   isSubscriptionActive,
 } from "../../../../packages/business/auth/domain/subscription";
 import type { Feature } from "../../../../packages/business/auth/domain/subscription";
-import type { Plan, RedisLike } from "@wbc/shared";
-import { getTenantScopedRedis } from "@wbc/shared";
+import type { Plan } from "@wbc/shared";
 
 const subscriptionRepo = new PrismaSubscriptionRepository();
 
@@ -49,14 +53,9 @@ export async function getEntitlements(
 }
 
 export async function invalidateEntitlements(_tenantId: string): Promise<void> {
-  // delete is not exposed through the tenant-scoped wrapper, so we ask the
-  // wrapper for the resolved (prefixed) key and del() on it. ACH-015.
-  const scoped = getTenantScopedRedis() as unknown as RedisLike & {
-    del?: (k: string) => Promise<number>;
-  };
-  if (scoped.del) {
-    await scoped.del(CACHE_KEY);
-  }
+  // ACH-015: TenantScopedRedis exposes delete(); the helper resolves the
+  // tenant prefix from AsyncLocalStorage automatically.
+  await getTenantScopedRedis().delete(CACHE_KEY);
 }
 
 export async function requirePlan(

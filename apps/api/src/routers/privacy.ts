@@ -1,8 +1,16 @@
 import { z } from "zod";
-import { router, tenantProcedure } from "../trpc/trpc";
+import { router, tenantProcedure, roleProtectedProcedure } from "../trpc/trpc";
 import { createLogger } from "../lib/logger";
+import { requirePermission } from "@wbc/business/auth/guards/permission.guard";
+import type { Role } from "@wbc/business/auth/domain/entities/tenant-member.entity";
 
 const logger = createLogger("privacy");
+
+// ACH-011: data-subject mutations now require DIRECTOR+ AND the dedicated
+// `tenant:export` permission so a CONSULTANT cannot fire LGPD exports or
+// erasure for the whole tenant. accessLog stays at tenant-procedure (every
+// member can ask "who looked at my data?").
+const directorOrAbove = roleProtectedProcedure("DIRECTOR");
 
 // ACH-001 compliance-privacidade: stubs for the four LGPD/GDPR data-subject
 // rights. Each procedure enforces tenant scoping (tenantProcedure) and will
@@ -18,9 +26,10 @@ export const privacyRouter = router({
    * GET user's own data — export in a structured archive (JSON per domain).
    * Returns a signed URL when persistence is implemented.
    */
-  exportMyData: tenantProcedure
+  exportMyData: directorOrAbove
     .input(z.object({ format: z.enum(["json", "zip"]).default("zip") }))
     .mutation(async ({ ctx, input }) => {
+      requirePermission(ctx.tenant.role as Role, "tenant:export");
       logger.warn(
         { tenantId: ctx.tenant.tenantId, format: input.format },
         "ACH-001 stub: privacy.exportMyData invoked — requires implementation",
@@ -35,7 +44,7 @@ export const privacyRouter = router({
   /**
    * Correct a specific field on a resource owned by the caller.
    */
-  correctField: tenantProcedure
+  correctField: directorOrAbove
     .input(
       z.object({
         resource: z.enum(["Account", "Client"]),
@@ -59,9 +68,10 @@ export const privacyRouter = router({
   /**
    * Request deletion / anonymization of all data associated with the caller.
    */
-  requestDeletion: tenantProcedure
+  requestDeletion: directorOrAbove
     .input(z.object({ confirmation: z.literal("ERASE_MY_DATA") }))
     .mutation(async ({ ctx }) => {
+      requirePermission(ctx.tenant.role as Role, "tenant:export");
       logger.warn(
         { tenantId: ctx.tenant.tenantId },
         "ACH-001 stub: privacy.requestDeletion invoked — requires implementation",

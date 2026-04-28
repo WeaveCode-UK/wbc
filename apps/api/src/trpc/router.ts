@@ -16,7 +16,10 @@ import { teamRouter } from "../routers/team";
 import { logisticsRouter } from "../routers/logistics";
 import { landingRouter } from "../routers/landing";
 import { platformRouter } from "../routers/platform";
-import { adminRouter } from "../routers/admin";
+// adminRouter removido em 2026-04-28 — ver begin/WBC_SECURITY_REQUIREMENTS_CONTROL_PLANE.md.
+// O stub original misturava role intra-tenant (ADMIN) com endpoints cross-tenant
+// (DLQ, blacklist global, sessões de outro tenant). Será reescrito atrás de
+// platformAdminProcedure quando o control plane for construído.
 import { privacyRouter } from "../routers/privacy";
 
 export const appRouter = router({
@@ -39,7 +42,6 @@ export const appRouter = router({
   logistics: logisticsRouter,
   landing: landingRouter,
   platform: platformRouter,
-  admin: adminRouter,
   // ACH-001 compliance-privacidade: LGPD/GDPR data-subject rights endpoints.
   // Currently stubs — see docs/PRIVACY-ENDPOINTS.md.
   privacy: privacyRouter,

@@ -1,4 +1,4 @@
-import Google from "next-auth/providers/google";
+// Google OAuth provider intencionalmente desabilitado — ver bloco `providers` abaixo.
 import Credentials from "next-auth/providers/credentials";
 import type { NextAuthConfig } from "next-auth";
 import { PrismaAccountRepository } from "@wbc/business/auth/adapters/prisma-account.repository";
@@ -70,10 +70,16 @@ function extractIp(request?: Request): string | undefined {
 
 export default {
   providers: [
-    Google({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    }),
+    // Google OAuth desabilitado: enquanto o sistema de login + hierarquia +
+    // control plane não estiver finalizado, signup público via OAuth permite
+    // que qualquer Gmail vire ADMIN de um tenant novo (via onboardTenant) e
+    // alcance endpoints de admin.* que ainda não distinguem "admin do tenant"
+    // de "admin da plataforma". Reabilitar somente após separar PLATFORM_ADMIN
+    // e validar tenantId no input dos endpoints administrativos.
+    // Google({
+    //   clientId: process.env.GOOGLE_CLIENT_ID!,
+    //   clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    // }),
     Credentials({
       credentials: {
         email: { label: "Email", type: "email" },

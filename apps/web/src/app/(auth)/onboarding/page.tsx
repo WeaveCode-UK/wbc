@@ -53,7 +53,7 @@ export default function OnboardingPage() {
         return;
       }
       await update({});
-      router.push("/dashboard");
+      router.push("/");
       router.refresh();
     } catch {
       setError(t("onboarding.error"));

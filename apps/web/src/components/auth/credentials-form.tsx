@@ -81,7 +81,7 @@ export function CredentialsForm({ mode }: CredentialsFormProps) {
         if (result?.error) {
           setServerError(t("login.invalidCredentials"));
         } else {
-          router.push("/dashboard");
+          router.push("/");
           router.refresh();
         }
       } catch {

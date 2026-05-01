@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
-import { Button } from '@wbc/ui/components/button';
-import { useTranslations } from 'next-intl';
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { Button } from "@wbc/ui/components/button";
+import { useTranslations } from "next-intl";
 
 interface WorkspaceInfo {
   tenantId: string;
@@ -16,7 +16,7 @@ interface WorkspaceInfo {
 }
 
 export default function WorkspaceSelectorPage() {
-  const t = useTranslations('auth');
+  const t = useTranslations("auth");
   const router = useRouter();
   const { update } = useSession();
   const [workspaces, setWorkspaces] = useState<WorkspaceInfo[]>([]);
@@ -24,7 +24,7 @@ export default function WorkspaceSelectorPage() {
   const [selecting, setSelecting] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('/api/trpc/auth.listWorkspaces')
+    fetch("/api/trpc/auth.listWorkspaces")
       .then((r) => r.json())
       .then((data) => {
         setWorkspaces(data?.result?.data?.workspaces ?? []);
@@ -37,7 +37,7 @@ export default function WorkspaceSelectorPage() {
     setSelecting(tenantId);
     try {
       await update({ tenantId });
-      router.push('/dashboard');
+      router.push("/");
       router.refresh();
     } catch {
       setSelecting(null);
@@ -47,7 +47,7 @@ export default function WorkspaceSelectorPage() {
   if (loading) {
     return (
       <div className="text-center">
-        <p className="text-muted-foreground">{t('workspace.loading')}</p>
+        <p className="text-muted-foreground">{t("workspace.loading")}</p>
       </div>
     );
   }
@@ -55,8 +55,8 @@ export default function WorkspaceSelectorPage() {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h1 className="text-2xl font-bold">{t('workspace.title')}</h1>
-        <p className="mt-2 text-muted-foreground">{t('workspace.subtitle')}</p>
+        <h1 className="text-2xl font-bold">{t("workspace.title")}</h1>
+        <p className="mt-2 text-muted-foreground">{t("workspace.subtitle")}</p>
       </div>
 
       <div className="space-y-3">

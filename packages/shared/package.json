@@ -27,6 +27,7 @@
     "zod": "^3.23.0"
   },
   "devDependencies": {
-    "@wbc/config": "workspace:*"
+    "@wbc/config": "workspace:*",
+    "pino-pretty": "^13.1.3"
   }
 }

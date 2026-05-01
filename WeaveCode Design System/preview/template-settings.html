@@ -1,0 +1,61 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Settings</title><link rel="stylesheet" href="../colors_and_type.css">
+<style>html,body{margin:0;padding:0;}body{font-family:var(--wc-font-sans);background:#F9F9F9;padding:24px;color:#0E0E16;}
+h1{margin:0 0 4px;font-size:24px;font-weight:600;letter-spacing:-0.02em;}
+.sub{font-size:13px;color:#6E6E83;font-weight:300;margin-bottom:22px;}
+.layout{display:grid;grid-template-columns:200px 1fr;gap:24px;}
+.menu{display:flex;flex-direction:column;gap:2px;}
+.menu a{padding:8px 12px;font-size:13px;color:#4A4A5C;text-decoration:none;border-radius:8px;font-weight:500;}
+.menu a.active{background:#F4ECFE;color:#531896;}
+.section{background:#fff;border:1px solid #E4E4EA;border-radius:14px;padding:22px;margin-bottom:14px;}
+.s-head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid #F1F1F4;padding-bottom:12px;margin-bottom:16px;}
+.s-title{font-size:15px;font-weight:600;}
+.s-desc{font-size:12px;color:#6E6E83;font-weight:300;margin-top:2px;max-width:380px;line-height:1.45;}
+.row{display:grid;grid-template-columns:200px 1fr;gap:16px;align-items:center;padding:12px 0;border-bottom:1px solid #F1F1F4;}
+.row:last-child{border:0;}
+.row label{font-size:13px;font-weight:500;}
+.row .hint{font-size:11px;color:#6E6E83;font-weight:300;margin-top:2px;}
+.inp{font-family:inherit;font-size:13px;padding:9px 11px;border-radius:8px;border:1px solid #E4E4EA;background:#fff;width:100%;max-width:380px;box-sizing:border-box;}
+.tog{position:relative;width:36px;height:20px;background:#8127E8;border-radius:99px;}
+.tog::after{content:'';position:absolute;top:2px;right:2px;width:16px;height:16px;background:#fff;border-radius:50%;}
+.tog.off{background:#D1D1D9;}.tog.off::after{left:2px;right:auto;}
+.actions{margin-top:16px;display:flex;justify-content:flex-end;gap:8px;}
+.btn{font-size:13px;padding:9px 16px;border-radius:8px;border:none;cursor:pointer;font-weight:500;}
+.btn-p{background:#8127E8;color:#fff;}.btn-g{background:transparent;color:#4A4A5C;}
+.danger{border-color:#FCDBDC;background:#FFF7F7;}
+.danger .s-title{color:#9F2A2D;}
+.btn-d{background:#fff;color:#9F2A2D;border:1px solid #FCDBDC;}</style></head>
+<body>
+<h1>Settings</h1>
+<div class="sub">Manage your workspace, billing, and preferences.</div>
+<div class="layout">
+  <div class="menu">
+    <a class="active">General</a>
+    <a>Members</a>
+    <a>Billing</a>
+    <a>Integrations</a>
+    <a>Notifications</a>
+    <a>Security</a>
+    <a>API & Webhooks</a>
+  </div>
+  <div>
+    <div class="section">
+      <div class="s-head"><div><div class="s-title">Workspace</div><div class="s-desc">Public-facing details for your team.</div></div></div>
+      <div class="row"><div><label>Workspace name</label><div class="hint">Shown in dashboards and invoices.</div></div><input class="inp" value="Acme Studio"/></div>
+      <div class="row"><div><label>Slug</label><div class="hint">Used in URLs.</div></div><input class="inp" value="acme-studio"/></div>
+      <div class="row"><div><label>Default vertical</label></div><select class="inp"><option>Beauty</option><option>Health</option><option>Business</option></select></div>
+      <div class="actions"><button class="btn btn-g">Cancel</button><button class="btn btn-p">Save changes</button></div>
+    </div>
+    <div class="section">
+      <div class="s-head"><div><div class="s-title">Notifications</div><div class="s-desc">Decide what reaches your inbox.</div></div></div>
+      <div class="row"><div><label>Weekly digest</label><div class="hint">Summary every Monday.</div></div><div class="tog"></div></div>
+      <div class="row"><div><label>Project updates</label><div class="hint">Comments and status changes.</div></div><div class="tog"></div></div>
+      <div class="row"><div><label>Marketing</label><div class="hint">Product news from weavecode.</div></div><div class="tog off"></div></div>
+    </div>
+    <div class="section danger">
+      <div class="s-head"><div><div class="s-title">Danger zone</div><div class="s-desc">Permanent actions. Read carefully.</div></div></div>
+      <div class="row"><div><label>Delete workspace</label><div class="hint">All data, projects, and members will be removed.</div></div><button class="btn btn-d">Delete workspace</button></div>
+    </div>
+  </div>
+</div>
+</body></html>

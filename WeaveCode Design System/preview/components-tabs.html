@@ -1,0 +1,21 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Tabs</title><link rel="stylesheet" href="../colors_and_type.css">
+<style>html,body{margin:0;padding:0;}body{font-family:var(--wc-font-sans);background:#fff;padding:24px;display:flex;flex-direction:column;gap:24px;}
+.tabs{display:flex;gap:4px;border-bottom:1px solid #E4E4EA;}
+.tab{font-size:13px;font-weight:500;padding:10px 14px;color:#6E6E83;border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer;}
+.tab.active{color:#8127E8;border-bottom-color:#8127E8;}
+.tab .b{display:inline-block;background:#F4ECFE;color:#531896;font-size:10px;font-weight:600;padding:1px 6px;border-radius:999px;margin-left:6px;}
+
+.pills{display:inline-flex;background:#F1F1F4;padding:3px;border-radius:10px;gap:2px;}
+.pill{font-size:12px;font-weight:500;padding:6px 14px;border-radius:7px;color:#4A4A5C;cursor:pointer;}
+.pill.active{background:#fff;color:#0E0E16;box-shadow:0 1px 2px rgba(11,19,79,0.08);}
+
+.cap{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;font-weight:600;color:#6E6E83;}</style></head>
+<body>
+  <div><div class="cap" style="margin-bottom:10px;">Underline tabs</div>
+    <div class="tabs"><div class="tab active">Overview</div><div class="tab">Activity<span class="b">12</span></div><div class="tab">Files</div><div class="tab">Team</div><div class="tab">Settings</div></div>
+  </div>
+  <div><div class="cap" style="margin-bottom:10px;">Pill / segmented</div>
+    <div class="pills"><div class="pill active">All</div><div class="pill">Beauty</div><div class="pill">Health</div><div class="pill">Business</div></div>
+  </div>
+</body></html>

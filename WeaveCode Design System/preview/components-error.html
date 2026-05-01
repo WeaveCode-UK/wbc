@@ -1,0 +1,16 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Error State</title><link rel="stylesheet" href="../colors_and_type.css">
+<style>html,body{margin:0;padding:0;}body{font-family:var(--wc-font-sans);background:#F9F9F9;padding:30px;display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.box{background:#fff;border:1px solid #E4E4EA;border-radius:18px;padding:30px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px;}
+.glyph{width:64px;height:64px;border-radius:18px;background:#FCDBDC;color:#9F2A2D;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:600;margin-bottom:6px;}
+h3{margin:0;font-size:18px;font-weight:600;color:#0E0E16;letter-spacing:-0.01em;}
+p{margin:0;font-size:13px;line-height:1.55;color:#4A4A5C;font-weight:300;max-width:300px;}
+.actions{margin-top:14px;display:flex;gap:8px;}
+.btn{font-size:13px;padding:9px 16px;border-radius:8px;border:none;cursor:pointer;font-weight:500;}
+.btn-p{background:#8127E8;color:#fff;}.btn-o{background:#fff;color:#0E0E16;border:1px solid #E4E4EA;}
+.code{font-family:var(--wc-font-mono);font-size:11px;color:#9C9CAE;background:#F1F1F4;padding:3px 8px;border-radius:4px;}
+.glyph-404{background:linear-gradient(135deg,#F4ECFE,#E6D3FC);color:#8127E8;font-family:Georgia,serif;font-style:italic;font-size:24px;}</style></head>
+<body>
+<div class="box"><div class="glyph">!</div><h3>Something came loose.</h3><p>We couldn't load your projects. Try again — if it keeps happening, we're already on it.</p><div class="actions"><button class="btn btn-o">Reload</button><button class="btn btn-p">Try again</button></div><div class="code" style="margin-top:8px;">err: NETWORK_TIMEOUT · 504</div></div>
+<div class="box"><div class="glyph glyph-404">{404}</div><h3>This page never wove.</h3><p>The link you followed leads somewhere we don't have. Check the URL or head back home.</p><div class="actions"><button class="btn btn-p">← Back to dashboard</button></div></div>
+</body></html>

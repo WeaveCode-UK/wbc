@@ -1,0 +1,84 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Accessibility</title><link rel="stylesheet" href="../colors_and_type.css">
+<style>html,body{margin:0;padding:0;}body{font-family:var(--wc-font-sans);background:#F9F9F9;padding:24px;color:#0E0E16;}
+.cap{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;font-weight:600;color:#6E6E83;margin-bottom:10px;}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;}
+.card{background:#fff;border:1px solid #E4E4EA;border-radius:14px;padding:16px;}
+.card h4{margin:0 0 8px;font-size:13px;font-weight:600;}
+.swatch{display:flex;flex-direction:column;gap:4px;margin-bottom:8px;}
+.s{display:flex;align-items:center;gap:10px;font-size:12px;padding:8px 12px;border-radius:8px;}
+.s b{font-family:var(--wc-font-mono);font-size:11px;margin-left:auto;font-weight:600;}
+.pass{background:#CFF5E3;color:#005C39;}.warn{background:#FDDFA9;color:#7A4C00;}.fail{background:#FCDBDC;color:#9F2A2D;}
+
+.focus-demo{display:flex;gap:10px;}
+.focus-demo button{font-family:inherit;font-size:13px;padding:8px 14px;border-radius:8px;border:1px solid #E4E4EA;background:#fff;cursor:pointer;}
+.focus-demo button.f-on{outline:3px solid #FF6600;outline-offset:2px;border-color:#0E0E16;}
+
+.list{font-size:12px;color:#4A4A5C;font-weight:300;line-height:1.65;}
+.list p{margin:0 0 6px;}
+.list b{color:#0E0E16;font-weight:600;}
+
+.kbd{font-family:var(--wc-font-mono);background:#0E0E16;color:#fff;padding:2px 6px;font-size:10px;border-radius:3px;}
+
+.text-test{padding:12px;border-radius:8px;}
+.text-test.t1{background:#0B134F;color:#fff;}
+.text-test.t2{background:#8127E8;color:#fff;}
+.text-test.t3{background:#FF6600;color:#0E0E16;}
+.text-test .v{font-size:11px;font-family:var(--wc-font-mono);opacity:0.85;display:block;margin-top:4px;}</style></head>
+<body>
+<div class="cap">Color contrast — WCAG AA</div>
+<div class="grid">
+  <div class="card"><h4>Brand combinations · body text</h4>
+    <div class="swatch">
+      <div class="s pass"><span style="display:inline-block;width:14px;height:14px;background:#0B134F;border-radius:3px;"></span>Deep Blue on White<b>14.6 ✓</b></div>
+      <div class="s pass"><span style="display:inline-block;width:14px;height:14px;background:#8127E8;border-radius:3px;"></span>Purple on White<b>5.8 ✓</b></div>
+      <div class="s warn"><span style="display:inline-block;width:14px;height:14px;background:#FF6600;border-radius:3px;"></span>Orange on White<b>3.1 large only</b></div>
+      <div class="s pass"><span style="display:inline-block;width:14px;height:14px;background:#fff;border-radius:3px;border:1px solid #ccc;"></span>White on Deep Blue<b>14.6 ✓</b></div>
+      <div class="s fail"><span style="display:inline-block;width:14px;height:14px;background:#FF6600;border-radius:3px;"></span>Orange on Purple<b>1.9 ✗</b></div>
+    </div>
+    <div style="font-size:11px;color:#6E6E83;font-weight:300;">Body text needs 4.5:1. Large text (18px+ or 14px+ bold) needs 3:1. Orange is for accents and graphics only — never small body copy.</div>
+  </div>
+  <div class="card"><h4>Surfaces · live preview</h4>
+    <div class="text-test t1">Software, sewn to fit.<span class="v">#FFF on #0B134F · 14.6:1 ✓</span></div>
+    <div class="text-test t2" style="margin-top:6px;">Software, sewn to fit.<span class="v">#FFF on #8127E8 · 5.8:1 ✓</span></div>
+    <div class="text-test t3" style="margin-top:6px;">Software, sewn to fit.<span class="v">#0E0E16 on #FF6600 · 9.2:1 ✓</span></div>
+  </div>
+</div>
+
+<div class="cap">Focus & keyboard</div>
+<div class="grid">
+  <div class="card"><h4>Focus rings — visible, branded</h4>
+    <p style="font-size:12px;color:#6E6E83;font-weight:300;margin:0 0 12px;">Always visible on keyboard navigation. 3px outline, orange (high contrast on every brand surface), 2px offset.</p>
+    <div class="focus-demo"><button>Default</button><button class="f-on">Focused (Tab)</button></div>
+    <pre style="background:#F1F1F4;padding:8px 10px;border-radius:6px;font-family:var(--wc-font-mono);font-size:10px;margin-top:12px;color:#0E0E16;">:focus-visible {
+  outline: 3px solid var(--wc-orange);
+  outline-offset: 2px;
+}</pre>
+  </div>
+  <div class="card"><h4>Keyboard map</h4>
+    <div class="list">
+      <p><span class="kbd">Tab</span> · move forward through interactive elements</p>
+      <p><span class="kbd">Shift+Tab</span> · move backward</p>
+      <p><span class="kbd">Enter</span> · activate buttons & links</p>
+      <p><span class="kbd">Space</span> · toggle checkboxes & switches</p>
+      <p><span class="kbd">Esc</span> · close any overlay (modal, drawer, menu)</p>
+      <p><span class="kbd">↑↓</span> · navigate within menus, comboboxes, listboxes</p>
+      <p><span class="kbd">⌘K</span> · open command palette (global)</p>
+    </div>
+  </div>
+</div>
+
+<div class="cap">Checklist</div>
+<div class="card">
+  <div class="list">
+    <p><b>Semantic HTML.</b> <code>&lt;button&gt;</code> for actions, <code>&lt;a&gt;</code> for navigation. Never <code>&lt;div onclick&gt;</code>.</p>
+    <p><b>Labels for every input.</b> Visible <code>&lt;label&gt;</code> or <code>aria-label</code>. Placeholder is not a label.</p>
+    <p><b>Alt text on images.</b> Decorative? <code>alt=""</code>. Informative? Describe the function, not the file.</p>
+    <p><b>ARIA only when HTML can't.</b> <code>aria-expanded</code>, <code>aria-current</code>, <code>aria-live="polite"</code> for toasts.</p>
+    <p><b>Don't rely on color alone.</b> Status uses icon + color. Form errors say "Email is required," not just red.</p>
+    <p><b>Respect reduced motion.</b> <code>@media (prefers-reduced-motion)</code> → fade only or instant.</p>
+    <p><b>Touch targets 44×44px.</b> Even tiny icons get padding.</p>
+    <p><b>Test with the keyboard.</b> If you can't reach it with Tab, neither can a screen reader user.</p>
+  </div>
+</div>
+</body></html>

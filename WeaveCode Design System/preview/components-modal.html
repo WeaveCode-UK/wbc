@@ -1,0 +1,20 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Modal</title><link rel="stylesheet" href="../colors_and_type.css">
+<style>html,body{margin:0;padding:0;height:100%;}body{font-family:var(--wc-font-sans);background:#0B134F;background-image:radial-gradient(rgba(129,39,232,0.55) 1px,transparent 1.2px);background-size:14px 14px;height:100%;display:flex;align-items:center;justify-content:center;padding:18px;}
+.scrim{position:absolute;inset:0;background:rgba(11,19,79,0.55);backdrop-filter:blur(6px);}
+.modal{position:relative;background:#fff;border-radius:24px;padding:24px;width:420px;box-shadow:0 28px 60px rgba(0,0,0,0.45);}
+h3{margin:0 0 8px;font-size:18px;font-weight:600;color:#0E0E16;letter-spacing:-0.01em;}
+p{margin:0;font-size:14px;line-height:1.55;color:#4A4A5C;font-weight:300;}
+.actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px;}
+.btn{font-size:13px;padding:9px 16px;border-radius:8px;border:none;cursor:pointer;font-weight:500;}
+.btn-d{background:#E5484D;color:#fff;}.btn-g{background:transparent;color:#4A4A5C;}
+.warn-ic{width:36px;height:36px;border-radius:10px;background:#FCDBDC;display:flex;align-items:center;justify-content:center;color:#E5484D;font-size:18px;font-weight:700;margin-bottom:14px;}</style></head>
+<body>
+<div class="scrim"></div>
+<div class="modal">
+  <div class="warn-ic">!</div>
+  <h3>Delete this client?</h3>
+  <p>This will permanently remove <strong>Acme Inc.</strong> and all 14 associated projects. This action cannot be undone.</p>
+  <div class="actions"><button class="btn btn-g">Cancel</button><button class="btn btn-d">Delete client</button></div>
+</div>
+</body></html>

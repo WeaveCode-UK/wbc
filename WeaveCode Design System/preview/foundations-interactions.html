@@ -1,0 +1,53 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Interactions</title><link rel="stylesheet" href="../colors_and_type.css">
+<style>html,body{margin:0;padding:0;}body{font-family:var(--wc-font-sans);background:#F9F9F9;padding:24px;color:#0E0E16;}
+.cap{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;font-weight:600;color:#6E6E83;margin-bottom:10px;}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:18px;}
+.card{background:#fff;border:1px solid #E4E4EA;border-radius:14px;padding:18px;}
+.card h4{margin:0 0 6px;font-size:14px;font-weight:600;}
+.card p{margin:0 0 12px;font-size:12px;color:#6E6E83;font-weight:300;line-height:1.5;}
+.demo{background:#F9F9F9;border:1px dashed #D1D1D9;border-radius:10px;padding:14px;display:flex;align-items:center;justify-content:center;gap:12px;min-height:60px;}
+.btn{font-size:12px;padding:7px 12px;border-radius:6px;border:none;background:#8127E8;color:#fff;font-weight:500;cursor:pointer;transition:transform 0.12s ease-out,box-shadow 0.12s ease-out,background 0.12s ease-out;}
+.btn:hover{background:#9D4EF0;box-shadow:0 4px 10px rgba(129,39,232,0.35);}
+.btn:active{transform:translateY(1px);}
+.skel{height:8px;background:linear-gradient(90deg,#EDEDF2,#F6F6FA,#EDEDF2);background-size:200% 100%;border-radius:99px;animation:s 1.4s linear infinite;width:120px;}
+@keyframes s{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.kbd{font-family:var(--wc-font-mono);background:#0E0E16;color:#fff;padding:3px 7px;font-size:11px;border-radius:4px;}
+.list{font-size:12px;color:#4A4A5C;font-weight:300;line-height:1.7;}
+.list b{font-weight:600;color:#0E0E16;}
+.tog{position:relative;width:32px;height:18px;background:#8127E8;border-radius:99px;transition:background 0.18s;}
+.tog::after{content:'';position:absolute;top:2px;right:2px;width:14px;height:14px;background:#fff;border-radius:50%;transition:left 0.18s,right 0.18s;}
+.field{font-size:12px;border:1px solid #E4E4EA;border-radius:8px;padding:7px 10px;background:#fff;}
+.opt{display:inline-flex;align-items:center;gap:5px;color:#00C479;font-size:11px;font-weight:500;}
+.opt::before{content:'✓';display:inline-block;color:#00C479;}
+.dragging{padding:7px 10px;border:1px solid #8127E8;border-radius:6px;background:#F4ECFE;color:#531896;font-size:12px;font-weight:500;cursor:grab;}</style></head>
+<body>
+<div class="cap">Feedback patterns</div>
+<div class="grid">
+  <div class="card"><h4>Hover & press</h4><p>Buttons gain elevation on hover, drop on press. 120ms.</p>
+    <div class="demo"><button class="btn">Hover me</button><button class="btn">Click me</button></div>
+  </div>
+  <div class="card"><h4>Optimistic updates</h4><p>Show success immediately. Roll back if the server says no.</p>
+    <div class="demo"><span class="opt">Saved</span><span class="skel"></span></div>
+  </div>
+  <div class="card"><h4>Keyboard shortcuts</h4><p>Power users get speed. New users see hints.</p>
+    <div class="demo"><span class="kbd">⌘K</span><span style="font-size:12px;color:#6E6E83;">Search</span><span class="kbd">⌘N</span><span style="font-size:12px;color:#6E6E83;">New</span></div>
+  </div>
+  <div class="card"><h4>Drag & drop</h4><p>Source dims, target highlights, ghost follows cursor.</p>
+    <div class="demo"><div class="dragging">Acme rebrand</div><div style="border:2px dashed #8127E8;border-radius:6px;padding:7px 16px;font-size:11px;color:#8127E8;">Drop here</div></div>
+  </div>
+</div>
+
+<div class="cap">Principles</div>
+<div class="card">
+  <div class="list">
+    <p><b>1 · Show state, always.</b> Loading, empty, error, success — every fetch has 4 states. Build all four.</p>
+    <p><b>2 · Optimistic by default.</b> Local change first, server confirmation second. Revert with a toast on failure.</p>
+    <p><b>3 · Confirm only the destructive.</b> Don't ask "are you sure?" for things that can be undone. Do ask for delete and pay.</p>
+    <p><b>4 · Keyboard-first navigation.</b> Tab moves through every interactive element in reading order. Esc closes overlays.</p>
+    <p><b>5 · One primary action per surface.</b> If you have two CTAs, one of them is wrong.</p>
+    <p><b>6 · Forgive small mistakes.</b> Trim whitespace from emails. Auto-format phone numbers. Accept "tomorrow" as a date.</p>
+    <p><b>7 · Latency &gt; 200ms shows feedback.</b> Below that, instant feels right. Above, show a skeleton or spinner.</p>
+  </div>
+</div>
+</body></html>

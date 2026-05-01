@@ -1,0 +1,46 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Mobile Wallpapers</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0;padding:0;}
+  body{font-family:var(--wc-font-sans);background:var(--wc-neutral-50);padding:18px;display:grid;grid-template-columns:repeat(5,1fr);gap:14px;}
+  .phone{aspect-ratio:9/19;border-radius:18px;overflow:hidden;position:relative;border:2px solid #1A1A24;box-shadow:0 4px 14px rgba(11,19,79,0.18);}
+  .phone .lbl{position:absolute;bottom:8px;left:8px;right:8px;font-size:8px;letter-spacing:0.12em;text-transform:uppercase;font-weight:600;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,0.4);text-align:center;}
+  .phone .lbl.dark{color:#0B134F;text-shadow:none;}
+  .phone .mark{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:46%;}
+  .phone .mark img{width:100%;display:block;}
+
+  .w1{background:#0B134F;}
+  .w1::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 60%,#8127E8 0%,#3D116E 50%,#0B134F 90%);}
+
+  .w2{background:#0B134F;background-image:radial-gradient(rgba(129,39,232,0.55) 1px,transparent 1.2px);background-size:14px 14px;}
+
+  .w3{background:#8127E8;}
+  .w3::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 40%,#fff 0%,#D5B5FB 30%,#8127E8 75%);}
+
+  .w4{background:linear-gradient(180deg,#0B134F 0%,#8127E8 100%);}
+
+  .w5{background:#8127E8;background-image:radial-gradient(rgba(11,19,79,0.45) 1px,transparent 1.2px);background-size:14px 14px;}
+</style></head>
+<body>
+  <div class="phone w1">
+    <div class="mark"><img src="../assets/logos/weavecode-mark-w-braces.png" style="filter:brightness(0) invert(1);"></div>
+    <span class="lbl">Glow Orb</span>
+  </div>
+  <div class="phone w2">
+    <div class="mark"><img src="../assets/logos/weavecode-mark-w-braces.png" style="filter:brightness(0) invert(1);"></div>
+    <span class="lbl">Dots Navy</span>
+  </div>
+  <div class="phone w3">
+    <div class="mark"><img src="../assets/logos/weavecode-mark-w-braces.png"></div>
+    <span class="lbl dark">White Spot</span>
+  </div>
+  <div class="phone w4">
+    <div class="mark"><img src="../assets/logos/weavecode-mark-w-braces.png" style="filter:brightness(0) invert(1);"></div>
+    <span class="lbl">Navy → Purple</span>
+  </div>
+  <div class="phone w5">
+    <div class="mark"><img src="../assets/logos/weavecode-mark-w-braces.png" style="filter:brightness(0) invert(1);"></div>
+    <span class="lbl">Dots Purple</span>
+  </div>
+</body></html>

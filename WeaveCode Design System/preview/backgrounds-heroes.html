@@ -1,0 +1,37 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Hero Backgrounds</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0;padding:0;}
+  body{font-family:var(--wc-font-sans);display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--wc-neutral-200);height:340px;}
+  .h{position:relative;overflow:hidden;color:#fff;padding:28px;display:flex;flex-direction:column;justify-content:flex-end;}
+  .tag{font-size:10px;letter-spacing:0.14em;text-transform:uppercase;font-weight:600;color:rgba(255,255,255,0.65);position:relative;z-index:2;}
+  .ttl{font-size:30px;line-height:1.05;letter-spacing:-0.02em;font-weight:600;margin:8px 0 0;position:relative;z-index:2;}
+  .it{font-family:var(--wc-font-serif);font-style:italic;font-weight:400;color:#CDA8F8;}
+
+  /* A. Dot grid + glow + orb */
+  .h-a{background:#0B134F;background-image:radial-gradient(rgba(129,39,232,0.55) 1px,transparent 1.2px);background-size:14px 14px;}
+  .h-a::before{content:'';position:absolute;left:-15%;top:-10%;width:60%;height:140%;background:radial-gradient(ellipse at center,rgba(129,39,232,0.85) 0%,rgba(129,39,232,0.25) 40%,transparent 70%);filter:blur(24px);}
+  .h-a::after{content:'';position:absolute;right:-8%;bottom:-30%;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle at 32% 35%,#fff 0%,#D5B5FB 18%,#8127E8 55%,#2B1170 90%);}
+
+  /* B. Full-bleed orb on navy */
+  .h-b{background:#0B134F;}
+  .h-b::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 90% at 18% 55%,#8127E8 0%,#4D17AA 35%,#0B134F 75%);}
+
+  /* C. White spotlight on purple */
+  .h-c{background:#8127E8;}
+  .h-c::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 65% 85% at 12% 45%,#FFFFFF 0%,#D5B5FB 30%,#8127E8 75%);}
+  .h-c .ttl,.h-c .tag{color:#0B134F;}
+  .h-c .tag{color:rgba(11,19,79,0.7);}
+  .h-c .it{color:#8127E8;}
+
+  /* D. Diagonal purple→orange */
+  .h-d{background:linear-gradient(120deg,#8127E8 0%,#FF6600 100%);}
+  .h-d::before{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,0.18) 1px,transparent 1.2px);background-size:18px 18px;mix-blend-mode:overlay;}
+</style></head>
+<body>
+  <div class="h h-a"><span class="tag">Default · Hero</span><div class="ttl">Software, <span class="it">{sewn to fit}</span>.</div></div>
+  <div class="h h-b"><span class="tag">Brand · Section</span><div class="ttl">Three verticals, <span class="it">{one studio}</span>.</div></div>
+  <div class="h h-c"><span class="tag">Light Brand</span><div class="ttl">Design <span class="it">{with intent}</span>.</div></div>
+  <div class="h h-d"><span class="tag">Energy · CTA</span><div class="ttl" style="color:#fff;">Have something to <span class="it" style="color:#0B134F;">{weave}</span>?</div></div>
+</body></html>

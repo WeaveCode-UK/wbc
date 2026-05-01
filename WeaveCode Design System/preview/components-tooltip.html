@@ -1,0 +1,16 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Tooltip</title><link rel="stylesheet" href="../colors_and_type.css">
+<style>html,body{margin:0;padding:0;}body{font-family:var(--wc-font-sans);background:#F9F9F9;padding:50px 30px;display:flex;gap:80px;align-items:center;justify-content:center;}
+.target{position:relative;background:#fff;border:1px solid #E4E4EA;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:500;color:#0E0E16;}
+.tip{position:absolute;background:#0E0E16;color:#fff;font-size:12px;font-weight:400;padding:6px 10px;border-radius:6px;white-space:nowrap;box-shadow:0 6px 14px rgba(0,0,0,0.25);}
+.tip.top{bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);}
+.tip.top::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#0E0E16;}
+.tip.bot{top:calc(100% + 10px);left:50%;transform:translateX(-50%);}
+.tip.bot::after{content:'';position:absolute;bottom:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-bottom-color:#0E0E16;}
+.tip .k{font-family:var(--wc-font-mono);background:rgba(255,255,255,0.18);padding:1px 5px;border-radius:3px;margin-left:6px;font-size:10px;}
+.tip-purple{background:#8127E8;}.tip-purple::after{border-top-color:#8127E8;}</style></head>
+<body>
+  <div class="target">Save<div class="tip top">Save changes <span class="k">⌘S</span></div></div>
+  <div class="target">Delete<div class="tip top tip-purple" style="background:#E5484D;">You can't undo this</div></div>
+  <div class="target">Disabled<div class="tip bot">You don't have permission to perform this action.</div></div>
+</body></html>

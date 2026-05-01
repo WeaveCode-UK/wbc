@@ -1,0 +1,24 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Textarea & Form Section</title><link rel="stylesheet" href="../colors_and_type.css">
+<style>html,body{margin:0;padding:0}body{font-family:var(--wc-font-sans);background:#F9F9F9;padding:20px;}
+.section{background:#fff;border:1px solid #E4E4EA;border-radius:16px;padding:22px;}
+.section-head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid #F1F1F4;padding-bottom:14px;margin-bottom:16px;}
+.section-title{font-size:16px;font-weight:600;color:#0E0E16;}
+.section-desc{font-size:12px;color:#6E6E83;font-weight:300;margin-top:3px;}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+label{display:block;font-size:12px;font-weight:500;color:#4A4A5C;margin-bottom:6px;}
+.input,textarea{width:100%;box-sizing:border-box;font-family:inherit;font-size:13px;padding:9px 11px;border-radius:10px;border:1px solid #E4E4EA;background:#fff;outline:none;}
+.input:focus,textarea:focus{border-color:#8127E8;box-shadow:0 0 0 3px rgba(129,39,232,0.18);}
+textarea{resize:vertical;min-height:64px;font-weight:300;line-height:1.5;}
+.help{font-size:11px;color:#6E6E83;margin-top:4px;}
+.actions{display:flex;justify-content:flex-end;gap:8px;}
+.btn{font-size:13px;padding:8px 14px;border-radius:8px;border:none;cursor:pointer;font-weight:500;}
+.btn-p{background:#8127E8;color:#fff;}.btn-g{background:transparent;color:#4A4A5C;}</style></head>
+<body>
+<div class="section">
+  <div class="section-head"><div><div class="section-title">Project brief</div><div class="section-desc">Tell us a bit about what you're building.</div></div></div>
+  <div class="row"><div><label>Project name</label><input class="input" value="Acme rebrand"/></div><div><label>Vertical</label><select class="input"><option>Beauty</option></select></div></div>
+  <div><label>Description</label><textarea placeholder="What are you trying to weave?">We want to rebuild our booking flow from scratch — calmer, faster, with fewer dead ends.</textarea><div class="help">Markdown supported. We read every word.</div></div>
+  <div class="actions" style="margin-top:14px;"><button class="btn btn-g">Cancel</button><button class="btn btn-p">Save changes</button></div>
+</div>
+</body></html>

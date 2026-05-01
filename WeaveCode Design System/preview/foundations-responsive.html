@@ -1,0 +1,48 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Responsive</title><link rel="stylesheet" href="../colors_and_type.css">
+<style>html,body{margin:0;padding:0;}body{font-family:var(--wc-font-sans);background:#F9F9F9;padding:24px;color:#0E0E16;}
+.cap{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;font-weight:600;color:#6E6E83;margin-bottom:10px;}
+.row{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}
+.bp{background:#fff;border:1px solid #E4E4EA;border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:14px;}
+.bp .lbl{font-family:var(--wc-font-mono);font-size:12px;font-weight:600;color:#8127E8;width:46px;}
+.bp .name{font-size:13px;font-weight:500;width:90px;}
+.bp .range{font-family:var(--wc-font-mono);font-size:11px;color:#6E6E83;width:140px;}
+.bp .ex{font-size:12px;color:#4A4A5C;font-weight:300;flex:1;}
+.bp .vis{height:14px;border-radius:4px;}
+
+.frames{display:flex;gap:14px;align-items:flex-end;margin-top:10px;}
+.f{background:#fff;border:1px solid #E4E4EA;border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:6px;}
+.f .scr{background:#F1F1F4;border-radius:6px;border:1px solid #E4E4EA;}
+.f .title{font-size:11px;color:#6E6E83;font-weight:500;text-align:center;}
+.f .scr i{display:block;background:#8127E8;height:5px;border-radius:2px;margin:5px;}
+.f .scr i:first-child{background:#0E0E16;}
+.f .grid{display:grid;gap:3px;padding:5px;}
+.cell{background:#F4ECFE;border:1px solid #E6D3FC;border-radius:2px;height:14px;}
+
+.do{background:#fff;border:1px solid #E4E4EA;border-radius:14px;padding:16px;margin-top:14px;font-size:12px;color:#4A4A5C;font-weight:300;line-height:1.6;}
+.do b{color:#0E0E16;font-weight:600;display:block;margin-top:8px;}
+.do b:first-child{margin-top:0;}</style></head>
+<body>
+<div class="cap">Breakpoints</div>
+<div class="row">
+  <div class="bp"><span class="lbl">sm</span><span class="name">Mobile</span><span class="range">0 – 639</span><span class="ex">Single column. Bottom sheets replace drawers. 1 primary action visible.</span><span class="vis" style="width:30px;background:#FF6600;"></span></div>
+  <div class="bp"><span class="lbl">md</span><span class="name">Tablet</span><span class="range">640 – 1023</span><span class="ex">2-col grid. Sidebar collapses to icon rail. Tables become cards.</span><span class="vis" style="width:80px;background:#8127E8;"></span></div>
+  <div class="bp"><span class="lbl">lg</span><span class="name">Laptop</span><span class="range">1024 – 1439</span><span class="ex">Full sidebar visible. 12-col grid kicks in. Modals at 480px.</span><span class="vis" style="width:140px;background:#00C479;"></span></div>
+  <div class="bp"><span class="lbl">xl</span><span class="name">Desktop</span><span class="range">1440 – 1919</span><span class="ex">Content max-width 1200. Side-rail tools on right available.</span><span class="vis" style="width:200px;background:#0030B7;"></span></div>
+  <div class="bp"><span class="lbl">2xl</span><span class="name">Wide</span><span class="range">1920+</span><span class="ex">Don't stretch — center content, expand canvases (boards, charts).</span><span class="vis" style="width:260px;background:#D161B9;"></span></div>
+</div>
+
+<div class="cap">Layout adapts</div>
+<div class="frames">
+  <div class="f"><div class="title">sm · 375</div><div class="scr" style="width:88px;height:160px;"><i></i><div class="grid" style="grid-template-columns:1fr;"><div class="cell"></div><div class="cell"></div><div class="cell"></div></div></div></div>
+  <div class="f"><div class="title">md · 768</div><div class="scr" style="width:140px;height:170px;"><i></i><div class="grid" style="grid-template-columns:1fr 1fr;"><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div></div></div></div>
+  <div class="f"><div class="title">lg · 1280</div><div class="scr" style="width:220px;height:170px;"><i></i><div class="grid" style="grid-template-columns:30px 1fr 1fr 1fr;"><div class="cell" style="grid-row:span 3;background:#06092B;border-color:#06092B;"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div></div></div></div>
+</div>
+
+<div class="do">
+  <b>Mobile-first.</b>Write the smallest layout first, expand up. <code>min-width</code> media queries only.
+  <b>Touch targets ≥ 44px.</b>Even on desktop with a mouse — wrist matters.
+  <b>Don't hide content on mobile.</b>If it isn't on the small screen, it isn't important.
+  <b>One primary CTA above the fold.</b>On every breakpoint.
+</div>
+</body></html>

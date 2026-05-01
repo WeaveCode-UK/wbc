@@ -80,3 +80,92 @@ Todos em `begin/`:
 3. Merge → próximo épico → repete
 4. Checkpoint (último épico da fase) → type-check + tag
 5. Próxima fase → volta ao passo 1
+
+---
+
+## Design System — WeaveCode Design System
+
+This repo uses the **WeaveCode Design System**, located in `WeaveCode Design System/` at the root.
+Any UI work — components, pages, prototypes, slides — MUST follow it. Do not invent colors, fonts, spacing, shadows, or radii.
+
+### Read these before any UI work
+
+1. `WeaveCode Design System/SKILL.md` — copy-paste recipes, do/don't list, the Georgia `{moment}` rule.
+2. `WeaveCode Design System/README.md` — full brand reference: voice, content, visual foundations.
+3. `WeaveCode Design System/colors_and_type.css` — every available token. Use `var(--wc-*)` exclusively.
+4. `WeaveCode Design System/preview/` — static HTML examples of every component, template, and foundation. **When in doubt, lift markup directly from here.**
+
+### Setup (once per app)
+
+Import the tokens once in your root layout:
+
+```ts
+// apps/web/src/app/layout.tsx (Next.js)
+import "@/weavecode/colors_and_type.css";
+```
+
+If the design system is not yet wired into an app, copy `colors_and_type.css` (and `fonts/`) into the app under `src/weavecode/` and import as above.
+
+### Hard rules
+
+- ✅ **Tokens only.** `var(--wc-purple)`, never `#8127E8`.
+- ✅ **Inter for UI**, **Georgia italic only for `{moments}`** — once per surface, on a single highlighted noun.
+- ✅ **One primary CTA per surface.** Filled purple. Demote others.
+- ✅ **Build all four states** for any async surface: loading, empty, error, success. See `WeaveCode Design System/preview/components-skeleton.html`, `components-empty.html`, `components-error.html`.
+- ✅ **Focus rings:** 3px orange, 2px offset, on every interactive element.
+- ✅ **Touch targets ≥ 44×44px**, on every breakpoint.
+- ✅ **Respect `prefers-reduced-motion`** — fall back to fade or instant.
+
+- ❌ No hex outside the token palette.
+- ❌ No emoji as iconography. Use the line icon set (`WeaveCode Design System/preview/brand-icons.html`).
+- ❌ No invented gradients — use the assets in `WeaveCode Design System/assets/grafismos/`.
+- ❌ No two primary CTAs on the same surface.
+
+### The brand in one line
+
+> Calm, technical, electric purple on deep navy, with a Georgia italic `{moment}` once per surface.
+
+### Component reference
+
+Every component you need has a static example in `WeaveCode Design System/preview/`:
+
+| Need                                        | File                            |
+| ------------------------------------------- | ------------------------------- |
+| Buttons                                     | `components-buttons.html`       |
+| Inputs / Select / Checkbox / Radio / Switch | `components-inputs.html`        |
+| Textarea + form section                     | `components-textarea-form.html` |
+| Cards                                       | `components-cards.html`         |
+| Badges                                      | `components-badges.html`        |
+| Alerts                                      | `components-alerts.html`        |
+| Toast                                       | `components-toast.html`         |
+| Modal / Dialog                              | `components-modal.html`         |
+| Drawer / Sheet                              | `components-drawer.html`        |
+| Dropdown menu                               | `components-dropdown.html`      |
+| Tabs                                        | `components-tabs.html`          |
+| Table                                       | `components-table.html`         |
+| Skeleton                                    | `components-skeleton.html`      |
+| Empty state                                 | `components-empty.html`         |
+| Error / 404                                 | `components-error.html`         |
+| Tooltip                                     | `components-tooltip.html`       |
+| App shell (sidebar + topbar)                | `components-shell.html`         |
+| Page header                                 | `components-page-header.html`   |
+| Container + 12-col grid                     | `components-container.html`     |
+| Pagination                                  | `components-pagination.html`    |
+| Hero                                        | `components-hero.html`          |
+
+### Templates
+
+Full-page references: `template-dashboard.html`, `template-auth.html`, `template-settings.html` (em `WeaveCode Design System/preview/`).
+
+### Foundations
+
+`foundations-motion.html`, `foundations-interactions.html`, `foundations-responsive.html`, `foundations-accessibility.html` (em `WeaveCode Design System/preview/`).
+
+### When the design system is missing something
+
+Ask before inventing. Open a discussion or note it in the PR. Do not silently extend the palette, scale, or component set.
+
+### Relação com `begin/WBC-UI-UX-Design-System-v1.0.md`
+
+`begin/WBC-UI-UX-Design-System-v1.0.md` descreve o produto WBC (telas, fluxos, conteúdo).
+`WeaveCode Design System/` é a fonte de verdade visual (tokens, componentes, foundations) e tem prioridade em qualquer conflito de cor/tipografia/spacing/iconografia.

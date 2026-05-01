@@ -1,0 +1,21 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Skeleton</title><link rel="stylesheet" href="../colors_and_type.css">
+<style>html,body{margin:0;padding:0;}body{font-family:var(--wc-font-sans);background:#F9F9F9;padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@keyframes shimmer{0%{background-position:-200px 0;}100%{background-position:calc(200px + 100%) 0;}}
+.sk{background:linear-gradient(90deg,#EDEDF2 0px,#F6F6FA 80px,#EDEDF2 160px);background-size:200px 100%;animation:shimmer 1.4s ease-in-out infinite;border-radius:6px;}
+.card{background:#fff;border:1px solid #F1F1F4;border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:10px;box-shadow:0 1px 2px rgba(11,19,79,0.04);}
+.row{display:flex;align-items:center;gap:12px;}
+.av{width:40px;height:40px;border-radius:50%;}
+.line-1{height:14px;width:60%;}.line-2{height:10px;width:40%;}.line-3{height:10px;width:90%;}
+.box{height:120px;border-radius:12px;}</style></head>
+<body>
+<div class="card">
+  <div class="row"><div class="sk av"></div><div style="flex:1;display:flex;flex-direction:column;gap:6px;"><div class="sk line-1"></div><div class="sk line-2"></div></div></div>
+  <div class="sk line-3"></div><div class="sk line-3" style="width:75%;"></div>
+</div>
+<div class="card">
+  <div class="sk box"></div>
+  <div class="sk line-1" style="width:80%;"></div>
+  <div class="sk line-2" style="width:50%;"></div>
+</div>
+</body></html>

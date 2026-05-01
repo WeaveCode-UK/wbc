@@ -1,0 +1,19 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Radii</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0;padding:0;}
+  body{font-family:var(--wc-font-sans);background:var(--wc-white);padding:22px;display:grid;grid-template-columns:repeat(7,1fr);gap:14px;align-items:end;}
+  .b{background:var(--wc-purple-100);border:1.5px solid var(--wc-purple);height:80px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:6px;font-family:var(--wc-font-mono);font-size:10px;color:var(--wc-purple-700);}
+  .lbl{font-size:10px;letter-spacing:0.10em;text-transform:uppercase;color:var(--wc-fg-3);font-weight:600;text-align:center;margin-top:6px;}
+  .col{display:flex;flex-direction:column;}
+</style></head>
+<body>
+  <div class="col"><div class="b" style="border-radius:0;">0</div><div class="lbl">none</div></div>
+  <div class="col"><div class="b" style="border-radius:4px;">4</div><div class="lbl">xs</div></div>
+  <div class="col"><div class="b" style="border-radius:8px;">8</div><div class="lbl">sm</div></div>
+  <div class="col"><div class="b" style="border-radius:12px;">12</div><div class="lbl">md</div></div>
+  <div class="col"><div class="b" style="border-radius:16px;">16</div><div class="lbl">lg</div></div>
+  <div class="col"><div class="b" style="border-radius:24px;">24</div><div class="lbl">xl</div></div>
+  <div class="col"><div class="b" style="border-radius:9999px;">∞</div><div class="lbl">full</div></div>
+</body></html>

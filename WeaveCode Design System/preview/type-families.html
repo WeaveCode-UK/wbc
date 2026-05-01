@@ -1,0 +1,25 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Type Families</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0;padding:0;}
+  body{font-family:var(--wc-font-sans);background:var(--wc-white);display:grid;grid-template-columns:1fr 1fr;gap:1px;background-color:var(--wc-neutral-200);height:240px;}
+  .col{background:var(--wc-white);padding:24px 28px;display:flex;flex-direction:column;justify-content:space-between;}
+  .tag{font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--wc-fg-3);font-weight:600;}
+  .big{font-size:88px;line-height:0.95;letter-spacing:-0.02em;color:var(--wc-deep-blue);}
+  .meta{font-size:13px;color:var(--wc-fg-2);}
+  .meta b{color:var(--wc-fg-1);font-weight:500;}
+  .col.serif .big{font-family:var(--wc-font-serif);font-style:italic;color:var(--wc-purple);}
+</style></head>
+<body>
+  <div class="col">
+    <div class="tag">Sans · Inter</div>
+    <div class="big" style="font-weight:600;">Aa</div>
+    <div class="meta"><b>Inter</b> — Light 300, Medium 500, Semibold 600. Titles + body.</div>
+  </div>
+  <div class="col serif">
+    <div class="tag">Serif · Georgia Italic</div>
+    <div class="big">{ a }</div>
+    <div class="meta"><b>Georgia</b> italic — special / display moments only.</div>
+  </div>
+</body></html>

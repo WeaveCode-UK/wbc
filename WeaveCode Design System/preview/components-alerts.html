@@ -1,0 +1,25 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Alerts</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0;padding:0;}
+  body{font-family:var(--wc-font-sans);background:var(--wc-neutral-50);padding:18px;display:flex;flex-direction:column;gap:10px;}
+  .alert{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:12px;border:1px solid;background:#fff;}
+  .alert .ic{width:8px;height:8px;border-radius:50%;margin-top:7px;flex-shrink:0;}
+  .alert .ttl{font-size:13px;font-weight:600;color:var(--wc-fg-1);}
+  .alert .msg{font-size:12px;font-weight:300;color:var(--wc-fg-2);margin-top:2px;}
+  .a-success{border-color:#A0E6C5;background:#EAFBF3;}
+  .a-success .ic{background:#00C479;}
+  .a-warn{border-color:#FFC799;background:#FFF3E8;}
+  .a-warn .ic{background:#FF6600;}
+  .a-error{border-color:#F5A8AB;background:#FCEBEC;}
+  .a-error .ic{background:#E5484D;}
+  .a-info{border-color:#B5C0E8;background:#EFF2FB;}
+  .a-info .ic{background:#0030B7;}
+</style></head>
+<body>
+  <div class="alert a-success"><span class="ic"></span><div><div class="ttl">Project created.</div><div class="msg">Your new project is ready. We've added it to the dashboard.</div></div></div>
+  <div class="alert a-warn"><span class="ic"></span><div><div class="ttl">Unsaved changes</div><div class="msg">You have edits that haven't been saved. Save before leaving the page.</div></div></div>
+  <div class="alert a-error"><span class="ic"></span><div><div class="ttl">We couldn't save your changes.</div><div class="msg">Please check the required fields and try again.</div></div></div>
+  <div class="alert a-info"><span class="ic"></span><div><div class="ttl">Heads up</div><div class="msg">Scheduled maintenance on Sunday at 02:00 UTC. Expect a 5-minute window.</div></div></div>
+</body></html>

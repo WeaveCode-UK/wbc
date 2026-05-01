@@ -1,0 +1,46 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Brand · Logo</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: var(--wc-font-sans);
+    background: var(--wc-white);
+    display: grid;
+    grid-template-columns: 1.1fr 1fr 1fr;
+    gap: 1px;
+    background-color: var(--wc-neutral-200);
+    height: 280px;
+  }
+  .cell {
+    background: var(--wc-white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .cell.dark { background: var(--wc-deep-blue); }
+  .cell.purple { background: var(--wc-purple); }
+  .cell img { max-width: 78%; max-height: 70%; object-fit: contain; }
+  .cell.dark img, .cell.purple img { filter: brightness(0) invert(1); }
+  .cell .lbl {
+    position: absolute; top: 12px; left: 14px;
+    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--wc-fg-3); font-weight: 500;
+  }
+  .cell.dark .lbl, .cell.purple .lbl { color: rgba(255,255,255,0.6); }
+</style></head>
+<body>
+  <div class="cell">
+    <span class="lbl">Primary</span>
+    <img src="../assets/logos/weavecode-logo-vertical.png" alt="WeaveCode primary logo">
+  </div>
+  <div class="cell dark">
+    <span class="lbl">On Deep Blue</span>
+    <img src="../assets/logos/weavecode-logo-vertical.png" alt="WeaveCode on deep blue">
+  </div>
+  <div class="cell purple">
+    <span class="lbl">On Purple</span>
+    <img src="../assets/logos/weavecode-logo-vertical.png" alt="WeaveCode on purple">
+  </div>
+</body></html>

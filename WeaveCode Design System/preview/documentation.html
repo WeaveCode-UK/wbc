@@ -1,0 +1,97 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Documentation</title><link rel="stylesheet" href="../colors_and_type.css">
+<style>html,body{margin:0;padding:0;}body{font-family:var(--wc-font-sans);background:#F9F9F9;padding:30px;color:#0E0E16;}
+h1{margin:0;font-size:30px;font-weight:600;letter-spacing:-0.02em;}
+.lead{font-size:14px;color:#4A4A5C;font-weight:300;line-height:1.55;margin-top:6px;max-width:580px;}
+.lead em{font-family:Georgia,serif;font-style:italic;color:#FF6600;}
+.cap{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;font-weight:600;color:#6E6E83;margin:28px 0 10px;}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.card{background:#fff;border:1px solid #E4E4EA;border-radius:14px;padding:18px;}
+.card h3{margin:0 0 6px;font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px;}
+.card h3 .b{font-size:10px;background:#F4ECFE;color:#531896;padding:2px 7px;border-radius:99px;font-weight:600;}
+.card p{margin:0 0 10px;font-size:12px;color:#4A4A5C;font-weight:300;line-height:1.55;}
+.card ul{margin:0;padding-left:18px;font-size:12px;color:#4A4A5C;font-weight:300;line-height:1.7;}
+.card ul li b{color:#0E0E16;font-weight:600;}
+pre{background:#0E0E16;color:#E6D3FC;font-family:var(--wc-font-mono);font-size:11px;padding:12px 14px;border-radius:8px;overflow-x:auto;margin:8px 0 0;line-height:1.55;}
+pre .c{color:#9C9CAE;}.pre .k{color:#FF6600;}
+code{font-family:var(--wc-font-mono);font-size:11px;background:#F1F1F4;padding:2px 6px;border-radius:4px;color:#0E0E16;}
+.toc{background:#fff;border:1px solid #E4E4EA;border-radius:14px;padding:18px;display:grid;grid-template-columns:repeat(2,1fr);gap:6px 24px;}
+.toc a{font-size:13px;color:#4A4A5C;text-decoration:none;padding:4px 0;border-bottom:1px solid #F1F1F4;}
+.toc a b{color:#8127E8;margin-right:8px;font-family:var(--wc-font-mono);font-size:11px;font-weight:600;}</style></head>
+<body>
+<h1>weavecode design system</h1>
+<div class="lead">Software, <em>sewn to fit</em>. This document tells designers and engineers how to use the system — same vocabulary, same tokens, same outcome on both sides of the handoff.</div>
+
+<div class="cap">Contents</div>
+<div class="toc">
+  <a><b>01</b> How to use the tokens</a>
+  <a><b>02</b> Naming conventions</a>
+  <a><b>03</b> When to add vs. customize</a>
+  <a><b>04</b> Designer → engineer handoff</a>
+  <a><b>05</b> Engineer setup</a>
+  <a><b>06</b> Component anatomy</a>
+  <a><b>07</b> Versioning & deprecation</a>
+  <a><b>08</b> Contribution rules</a>
+</div>
+
+<div class="cap">For designers</div>
+<div class="grid">
+  <div class="card"><h3>Pick a token, not a value <span class="b">rule</span></h3>
+    <p>Never type <code>#8127E8</code> in a design tool. Use the <b>Purple / Brand</b> token. If you reach for a hex, the system is missing something — flag it.</p>
+    <ul><li><b>Color</b> · use semantic tokens (<code>brand</code>, <code>ink</code>, <code>muted</code>) over raw scales when possible.</li><li><b>Type</b> · use the scale (<code>display</code>, <code>h1</code>, <code>body</code>). Never an in-between size.</li><li><b>Spacing</b> · stick to the 4px scale. <code>14px</code> is forbidden.</li></ul>
+  </div>
+  <div class="card"><h3>One primary action <span class="b">rule</span></h3>
+    <p>Per surface — modal, page, form. If two things "feel primary," one of them is wrong. Demote it to secondary or remove it.</p>
+    <ul><li>Primary = filled <b>Purple</b> button.</li><li>Secondary = outline.</li><li>Tertiary = ghost / link.</li><li>Destructive = filled red — never the only red on the page.</li></ul>
+  </div>
+  <div class="card"><h3>Build all four states</h3>
+    <p>Every async surface needs <b>loading</b>, <b>empty</b>, <b>error</b>, and <b>success</b>. Don't ship without all four mocked. The empty state is your second-best onboarding moment.</p>
+  </div>
+  <div class="card"><h3>Test with the keyboard</h3>
+    <p>Before handoff: tab through your design. Esc closes overlays. Focus rings are visible. Touch targets are 44×44 minimum. If a designer can't tab through it, neither can a screen-reader user.</p>
+  </div>
+</div>
+
+<div class="cap">For engineers</div>
+<div class="card">
+  <h3>Setup</h3>
+  <p>Drop the stylesheet at the top of every page. Tokens land as CSS custom properties on <code>:root</code>; semantic classes are utility-grade.</p>
+<pre><span class="c">/* HTML */</span>
+&lt;link rel="stylesheet" href="/weavecode/colors_and_type.css"&gt;
+
+<span class="c">/* CSS */</span>
+.button-primary {
+  background: var(--wc-purple);
+  color: var(--wc-white);
+  padding: var(--wc-space-2) var(--wc-space-4);
+  border-radius: var(--wc-radius-md);
+  font: 500 var(--wc-text-body) / 1.4 var(--wc-font-sans);
+  transition: background var(--wc-dur-fast) ease-out;
+}
+.button-primary:hover { background: var(--wc-purple-600); }
+.button-primary:focus-visible {
+  outline: 3px solid var(--wc-orange);
+  outline-offset: 2px;
+}</pre>
+</div>
+
+<div class="card" style="margin-top:14px;">
+  <h3>Component anatomy</h3>
+  <p>Every component documented in <code>preview/</code> ships the same way: a <b>token-only stylesheet</b>, a <b>working static HTML preview</b>, and a <b>props table</b> in the README of its kit folder. No bespoke values inside components — if you need one, add it to the token system first.</p>
+  <ul style="margin-top:10px;">
+    <li><b>Naming</b> — <code>--wc-{category}-{role}-{step?}</code>. Examples: <code>--wc-purple-500</code>, <code>--wc-text-body</code>, <code>--wc-radius-md</code>, <code>--wc-shadow-card</code>.</li>
+    <li><b>Versioning</b> — semver at the package level. Token additions = minor. Token removals or value changes that shift visuals = major.</li>
+    <li><b>Deprecation</b> — keep deprecated tokens for one major version with a <code>@deprecated</code> comment + replacement noted.</li>
+  </ul>
+</div>
+
+<div class="cap">Contribution rules</div>
+<div class="card">
+  <ul>
+    <li><b>One reason to change.</b> A pull request adds, edits, or removes <i>one</i> token / component. Bundled changes get sent back.</li>
+    <li><b>Document on commit.</b> If it isn't in <code>preview/</code> and the README, it doesn't exist.</li>
+    <li><b>Two-eyes minimum.</b> One designer + one engineer must approve before merge.</li>
+    <li><b>Brand changes go through marketing.</b> Type, primary colors, logo — not unilateral.</li>
+  </ul>
+</div>
+</body></html>

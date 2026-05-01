@@ -1,0 +1,41 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Screen Backgrounds</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0;padding:0;}
+  body{font-family:var(--wc-font-sans);display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--wc-neutral-200);height:280px;}
+  .bg{position:relative;overflow:hidden;}
+  .bg .lbl{position:absolute;bottom:10px;left:12px;right:12px;font-size:10px;letter-spacing:0.10em;text-transform:uppercase;color:#fff;font-weight:600;text-shadow:0 1px 2px rgba(0,0,0,0.4);}
+  .bg.light .lbl{color:#0B134F;text-shadow:none;}
+  .bg .name{font-size:11px;font-weight:600;}
+  .bg .meta{font-family:var(--wc-font-mono);font-size:9px;font-weight:400;opacity:0.75;letter-spacing:0;text-transform:none;margin-top:2px;}
+
+  /* 1. Solid soft white */
+  .bg-1{background:#F9F9F9;}
+  /* 2. Solid deep blue */
+  .bg-2{background:#0B134F;}
+  /* 3. Solid purple */
+  .bg-3{background:#8127E8;}
+  /* 4. Dot pattern on navy */
+  .bg-4{background-color:#0B134F;background-image:radial-gradient(rgba(129,39,232,0.55) 1px,transparent 1.2px);background-size:14px 14px;}
+  /* 5. Dot pattern on purple */
+  .bg-5{background-color:#8127E8;background-image:radial-gradient(rgba(11,19,79,0.45) 1px,transparent 1.2px);background-size:14px 14px;}
+  /* 6. Glow on navy */
+  .bg-6{background:#0B134F;}
+  .bg-6::before{content:'';position:absolute;left:-10%;top:-10%;width:80%;height:120%;background:radial-gradient(ellipse at center,rgba(129,39,232,0.85) 0%,rgba(129,39,232,0.25) 40%,transparent 70%);filter:blur(20px);}
+  /* 7. Glow on purple */
+  .bg-7{background:#8127E8;}
+  .bg-7::before{content:'';position:absolute;left:-10%;top:-10%;width:80%;height:120%;background:radial-gradient(ellipse at center,rgba(255,255,255,0.85) 0%,rgba(255,255,255,0.2) 40%,transparent 70%);filter:blur(20px);}
+  /* 8. Purple → orange diagonal */
+  .bg-8{background:linear-gradient(120deg,#8127E8 0%,#FF6600 100%);}
+</style></head>
+<body>
+  <div class="bg bg-1 light"><span class="lbl"><span class="name">Soft White</span><span class="meta">#F9F9F9 · default content</span></span></div>
+  <div class="bg bg-2"><span class="lbl"><span class="name">Deep Blue Solid</span><span class="meta">#0B134F · trust, depth</span></span></div>
+  <div class="bg bg-3"><span class="lbl"><span class="name">Roxo Solid</span><span class="meta">#8127E8 · brand moment</span></span></div>
+  <div class="bg bg-4"><span class="lbl"><span class="name">Dot Grid · Navy</span><span class="meta">signature tech backdrop</span></span></div>
+  <div class="bg bg-5"><span class="lbl"><span class="name">Dot Grid · Purple</span><span class="meta">brand-loud surfaces</span></span></div>
+  <div class="bg bg-6"><span class="lbl"><span class="name">Glow · Navy</span><span class="meta">hero left-glow</span></span></div>
+  <div class="bg bg-7"><span class="lbl"><span class="name">Glow · Purple</span><span class="meta">white-on-purple light</span></span></div>
+  <div class="bg bg-8"><span class="lbl"><span class="name">Purple → Orange</span><span class="meta">linear, brand accent</span></span></div>
+</body></html>

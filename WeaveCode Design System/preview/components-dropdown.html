@@ -1,0 +1,37 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Dropdown</title><link rel="stylesheet" href="../colors_and_type.css">
+<style>html,body{margin:0;padding:0;}body{font-family:var(--wc-font-sans);background:#F9F9F9;padding:30px;display:flex;gap:60px;}
+.trigger{background:#fff;border:1px solid #E4E4EA;border-radius:8px;padding:8px 12px;font-size:13px;font-weight:500;color:#0E0E16;display:inline-flex;gap:8px;align-items:center;box-shadow:0 1px 2px rgba(11,19,79,0.06);}
+.menu{margin-top:8px;background:#fff;border-radius:12px;border:1px solid #E4E4EA;box-shadow:0 14px 30px rgba(11,19,79,0.12);padding:6px;width:220px;}
+.item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;font-size:13px;color:#0E0E16;cursor:pointer;}
+.item:hover,.item.active{background:#F4ECFE;color:#531896;}
+.item .k{margin-left:auto;font-family:var(--wc-font-mono);font-size:10px;color:#9C9CAE;}
+.sep{height:1px;background:#F1F1F4;margin:6px 4px;}
+.danger{color:#E5484D;}.danger:hover{background:#FCDBDC;color:#9F2A2D;}
+.cap{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;font-weight:600;color:#6E6E83;padding:6px 10px 4px;}</style></head>
+<body>
+<div>
+  <button class="trigger">Actions ▾</button>
+  <div class="menu">
+    <div class="cap">Item</div>
+    <div class="item active">View details<span class="k">↵</span></div>
+    <div class="item">Edit<span class="k">E</span></div>
+    <div class="item">Duplicate<span class="k">D</span></div>
+    <div class="sep"></div>
+    <div class="item">Archive</div>
+    <div class="item danger">Delete<span class="k">⌫</span></div>
+  </div>
+</div>
+<div>
+  <button class="trigger">User ▾</button>
+  <div class="menu">
+    <div style="padding:10px;display:flex;gap:10px;align-items:center;"><div style="width:32px;height:32px;border-radius:50%;background:#8127E8;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;">JS</div><div><div style="font-size:13px;font-weight:500;">Júlio S.</div><div style="font-size:11px;color:#6E6E83;">julio@weavecode.co.uk</div></div></div>
+    <div class="sep"></div>
+    <div class="item">Profile</div>
+    <div class="item">Settings</div>
+    <div class="item">Billing</div>
+    <div class="sep"></div>
+    <div class="item">Sign out</div>
+  </div>
+</div>
+</body></html>

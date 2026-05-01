@@ -1,0 +1,42 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Sign in</title><link rel="stylesheet" href="../colors_and_type.css">
+<style>html,body{margin:0;padding:0;height:100%;}body{font-family:var(--wc-font-sans);height:100%;display:grid;grid-template-columns:1fr 1fr;color:#0E0E16;}
+.left{background:#06092B;color:#fff;padding:40px;display:flex;flex-direction:column;justify-content:space-between;background-image:radial-gradient(circle at 70% 40%,rgba(129,39,232,0.55),transparent 55%),radial-gradient(rgba(255,255,255,0.06) 1px,transparent 1.2px);background-size:auto,18px 18px;}
+.brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:15px;}
+.brand img{height:24px;filter:brightness(0) invert(1);}
+.tag{font-family:Georgia,serif;font-style:italic;font-size:42px;font-weight:400;letter-spacing:-0.02em;line-height:1.15;max-width:380px;}
+.tag em{color:#FF6600;font-style:italic;}
+.foot{font-size:12px;color:rgba(255,255,255,0.55);}
+.right{background:#F9F9F9;padding:40px;display:flex;align-items:center;justify-content:center;}
+.form{width:100%;max-width:340px;display:flex;flex-direction:column;gap:14px;}
+h1{margin:0;font-size:26px;font-weight:600;letter-spacing:-0.02em;}
+.sub{font-size:13px;color:#6E6E83;font-weight:300;}
+label{font-size:12px;font-weight:500;color:#4A4A5C;}
+.inp{font-family:inherit;font-size:13px;padding:10px 12px;border-radius:10px;border:1px solid #E4E4EA;background:#fff;outline:none;width:100%;box-sizing:border-box;}
+.inp:focus{border-color:#8127E8;box-shadow:0 0 0 3px rgba(129,39,232,0.18);}
+.row{display:flex;flex-direction:column;gap:6px;}
+.btn{padding:11px 16px;font-size:13px;font-weight:500;background:#8127E8;color:#fff;border:none;border-radius:10px;cursor:pointer;}
+.alt{font-size:12px;text-align:center;color:#6E6E83;font-weight:300;}
+.alt a{color:#8127E8;font-weight:500;text-decoration:none;}
+.div{display:flex;align-items:center;gap:10px;font-size:11px;color:#9C9CAE;text-transform:uppercase;letter-spacing:0.1em;}
+.div::before,.div::after{content:'';flex:1;height:1px;background:#E4E4EA;}
+.sso{padding:10px;font-size:13px;background:#fff;border:1px solid #E4E4EA;border-radius:10px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}</style></head>
+<body>
+<div class="left">
+  <div class="brand"><img src="../assets/logos/weavecode-mark-w-braces.png"/>weavecode</div>
+  <div><div class="tag">Software,<br/>sewn to <em>{fit}</em>.</div></div>
+  <div class="foot">© weavecode · London / Lisbon</div>
+</div>
+<div class="right">
+  <div class="form">
+    <div><h1>Welcome back.</h1><div class="sub" style="margin-top:4px;">Sign in to your workspace.</div></div>
+    <div class="row"><label>Email</label><input class="inp" placeholder="you@company.com"/></div>
+    <div class="row"><label>Password</label><input class="inp" type="password" placeholder="••••••••"/></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;"><label style="display:flex;gap:6px;align-items:center;font-weight:400;color:#4A4A5C;"><input type="checkbox" style="accent-color:#8127E8;"/>Stay signed in</label><a href="#" style="color:#8127E8;text-decoration:none;font-weight:500;">Forgot?</a></div>
+    <button class="btn">Sign in →</button>
+    <div class="div">or</div>
+    <button class="sso">Continue with Google</button>
+    <div class="alt">New here? <a href="#">Create a workspace</a></div>
+  </div>
+</div>
+</body></html>

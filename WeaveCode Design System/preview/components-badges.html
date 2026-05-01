@@ -1,0 +1,37 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Badges</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0;padding:0;}
+  body{font-family:var(--wc-font-sans);background:var(--wc-white);padding:24px;display:flex;flex-direction:column;gap:16px;}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  .lbl{font-size:10px;letter-spacing:0.10em;text-transform:uppercase;color:var(--wc-fg-3);font-weight:600;width:90px;}
+  .badge{font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;letter-spacing:0.04em;}
+  .b-purple{background:var(--wc-purple-50);color:var(--wc-purple-700);}
+  .b-success{background:#D7F7E8;color:#006B40;}
+  .b-warn{background:#FFE6D1;color:#9A3F00;}
+  .b-error{background:#FCDBDC;color:#9F2A2D;}
+  .b-info{background:#D6DEF6;color:#001F75;}
+  .b-neutral{background:var(--wc-neutral-100);color:var(--wc-fg-2);}
+  .b-solid{background:var(--wc-purple);color:#fff;}
+  .b-beauty{background:#F8DCEF;color:#7A2A66;}
+  .b-health{background:#CFF5E3;color:#005C39;}
+  .b-business{background:#D6DEF6;color:#001F75;}
+  .dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:6px;vertical-align:middle;}
+</style></head>
+<body>
+  <div class="row"><span class="lbl">Status</span>
+    <span class="badge b-purple"><span class="dot" style="background:#8127E8;"></span>Active</span>
+    <span class="badge b-success"><span class="dot" style="background:#00C479;"></span>Shipped</span>
+    <span class="badge b-warn"><span class="dot" style="background:#FF6600;"></span>In review</span>
+    <span class="badge b-error"><span class="dot" style="background:#E5484D;"></span>Blocked</span>
+    <span class="badge b-info"><span class="dot" style="background:#0030B7;"></span>Info</span>
+    <span class="badge b-neutral"><span class="dot" style="background:#9C9CAE;"></span>Draft</span>
+  </div>
+  <div class="row"><span class="lbl">Verticals</span>
+    <span class="badge b-beauty">Beauty</span>
+    <span class="badge b-health">Health</span>
+    <span class="badge b-business">Business</span>
+    <span class="badge b-solid">New</span>
+  </div>
+</body></html>

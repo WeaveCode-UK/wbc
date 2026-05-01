@@ -1,0 +1,25 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Drawer</title><link rel="stylesheet" href="../colors_and_type.css">
+<style>html,body{margin:0;padding:0;height:100%;}body{font-family:var(--wc-font-sans);background:#F9F9F9;height:100%;display:flex;justify-content:flex-end;}
+.bg{flex:1;background:rgba(11,19,79,0.45);backdrop-filter:blur(4px);}
+.drawer{width:380px;background:#fff;box-shadow:-20px 0 50px rgba(11,19,79,0.18);padding:22px;display:flex;flex-direction:column;gap:14px;}
+.head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid #F1F1F4;padding-bottom:14px;}
+h3{margin:0;font-size:18px;font-weight:600;color:#0E0E16;letter-spacing:-0.01em;}
+.sub{font-size:12px;color:#6E6E83;font-weight:300;margin-top:2px;}
+.x{background:none;border:none;color:#9C9CAE;cursor:pointer;font-size:18px;}
+.field{display:flex;flex-direction:column;gap:6px;}
+label{font-size:12px;font-weight:500;color:#4A4A5C;}
+.input{font-family:inherit;font-size:13px;padding:9px 11px;border-radius:10px;border:1px solid #E4E4EA;outline:none;}
+.actions{margin-top:auto;display:flex;justify-content:flex-end;gap:8px;border-top:1px solid #F1F1F4;padding-top:14px;}
+.btn{font-size:13px;padding:9px 16px;border-radius:8px;border:none;cursor:pointer;font-weight:500;}
+.btn-p{background:#8127E8;color:#fff;}.btn-g{background:transparent;color:#4A4A5C;}</style></head>
+<body>
+<div class="bg"></div>
+<div class="drawer">
+  <div class="head"><div><h3>Edit client</h3><div class="sub">Acme Inc. · created 4 mo ago</div></div><button class="x">✕</button></div>
+  <div class="field"><label>Company name</label><input class="input" value="Acme Inc."/></div>
+  <div class="field"><label>Industry</label><select class="input"><option>Beauty</option></select></div>
+  <div class="field"><label>Notes</label><textarea class="input" style="resize:vertical;min-height:60px;font-weight:300;">Long-term partner. Quarterly reviews.</textarea></div>
+  <div class="actions"><button class="btn btn-g">Cancel</button><button class="btn btn-p">Save changes</button></div>
+</div>
+</body></html>

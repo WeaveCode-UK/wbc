@@ -1,0 +1,18 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Shadows</title>
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  html,body{margin:0;padding:0;}
+  body{font-family:var(--wc-font-sans);background:var(--wc-neutral-50);padding:32px 24px;display:grid;grid-template-columns:repeat(6,1fr);gap:18px;}
+  .card{background:#fff;border-radius:12px;height:90px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:10px;font-family:var(--wc-font-mono);font-size:10px;color:var(--wc-fg-3);}
+  .lbl{text-align:center;font-size:10px;letter-spacing:0.10em;text-transform:uppercase;color:var(--wc-fg-3);font-weight:600;margin-top:8px;}
+  .col{display:flex;flex-direction:column;}
+</style></head>
+<body>
+  <div class="col"><div class="card" style="box-shadow:var(--wc-shadow-xs);">xs</div><div class="lbl">xs</div></div>
+  <div class="col"><div class="card" style="box-shadow:var(--wc-shadow-sm);">sm</div><div class="lbl">sm</div></div>
+  <div class="col"><div class="card" style="box-shadow:var(--wc-shadow-md);">md</div><div class="lbl">md</div></div>
+  <div class="col"><div class="card" style="box-shadow:var(--wc-shadow-lg);">lg</div><div class="lbl">lg</div></div>
+  <div class="col"><div class="card" style="box-shadow:var(--wc-shadow-xl);">xl</div><div class="lbl">xl</div></div>
+  <div class="col"><div class="card" style="box-shadow:var(--wc-shadow-glow);">glow</div><div class="lbl">glow</div></div>
+</body></html>

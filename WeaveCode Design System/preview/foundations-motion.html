@@ -1,0 +1,54 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Transitions</title><link rel="stylesheet" href="../colors_and_type.css">
+<style>html,body{margin:0;padding:0;}body{font-family:var(--wc-font-sans);background:#F9F9F9;padding:24px;color:#0E0E16;}
+.cap{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;font-weight:600;color:#6E6E83;margin-bottom:10px;}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px;}
+.card{background:#fff;border:1px solid #E4E4EA;border-radius:14px;padding:16px;}
+.card h4{margin:0 0 8px;font-size:13px;font-weight:600;}
+.card .meta{font-family:var(--wc-font-mono);font-size:11px;color:#8127E8;margin-bottom:10px;}
+.track{height:6px;background:#F1F1F4;border-radius:99px;overflow:hidden;position:relative;}
+.dot{position:absolute;top:-7px;width:20px;height:20px;border-radius:50%;background:#8127E8;box-shadow:0 4px 10px rgba(129,39,232,0.4);}
+@keyframes mv-fast{0%{left:0;}100%{left:calc(100% - 20px);}}
+@keyframes mv-base{0%{left:0;}100%{left:calc(100% - 20px);}}
+@keyframes mv-slow{0%{left:0;}100%{left:calc(100% - 20px);}}
+.fast .dot{animation:mv-fast 0.15s ease-out infinite alternate;}
+.base .dot{animation:mv-base 0.25s cubic-bezier(0.2,0.8,0.2,1) infinite alternate;}
+.slow .dot{animation:mv-slow 0.45s cubic-bezier(0.4,0,0.2,1) infinite alternate;}
+.spring .dot{animation:mv-base 0.6s cubic-bezier(0.5,1.4,0.5,1) infinite alternate;}
+
+.usage{background:#fff;border:1px solid #E4E4EA;border-radius:14px;padding:16px;}
+.usage table{width:100%;border-collapse:collapse;font-size:12px;}
+.usage th{text-align:left;font-size:10px;letter-spacing:0.06em;text-transform:uppercase;color:#6E6E83;padding:6px 0;border-bottom:1px solid #F1F1F4;font-weight:600;}
+.usage td{padding:9px 0;border-bottom:1px solid #F1F1F4;color:#4A4A5C;font-weight:300;}
+.usage td:first-child{font-weight:500;color:#0E0E16;width:140px;}
+.usage td code{font-family:var(--wc-font-mono);font-size:11px;background:#F1F1F4;padding:2px 6px;border-radius:4px;color:#0E0E16;}
+.usage tr:last-child td{border:0;}
+.princ{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px;}
+.p{background:#F4ECFE;border-radius:10px;padding:12px;font-size:12px;color:#531896;font-weight:300;line-height:1.5;}
+.p b{display:block;font-weight:600;font-size:13px;color:#3D0F73;margin-bottom:3px;}</style></head>
+<body>
+<div class="cap">Duration & easing tokens</div>
+<div class="grid">
+  <div class="card fast"><h4>Fast · micro-interactions</h4><div class="meta">120ms · ease-out</div><div class="track"><div class="dot"></div></div></div>
+  <div class="card base"><h4>Base · default UI</h4><div class="meta">250ms · cubic-bezier(.2,.8,.2,1)</div><div class="track"><div class="dot"></div></div></div>
+  <div class="card slow"><h4>Slow · enter / exit</h4><div class="meta">450ms · cubic-bezier(.4,0,.2,1)</div><div class="track"><div class="dot"></div></div></div>
+  <div class="card spring"><h4>Spring · feedback</h4><div class="meta">600ms · cubic-bezier(.5,1.4,.5,1)</div><div class="track"><div class="dot"></div></div></div>
+</div>
+
+<div class="cap">When to use what</div>
+<div class="usage">
+  <table>
+    <tr><th>Where</th><th>Token</th><th>What it feels like</th></tr>
+    <tr><td>Hover, focus rings</td><td><code>--wc-dur-fast</code></td><td>Instant — no thinking time.</td></tr>
+    <tr><td>Toggles, tabs, dropdowns</td><td><code>--wc-dur-base</code></td><td>Calm and confident.</td></tr>
+    <tr><td>Modals, drawers, page transitions</td><td><code>--wc-dur-slow</code></td><td>Deliberate — gives the brain time.</td></tr>
+    <tr><td>Success / error feedback</td><td><code>--wc-dur-spring</code></td><td>A little overshoot. Earned.</td></tr>
+    <tr><td>Reduced motion</td><td><code>prefers-reduced-motion</code></td><td>Drop to 0ms or fade only.</td></tr>
+  </table>
+  <div class="princ">
+    <div class="p"><b>Calm by default.</b>Motion serves the user, not us. No bouncing for the sake of it.</div>
+    <div class="p"><b>Always interruptible.</b>If the user clicks again, the new state wins immediately.</div>
+    <div class="p"><b>Direction has meaning.</b>Sheets enter from where they conceptually live (right, bottom).</div>
+  </div>
+</div>
+</body></html>

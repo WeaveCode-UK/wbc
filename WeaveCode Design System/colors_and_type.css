@@ -1,0 +1,353 @@
+/* =============================================================
+   WeaveCode — Colors & Type Tokens
+   Source: "Weave Code - Cores.pdf" + "Weave Code - Tipografia.pdf"
+   ============================================================= */
+
+/* Webfonts — Inter (titles + body) and Georgia (special/display).
+   Both shipped from /fonts as official brand TTFs. */
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 100; font-display: swap; src: url("fonts/Inter-Thin.ttf") format("truetype"); }
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 200; font-display: swap; src: url("fonts/Inter-ExtraLight.ttf") format("truetype"); }
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 300; font-display: swap; src: url("fonts/Inter-Light.ttf") format("truetype"); }
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 400; font-display: swap; src: url("fonts/Inter-Regular.ttf") format("truetype"); }
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 500; font-display: swap; src: url("fonts/Inter-Medium.ttf") format("truetype"); }
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 600; font-display: swap; src: url("fonts/Inter-SemiBold.ttf") format("truetype"); }
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 700; font-display: swap; src: url("fonts/Inter-Bold.ttf") format("truetype"); }
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 800; font-display: swap; src: url("fonts/Inter-ExtraBold.ttf") format("truetype"); }
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 900; font-display: swap; src: url("fonts/Inter-Black.ttf") format("truetype"); }
+@font-face { font-family: "Georgia"; font-style: normal; font-weight: 400; font-display: swap; src: url("fonts/Georgia.ttf") format("truetype"); }
+
+:root {
+  /* ---------- BRAND CORE (institucionais) ----------
+     From Cores PDF — these are the three pillar brand colors. */
+  --wc-purple:        #8127E8;   /* ROXO — primary brand */
+  --wc-deep-blue:     #0B134F;   /* AZUL PROFUNDO — dark canvas */
+  --wc-orange:        #FF6600;   /* LARANJA — accent / energy */
+  --wc-white:         #F9F9F9;   /* BRANCO — soft white */
+
+  /* ---------- PRODUCT VERTICAL COLORS ---------- */
+  --wc-beauty:        #D161B9;   /* ROSA — Beauty vertical */
+  --wc-health:        #00C479;   /* VERDE — Health vertical */
+  --wc-business:      #0030B7;   /* AZUL — Business vertical */
+
+  /* ---------- PURPLE SCALE (built around #8127E8) ---------- */
+  --wc-purple-50:     #F4ECFE;
+  --wc-purple-100:    #E6D3FC;
+  --wc-purple-200:    #CDA8F8;
+  --wc-purple-300:    #B37CF4;
+  --wc-purple-400:    #9A50F0;
+  --wc-purple-500:    #8127E8;  /* base */
+  --wc-purple-600:    #6A1FBF;
+  --wc-purple-700:    #531896;
+  --wc-purple-800:    #3D116E;
+  --wc-purple-900:    #260A45;
+
+  /* ---------- DEEP BLUE SCALE (built around #0B134F) ---------- */
+  --wc-blue-50:       #ECEDF6;
+  --wc-blue-100:      #C9CCE3;
+  --wc-blue-200:      #989DC4;
+  --wc-blue-300:      #6770A4;
+  --wc-blue-400:      #364285;
+  --wc-blue-500:      #1B2569;
+  --wc-blue-600:      #0B134F;  /* base */
+  --wc-blue-700:      #080E3D;
+  --wc-blue-800:      #06092B;
+  --wc-blue-900:      #03051A;
+
+  /* ---------- NEUTRALS ---------- */
+  --wc-neutral-0:     #FFFFFF;
+  --wc-neutral-50:    #F9F9F9;
+  --wc-neutral-100:   #F1F1F4;
+  --wc-neutral-200:   #E4E4EA;
+  --wc-neutral-300:   #C9C9D3;
+  --wc-neutral-400:   #9C9CAE;
+  --wc-neutral-500:   #6E6E83;
+  --wc-neutral-600:   #4A4A5C;
+  --wc-neutral-700:   #2F2F3D;
+  --wc-neutral-800:   #1A1A24;
+  --wc-neutral-900:   #0E0E16;
+
+  /* ---------- SEMANTIC ---------- */
+  --wc-success:       #00C479;   /* mirrors health */
+  --wc-warning:       #FF6600;   /* mirrors orange */
+  --wc-error:         #E5484D;
+  --wc-info:          #0030B7;   /* mirrors business */
+
+  /* ---------- SURFACES (light theme default) ---------- */
+  --wc-bg:            var(--wc-neutral-50);
+  --wc-bg-elevated:   var(--wc-neutral-0);
+  --wc-bg-muted:      var(--wc-neutral-100);
+  --wc-surface:       var(--wc-neutral-0);
+  --wc-border:        var(--wc-neutral-200);
+  --wc-border-strong: var(--wc-neutral-300);
+  --wc-divider:       var(--wc-neutral-200);
+
+  /* ---------- TEXT ---------- */
+  --wc-fg-1:          var(--wc-neutral-900);   /* primary text */
+  --wc-fg-2:          var(--wc-neutral-700);   /* secondary text */
+  --wc-fg-3:          var(--wc-neutral-500);   /* tertiary / meta */
+  --wc-fg-muted:      var(--wc-neutral-400);
+  --wc-fg-on-purple:  var(--wc-white);
+  --wc-fg-on-blue:    var(--wc-white);
+
+  /* ---------- BRAND GRADIENTS (from grafismos) ---------- */
+  --wc-grad-glow-navy:   radial-gradient(ellipse 70% 90% at 18% 55%, #8127E8 0%, #4D17AA 35%, #0B134F 75%);
+  --wc-grad-glow-purple: radial-gradient(ellipse 65% 85% at 12% 45%, #FFFFFF 0%, #D5B5FB 30%, #8127E8 75%);
+  --wc-grad-orb-dark:    radial-gradient(circle at 32% 65%, #8127E8 0%, #2B1170 45%, #0B134F 90%);
+  --wc-grad-orb-light:   radial-gradient(circle at 28% 55%, #FFFFFF 0%, #D5B5FB 25%, #8127E8 75%);
+  --wc-grad-purple-band: linear-gradient(135deg, #8127E8 0%, #5C1AB0 100%);
+  --wc-grad-purple-orange: linear-gradient(120deg, #8127E8 0%, #FF6600 100%);
+
+  /* ---------- TYPE FAMILIES ----------
+     Per PDF: Inter for titles (Medium/Semibold) and paragraphs (Light);
+              Georgia for special/display moments (echoes the {code} mark). */
+  --wc-font-sans:    "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --wc-font-serif:   Georgia, "Times New Roman", Times, serif;
+  --wc-font-mono:    ui-monospace, "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+
+  /* ---------- TYPE WEIGHTS ---------- */
+  --wc-fw-light:     300;
+  --wc-fw-regular:   400;
+  --wc-fw-medium:    500;
+  --wc-fw-semibold:  600;
+  --wc-fw-bold:      700;
+
+  /* ---------- TYPE SCALE ---------- */
+  --wc-fs-display:   72px;
+  --wc-fs-h1:        48px;
+  --wc-fs-h2:        36px;
+  --wc-fs-h3:        28px;
+  --wc-fs-h4:        22px;
+  --wc-fs-body-lg:   18px;
+  --wc-fs-body:      16px;
+  --wc-fs-small:     14px;
+  --wc-fs-caption:   12px;
+
+  /* ---------- LINE HEIGHTS ---------- */
+  --wc-lh-tight:     1.05;
+  --wc-lh-snug:      1.2;
+  --wc-lh-normal:    1.45;
+  --wc-lh-loose:     1.65;
+
+  /* ---------- LETTER SPACING ---------- */
+  --wc-tracking-tight:    -0.02em;
+  --wc-tracking-normal:    0;
+  --wc-tracking-wide:      0.04em;
+  --wc-tracking-caps:      0.08em;
+
+  /* ---------- SPACING (4px grid) ---------- */
+  --wc-space-1:   4px;
+  --wc-space-2:   8px;
+  --wc-space-3:   12px;
+  --wc-space-4:   16px;
+  --wc-space-5:   24px;
+  --wc-space-6:   32px;
+  --wc-space-7:   48px;
+  --wc-space-8:   64px;
+  --wc-space-9:   96px;
+  --wc-space-10: 128px;
+
+  /* ---------- RADIUS ---------- */
+  --wc-radius-none:   0;
+  --wc-radius-xs:     4px;
+  --wc-radius-sm:     8px;     /* buttons, chips */
+  --wc-radius-md:     12px;    /* inputs */
+  --wc-radius-lg:     16px;    /* cards */
+  --wc-radius-xl:     24px;    /* modals, hero panels */
+  --wc-radius-2xl:    32px;
+  --wc-radius-full:   9999px;
+
+  /* ---------- BORDER WIDTHS ---------- */
+  --wc-border-w:      1px;
+  --wc-border-w-2:    2px;
+  --wc-border-w-thick:3px;
+
+  /* ---------- SHADOWS (cool purple-tinted) ---------- */
+  --wc-shadow-xs:    0 1px 2px rgba(11, 19, 79, 0.06);
+  --wc-shadow-sm:    0 2px 4px rgba(11, 19, 79, 0.06), 0 1px 2px rgba(11, 19, 79, 0.04);
+  --wc-shadow-md:    0 6px 14px rgba(11, 19, 79, 0.08), 0 2px 4px rgba(11, 19, 79, 0.05);
+  --wc-shadow-lg:    0 14px 30px rgba(11, 19, 79, 0.12), 0 4px 8px rgba(11, 19, 79, 0.06);
+  --wc-shadow-xl:    0 28px 60px rgba(11, 19, 79, 0.18), 0 8px 16px rgba(11, 19, 79, 0.08);
+  --wc-shadow-glow:  0 0 0 6px rgba(129, 39, 232, 0.15), 0 12px 32px rgba(129, 39, 232, 0.35);
+  --wc-shadow-focus: 0 0 0 3px rgba(129, 39, 232, 0.35);
+
+  /* ---------- MOTION ---------- */
+  --wc-ease-out:     cubic-bezier(0.22, 1, 0.36, 1);
+  --wc-ease-in-out:  cubic-bezier(0.65, 0, 0.35, 1);
+  --wc-ease-spring:  cubic-bezier(0.34, 1.56, 0.64, 1);
+  --wc-dur-1:        120ms;   /* hover, color */
+  --wc-dur-2:        180ms;   /* small ui */
+  --wc-dur-3:        240ms;   /* modal, drawer */
+  --wc-dur-4:        320ms;   /* page transitions */
+
+  /* ---------- LAYOUT ---------- */
+  --wc-container-sm: 640px;
+  --wc-container-md: 960px;
+  --wc-container-lg: 1200px;
+  --wc-container-xl: 1440px;
+
+  /* ---------- Z-INDEX ---------- */
+  --wc-z-base:     0;
+  --wc-z-raised:   10;
+  --wc-z-sticky:   100;
+  --wc-z-overlay:  500;
+  --wc-z-modal:    1000;
+  --wc-z-toast:    1500;
+}
+
+/* =============================================================
+   Dark theme — apply with [data-theme="dark"] on <html> or <body>
+   ============================================================= */
+[data-theme="dark"] {
+  --wc-bg:            var(--wc-blue-700);
+  --wc-bg-elevated:   var(--wc-blue-600);
+  --wc-bg-muted:      var(--wc-blue-800);
+  --wc-surface:       var(--wc-blue-600);
+  --wc-border:        rgba(255, 255, 255, 0.10);
+  --wc-border-strong: rgba(255, 255, 255, 0.18);
+  --wc-divider:       rgba(255, 255, 255, 0.08);
+  --wc-fg-1:          #FFFFFF;
+  --wc-fg-2:          rgba(255, 255, 255, 0.78);
+  --wc-fg-3:          rgba(255, 255, 255, 0.55);
+  --wc-fg-muted:      rgba(255, 255, 255, 0.35);
+  --wc-shadow-xs:     0 1px 2px rgba(0, 0, 0, 0.40);
+  --wc-shadow-sm:     0 2px 6px rgba(0, 0, 0, 0.45);
+  --wc-shadow-md:     0 8px 20px rgba(0, 0, 0, 0.50);
+  --wc-shadow-lg:     0 16px 36px rgba(0, 0, 0, 0.55);
+  --wc-shadow-xl:     0 28px 60px rgba(0, 0, 0, 0.60);
+}
+
+/* =============================================================
+   Semantic typography classes — drop-in styles
+   ============================================================= */
+
+.wc-display {
+  font-family: var(--wc-font-sans);
+  font-weight: var(--wc-fw-semibold);
+  font-size: var(--wc-fs-display);
+  line-height: var(--wc-lh-tight);
+  letter-spacing: var(--wc-tracking-tight);
+  color: var(--wc-fg-1);
+}
+
+.wc-display-serif {
+  font-family: var(--wc-font-serif);
+  font-weight: var(--wc-fw-regular);
+  font-style: italic;
+  font-size: var(--wc-fs-display);
+  line-height: var(--wc-lh-tight);
+  letter-spacing: var(--wc-tracking-tight);
+  color: var(--wc-fg-1);
+}
+
+.wc-h1 {
+  font-family: var(--wc-font-sans);
+  font-weight: var(--wc-fw-semibold);
+  font-size: var(--wc-fs-h1);
+  line-height: var(--wc-lh-snug);
+  letter-spacing: var(--wc-tracking-tight);
+  color: var(--wc-fg-1);
+}
+
+.wc-h2 {
+  font-family: var(--wc-font-sans);
+  font-weight: var(--wc-fw-semibold);
+  font-size: var(--wc-fs-h2);
+  line-height: var(--wc-lh-snug);
+  letter-spacing: var(--wc-tracking-tight);
+  color: var(--wc-fg-1);
+}
+
+.wc-h3 {
+  font-family: var(--wc-font-sans);
+  font-weight: var(--wc-fw-medium);
+  font-size: var(--wc-fs-h3);
+  line-height: var(--wc-lh-snug);
+  color: var(--wc-fg-1);
+}
+
+.wc-h4 {
+  font-family: var(--wc-font-sans);
+  font-weight: var(--wc-fw-medium);
+  font-size: var(--wc-fs-h4);
+  line-height: 1.3;
+  color: var(--wc-fg-1);
+}
+
+.wc-body-lg {
+  font-family: var(--wc-font-sans);
+  font-weight: var(--wc-fw-light);
+  font-size: var(--wc-fs-body-lg);
+  line-height: var(--wc-lh-loose);
+  color: var(--wc-fg-2);
+}
+
+.wc-body {
+  font-family: var(--wc-font-sans);
+  font-weight: var(--wc-fw-light);
+  font-size: var(--wc-fs-body);
+  line-height: var(--wc-lh-normal);
+  color: var(--wc-fg-2);
+}
+
+.wc-small {
+  font-family: var(--wc-font-sans);
+  font-weight: var(--wc-fw-regular);
+  font-size: var(--wc-fs-small);
+  line-height: var(--wc-lh-normal);
+  color: var(--wc-fg-3);
+}
+
+.wc-caption {
+  font-family: var(--wc-font-sans);
+  font-weight: var(--wc-fw-medium);
+  font-size: var(--wc-fs-caption);
+  line-height: var(--wc-lh-normal);
+  letter-spacing: var(--wc-tracking-caps);
+  text-transform: uppercase;
+  color: var(--wc-fg-3);
+}
+
+.wc-quote-serif {
+  font-family: var(--wc-font-serif);
+  font-style: italic;
+  font-weight: var(--wc-fw-regular);
+  color: var(--wc-fg-1);
+}
+
+.wc-code-mark {
+  font-family: var(--wc-font-serif);
+  font-style: italic;
+  color: var(--wc-fg-1);
+}
+
+.wc-code {
+  font-family: var(--wc-font-mono);
+  font-size: 0.92em;
+  background: var(--wc-bg-muted);
+  padding: 0.12em 0.4em;
+  border-radius: var(--wc-radius-xs);
+  color: var(--wc-purple-700);
+}
+
+/* Brand-flavored utilities */
+.wc-text-purple { color: var(--wc-purple); }
+.wc-text-orange { color: var(--wc-orange); }
+.wc-text-deep   { color: var(--wc-deep-blue); }
+.wc-text-white  { color: var(--wc-white); }
+
+.wc-bg-purple   { background: var(--wc-purple); }
+.wc-bg-deep     { background: var(--wc-deep-blue); }
+.wc-bg-orange   { background: var(--wc-orange); }
+.wc-bg-white    { background: var(--wc-white); }
+
+/* Dot-pattern utility — mirrors Grafismo 6/7 */
+.wc-dot-pattern {
+  background-color: var(--wc-deep-blue);
+  background-image: radial-gradient(rgba(129, 39, 232, 0.55) 1px, transparent 1.2px);
+  background-size: 14px 14px;
+}
+.wc-dot-pattern--purple {
+  background-color: var(--wc-purple);
+  background-image: radial-gradient(rgba(11, 19, 79, 0.45) 1px, transparent 1.2px);
+  background-size: 14px 14px;
+}

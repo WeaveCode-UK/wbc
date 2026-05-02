@@ -3,9 +3,20 @@
 > **Fase:** 11 — Fechamento de Gaps (Gap Closure)
 > **Origem:** `Fase 3/WBC-Fase3-Auditoria-e-Plano-v1.0.md`
 > **Depende de:** Fase 10 completa (`v2.0.0-fase-10`)
-> **Total de épicos:** 22 (F11.E01 a F11.E22) + 1 checkpoint final (F11.E23)
-> **Estimativa global:** ~180 tasks
-> **Tag-alvo:** `v3.0.0-fase-11`
+> **Total de épicos:** 23 (F11.E01 a F11.E22 + F11.E20.5) + 1 checkpoint final (F11.E23)
+> **Estimativa global:** ~190 tasks
+>
+> **Histórico de revisões:**
+>
+> - **v1.1 (2026-05-02):** F11.E20.5 (UX polish pass) inserido entre F11.E20
+>   e F11.E21. Motivo: a auditoria de uso do MVP (sessão de 2026-05-02, após
+>   E14–E17 mergeados) achou bugs sistêmicos de UX — sem logout no topbar,
+>   "Adicionar X" sem handler em várias páginas, telas que pedem UUID raw
+>   em vez de seletor. Os testes E2E (E20) vão expor esses bugs ao tropeçar
+>   neles, e antes do Lighthouse (E21) faz sentido um pass dedicado pra
+>   fechar os 4 críticos. Numeração 20.5 escolhida pra não renumerar
+>   E21–E23 e preservar referências em commits/notas existentes.
+>   **Tag-alvo:** `v3.0.0-fase-11`
 
 > **ANTES DE EXECUTAR:** Leia `begin/WBC_REGRAS_INVIOLAVEIS.md`. As 16 regras são absolutas:
 >
@@ -90,7 +101,7 @@ F11.E14 → F11.E15 → F11.E16 → F11.E17 — cria as ~16 telas faltantes.
 
 ### BLOCO F · Mobile + QA + Deploy
 
-F11.E18 → F11.E19 → F11.E20 → F11.E21 → F11.E22 → F11.E23 (checkpoint).
+F11.E18 → F11.E19 → F11.E20 → **F11.E20.5 (UX polish pass)** → F11.E21 → F11.E22 → F11.E23 (checkpoint).
 
 ---
 
@@ -426,6 +437,31 @@ F11.E18 → F11.E19 → F11.E20 → F11.E21 → F11.E22 → F11.E23 (checkpoint)
 
 ---
 
+#### **F11.E20.5** — UX polish pass (inserido em v1.1)
+
+**Depende de:** F11.E20 (os fluxos E2E vão expor cada um destes bugs)
+**Tasks estimadas:** 10
+**Contexto:** auditoria de uso do MVP em 2026-05-02 (logo após E14–E17 mergeados) identificou bugs sistêmicos que os scaffolds de Bloco E não cobriram. Os 4 críticos abaixo precisam fechar antes do deploy (E22) — Lighthouse (E21) é otimização e pode rodar depois.
+
+**Escopo:**
+
+1. **Logout no topbar.** Adicionar botão "Sair" ao header de `(dashboard)/layout.tsx` que chama `signOut()` do NextAuth. Mobile: incluir no `BottomNav` ou no menu hamburger.
+2. **"Adicionar cliente" funcional.** Criar `(dashboard)/clients/new/page.tsx` (ou modal) com form completo (nome, telefone E.164, email opcional, classificação, isLead). Plugar `clients.create`. Mesmo padrão para os outros "Novo X" sem handler em `/sales`, `/campaigns`, `/finance`, `/inventory`, `/schedule`, `/team`, `/promo/new` (já tem), `/tags` (já tem).
+3. **Seletores em vez de UUID raw.** `/clients/[id]/wishlist` e `/sales/returns` hoje pedem o UUID na mão. Substituir por:
+   - Wishlist: SearchBar que chama `catalog.listProducts` com debounce → lista clicável
+   - Returns: SearchBar que chama `sales.list` filtrado por status `DELIVERED|CONFIRMED` → escolhe a venda
+4. **Toast feedback de sucesso.** Hoje as mutations bem-sucedidas só invalidam queries silenciosamente. Adicionar Toast (`@wbc/ui`) com mensagem de confirmação em todas as mutations CRUD (~20 lugares). Convenção: success no canto inferior direito, 3s, dispensável.
+5. **Estados de hover/focus padronizados** em ListItem, Button, todos os cards interativos. Auditar contra a folha do Design System.
+6. **Mobile responsivo até 360px.** Probar cada page.tsx em 360px. Casos sabidos: tabela de finance, grid 6 cards do client profile, wizards 4-step.
+7. **Validação visual nos forms.** Hoje formulários só mostram erro depois do submit (via Alert). Mostrar erros inline (red border + helper text) usando react-hook-form + zod resolver, que já está no package.json.
+8. **Loading states completos.** Várias páginas só mostram skeleton enquanto a primeira query carrega. Mutations em flight não dão feedback visual (botão fica disabled mas é discreto). Adicionar spinner inline.
+9. **Empty states com call-to-action útil.** Padronizar: ícone + título + descrição curta + 1 botão de ação. Auditar todos os EmptyState do app (são ~15).
+10. **Acessibilidade básica.** `aria-label` em todos os icon buttons (×, ✓, →), `<label>` em todos os inputs, ordem de tab faz sentido em cada wizard, focus trap em modais.
+
+**Deliverable:** o usuário consegue completar os 5 golden paths do E20 sem cair em botão sem handler, sem precisar copiar UUIDs, com feedback visual claro em cada ação. Toda mutation acerta um Toast. Lighthouse Accessibility ≥ 90 (vai pavimentar o E21).
+
+---
+
 #### **F11.E21** — Performance audit + Lighthouse
 
 **Depende de:** F11.E03 a F11.E17
@@ -445,7 +481,7 @@ F11.E18 → F11.E19 → F11.E20 → F11.E21 → F11.E22 → F11.E23 (checkpoint)
 
 #### **F11.E22** — Deploy staging + production
 
-**Depende de:** F11.E18 a F11.E21
+**Depende de:** F11.E18 a F11.E21 (e F11.E20.5)
 **Tasks estimadas:** 9
 **Escopo:**
 
@@ -461,7 +497,7 @@ F11.E18 → F11.E19 → F11.E20 → F11.E21 → F11.E22 → F11.E23 (checkpoint)
 
 #### **F11.E23** — Checkpoint Fase 11
 
-**Depende de:** F11.E01 a F11.E22
+**Depende de:** F11.E01 a F11.E22 (incluindo F11.E20.5)
 **Tasks estimadas:** 4
 **Escopo:**
 
@@ -485,6 +521,8 @@ A Fase 11 está completa quando **todos** os critérios abaixo são verdadeiros:
 - [ ] `pnpm test` verde com cobertura ≥ 70% em `packages/business/`
 - [ ] `pnpm test:e2e` verde nos 5 golden paths
 - [ ] Lighthouse Performance ≥ 90 em `/` autenticado
+- [ ] Lighthouse Accessibility ≥ 90 em `/` autenticado (cumprido em F11.E20.5)
+- [ ] F11.E20.5 fechou os 4 bugs críticos: logout no topbar, "Adicionar X" funcional, seletores em vez de UUID raw, toast de feedback
 - [ ] Middleware Next ativo e CSP/proteção de rotas funcionando
 - [ ] Todas as páginas listadas neste plano respondem 200 com dado real (não scaffold)
 - [ ] Os 8 itens "sem backend" (E07–E10) implementados ponta-a-ponta

@@ -407,6 +407,142 @@ async function main() {
 
   // eslint-disable-next-line no-console
   console.log("Created 10 expenses");
+
+  // F11.E12: 50 system message templates (10 categories × 5 variations).
+  // tenantId=null marks them as system templates so every tenant sees
+  // them in the picker. The seed leaves them in place across resets.
+  const TEMPLATE_VARIANTS: Record<string, { name: string; texts: string[] }> = {
+    RESTOCK: {
+      name: "Reposição",
+      texts: [
+        "Oi {{nome}}! Que tal repor o {{produto}}? 💜",
+        "{{nome}}, seu {{produto}} já deve estar acabando — quer que eu separe um novo?",
+        "Olá {{nome}}, percebi que faz tempo do último {{produto}}. Posso reservar?",
+        "Hey {{nome}}! Hora de garantir mais {{produto}} antes que acabe? ✨",
+        "{{nome}}, novidade: {{produto}} disponível. Já te separo? 💄",
+      ],
+    },
+    BIRTHDAY: {
+      name: "Aniversário",
+      texts: [
+        "Feliz aniversário, {{nome}}! 🎉🎂",
+        "{{nome}}, seu dia chegou! Que esse ano traga muito brilho ✨",
+        "Parabéns, {{nome}}! 🎁 Tenho um mimo separado pra você.",
+        "Feliz aniversário, querida {{nome}}! Beijo no coração 💜",
+        "Hoje é o dia da {{nome}}! Te desejo um ano maravilhoso 🥂",
+      ],
+    },
+    PROFESSION_DAY: {
+      name: "Dia da profissão",
+      texts: [
+        "Hoje é o seu dia, {{nome}}! Parabéns pela profissão 💜",
+        "Feliz dia, {{nome}}! Sua dedicação inspira ✨",
+        "{{nome}}, parabéns pelo dia da sua profissão! 🎉",
+        "Hoje é o dia de quem faz a diferença — feliz dia, {{nome}}!",
+        "{{nome}}, um beijo carinhoso no seu dia profissional 💄",
+      ],
+    },
+    PROMOTION: {
+      name: "Promoção",
+      texts: [
+        "{{nome}}, promoção exclusiva pra você esta semana 🔥",
+        "Não perde, {{nome}}: até {{desconto}}% off em {{produto}}!",
+        "{{nome}}, lançamento + condição especial só pra clientes VIP ✨",
+        "Combo {{nome}}: {{produto}} com brinde até sexta 🎁",
+        "{{nome}}, garantiu desconto de {{desconto}}% — vagas limitadas!",
+      ],
+    },
+    POST_SALE_2D: {
+      name: "Pós-venda 2 dias",
+      texts: [
+        "Oi {{nome}}, recebeu o {{produto}}? Tá amando? 💜",
+        "{{nome}}, sua compra chegou bem? Me conta as primeiras impressões!",
+        "Olá {{nome}}! Como está sendo a experiência com {{produto}}?",
+        "{{nome}}, tudo certo com a entrega? Ficou tudo do seu jeito?",
+        "Hey {{nome}}, o {{produto}} já tá fazendo sucesso aí? ✨",
+      ],
+    },
+    POST_SALE_2W: {
+      name: "Pós-venda 2 semanas",
+      texts: [
+        "{{nome}}, depois de duas semanas — como tá indo o {{produto}}?",
+        "Oi {{nome}}, já viu resultado do {{produto}}? 💜",
+        "{{nome}}, tudo bem? O {{produto}} virou rotina ou ainda tá conhecendo?",
+        "Como tá a sensação do {{produto}} duas semanas depois, {{nome}}?",
+        "{{nome}}, alguma dúvida sobre o uso do {{produto}}? Posso ajudar.",
+      ],
+    },
+    POST_SALE_2M: {
+      name: "Pós-venda 2 meses",
+      texts: [
+        "{{nome}}, dois meses se passaram — quer renovar o {{produto}}?",
+        "Oi {{nome}}, vamos repor seu {{produto}} preferido? 💜",
+        "{{nome}}, hora de se cuidar de novo. Posso separar mais {{produto}}?",
+        "{{nome}}, o {{produto}} já era — bora renovar? ✨",
+        "Olá {{nome}}, faz dois meses do seu {{produto}}. Continuo seu cuidado?",
+      ],
+    },
+    BILLING: {
+      name: "Cobrança",
+      texts: [
+        "Oi {{nome}}, lembrete da parcela que vence dia {{vencimento}} 💜",
+        "{{nome}}, sua parcela de {{valor}} vence essa semana — posso te enviar o PIX?",
+        "Olá {{nome}}, posso já te mandar o boleto da parcela? Vence em breve.",
+        "{{nome}}, pagamento de {{valor}} pendente. Quer combinar uma data?",
+        "Oi {{nome}}, tudo bem? Passando pra te lembrar do pagamento de {{valor}} 🌸",
+      ],
+    },
+    WELCOME: {
+      name: "Boas-vindas",
+      texts: [
+        "Bem-vinda, {{nome}}! Conta comigo no que precisar 💜",
+        "Oi {{nome}}! Que bom ter você como cliente ✨",
+        "{{nome}}, seja muito bem-vinda! Estou aqui pra te ajudar.",
+        "{{nome}}, é um prazer te receber! Vamos cuidar de você 💄",
+        "Olá {{nome}}, obrigada por confiar em mim. Estamos juntas! 🌸",
+      ],
+    },
+    REACTIVATION: {
+      name: "Reativação",
+      texts: [
+        "{{nome}}, faz um tempinho! 💜 Tem alguma novidade que você quer experimentar?",
+        "Oi {{nome}}, que saudade! Posso te apresentar os lançamentos?",
+        "{{nome}}, deixa eu te mimar com uma novidade especial 🌸",
+        "Olá {{nome}}! Estou pensando em você. Tudo bem?",
+        "{{nome}}, voltou a precisar de algo? Estou aqui ✨",
+      ],
+    },
+  };
+
+  let templateCount = 0;
+  for (const [category, group] of Object.entries(TEMPLATE_VARIANTS)) {
+    for (let v = 0; v < group.texts.length; v++) {
+      await prisma.messageTemplate.create({
+        data: {
+          tenantId: null,
+          name: `${group.name} ${v + 1}`,
+          category: category as
+            | "RESTOCK"
+            | "BIRTHDAY"
+            | "PROFESSION_DAY"
+            | "PROMOTION"
+            | "POST_SALE_2D"
+            | "POST_SALE_2W"
+            | "POST_SALE_2M"
+            | "BILLING"
+            | "WELCOME"
+            | "REACTIVATION",
+          text: group.texts[v]!,
+          variant: v + 1,
+          isSystem: true,
+        },
+      });
+      templateCount++;
+    }
+  }
+  // eslint-disable-next-line no-console
+  console.log(`Created ${templateCount} system message templates`);
+
   // eslint-disable-next-line no-console
   console.log("Seed complete!");
 }

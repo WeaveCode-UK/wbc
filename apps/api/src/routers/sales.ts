@@ -19,6 +19,7 @@ import {
   getAccountsReceivable,
 } from "../../../../packages/business/sales/use-cases/manage-payments";
 import { getCashbackBalance } from "../../../../packages/business/sales/use-cases/manage-cashback";
+import { flagExpiringCashbacks } from "@wbc/business/sales/use-cases/flag-expiring-cashback";
 import { createReturn } from "../../../../packages/business/sales/use-cases/create-return";
 import { paginationSchema, uuidSchema } from "@wbc/validators";
 import { listOk } from "../trpc/responses";
@@ -189,5 +190,18 @@ export const salesRouter = router({
     .input(z.object({ status: z.string().optional() }))
     .query(async ({ ctx, input }) => {
       return getAccountsReceivable(ctx.tenant.tenantId, input, paymentRepo);
+    }),
+
+  // F11.E12: scan for cashbacks expiring within `lookaheadDays` and
+  // create one notification per client. Manual trigger now; the cron
+  // wiring is a follow-up.
+  flagExpiringCashbacks: protectedProcedure
+    .input(
+      z.object({
+        lookaheadDays: z.number().int().min(1).max(60).default(7),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return flagExpiringCashbacks(ctx.tenant.tenantId, input.lookaheadDays);
     }),
 });

@@ -48,6 +48,9 @@ export default function NewCampaignPage() {
     onSuccess: () => router.push("/campaigns"),
     onError: (error) => setSubmitError(error.message),
   });
+  const generateAi = trpc.ai.generateCampaignText.useMutation({
+    onSuccess: (result) => setMessage(result.text),
+  });
 
   const tagChips = (tags.data ?? []).map((tag) => ({
     value: tag.id,
@@ -215,10 +218,19 @@ export default function NewCampaignPage() {
                 size="sm"
                 variant="secondary"
                 className="mt-2"
-                disabled
+                onClick={() => {
+                  if (!name) return;
+                  generateAi.mutate({ objective: name });
+                }}
+                disabled={generateAi.isPending || !name}
               >
-                {t("wizard_ai_generate")}
+                {generateAi.isPending ? "..." : t("wizard_ai_generate")}
               </Button>
+              {generateAi.error && (
+                <p className="mt-2 text-caption text-[var(--color-danger-text)]">
+                  {generateAi.error.message}
+                </p>
+              )}
             </div>
 
             <div className="space-y-1">

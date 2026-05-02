@@ -10,6 +10,7 @@ dist/
 coverage/
 .prisma/
 .mcp.json
+*.tsbuildinfo
 
 # Framework de auditoria — backups temporários e settings locais
 .auditoria-backup-*/

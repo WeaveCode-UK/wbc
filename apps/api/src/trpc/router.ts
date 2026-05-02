@@ -21,6 +21,7 @@ import { platformRouter } from "../routers/platform";
 // (DLQ, blacklist global, sessões de outro tenant). Será reescrito atrás de
 // platformAdminProcedure quando o control plane for construído.
 import { privacyRouter } from "../routers/privacy";
+import { loyaltyRouter } from "../routers/loyalty";
 
 export const appRouter = router({
   auth: authRouter,
@@ -45,6 +46,8 @@ export const appRouter = router({
   // ACH-001 compliance-privacidade: LGPD/GDPR data-subject rights endpoints.
   // Currently stubs — see docs/PRIVACY-ENDPOINTS.md.
   privacy: privacyRouter,
+  // F11.E08: client-side loyalty programme.
+  loyalty: loyaltyRouter,
 });
 
 export type AppRouter = typeof appRouter;

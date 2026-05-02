@@ -52,6 +52,10 @@ export default function ClientProfilePage() {
     { clientId: id },
     { enabled: !!id },
   );
+  const loyalty = trpc.loyalty.getBalance.useQuery(
+    { clientId: id },
+    { enabled: !!id },
+  );
 
   if (client.isLoading) {
     return (
@@ -171,6 +175,26 @@ export default function ClientProfilePage() {
           <strong>{t("profile_cashback_card")}:</strong>{" "}
           {formatBRL(cashbackValue)}
         </Alert>
+      )}
+
+      {loyalty.data && (
+        <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-heading-2 text-[var(--color-text-primary)]">
+                ⭐ Loyalty
+              </h2>
+              <p className="text-caption text-[var(--color-text-tertiary)]">
+                {loyalty.data.balance} · {loyalty.data.lifetimeEarned}
+              </p>
+            </div>
+            <Link href={`/clients/${id}/loyalty`}>
+              <Button type="button" size="sm" variant="ghost">
+                →
+              </Button>
+            </Link>
+          </div>
+        </section>
       )}
 
       {c.notes && (

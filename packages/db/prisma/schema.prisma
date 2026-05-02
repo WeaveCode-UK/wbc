@@ -39,6 +39,7 @@ model Tenant {
   showcases         Showcase[]
   sales             Sale[]
   cashbacks         Cashback[]
+  loyaltyPoints     LoyaltyPoints[]
   stocks            Stock[]
   brandOrders       BrandOrder[]
   samples           Sample[]
@@ -170,6 +171,7 @@ model Client {
   giftSuggestors   GiftSuggestor[]
   sales            Sale[]
   cashbacks        Cashback[]
+  loyaltyPoints    LoyaltyPoints?
   scheduledMessages ScheduledMessage[]
   reminders        Reminder[]
   opportunities    Opportunity[]
@@ -1407,4 +1409,54 @@ model Reconciliation {
 
   @@unique([provider, period])
   @@map("reconciliations")
+}
+
+// F11.E08: client-side loyalty programme. One row per (tenant, client),
+// holding the running balance and the lifetime-earned counter (the
+// latter never decreases — it is the basis for tier badges if ever
+// added). Mutations are recorded as LoyaltyTransaction rows so the UI
+// can show an extract and an audit can reconstruct the balance from
+// scratch.
+model LoyaltyPoints {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId       String   @db.Uuid
+  clientId       String   @unique @db.Uuid
+  balance        Int      @default(0)
+  lifetimeEarned Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  tenant       Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  client       Client               @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  transactions LoyaltyTransaction[]
+
+  @@index([tenantId, clientId])
+  @@map("loyalty_points")
+}
+
+enum LoyaltyTransactionKind {
+  EARN
+  REDEEM
+  EXPIRE
+  ADJUST
+}
+
+model LoyaltyTransaction {
+  id        String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId  String                 @db.Uuid
+  pointsId  String                 @db.Uuid
+  clientId  String                 @db.Uuid
+  kind      LoyaltyTransactionKind
+  amount    Int // positive for EARN/ADJUST(+), negative for REDEEM/EXPIRE/ADJUST(-)
+  saleId    String?                @db.Uuid
+  note      String?
+  createdAt DateTime               @default(now())
+  expiresAt DateTime?
+
+  loyaltyPoints LoyaltyPoints @relation(fields: [pointsId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, clientId])
+  @@index([tenantId, kind])
+  @@index([expiresAt])
+  @@map("loyalty_transactions")
 }

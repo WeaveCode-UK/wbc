@@ -88,6 +88,11 @@ export default function ClientsPage() {
           {t("title")}
         </h1>
         <div className="flex gap-2">
+          <Link href="/clients/qr">
+            <Button type="button" size="sm" variant="ghost">
+              QR
+            </Button>
+          </Link>
           <Link href="/clients/import">
             <Button type="button" size="sm" variant="secondary">
               {t("import")}

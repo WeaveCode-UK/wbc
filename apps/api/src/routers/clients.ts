@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { router, protectedProcedure } from "../trpc/trpc";
+import { router, protectedProcedure, publicProcedure } from "../trpc/trpc";
 import {
   createGetByIdProcedure,
   createDeleteProcedure,
@@ -12,6 +12,8 @@ import { createClient } from "@wbc/business/clients/use-cases/create-client";
 import { updateClient } from "@wbc/business/clients/use-cases/update-client";
 import { bulkUpdateClients } from "@wbc/business/clients/use-cases/bulk-update-clients";
 import { importClients } from "@wbc/business/clients/use-cases/import-clients";
+import { selfRegisterClient } from "@wbc/business/clients/use-cases/self-register-client";
+import { PrismaTenantRepository } from "@wbc/business/auth/adapters/prisma-tenant-repository";
 import { deleteClient } from "@wbc/business/clients/use-cases/delete-client";
 import { listClients } from "@wbc/business/clients/use-cases/list-clients";
 import { getClientById } from "@wbc/business/clients/use-cases/get-client-by-id";
@@ -44,6 +46,7 @@ import { withCacheInvalidation } from "../lib/cache-invalidation";
 
 const clientRepo = new PrismaClientRepository();
 const tagRepo = new PrismaTagRepository();
+const tenantRepo = new PrismaTenantRepository();
 
 export const clientsRouter = router({
   list: protectedProcedure
@@ -115,6 +118,37 @@ export const clientsRouter = router({
   delete: createDeleteProcedure((tenantId, id) =>
     deleteClient(tenantId, id, clientRepo),
   ),
+
+  // F11.E07 part C: public self-registration. The web exposes
+  // /cadastro/[slug] which calls this procedure with the tenant slug
+  // (resolved server-side to a tenantId so a hostile caller can't pass
+  // an arbitrary tenantId). No OTP yet — trust boundary is the slug
+  // being shared via QR by the consultora.
+  selfRegister: publicProcedure
+    .input(
+      z.object({
+        tenantSlug: z.string().min(1),
+        name: z.string().min(1),
+        phone: z.string().min(1),
+        email: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const tenant = await tenantRepo.findBySlug(input.tenantSlug);
+      if (!tenant) {
+        throw new Error("Tenant not found");
+      }
+      const client = await selfRegisterClient(
+        {
+          tenantId: tenant.id,
+          name: input.name,
+          phone: input.phone,
+          email: input.email ?? null,
+        },
+        clientRepo,
+      );
+      return { id: client.id };
+    }),
 
   // F11.E07: import contacts from a parsed spreadsheet. The web parses
   // xlsx/csv client-side via the `xlsx` lib and ships JSON rows.

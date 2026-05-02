@@ -1,10 +1,12 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { Badge } from "@wbc/ui";
 import { Sidebar } from "../../components/sidebar";
 import { BottomNav } from "../../components/bottom-nav";
 import { ErrorBoundary } from "../../components/error-boundary";
 import { useTheme } from "../../providers/theme-provider";
+import { trpc } from "@/lib/trpc";
 
 export default function DashboardLayout({
   children,
@@ -13,13 +15,21 @@ export default function DashboardLayout({
 }) {
   const { theme, mode, toggleMode, setTheme } = useTheme();
   const t = useTranslations("common");
+  // F11.E09: badge for demo workspaces. Renders the chip in the topbar
+  // so the consultora knows the data resets daily. Query is cached
+  // 30s by the trpc-provider default; cheap.
+  const tenantBadge = trpc.platform.getTenantBadge.useQuery(undefined, {
+    refetchOnMount: false,
+  });
 
   return (
     <div className="flex min-h-screen bg-[var(--color-bg-tertiary)]">
       <Sidebar />
       <div className="flex flex-1 flex-col">
         <header className="hidden md:flex h-14 items-center justify-between border-b border-[var(--color-border-tertiary)] bg-[var(--color-bg-primary)] px-6">
-          <div />
+          <div>
+            {tenantBadge.data?.isDemo && <Badge variant="warning">DEMO</Badge>}
+          </div>
           <div className="flex items-center gap-4">
             <button
               type="button"

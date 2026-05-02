@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import {
+  Alert,
   Badge,
   Button,
   EmptyState,
@@ -55,6 +56,10 @@ export default function CampaignsPage() {
     limit: 50,
     status: filter === "all" ? undefined : filter,
   });
+  const features = trpc.platform.getUnlockedFeatures.useQuery();
+  const campaignsLocked = features.data
+    ? !features.data.unlockedFeatures.includes("campaigns")
+    : false;
 
   const data = list.data?.data ?? [];
 
@@ -70,6 +75,10 @@ export default function CampaignsPage() {
           </Button>
         </Link>
       </div>
+
+      {campaignsLocked && (
+        <Alert variant="warning">🔒 {t("no_campaigns_hint")}</Alert>
+      )}
 
       <SegmentedControl
         value={filter}

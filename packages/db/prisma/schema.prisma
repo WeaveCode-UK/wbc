@@ -27,6 +27,10 @@ model Tenant {
   currency  String   @default("BRL")
   locale    String   @default("pt-BR")
   isActive  Boolean  @default(true)
+  // F11.E09: demo flag for sandbox tenants. The daily cron reseeds
+  // these and skips them on cost-billing aggregations.
+  isDemo       Boolean   @default(false)
+  demoResetAt  DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -1073,6 +1077,16 @@ model OnboardingProgress {
   tenantId       String @unique @db.Uuid
   stepsCompleted Json   @default("[]") // array de step IDs
   currentStep    String @default("welcome")
+  // F11.E09: progressive onboarding milestones. Recomputed by the
+  // RecomputeUnlockedFeatures use-case after relevant mutations
+  // (client/sale/campaign creation, ai usage). The UI reads these to
+  // show "🔒 disponível após sua primeira venda" hints, and the tRPC
+  // middleware rejects procedures whose feature key is not unlocked.
+  hasFirstClient    Boolean  @default(false)
+  hasFirstSale      Boolean  @default(false)
+  hasFirstCampaign  Boolean  @default(false)
+  // JSON array of feature keys the tenant has unlocked.
+  unlockedFeatures  Json     @default("[]")
 
   tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 

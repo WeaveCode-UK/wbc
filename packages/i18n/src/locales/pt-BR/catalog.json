@@ -1,0 +1,20 @@
+{
+  "title": "Catálogo",
+  "subtitle": "Produtos das suas marcas",
+  "new_product": "Novo produto",
+  "search_placeholder": "Buscar produto",
+  "all_brands": "Todas as marcas",
+  "category_all": "Todas",
+  "category_skincare": "Skincare",
+  "category_makeup": "Maquiagem",
+  "category_haircare": "Cabelo",
+  "category_fragrance": "Perfumaria",
+  "category_body": "Corpo",
+  "view_grid": "Grade",
+  "view_list": "Lista",
+  "stock_low": "Estoque baixo",
+  "stock_out": "Sem estoque",
+  "send_to_client": "Enviar pra cliente",
+  "no_products": "Nenhum produto encontrado",
+  "no_products_hint": "Cadastre produtos ou ajuste os filtros"
+}

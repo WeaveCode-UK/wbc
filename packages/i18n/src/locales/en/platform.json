@@ -7,5 +7,20 @@
   "landing_page": "Landing Page",
   "landing_page_hint": "Configure your personal page",
   "export_data": "Export Data",
-  "export_data_hint": "Export your data as CSV"
+  "export_data_hint": "Export your data as CSV",
+  "theme_title": "Theme and language",
+  "theme_subtitle": "Choose the look and language of the app",
+  "theme_color": "Colour theme",
+  "theme_default": "Default (purple)",
+  "theme_default_hint": "Electric purple on deep navy",
+  "theme_rose": "Rose Quartz",
+  "theme_rose_hint": "Warm pink with rosy tones",
+  "theme_mode": "Mode",
+  "theme_mode_light": "Light",
+  "theme_mode_dark": "Dark",
+  "theme_language": "Language",
+  "theme_language_pt": "Português (BR)",
+  "theme_language_en": "English",
+  "theme_preview_title": "Preview",
+  "theme_preview_hint": "The interface updates in real time as you select"
 }

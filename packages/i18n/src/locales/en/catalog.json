@@ -1,0 +1,20 @@
+{
+  "title": "Catalog",
+  "subtitle": "Products from your brands",
+  "new_product": "New product",
+  "search_placeholder": "Search product",
+  "all_brands": "All brands",
+  "category_all": "All",
+  "category_skincare": "Skincare",
+  "category_makeup": "Makeup",
+  "category_haircare": "Hair",
+  "category_fragrance": "Fragrance",
+  "category_body": "Body",
+  "view_grid": "Grid",
+  "view_list": "List",
+  "stock_low": "Low stock",
+  "stock_out": "Out of stock",
+  "send_to_client": "Send to client",
+  "no_products": "No products found",
+  "no_products_hint": "Add products or adjust filters"
+}

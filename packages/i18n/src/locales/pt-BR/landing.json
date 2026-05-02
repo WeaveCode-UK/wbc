@@ -1,1 +1,20 @@
-{}
+{
+  "title": "Landing page",
+  "subtitle": "Sua página pública para captar leads",
+  "preview_title": "Pré-visualização",
+  "preview_hint": "É assim que sua cliente vai ver",
+  "form_title": "Editar página",
+  "field_photo": "Foto",
+  "field_photo_hint": "Imagem quadrada, mínimo 400×400",
+  "field_bio": "Bio curta",
+  "field_bio_hint": "Uma linha que descreve você",
+  "field_philosophy": "Filosofia / sobre",
+  "field_brands": "Marcas que você trabalha",
+  "field_whatsapp": "Link do WhatsApp",
+  "field_slug": "Endereço público",
+  "active_label": "Página ativa",
+  "active_hint": "Quando desativada, o link mostra mensagem de indisponível",
+  "share_link": "Link da sua página",
+  "copy_link": "Copiar link",
+  "share_link_action": "Compartilhar"
+}

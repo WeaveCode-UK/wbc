@@ -1,1 +1,20 @@
-{}
+{
+  "title": "Landing page",
+  "subtitle": "Your public page to capture leads",
+  "preview_title": "Preview",
+  "preview_hint": "This is how your client will see it",
+  "form_title": "Edit page",
+  "field_photo": "Photo",
+  "field_photo_hint": "Square image, minimum 400×400",
+  "field_bio": "Short bio",
+  "field_bio_hint": "A line that describes you",
+  "field_philosophy": "Philosophy / about",
+  "field_brands": "Brands you work with",
+  "field_whatsapp": "WhatsApp link",
+  "field_slug": "Public address",
+  "active_label": "Page active",
+  "active_hint": "When disabled, the link shows an unavailable message",
+  "share_link": "Your page link",
+  "copy_link": "Copy link",
+  "share_link_action": "Share"
+}

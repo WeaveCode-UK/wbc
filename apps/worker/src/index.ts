@@ -58,6 +58,10 @@ import { PrismaPostSaleFlowRepository } from "../../../packages/business/messagi
 import { startMessagingWorker } from "./processors/messaging-processor";
 import { startCampaignWorker } from "./processors/campaign-processor";
 import { startScheduleWorker } from "./processors/schedule-processor";
+import {
+  startCronWorker,
+  registerCronSchedules,
+} from "./processors/cron-processor";
 import { startAnalyticsWorker } from "./processors/analytics-processor";
 import { startDLQWorker } from "./processors/dlq-processor";
 import {
@@ -149,11 +153,18 @@ const workers = [
   startScheduleWorker(),
   startAnalyticsWorker(),
   startDLQWorker(),
+  startCronWorker(),
 ];
 
 logger.info(
-  "BullMQ workers started (messaging, campaigns, schedule, analytics, dlq)",
+  "BullMQ workers started (messaging, campaigns, schedule, analytics, dlq, cron)",
 );
+
+// F11.E24: register cron schedules. Idempotent — repeatable jobs are
+// keyed by jobId so re-running on boot doesn't duplicate.
+void registerCronSchedules().catch((err) => {
+  logger.error({ err: (err as Error).message }, "registerCronSchedules failed");
+});
 // Cache invalidation handlers
 subscribe(EVENTS.TENANT_PLAN_CHANGED, async (event) => {
   const p = event.payload as { tenantId: string };

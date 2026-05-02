@@ -6,7 +6,8 @@
     "paths": {
       "@wbc/db": ["../../packages/db/src"],
       "@wbc/shared": ["../../packages/shared/src"],
-      "@wbc/shared/*": ["../../packages/shared/src/*"]
+      "@wbc/shared/*": ["../../packages/shared/src/*"],
+      "@wbc/business/*": ["../../packages/business/*"]
     }
   },
   "include": ["src/**/*", "../../packages/business/**/*.ts"]

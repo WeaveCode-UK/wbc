@@ -83,13 +83,20 @@ export default function ClientsPage() {
 
   return (
     <div className="p-3 sm:p-6 space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2">
         <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
           {t("title")}
         </h1>
-        <Button type="button" size="sm">
-          {t("add_client")}
-        </Button>
+        <div className="flex gap-2">
+          <Link href="/clients/import">
+            <Button type="button" size="sm" variant="secondary">
+              {t("import")}
+            </Button>
+          </Link>
+          <Button type="button" size="sm">
+            {t("add_client")}
+          </Button>
+        </div>
       </div>
 
       <SearchBar

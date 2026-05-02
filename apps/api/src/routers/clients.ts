@@ -11,6 +11,7 @@ import { PrismaTagRepository } from "@wbc/business/clients/adapters/prisma-tag-r
 import { createClient } from "@wbc/business/clients/use-cases/create-client";
 import { updateClient } from "@wbc/business/clients/use-cases/update-client";
 import { bulkUpdateClients } from "@wbc/business/clients/use-cases/bulk-update-clients";
+import { importClients } from "@wbc/business/clients/use-cases/import-clients";
 import { deleteClient } from "@wbc/business/clients/use-cases/delete-client";
 import { listClients } from "@wbc/business/clients/use-cases/list-clients";
 import { getClientById } from "@wbc/business/clients/use-cases/get-client-by-id";
@@ -114,6 +115,31 @@ export const clientsRouter = router({
   delete: createDeleteProcedure((tenantId, id) =>
     deleteClient(tenantId, id, clientRepo),
   ),
+
+  // F11.E07: import contacts from a parsed spreadsheet. The web parses
+  // xlsx/csv client-side via the `xlsx` lib and ships JSON rows.
+  importFromRows: protectedProcedure
+    .input(
+      z.object({
+        rows: z
+          .array(
+            z.object({
+              name: z.string().min(1),
+              phone: z.string().min(1),
+              email: z.string().optional(),
+              birthday: z.string().optional(),
+              notes: z.string().optional(),
+            }),
+          )
+          .max(5000),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return importClients(
+        { tenantId: ctx.tenant.tenantId, rows: input.rows },
+        clientRepo,
+      );
+    }),
 
   // F11.E07: bulk update for the /clients page bulk-action bar.
   bulkUpdate: protectedProcedure

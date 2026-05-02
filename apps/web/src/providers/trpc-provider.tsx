@@ -16,7 +16,7 @@ import { useState, type ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink } from "@trpc/client";
 import superjson from "superjson";
-import { trpc } from "../lib/trpc";
+import { trpc } from "@/lib/trpc";
 
 function getBaseUrl(): string {
   if (typeof window !== "undefined") return "";
@@ -49,9 +49,14 @@ export function TrpcProvider({ children }: { children: ReactNode }) {
     }),
   );
 
+  // tRPC v11: QueryClientProvider must wrap trpc.Provider — the trpc hooks
+  // call useQueryClient internally, so the QueryClient context has to be
+  // visible at the trpc layer's render boundary.
   return (
-    <trpc.Provider client={trpcClient} queryClient={queryClient}>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-    </trpc.Provider>
+    <QueryClientProvider client={queryClient}>
+      <trpc.Provider client={trpcClient} queryClient={queryClient}>
+        {children}
+      </trpc.Provider>
+    </QueryClientProvider>
   );
 }

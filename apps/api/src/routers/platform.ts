@@ -32,6 +32,10 @@ import {
   svgToDataUrl,
   type PromoTemplate,
 } from "@wbc/business/platform/use-cases/generate-promo-card";
+import {
+  registerPushToken,
+  removePushToken,
+} from "@wbc/business/platform/use-cases/manage-push-devices";
 
 const platformRepo = new PrismaPlatformRepository();
 
@@ -150,5 +154,30 @@ export const platformRouter = router({
         template: input.template as PromoTemplate,
       });
       return { svg, dataUrl: svgToDataUrl(svg) };
+    }),
+
+  // F11.E18: Expo push token registry. Mobile registers on each
+  // login + cold-start. Idempotent via upsert.
+  registerPushToken: protectedProcedure
+    .input(
+      z.object({
+        token: z.string().min(1),
+        platform: z.enum(["ios", "android"]),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return registerPushToken({
+        tenantId: ctx.tenant.tenantId,
+        accountId: ctx.tenant.userId,
+        token: input.token,
+        platform: input.platform,
+      });
+    }),
+
+  unregisterPushToken: protectedProcedure
+    .input(z.object({ token: z.string().min(1) }))
+    .mutation(async ({ input }) => {
+      await removePushToken(input.token);
+      return { success: true };
     }),
 });

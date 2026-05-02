@@ -1475,6 +1475,22 @@ model LoyaltyTransaction {
   @@map("loyalty_transactions")
 }
 
+// F11.E18: device push token registry. Mobile app registers (or
+// refreshes) its Expo Push token here; the worker pulls every token
+// for a tenant when fanning out a pushable Notification.
+model PushDevice {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId  String   @db.Uuid
+  accountId String?  @db.Uuid
+  token     String   @unique
+  platform  String // "ios" | "android"
+  lastSeen  DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+  @@map("push_devices")
+}
+
 // F11.E10: NPS post-delivery survey. The DELIVERY_COMPLETED handler
 // will create one row per delivered sale with a unique token; the
 // consumer fills the public form at /nps/[token] and the response

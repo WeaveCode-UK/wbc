@@ -3,8 +3,8 @@
 > **Fase:** 11 — Fechamento de Gaps (Gap Closure)
 > **Origem:** `Fase 3/WBC-Fase3-Auditoria-e-Plano-v1.0.md`
 > **Depende de:** Fase 10 completa (`v2.0.0-fase-10`)
-> **Total de épicos:** 23 (F11.E01 a F11.E22 + F11.E20.5) + 1 checkpoint final (F11.E23)
-> **Estimativa global:** ~190 tasks
+> **Total de épicos:** 30 (F11.E01–E30 + F11.E20.5) + 1 checkpoint final (F11.E23 build-complete; F11.E30 production-live)
+> **Estimativa global:** ~270 tasks
 >
 > **Histórico de revisões:**
 >
@@ -16,6 +16,13 @@
 >   neles, e antes do Lighthouse (E21) faz sentido um pass dedicado pra
 >   fechar os 4 críticos. Numeração 20.5 escolhida pra não renumerar
 >   E21–E23 e preservar referências em commits/notas existentes.
+> - **v1.2 (2026-05-02 noite):** F11.E24 a F11.E30 adicionados após o
+>   checkpoint v3.0.0-fase-11 ter exposto que o BUILD_COMPLETE de E23
+>   deixou 7 lacunas que foram marcadas como follow-up nos commits
+>   originais. O usuário pediu explicitamente que essas lacunas fossem
+>   fechadas, não deixadas para trás. F11.E23 permanece como o build-
+>   complete (tag mantida); E24–E30 fecham as lacunas até PRODUCTION_LIVE.
+>
 >   **Tag-alvo:** `v3.0.0-fase-11`
 
 > **ANTES DE EXECUTAR:** Leia `begin/WBC_REGRAS_INVIOLAVEIS.md`. As 16 regras são absolutas:
@@ -509,6 +516,128 @@ F11.E18 → F11.E19 → F11.E20 → **F11.E20.5 (UX polish pass)** → F11.E21 �
 - Atualizar `Fase 3/WBC-Fase3-Auditoria-e-Plano-v1.0.md` marcando os itens fechados
 
 **Deliverable:** Tag `v3.0.0-fase-11` no git; STATE.json reflete BUILD_COMPLETE da fase.
+
+---
+
+### BLOCO G · GAP CLOSURE (inserido em v1.2)
+
+Sete lacunas que F11.E23 marcou como follow-up nos commits originais. Aqui são elevadas a épicos próprios para serem fechadas até PRODUCTION_LIVE.
+
+#### **F11.E24** — BullMQ schedulers para 6 jobs cron
+
+**Depende de:** F11.E11–E13, E18 (procedures manuais já existem)
+**Tasks estimadas:** 8
+**Escopo:** registrar workers BullMQ para os 6 jobs com procedure manual hoje:
+
+- `clients.flagInactive` — daily cron, scan tenants ativos
+- `sales.flagExpiringCashbacks` — daily cron
+- `schedule.buildRestockReminders` — daily cron
+- `schedule.buildDateReminders` — daily cron
+- `platform.refreshUnlockedFeatures` — após mutações (event-driven) ou daily
+- `resetDemoTenant` — daily cron, só para tenants `isDemo=true`
+
+Adicionar processador em `apps/worker/src/processors/` com `Queue.add` agendado por cron string. Jobs idempotentes (use-cases já são).
+
+**Deliverable:** worker container roda os 6 jobs sem chamada manual; dashboard `/api/health` mostra cada queue saudável.
+
+---
+
+#### **F11.E25** — Outbox handlers para SALE_CONFIRMED + push fan-out
+
+**Depende de:** F11.E08 (loyalty), F11.E18 (PushDevice)
+**Tasks estimadas:** 5
+**Escopo:**
+
+- Handler em `apps/worker` que escuta evento `SALE_CONFIRMED` e chama `loyalty.earnFromSale` (1 ponto / R$ 10).
+- Handler que escuta `Notification` criada com `type` cuja categoria é "pushable" e fan-outs para todos os `PushDevice` do tenant via Expo Push API.
+
+**Deliverable:** confirmar uma venda credita pontos sem chamada manual; criar uma Notification dispara push real para cada device registrado.
+
+---
+
+#### **F11.E26** — Procedures faltantes para tabs e funil reais
+
+**Depende de:** F11.E03–E06 (UI plugada)
+**Tasks estimadas:** 6
+**Escopo:**
+
+- `platform.getSubscription` — lê Subscription + planQuota; usado em `/settings/plan`.
+- `campaigns.getById` — single campaign read; usado em `/campaigns/[id]`.
+- `sales.getConversionStats({campaignId})` — agrega `CampaignRecipient` por status; alimenta o FunnelChart com valores reais.
+- `team.listMembers` — lista membros de um Team; usado na tab "members" de `/team`.
+
+Refatorar as 4 páginas correspondentes para consumir os dados reais (substituir hardcoded zero/`null` por valores da query).
+
+**Deliverable:** funil de campanha mostra números reais; tab Plan mostra plano atual; tab Members do `/team` lista membros.
+
+---
+
+#### **F11.E27** — Mobile screens consumindo a camada offline
+
+**Depende de:** F11.E18 (libs offline já existem)
+**Tasks estimadas:** 10
+**Escopo:** refatorar as screens principais do `apps/mobile/` para usar `getDb()` + `enqueueMutation()`:
+
+- `clients-list-screen.tsx` — read SQLite primeiro, fall back para tRPC online
+- `client-profile-screen.tsx` — mesmo padrão
+- `sales-list-screen.tsx`, `new-sale-screen.tsx`
+- `schedule-screen.tsx`, `my-day-screen.tsx`
+- Hook `useOnlineSync()` que dispara `runSyncOnce` na volta da rede (`Network.addNetworkStateListener`)
+- `App.tsx` registra o push token uma vez após login (chama `registerForPushNotifications` + `platform.registerPushToken`)
+
+**Deliverable:** abrir o app sem rede mostra o último estado conhecido; criar cliente offline grava local + enfileira; ao reconectar, drena automaticamente.
+
+---
+
+#### **F11.E28** — UX polish 5–10 (resto do E20.5)
+
+**Depende de:** F11.E20.5
+**Tasks estimadas:** 12
+**Escopo:** os 6 itens deixados em aberto:
+
+5. Estados hover/focus padronizados em ListItem, Button, cards interativos.
+6. Mobile responsivo até 360px (testar todas as page.tsx).
+7. Validação visual inline em todos os forms (react-hook-form + zod resolver).
+8. Loading states completos (mutation in-flight com spinner inline).
+9. Empty states com CTA padronizado (auditoria das ~15 telas).
+10. A11y básica completa — aria-label em todos os icon buttons, label em todos os inputs, tab order em wizards, focus trap em modais.
+
+**Deliverable:** Lighthouse Accessibility ≥ 95 em `/`, `/clients`, `/sales/new`, `/campaigns/new`. Sem warnings do `axe-core` nos golden paths.
+
+---
+
+#### **F11.E29** — Lighthouse measurement real
+
+**Depende de:** F11.E21, F11.E28
+**Tasks estimadas:** 4
+**Escopo:**
+
+- Instalar `lighthouse` CLI local e rodar contra `localhost:3000` autenticado.
+- Capturar relatórios JSON em `.lighthouse-reports/` (gitignored).
+- Documentar números no `docs/PERFORMANCE.md` como baseline.
+- Se algum score < 90, abrir issue para o item específico (não bloquear o checkpoint, mas registrar).
+
+**Deliverable:** baseline de 4 scores Lighthouse documentado para `/`, `/clients`, `/sales/new`, `/campaigns/new`.
+
+---
+
+#### **F11.E30** — Deploy real staging + production
+
+**Depende de:** F11.E22 (runbook), F11.E24–E29
+**Tasks estimadas:** 10
+**Restrição:** este épico **não pode ser executado pelo agente** porque depende de credenciais externas (Resend, Mercado Pago, WhatsApp Business, Sentry DSN, DNS, infraestrutura). O dono do projeto executa seguindo `docs/DEPLOY.md` + `docs/SMOKE_CHECKLIST.md`.
+
+**Escopo (humano):**
+
+- Provisionar VM/cluster (DigitalOcean, AWS, similar).
+- DNS apontando para staging.wbc.com.br + wbc.com.br.
+- Preencher `deploy/staging.env` e `deploy/production.env` com credenciais reais.
+- Rodar `./deploy/deploy.sh first-run` em staging.
+- Smoke completo (`docs/SMOKE_CHECKLIST.md`).
+- Promover para produção.
+- Atualizar `STATE.json` `status: PRODUCTION_LIVE`.
+
+**Deliverable:** app rodando em produção; tag `v3.0.0-fase-11` validada por smoke real.
 
 ---
 

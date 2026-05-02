@@ -49,7 +49,7 @@ describe("bulkUpdateClients", () => {
       repo,
     );
     expect(update).toHaveBeenCalledOnce();
-    const passedIds = update.mock.calls[0][1] as string[];
+    const passedIds = update.mock.calls[0]?.[1] as string[];
     expect(passedIds).toHaveLength(200);
   });
 

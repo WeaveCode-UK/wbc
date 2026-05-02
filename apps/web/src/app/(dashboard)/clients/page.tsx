@@ -16,6 +16,7 @@ import {
   SegmentedControl,
 } from "@wbc/ui";
 import { trpc } from "@/lib/trpc";
+import { AddClientModal } from "@/components/add-client-modal";
 
 type Segment = "all" | "leads";
 type BulkClassification = "A" | "B" | "C";
@@ -28,6 +29,7 @@ export default function ClientsPage() {
   const [tagId, setTagId] = useState<string | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkNotice, setBulkNotice] = useState<string | null>(null);
+  const [addOpen, setAddOpen] = useState(false);
 
   const list = trpc.clients.list.useQuery({
     page: 1,
@@ -98,11 +100,13 @@ export default function ClientsPage() {
               {t("import")}
             </Button>
           </Link>
-          <Button type="button" size="sm">
+          <Button type="button" size="sm" onClick={() => setAddOpen(true)}>
             {t("add_client")}
           </Button>
         </div>
       </div>
+
+      <AddClientModal open={addOpen} onClose={() => setAddOpen(false)} />
 
       <SearchBar
         value={search}
@@ -185,7 +189,7 @@ export default function ClientsPage() {
             title={t("no_clients")}
             description={t("no_clients_hint")}
             action={
-              <Button type="button" size="sm">
+              <Button type="button" size="sm" onClick={() => setAddOpen(true)}>
                 {t("add_client")}
               </Button>
             }

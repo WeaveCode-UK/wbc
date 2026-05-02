@@ -89,7 +89,7 @@ describe("createRemarketingCampaign", () => {
       repo,
     );
     const passedRecipients = (repo.create as ReturnType<typeof vi.fn>).mock
-      .calls[0][0].recipientIds as string[];
+      .calls[0]?.[0].recipientIds as string[];
     expect(passedRecipients).toEqual(["client-a"]);
   });
 

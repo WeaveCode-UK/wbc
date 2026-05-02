@@ -1,5 +1,6 @@
 "use client";
 
+import { signOut } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { Badge } from "@wbc/ui";
 import { Sidebar } from "../../components/sidebar";
@@ -50,6 +51,14 @@ export default function DashboardLayout({
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-primary)] text-white text-caption font-medium">
               MC
             </div>
+            <button
+              type="button"
+              onClick={() => signOut({ callbackUrl: "/login" })}
+              aria-label="Sair"
+              className="text-caption text-[var(--color-text-tertiary)] hover:text-[var(--color-danger-text)] transition-colors px-2 py-1 rounded-md hover:bg-[var(--color-bg-secondary)]"
+            >
+              Sair
+            </button>
           </div>
         </header>
         <main className="flex-1 pb-16 md:pb-0 overflow-y-auto">

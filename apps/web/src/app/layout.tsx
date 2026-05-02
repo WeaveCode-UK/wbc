@@ -7,6 +7,7 @@ import "../styles/themes.css";
 import { ThemeProvider } from "../providers/theme-provider";
 import { SessionProvider } from "../providers/session-provider";
 import { TrpcProvider } from "../providers/trpc-provider";
+import { ToastProvider } from "../providers/toast-provider";
 
 const sora = Sora({ subsets: ["latin"], weight: ["400", "500"] });
 
@@ -29,7 +30,9 @@ export default async function RootLayout({
         <SessionProvider>
           <TrpcProvider>
             <NextIntlClientProvider locale={locale} messages={messages}>
-              <ThemeProvider>{children}</ThemeProvider>
+              <ThemeProvider>
+                <ToastProvider>{children}</ToastProvider>
+              </ThemeProvider>
             </NextIntlClientProvider>
           </TrpcProvider>
         </SessionProvider>

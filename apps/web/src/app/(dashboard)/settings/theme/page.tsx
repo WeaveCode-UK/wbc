@@ -1,10 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useEffect, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { ToggleSwitch } from "@wbc/ui";
 import { useTheme } from "../../../../providers/theme-provider";
+
+function writeLocaleCookie(locale: string) {
+  // next-intl reads NEXT_LOCALE on the next server render; reload picks up
+  // the new locale from the cookie via getLocale().
+  document.cookie = `NEXT_LOCALE=${locale}; Max-Age=31536000; Path=/; SameSite=Lax`;
+}
 
 const THEME_OPTIONS = [
   {
@@ -28,8 +34,21 @@ const LANGUAGE_OPTIONS = [
 
 export default function ThemeSettingsPage() {
   const t = useTranslations("platform");
+  const currentLocale = useLocale();
   const { theme, mode, setTheme, toggleMode } = useTheme();
-  const [language, setLanguage] = useState("pt-BR");
+  const [language, setLanguage] = useState(currentLocale);
+
+  useEffect(() => {
+    setLanguage(currentLocale);
+  }, [currentLocale]);
+
+  const onPickLanguage = (next: string) => {
+    setLanguage(next);
+    if (next !== currentLocale) {
+      writeLocaleCookie(next);
+      window.location.reload();
+    }
+  };
 
   return (
     <div className="p-3 sm:p-6 space-y-6">
@@ -124,7 +143,7 @@ export default function ThemeSettingsPage() {
                 type="button"
                 role="radio"
                 aria-checked={checked}
-                onClick={() => setLanguage(opt.id)}
+                onClick={() => onPickLanguage(opt.id)}
                 className={
                   "flex w-full items-center justify-between rounded-md border px-3 py-2 text-left transition-colors " +
                   (checked

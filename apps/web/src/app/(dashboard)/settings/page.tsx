@@ -1,24 +1,57 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { Alert, Button } from "@wbc/ui";
 import { ProfileSettingsForm } from "./_components/profile-settings-form";
+import { trpc } from "@/lib/trpc";
 
 // ACH-017 (partial): Settings becomes tabbed and Profile is the first tab
-// with a real form. Plan, Landing, and Data Export are still stubs and are
-// tracked in docs/UI-SETTINGS-FOLLOWUP.md.
-type SettingsTab = "profile" | "plan" | "landing" | "export";
+// with a real form. Plan tab still depends on platform.getSubscription which
+// is not yet exposed; tracked under F11.E15 in prompts/fase-11.
+type SettingsTab = "profile" | "plan" | "landing" | "export" | "theme";
 
 const TABS: Array<{ id: SettingsTab; key: string }> = [
   { id: "profile", key: "profile" },
   { id: "plan", key: "plan" },
   { id: "landing", key: "landing_page" },
   { id: "export", key: "export_data" },
+  { id: "theme", key: "theme_title" },
 ];
 
 export default function SettingsPage() {
   const t = useTranslations("platform");
   const [active, setActive] = useState<SettingsTab>("profile");
+  const [exportNotice, setExportNotice] = useState<string | null>(null);
+
+  const referral = trpc.platform.getReferralCode.useQuery(undefined, {
+    enabled: false,
+  });
+  const exportMutation = trpc.platform.exportData.useQuery(undefined, {
+    enabled: false,
+  });
+
+  const triggerExport = async () => {
+    setExportNotice(null);
+    try {
+      const result = await exportMutation.refetch();
+      if (result.data) {
+        const blob = new Blob([JSON.stringify(result.data, null, 2)], {
+          type: "application/json",
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `wbc-export-${Date.now()}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        setExportNotice(t("export_data_hint"));
+      }
+    } catch (err) {
+      setExportNotice(err instanceof Error ? err.message : String(err));
+    }
+  };
 
   return (
     <div className="p-3 sm:p-6">
@@ -64,35 +97,87 @@ export default function SettingsPage() {
         {active === "profile" && <ProfileSettingsForm />}
 
         {active === "plan" && (
-          <div className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-6">
+          <div className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-6 space-y-2">
             <h2 className="text-heading-3 text-[var(--color-text-primary)]">
               {t("plan")}
             </h2>
-            <p className="mt-1 text-body-small text-[var(--color-text-tertiary)]">
+            <p className="text-body-small text-[var(--color-text-tertiary)]">
               {t("plan_hint")}
             </p>
           </div>
         )}
 
         {active === "landing" && (
-          <div className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-6">
+          <div className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-6 space-y-3">
             <h2 className="text-heading-3 text-[var(--color-text-primary)]">
               {t("landing_page")}
             </h2>
-            <p className="mt-1 text-body-small text-[var(--color-text-tertiary)]">
+            <p className="text-body-small text-[var(--color-text-tertiary)]">
               {t("landing_page_hint")}
             </p>
+            <Link href="/landing">
+              <Button type="button" size="sm">
+                {t("landing_page")}
+              </Button>
+            </Link>
           </div>
         )}
 
         {active === "export" && (
-          <div className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-6">
+          <div className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-6 space-y-3">
             <h2 className="text-heading-3 text-[var(--color-text-primary)]">
               {t("export_data")}
             </h2>
-            <p className="mt-1 text-body-small text-[var(--color-text-tertiary)]">
+            <p className="text-body-small text-[var(--color-text-tertiary)]">
               {t("export_data_hint")}
             </p>
+            {exportNotice && (
+              <Alert variant={exportMutation.error ? "danger" : "success"}>
+                {exportNotice}
+              </Alert>
+            )}
+            <Button
+              type="button"
+              size="sm"
+              onClick={triggerExport}
+              disabled={exportMutation.isFetching}
+            >
+              {exportMutation.isFetching ? "..." : t("export_data")}
+            </Button>
+            <div className="border-t border-[var(--color-border-tertiary)] pt-3 space-y-1">
+              <p className="text-caption text-[var(--color-text-tertiary)]">
+                Referral
+              </p>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => referral.refetch()}
+                disabled={referral.isFetching}
+              >
+                {referral.data
+                  ? referral.data.code || t("settings")
+                  : referral.isFetching
+                    ? "..."
+                    : t("settings")}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {active === "theme" && (
+          <div className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-6 space-y-3">
+            <h2 className="text-heading-3 text-[var(--color-text-primary)]">
+              {t("theme_title")}
+            </h2>
+            <p className="text-body-small text-[var(--color-text-tertiary)]">
+              {t("theme_subtitle")}
+            </p>
+            <Link href="/settings/theme">
+              <Button type="button" size="sm">
+                {t("theme_title")}
+              </Button>
+            </Link>
           </div>
         )}
       </div>

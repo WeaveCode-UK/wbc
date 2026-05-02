@@ -1,20 +1,67 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Button, Input, ToggleSwitch } from "@wbc/ui";
+import { Alert, Button, Input, ToggleSwitch } from "@wbc/ui";
 import { Label } from "@wbc/ui/components/label";
+import { trpc } from "@/lib/trpc";
+
+interface LandingDoc {
+  isActive: boolean;
+  bio: string | null;
+  philosophy: string | null;
+  photoUrl: string | null;
+  whatsappLink: string | null;
+  slug?: string | null;
+}
 
 export default function LandingPage() {
   const t = useTranslations("landing");
   const tCommon = useTranslations("common");
-  const [active, setActive] = useState(true);
+
+  const landing = trpc.landing.get.useQuery();
+  const utils = trpc.useUtils();
+  const update = trpc.landing.update.useMutation({
+    onSuccess: () => {
+      void utils.landing.get.invalidate();
+      setNotice(tCommon("save"));
+    },
+    onError: (err) => setNotice(err.message),
+  });
+  const toggleActive = trpc.landing.toggleActive.useMutation({
+    onSuccess: () => {
+      void utils.landing.get.invalidate();
+    },
+  });
+
+  const data = landing.data as LandingDoc | null | undefined;
+
   const [bio, setBio] = useState("");
   const [philosophy, setPhilosophy] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
-  const [slug, setSlug] = useState("");
+  const [photoUrl, setPhotoUrl] = useState("");
+  const [notice, setNotice] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (!data) return;
+    setBio(data.bio ?? "");
+    setPhilosophy(data.philosophy ?? "");
+    setWhatsapp(data.whatsappLink ?? "");
+    setPhotoUrl(data.photoUrl ?? "");
+  }, [data]);
+
+  const slug = data?.slug ?? "";
   const publicUrl = slug ? `https://wbc.com.br/${slug}` : "—";
+
+  const onSave = () => {
+    setNotice(null);
+    update.mutate({
+      bio: bio || undefined,
+      philosophy: philosophy || undefined,
+      photoUrl: photoUrl || undefined,
+      whatsappLink: whatsapp || undefined,
+    });
+  };
 
   return (
     <div className="p-3 sm:p-6 space-y-6">
@@ -28,12 +75,20 @@ export default function LandingPage() {
           </p>
         </div>
         <div className="flex flex-col items-end gap-1">
-          <ToggleSwitch checked={active} onChange={setActive} />
+          <ToggleSwitch
+            checked={data?.isActive ?? false}
+            onChange={(value) => toggleActive.mutate({ isActive: value })}
+            disabled={landing.isLoading || toggleActive.isPending}
+          />
           <span className="text-caption text-[var(--color-text-tertiary)]">
             {t("active_label")}
           </span>
         </div>
       </header>
+
+      {notice && (
+        <Alert variant={update.error ? "danger" : "success"}>{notice}</Alert>
+      )}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4 space-y-3">
@@ -45,7 +100,16 @@ export default function LandingPage() {
           </p>
           <div className="aspect-[9/16] w-full max-w-sm rounded-lg bg-gradient-to-br from-[var(--color-primary-surface)] to-[var(--color-bg-secondary)] p-4">
             <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
-              <div className="h-20 w-20 rounded-full bg-[var(--color-bg-primary)]" />
+              <div className="h-20 w-20 rounded-full bg-[var(--color-bg-primary)] overflow-hidden">
+                {photoUrl && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={photoUrl}
+                    alt="preview"
+                    className="h-full w-full object-cover"
+                  />
+                )}
+              </div>
               <p className="text-body text-[var(--color-text-primary)]">
                 {bio || "—"}
               </p>
@@ -63,7 +127,12 @@ export default function LandingPage() {
 
           <div className="space-y-1">
             <Label>{t("field_photo")}</Label>
-            <Input type="file" accept="image/*" />
+            <Input
+              type="url"
+              value={photoUrl}
+              onChange={(e) => setPhotoUrl(e.target.value)}
+              placeholder="https://..."
+            />
             <p className="text-caption text-[var(--color-text-tertiary)]">
               {t("field_photo_hint")}
             </p>
@@ -106,7 +175,7 @@ export default function LandingPage() {
             <Input
               type="text"
               value={slug}
-              onChange={(e) => setSlug(e.target.value)}
+              disabled
               placeholder="renata-cosmeticos"
             />
             <p className="text-caption text-[var(--color-text-tertiary)]">
@@ -119,17 +188,29 @@ export default function LandingPage() {
               {t("share_link")}
             </p>
             <div className="flex gap-2">
-              <Button type="button" variant="secondary" size="sm">
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={() => slug && navigator.clipboard.writeText(publicUrl)}
+                disabled={!slug}
+              >
                 {t("copy_link")}
               </Button>
-              <Button type="button" variant="ghost" size="sm">
+              <Button type="button" variant="ghost" size="sm" disabled={!slug}>
                 {t("share_link_action")}
               </Button>
             </div>
           </div>
 
           <div className="flex justify-end pt-2">
-            <Button type="button">{tCommon("save")}</Button>
+            <Button
+              type="button"
+              onClick={onSave}
+              disabled={update.isPending || landing.isLoading}
+            >
+              {update.isPending ? "..." : tCommon("save")}
+            </Button>
           </div>
         </section>
       </div>

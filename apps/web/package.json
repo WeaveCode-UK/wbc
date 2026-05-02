@@ -19,6 +19,7 @@
     "@trpc/next": "^11.0.0",
     "@trpc/react-query": "^11.0.0",
     "@trpc/server": "^11.0.0",
+    "@wbc/api": "workspace:*",
     "@wbc/db": "workspace:*",
     "@wbc/i18n": "workspace:*",
     "@wbc/shared": "workspace:*",

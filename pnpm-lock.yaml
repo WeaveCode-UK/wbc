@@ -241,6 +241,9 @@ importers:
       '@trpc/server':
         specifier: ^11.0.0
         version: 11.16.0(typescript@5.9.3)
+      '@wbc/api':
+        specifier: workspace:*
+        version: link:../api
       '@wbc/db':
         specifier: workspace:*
         version: link:../../packages/db

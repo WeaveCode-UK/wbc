@@ -1474,3 +1474,24 @@ model LoyaltyTransaction {
   @@index([expiresAt])
   @@map("loyalty_transactions")
 }
+
+// F11.E10: NPS post-delivery survey. The DELIVERY_COMPLETED handler
+// will create one row per delivered sale with a unique token; the
+// consumer fills the public form at /nps/[token] and the response
+// lands back here. Score follows the classic 0-10 NPS scale
+// (0-6 detractor, 7-8 passive, 9-10 promoter).
+model NpsSurvey {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tenantId    String    @db.Uuid
+  saleId      String?   @db.Uuid
+  clientId    String    @db.Uuid
+  token       String    @unique
+  score       Int?
+  comment     String?
+  sentAt      DateTime  @default(now())
+  respondedAt DateTime?
+
+  @@index([tenantId, sentAt])
+  @@index([tenantId, score])
+  @@map("nps_surveys")
+}

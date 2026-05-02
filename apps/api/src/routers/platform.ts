@@ -4,8 +4,10 @@ import { prisma } from "@wbc/db";
 import {
   router,
   protectedProcedure,
+  publicProcedure,
   roleProtectedProcedure,
 } from "../trpc/trpc";
+import { uuidSchema } from "@wbc/validators";
 import { PrismaPlatformRepository } from "@wbc/business/platform/adapters/prisma-platform-repository";
 import {
   getReferralCode,
@@ -18,6 +20,18 @@ import {
   recomputeUnlockedFeatures,
 } from "@wbc/business/platform/use-cases/progressive-onboarding";
 import { resetDemoTenant } from "@wbc/business/platform/use-cases/demo-mode";
+import {
+  createNpsSurvey,
+  getNpsByToken,
+  getNpsStats,
+  listNpsResponses,
+  recordNpsResponse,
+} from "@wbc/business/platform/use-cases/manage-nps";
+import {
+  generatePromoCardSvg,
+  svgToDataUrl,
+  type PromoTemplate,
+} from "@wbc/business/platform/use-cases/generate-promo-card";
 
 const platformRepo = new PrismaPlatformRepository();
 
@@ -74,4 +88,67 @@ export const platformRouter = router({
       });
     }
   }),
+
+  // F11.E10: NPS post-delivery survey. Creation lives behind auth (the
+  // consultora kicks one off manually before the DELIVERY_COMPLETED
+  // outbox handler is wired); response is public so the consumer can
+  // fill the form without logging in.
+  createNps: protectedProcedure
+    .input(z.object({ clientId: uuidSchema, saleId: uuidSchema.optional() }))
+    .mutation(async ({ ctx, input }) => {
+      return createNpsSurvey({
+        tenantId: ctx.tenant.tenantId,
+        clientId: input.clientId,
+        saleId: input.saleId ?? null,
+      });
+    }),
+
+  npsStats: protectedProcedure.query(async ({ ctx }) => {
+    return getNpsStats(ctx.tenant.tenantId);
+  }),
+
+  npsList: protectedProcedure
+    .input(z.object({ limit: z.number().int().min(1).max(500).default(100) }))
+    .query(async ({ ctx, input }) => {
+      return listNpsResponses(ctx.tenant.tenantId, input.limit);
+    }),
+
+  npsLookup: publicProcedure
+    .input(z.object({ token: z.string().min(1) }))
+    .query(async ({ input }) => {
+      return getNpsByToken(input.token);
+    }),
+
+  npsRespond: publicProcedure
+    .input(
+      z.object({
+        token: z.string().min(1),
+        score: z.number().int().min(0).max(10),
+        comment: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      return recordNpsResponse(input);
+    }),
+
+  // F11.E10: promotional card generator. Returns SVG inline + data URL
+  // so the UI can preview, copy and save without a CDN. PNG render via
+  // sharp + bucket upload is queued as follow-up.
+  generatePromoCard: protectedProcedure
+    .input(
+      z.object({
+        template: z.enum(["minimal", "bold", "festive", "elegant"]),
+        title: z.string().min(1).max(80),
+        price: z.number().positive().optional(),
+        brand: z.string().optional(),
+        callToAction: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const svg = generatePromoCardSvg({
+        ...input,
+        template: input.template as PromoTemplate,
+      });
+      return { svg, dataUrl: svgToDataUrl(svg) };
+    }),
 });

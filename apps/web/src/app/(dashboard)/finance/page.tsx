@@ -29,6 +29,7 @@ export default function FinancePage() {
   const dashboard = trpc.finance.getDashboard.useQuery({});
   const expenses = trpc.finance.listExpenses.useQuery({ page: 1, limit: 20 });
   const receivables = trpc.sales.getAccountsReceivable.useQuery({});
+  const nps = trpc.platform.npsStats.useQuery();
 
   const dashData = dashboard.data;
   const expensesData = expenses.data?.data ?? [];
@@ -63,6 +64,38 @@ export default function FinancePage() {
           value={formatBRL(Number(dashData?.receivables ?? 0))}
         />
       </div>
+
+      {nps.data && nps.data.responded > 0 && (
+        <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-heading-2 text-[var(--color-text-primary)]">
+                NPS
+              </h2>
+              <p className="text-caption text-[var(--color-text-tertiary)]">
+                {nps.data.responded}/{nps.data.total}
+              </p>
+            </div>
+            <div
+              className="text-heading-1"
+              style={{ fontVariantNumeric: "tabular-nums" }}
+            >
+              {nps.data.npsScore}
+            </div>
+          </div>
+          <div className="mt-3 flex gap-2 text-caption">
+            <span className="rounded-md bg-[var(--color-success-bg)] px-2 py-1 text-[var(--color-success-text)]">
+              👍 {nps.data.promoters}
+            </span>
+            <span className="rounded-md bg-[var(--color-bg-secondary)] px-2 py-1 text-[var(--color-text-secondary)]">
+              😐 {nps.data.passives}
+            </span>
+            <span className="rounded-md bg-[var(--color-danger-bg)] px-2 py-1 text-[var(--color-danger-text)]">
+              👎 {nps.data.detractors}
+            </span>
+          </div>
+        </section>
+      )}
 
       <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-3 sm:p-4">
         <h2 className="text-heading-2 text-[var(--color-text-primary)]">

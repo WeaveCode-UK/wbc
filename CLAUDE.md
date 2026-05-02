@@ -57,6 +57,19 @@ Terminou uma fase → checkpoint → próxima fase. SEM PAUSA. SEM PERGUNTA. SEM
 - Use-cases NUNCA instanciam adapters diretamente — recebem via construtor a partir da
   composition root (`apps/api/src/composition-root.ts`, introduzido pelo ACH-003).
 
+### Auth no apps/web — split Edge/Node (F11.E02)
+
+- `apps/web/src/lib/auth.config.ts` é o config completo (Node-only). Importa Redis,
+  bcrypt, otplib, `@wbc/shared` (que usa `node:crypto`). Use-o em route handlers,
+  server components e qualquer código que rode em Node runtime.
+- `apps/web/src/lib/auth.config.edge.ts` é o config minimal Edge-safe.
+  **NÃO importa nada Node** (sem Redis, bcrypt, otplib, `@wbc/shared`). Tem
+  `providers: []` e apenas `session.strategy=jwt` + cookies + callback de session.
+- `apps/web/src/middleware.ts` importa `auth` de `@/lib/auth.edge` (que usa o config
+  Edge). Importar de `@/lib/auth` quebra o middleware em Edge runtime.
+- Ambos os configs compartilham o mesmo `AUTH_SECRET` e o mesmo cookie shape, então
+  o JWT assinado pelo Node decodifica corretamente no Edge.
+
 ## Stack
 
 TypeScript, Next.js 15, tRPC 11, Prisma, PostgreSQL, Redis, BullMQ,

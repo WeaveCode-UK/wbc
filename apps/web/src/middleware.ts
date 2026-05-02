@@ -1,4 +1,7 @@
-import { auth } from "@/lib/auth";
+// F11.E02 — Middleware imports `auth` from the EDGE-safe NextAuth instance.
+// Importing from `@/lib/auth` would pull Redis/bcrypt/crypto and break in
+// Edge runtime. See `auth.config.edge.ts` for the boundary.
+import { auth } from "@/lib/auth.edge";
 import { NextResponse, type NextRequest } from "next/server";
 
 const publicPaths = [
@@ -125,7 +128,7 @@ export default auth((req) => {
   if (user?.needsWorkspaceSelection && pathname !== "/workspace")
     return NextResponse.redirect(new URL("/workspace", req.url));
   if (pathname === "/login" || pathname === "/register")
-    return NextResponse.redirect(new URL("/dashboard", req.url));
+    return NextResponse.redirect(new URL("/", req.url));
 
   return applyCspHeaders(req);
 });

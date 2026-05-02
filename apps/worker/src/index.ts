@@ -53,6 +53,10 @@ import { processOutbox } from "./processors/outbox-processor";
 import { registerInventoryEventHandlers } from "../../../packages/business/inventory/adapters/sale-confirmed-handler";
 import { registerPostSaleEventHandler } from "../../../packages/business/messaging/use-cases/post-sale-flow";
 import { registerNotificationEventHandlers } from "../../../packages/business/schedule/use-cases/notifications";
+import {
+  registerLoyaltyHandler,
+  registerNotificationPushHandler,
+} from "./processors/event-handlers";
 import { PrismaNotificationRepository } from "../../../packages/business/schedule/adapters/prisma-schedule-repository";
 import { PrismaPostSaleFlowRepository } from "../../../packages/business/messaging/adapters/prisma-messaging-repository";
 import { startMessagingWorker } from "./processors/messaging-processor";
@@ -111,6 +115,9 @@ assertOutboxReady();
 registerInventoryEventHandlers();
 registerPostSaleEventHandler(new PrismaPostSaleFlowRepository());
 registerNotificationEventHandlers(new PrismaNotificationRepository());
+// F11.E25: SALE_CONFIRMED → loyalty earn; NOTIFICATION_CREATED → Expo push fan-out.
+registerLoyaltyHandler();
+registerNotificationPushHandler();
 
 logger.info("WBC Worker starting...");
 logger.info("Domain event handlers registered");

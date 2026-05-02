@@ -77,6 +77,11 @@ export const EVENTS = {
   AI_COST_WARNING: "finops.ai_cost_warning",
   AI_COST_BLOCKED: "finops.ai_cost_blocked",
   MESSAGE_BILLED: "finops.message_billed",
+
+  // F11.E25: notification fan-out. Emitted by createPushableNotification
+  // in business/schedule/use-cases/notification-fanout.ts; consumed by
+  // the worker's Expo Push handler.
+  NOTIFICATION_CREATED: "notification.created",
 } as const;
 
 export type EventType = (typeof EVENTS)[keyof typeof EVENTS];

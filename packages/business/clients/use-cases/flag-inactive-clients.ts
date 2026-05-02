@@ -1,4 +1,5 @@
 import { prisma } from "@wbc/db";
+import { createPushableNotification } from "@wbc/business/schedule/use-cases/notification-fanout";
 
 // F11.E11: detect clients who have likely gone inactive and create
 // reactivation notifications + opportunities for the consultora.
@@ -88,13 +89,11 @@ export async function flagInactiveClients(
       continue;
     }
 
-    await prisma.notification.create({
-      data: {
-        tenantId,
-        type: REACTIVATION_TYPE,
-        title: `${client.name} pode estar sumindo`,
-        body: `Sem compras há ${Math.floor(daysSince)} dias. Que tal mandar uma mensagem? client:${client.id}`,
-      },
+    await createPushableNotification({
+      tenantId,
+      type: REACTIVATION_TYPE,
+      title: `${client.name} pode estar sumindo`,
+      body: `Sem compras há ${Math.floor(daysSince)} dias. Que tal mandar uma mensagem? client:${client.id}`,
     });
     flagged++;
   }

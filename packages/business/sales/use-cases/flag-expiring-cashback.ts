@@ -1,4 +1,5 @@
 import { prisma } from "@wbc/db";
+import { createPushableNotification } from "@wbc/business/schedule/use-cases/notification-fanout";
 
 // F11.E12: scan for cashback rows that expire within the next N days
 // (default 7) and create a notification per (tenant, client) so the
@@ -87,13 +88,11 @@ export async function flagExpiringCashbacks(
       style: "currency",
       currency: "BRL",
     }).format(info.total);
-    await prisma.notification.create({
-      data: {
-        tenantId,
-        type: NOTIFICATION_TYPE,
-        title: `${info.clientName} — cashback de ${formatted} vai expirar`,
-        body: `${formatted} expira em ${info.expiresAt.toISOString().slice(0, 10)}. client:${clientId}`,
-      },
+    await createPushableNotification({
+      tenantId,
+      type: NOTIFICATION_TYPE,
+      title: `${info.clientName} — cashback de ${formatted} vai expirar`,
+      body: `${formatted} expira em ${info.expiresAt.toISOString().slice(0, 10)}. client:${clientId}`,
     });
     flagged++;
   }

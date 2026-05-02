@@ -2,28 +2,57 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Button, EmptyState, FilterChips, SearchBar } from "@wbc/ui";
+import {
+  Badge,
+  Button,
+  EmptyState,
+  FilterChips,
+  ListSkeleton,
+  SearchBar,
+} from "@wbc/ui";
+import { trpc } from "@/lib/trpc";
 
-const CATEGORY_KEYS = [
-  "category_all",
-  "category_skincare",
-  "category_makeup",
-  "category_haircare",
-  "category_fragrance",
-  "category_body",
-] as const;
+const CATEGORY_OPTIONS: Array<{ value: string; key: string }> = [
+  { value: "", key: "category_all" },
+  { value: "skincare", key: "category_skincare" },
+  { value: "makeup", key: "category_makeup" },
+  { value: "haircare", key: "category_haircare" },
+  { value: "fragrance", key: "category_fragrance" },
+  { value: "body", key: "category_body" },
+];
+
+function formatBRL(value: number): string {
+  return new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  }).format(value);
+}
 
 export default function CatalogPage() {
   const t = useTranslations("catalog");
   const [search, setSearch] = useState("");
-  const [activeCategory, setActiveCategory] = useState<string | null>(
-    "category_all",
-  );
+  const [category, setCategory] = useState<string | null>("");
+  const [brandId, setBrandId] = useState<string | null>(null);
 
-  const categoryChips = CATEGORY_KEYS.map((key) => ({
-    value: key,
-    label: t(key),
+  const products = trpc.catalog.listProducts.useQuery({
+    search: search || undefined,
+    category: category || undefined,
+    brandId: brandId ?? undefined,
+  });
+
+  const brands = trpc.catalog.listBrands.useQuery();
+
+  const categoryChips = CATEGORY_OPTIONS.map((opt) => ({
+    value: opt.value,
+    label: t(opt.key),
   }));
+
+  const brandChips = (brands.data ?? []).map((b) => ({
+    value: b.id,
+    label: b.name,
+  }));
+
+  const data = products.data ?? [];
 
   return (
     <div className="p-3 sm:p-6 space-y-4">
@@ -44,22 +73,55 @@ export default function CatalogPage() {
       <SearchBar
         value={search}
         onChange={(e) => setSearch(e.target.value)}
+        onClear={() => setSearch("")}
         placeholder={t("search_placeholder")}
       />
 
+      {brandChips.length > 0 && (
+        <FilterChips
+          chips={brandChips}
+          selected={brandId}
+          onChange={setBrandId}
+        />
+      )}
+
       <FilterChips
         chips={categoryChips}
-        selected={activeCategory}
-        onChange={setActiveCategory}
+        selected={category}
+        onChange={setCategory}
       />
 
-      <div className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)]">
-        <EmptyState
-          icon="🛍️"
-          title={t("no_products")}
-          description={t("no_products_hint")}
-        />
-      </div>
+      {products.isLoading && <ListSkeleton count={6} variant="card" />}
+
+      {!products.isLoading && data.length === 0 && (
+        <div className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)]">
+          <EmptyState
+            icon="🛍️"
+            title={t("no_products")}
+            description={t("no_products_hint")}
+          />
+        </div>
+      )}
+
+      {!products.isLoading && data.length > 0 && (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          {data.map((p) => (
+            <div
+              key={p.id}
+              className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-3 space-y-2"
+            >
+              <div className="aspect-square w-full rounded-md bg-[var(--color-bg-secondary)]" />
+              <p className="text-body-small font-medium text-[var(--color-text-primary)] truncate">
+                {p.name}
+              </p>
+              {p.category && <Badge variant="neutral">{p.category}</Badge>}
+              <p className="text-body-small text-[var(--color-text-primary)]">
+                {formatBRL(Number(p.price))}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

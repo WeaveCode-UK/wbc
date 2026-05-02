@@ -8,6 +8,7 @@ import { ThemeProvider } from "../providers/theme-provider";
 import { SessionProvider } from "../providers/session-provider";
 import { TrpcProvider } from "../providers/trpc-provider";
 import { ToastProvider } from "../providers/toast-provider";
+import { WebVitalsClient } from "../components/web-vitals-client";
 
 const sora = Sora({ subsets: ["latin"], weight: ["400", "500"] });
 
@@ -31,7 +32,10 @@ export default async function RootLayout({
           <TrpcProvider>
             <NextIntlClientProvider locale={locale} messages={messages}>
               <ThemeProvider>
-                <ToastProvider>{children}</ToastProvider>
+                <ToastProvider>
+                  <WebVitalsClient />
+                  {children}
+                </ToastProvider>
               </ThemeProvider>
             </NextIntlClientProvider>
           </TrpcProvider>

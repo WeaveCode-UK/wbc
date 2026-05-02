@@ -29,8 +29,8 @@ async function loadVitals(): Promise<{
   onTTFB: (cb: (m: VitalMetric) => void) => void;
 } | null> {
   try {
-    // Dynamic import so the bundle doesn't hard-require the dep.
-    // @ts-expect-error — package is optional; install docs in README.
+    // F11.E21: web-vitals is now an installed dep but kept behind a
+    // dynamic import so a future removal still degrades gracefully.
     return (await import("web-vitals")) as unknown as Awaited<
       ReturnType<typeof loadVitals>
     >;

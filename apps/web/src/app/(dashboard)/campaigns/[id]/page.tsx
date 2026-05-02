@@ -1,11 +1,20 @@
 "use client";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Alert, Button, FunnelChart, MetricCard } from "@wbc/ui";
+import { Alert, Button, MetricCard } from "@wbc/ui";
 import { trpc } from "@/lib/trpc";
+
+// F11.E21: FunnelChart is the heaviest UI primitive in the bundle
+// (custom SVG + animation logic). Only this single page renders it,
+// so loading it on demand keeps it out of the shared chunks.
+const FunnelChart = dynamic(
+  () => import("@wbc/ui").then((m) => ({ default: m.FunnelChart })),
+  { ssr: false },
+);
 
 type Segment = "NO_RECEIVE" | "NO_VIEW" | "NO_RESPONSE";
 

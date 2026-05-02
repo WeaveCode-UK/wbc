@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import {
+  Alert,
   Avatar,
   Badge,
   Button,
@@ -17,12 +18,16 @@ import {
 import { trpc } from "@/lib/trpc";
 
 type Segment = "all" | "leads";
+type BulkClassification = "A" | "B" | "C";
 
 export default function ClientsPage() {
   const t = useTranslations("clients");
+  const tCommon = useTranslations("common");
   const [search, setSearch] = useState("");
   const [segment, setSegment] = useState<Segment>("all");
   const [tagId, setTagId] = useState<string | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkNotice, setBulkNotice] = useState<string | null>(null);
 
   const list = trpc.clients.list.useQuery({
     page: 1,
@@ -33,6 +38,42 @@ export default function ClientsPage() {
   });
 
   const tags = trpc.clients.listTags.useQuery();
+  const utils = trpc.useUtils();
+  const bulkUpdate = trpc.clients.bulkUpdate.useMutation({
+    onSuccess: (result) => {
+      setBulkNotice(`${result.count}`);
+      setSelected(new Set());
+      void utils.clients.list.invalidate();
+    },
+    onError: (err) => setBulkNotice(err.message),
+  });
+
+  const toggleSelected = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const applyClassification = (classification: BulkClassification) => {
+    if (selected.size === 0) return;
+    setBulkNotice(null);
+    bulkUpdate.mutate({
+      ids: Array.from(selected),
+      data: { classification },
+    });
+  };
+
+  const applyActive = (isActive: boolean) => {
+    if (selected.size === 0) return;
+    setBulkNotice(null);
+    bulkUpdate.mutate({
+      ids: Array.from(selected),
+      data: { isActive },
+    });
+  };
 
   const tagChips = (tags.data ?? []).map((tag) => ({
     value: tag.id,
@@ -71,6 +112,58 @@ export default function ClientsPage() {
         <FilterChips chips={tagChips} selected={tagId} onChange={setTagId} />
       )}
 
+      {selected.size > 0 && (
+        <div className="rounded-lg border border-[var(--color-primary)] bg-[var(--color-primary-surface)] p-3 flex flex-wrap gap-2 items-center">
+          <span className="text-body-small text-[var(--color-primary)] mr-auto">
+            {selected.size}
+          </span>
+          {(["A", "B", "C"] as const).map((c) => (
+            <Button
+              key={c}
+              type="button"
+              size="sm"
+              variant="secondary"
+              onClick={() => applyClassification(c)}
+              disabled={bulkUpdate.isPending}
+            >
+              {t("classification")} {c}
+            </Button>
+          ))}
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            onClick={() => applyActive(true)}
+            disabled={bulkUpdate.isPending}
+          >
+            ✓
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            onClick={() => applyActive(false)}
+            disabled={bulkUpdate.isPending}
+          >
+            ✗
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            onClick={() => setSelected(new Set())}
+          >
+            {tCommon("cancel")}
+          </Button>
+        </div>
+      )}
+
+      {bulkNotice && (
+        <Alert variant={bulkUpdate.error ? "danger" : "success"}>
+          {bulkNotice}
+        </Alert>
+      )}
+
       <div className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-2 sm:p-4">
         {list.isLoading && <ListSkeleton count={6} />}
 
@@ -89,33 +182,51 @@ export default function ClientsPage() {
 
         {!list.isLoading &&
           list.data &&
-          list.data.data.map((client) => (
-            <Link key={client.id} href={`/clients/${client.id}`}>
-              <ListItem
-                avatar={
-                  <Avatar
-                    name={client.name}
-                    size="md"
-                    classification={
-                      client.classification as "A" | "B" | "C" | undefined
+          list.data.data.map((client) => {
+            const isSelected = selected.has(client.id);
+            return (
+              <div
+                key={client.id}
+                className={
+                  "flex items-center gap-2 rounded-md " +
+                  (isSelected ? "bg-[var(--color-primary-surface)]" : "")
+                }
+              >
+                <input
+                  type="checkbox"
+                  aria-label={`select ${client.name}`}
+                  checked={isSelected}
+                  onChange={() => toggleSelected(client.id)}
+                  className="ml-2 h-4 w-4 accent-[var(--color-primary)]"
+                />
+                <Link href={`/clients/${client.id}`} className="flex-1">
+                  <ListItem
+                    avatar={
+                      <Avatar
+                        name={client.name}
+                        size="md"
+                        classification={
+                          client.classification as "A" | "B" | "C" | undefined
+                        }
+                      />
+                    }
+                    title={client.name}
+                    subtitle={client.phone}
+                    right={
+                      <div className="flex items-center gap-2">
+                        {client.isLead && (
+                          <Badge variant="info">{t("leads")}</Badge>
+                        )}
+                        <span className="text-caption text-[var(--color-text-tertiary)]">
+                          {client.classification}
+                        </span>
+                      </div>
                     }
                   />
-                }
-                title={client.name}
-                subtitle={client.phone}
-                right={
-                  <div className="flex items-center gap-2">
-                    {client.isLead && (
-                      <Badge variant="info">{t("leads")}</Badge>
-                    )}
-                    <span className="text-caption text-[var(--color-text-tertiary)]">
-                      {client.classification}
-                    </span>
-                  </div>
-                }
-              />
-            </Link>
-          ))}
+                </Link>
+              </div>
+            );
+          })}
       </div>
 
       {list.data?.meta && (

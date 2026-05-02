@@ -44,6 +44,19 @@ export interface ClientRepository {
     >,
   ): Promise<Client>;
   update(tenantId: string, id: string, data: Partial<Client>): Promise<Client>;
+  /**
+   * F11.E07: bulk-update a list of clients at once. Used by the /clients
+   * page bulk-action bar. Implementations MUST scope the WHERE by both
+   * tenantId AND id IN (ids) so a hostile id from another tenant is
+   * silently ignored. Returns the count of rows actually touched.
+   */
+  bulkUpdate(
+    tenantId: string,
+    ids: string[],
+    data: Partial<
+      Pick<Client, "name" | "classification" | "isActive" | "isLead">
+    >,
+  ): Promise<{ count: number }>;
   delete(tenantId: string, id: string): Promise<void>;
   count(tenantId: string): Promise<number>;
   listLeads(

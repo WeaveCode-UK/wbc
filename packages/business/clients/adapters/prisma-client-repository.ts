@@ -123,6 +123,23 @@ export class PrismaClientRepository implements ClientRepository {
     await prisma.client.delete({ where: { id } });
   }
 
+  async bulkUpdate(
+    tenantId: string,
+    ids: string[],
+    data: Partial<
+      Pick<Client, "name" | "classification" | "isActive" | "isLead">
+    >,
+  ): Promise<{ count: number }> {
+    if (ids.length === 0) return { count: 0 };
+    // F11.E07: tenantId AND id IN (...) ensures cross-tenant ids fall out
+    // of the WHERE silently. updateMany also bumps version atomically.
+    const result = await prisma.client.updateMany({
+      where: { tenantId, id: { in: ids } },
+      data: { ...data, version: { increment: 1 } },
+    });
+    return { count: result.count };
+  }
+
   async count(tenantId: string): Promise<number> {
     return prisma.client.count({ where: { tenantId } });
   }

@@ -10,6 +10,7 @@ import { PrismaClientRepository } from "@wbc/business/clients/adapters/prisma-cl
 import { PrismaTagRepository } from "@wbc/business/clients/adapters/prisma-tag-repository";
 import { createClient } from "@wbc/business/clients/use-cases/create-client";
 import { updateClient } from "@wbc/business/clients/use-cases/update-client";
+import { bulkUpdateClients } from "@wbc/business/clients/use-cases/bulk-update-clients";
 import { deleteClient } from "@wbc/business/clients/use-cases/delete-client";
 import { listClients } from "@wbc/business/clients/use-cases/list-clients";
 import { getClientById } from "@wbc/business/clients/use-cases/get-client-by-id";
@@ -113,6 +114,30 @@ export const clientsRouter = router({
   delete: createDeleteProcedure((tenantId, id) =>
     deleteClient(tenantId, id, clientRepo),
   ),
+
+  // F11.E07: bulk update for the /clients page bulk-action bar.
+  bulkUpdate: protectedProcedure
+    .input(
+      z.object({
+        ids: z.array(uuidSchema).min(1).max(200),
+        data: z
+          .object({
+            name: z.string().min(1).optional(),
+            classification: z.enum(["A", "B", "C"]).optional(),
+            isActive: z.boolean().optional(),
+            isLead: z.boolean().optional(),
+          })
+          .refine((d) => Object.keys(d).length > 0, {
+            message: "At least one field is required",
+          }),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return bulkUpdateClients(
+        { tenantId: ctx.tenant.tenantId, ids: input.ids, data: input.data },
+        clientRepo,
+      );
+    }),
 
   listTags: protectedProcedure.query(async ({ ctx }) => {
     return listTags(ctx.tenant.tenantId, tagRepo);

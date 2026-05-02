@@ -14,6 +14,12 @@ import { bulkUpdateClients } from "@wbc/business/clients/use-cases/bulk-update-c
 import { importClients } from "@wbc/business/clients/use-cases/import-clients";
 import { selfRegisterClient } from "@wbc/business/clients/use-cases/self-register-client";
 import { flagInactiveClients } from "@wbc/business/clients/use-cases/flag-inactive-clients";
+import { PrismaWishlistRepository } from "@wbc/business/clients/adapters/prisma-wishlist-repository";
+import {
+  addToWishlist,
+  removeFromWishlist,
+  listWishlist,
+} from "@wbc/business/clients/use-cases/manage-wishlist";
 import { PrismaTenantRepository } from "@wbc/business/auth/adapters/prisma-tenant-repository";
 import { deleteClient } from "@wbc/business/clients/use-cases/delete-client";
 import { listClients } from "@wbc/business/clients/use-cases/list-clients";
@@ -48,6 +54,7 @@ import { withCacheInvalidation } from "../lib/cache-invalidation";
 const clientRepo = new PrismaClientRepository();
 const tagRepo = new PrismaTagRepository();
 const tenantRepo = new PrismaTenantRepository();
+const wishlistRepo = new PrismaWishlistRepository();
 
 export const clientsRouter = router({
   list: protectedProcedure
@@ -280,4 +287,28 @@ export const clientsRouter = router({
   flagInactive: protectedProcedure.mutation(async ({ ctx }) => {
     return flagInactiveClients(ctx.tenant.tenantId);
   }),
+
+  // F11.E16: client wishlist procedures.
+  listWishlist: protectedProcedure
+    .input(z.object({ clientId: uuidSchema }))
+    .query(async ({ ctx, input }) => {
+      return listWishlist(ctx.tenant.tenantId, input.clientId, wishlistRepo);
+    }),
+  addToWishlist: protectedProcedure
+    .input(z.object({ clientId: uuidSchema, productId: uuidSchema }))
+    .mutation(async ({ ctx, input }) => {
+      await addToWishlist(
+        input.clientId,
+        input.productId,
+        ctx.tenant.tenantId,
+        wishlistRepo,
+      );
+      return { success: true };
+    }),
+  removeFromWishlist: protectedProcedure
+    .input(z.object({ clientId: uuidSchema, productId: uuidSchema }))
+    .mutation(async ({ input }) => {
+      await removeFromWishlist(input.clientId, input.productId, wishlistRepo);
+      return { success: true };
+    }),
 });

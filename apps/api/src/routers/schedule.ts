@@ -1,7 +1,10 @@
 import { z } from "zod";
 import { router, protectedProcedure } from "../trpc/trpc";
 import { createDeleteProcedure } from "../trpc/crud-helpers";
-import { PrismaScheduleRepository } from "../../../../packages/business/schedule/adapters/prisma-schedule-repository";
+import {
+  PrismaScheduleRepository,
+  PrismaNotificationRepository,
+} from "../../../../packages/business/schedule/adapters/prisma-schedule-repository";
 import {
   listAppointments,
   createAppointment,
@@ -15,9 +18,15 @@ import {
 } from "../../../../packages/business/schedule/use-cases/manage-appointments";
 import { buildRestockReminders } from "@wbc/business/schedule/use-cases/build-restock-reminders";
 import { buildDateReminders } from "@wbc/business/schedule/use-cases/build-date-reminders";
+import {
+  listNotifications,
+  markAsRead,
+  markAllAsRead,
+} from "@wbc/business/schedule/use-cases/notifications";
 import { uuidSchema } from "@wbc/validators";
 
 const scheduleRepo = new PrismaScheduleRepository();
+const notificationRepo = new PrismaNotificationRepository();
 
 export const scheduleRouter = router({
   getMyDay: protectedProcedure.query(async ({ ctx }) => {
@@ -118,5 +127,31 @@ export const scheduleRouter = router({
   }),
   buildDateReminders: protectedProcedure.mutation(async ({ ctx }) => {
     return buildDateReminders(ctx.tenant.tenantId);
+  }),
+
+  // F11.E14: notifications list + read state. Uses the schedule
+  // repository which already implements NotificationRepository.
+  listNotifications: protectedProcedure
+    .input(
+      z.object({
+        page: z.number().int().min(1).default(1),
+        limit: z.number().int().min(1).max(100).default(20),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      return listNotifications(
+        ctx.tenant.tenantId,
+        input.page,
+        input.limit,
+        notificationRepo,
+      );
+    }),
+  markNotificationRead: protectedProcedure
+    .input(z.object({ id: uuidSchema }))
+    .mutation(async ({ ctx, input }) => {
+      return markAsRead(ctx.tenant.tenantId, input.id, notificationRepo);
+    }),
+  markAllNotificationsRead: protectedProcedure.mutation(async ({ ctx }) => {
+    return markAllAsRead(ctx.tenant.tenantId, notificationRepo);
   }),
 });

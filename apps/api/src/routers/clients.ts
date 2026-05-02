@@ -13,6 +13,7 @@ import { updateClient } from "@wbc/business/clients/use-cases/update-client";
 import { bulkUpdateClients } from "@wbc/business/clients/use-cases/bulk-update-clients";
 import { importClients } from "@wbc/business/clients/use-cases/import-clients";
 import { selfRegisterClient } from "@wbc/business/clients/use-cases/self-register-client";
+import { flagInactiveClients } from "@wbc/business/clients/use-cases/flag-inactive-clients";
 import { PrismaTenantRepository } from "@wbc/business/auth/adapters/prisma-tenant-repository";
 import { deleteClient } from "@wbc/business/clients/use-cases/delete-client";
 import { listClients } from "@wbc/business/clients/use-cases/list-clients";
@@ -271,4 +272,12 @@ export const clientsRouter = router({
     .mutation(async ({ ctx, input }) => {
       return convertToClient(ctx.tenant.tenantId, input.clientId, clientRepo);
     }),
+
+  // F11.E11: scan the tenant for clients past their average purchase
+  // cycle and emit reactivation notifications. Idempotent — already
+  // notified clients in the last 30 days are skipped. Cron wiring is
+  // a follow-up; for now the procedure is a manual trigger.
+  flagInactive: protectedProcedure.mutation(async ({ ctx }) => {
+    return flagInactiveClients(ctx.tenant.tenantId);
+  }),
 });

@@ -7,7 +7,10 @@ import { WhatsAppN1Adapter } from "../../../../packages/business/messaging/adapt
 import { WhatsAppN2Adapter } from "../../../../packages/business/messaging/adapters/whatsapp-n2-adapter";
 import { PrismaClientRepository } from "../../../../packages/business/clients/adapters/prisma-client-repository";
 import { personalizeMessage } from "../../../../packages/business/messaging/domain/whatsapp";
+import { generateWhatsappLink } from "@wbc/business/messaging/use-cases/generate-whatsapp-link";
 import type { WhatsAppPort } from "../../../../packages/business/messaging/ports/whatsapp-port";
+import { z } from "zod";
+import { uuidSchema } from "@wbc/validators";
 // ACH-008 apis-integracoes: schema centralised in @wbc/validators.
 import { sendToClientSchema } from "@wbc/validators";
 
@@ -73,4 +76,37 @@ export const messagingRouter = router({
       ctx.tenant.plan === "PRO" && Boolean(process.env.WHATSAPP_API_TOKEN);
     return { connected: isN2Available, plan: ctx.tenant.plan };
   }),
+
+  // F11.E11: build a wa.me deep link for a given client and intent.
+  // The procedure resolves the client phone server-side so the UI
+  // doesn't have to embed phone numbers in URLs.
+  generateLink: protectedProcedure
+    .input(
+      z.object({
+        clientId: uuidSchema,
+        kind: z.enum([
+          "GENERIC",
+          "SALE_CONFIRMED",
+          "PAYMENT_REMINDER",
+          "REPOSITION_REMINDER",
+          "BIRTHDAY",
+          "DELIVERY_DISPATCHED",
+          "REACTIVATION",
+        ]),
+        customMessage: z.string().optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const client = await clientRepo.findById(
+        ctx.tenant.tenantId,
+        input.clientId,
+      );
+      if (!client) throw new Error("Client not found");
+      return generateWhatsappLink({
+        phone: client.phone,
+        clientName: client.name,
+        kind: input.kind,
+        customMessage: input.customMessage,
+      });
+    }),
 });

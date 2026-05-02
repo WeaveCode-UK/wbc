@@ -15,6 +15,7 @@ import {
   Tag,
 } from "@wbc/ui";
 import { trpc } from "@/lib/trpc";
+import { WhatsappButton } from "@/components/whatsapp-button";
 
 const BEAUTY_KEYS = [
   "skin_type",
@@ -125,9 +126,7 @@ export default function ClientProfilePage() {
         aria-label={t("profile_action_more")}
         className="grid grid-cols-2 gap-2 sm:grid-cols-4"
       >
-        <Button type="button" variant="secondary">
-          {t("profile_action_whatsapp")}
-        </Button>
+        <WhatsappButton clientId={c.id} label={t("profile_action_whatsapp")} />
         <Button type="button">{t("profile_action_sell")}</Button>
         <Button type="button" variant="secondary">
           {t("profile_action_schedule")}

@@ -1,9 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Button, FunnelChart, MetricCard } from "@wbc/ui";
+import { Alert, Button, FunnelChart, MetricCard } from "@wbc/ui";
+import { trpc } from "@/lib/trpc";
+
+type Segment = "NO_RECEIVE" | "NO_VIEW" | "NO_RESPONSE";
 
 const STAT_KEYS = [
   "stats_sent",
@@ -14,8 +18,22 @@ const STAT_KEYS = [
 
 export default function CampaignDetailPage() {
   const t = useTranslations("campaigns");
+  const router = useRouter();
   const params = useParams<{ id: string }>();
   const id = params?.id ?? "";
+  const [remarketingError, setRemarketingError] = useState<string | null>(null);
+
+  const remarketing = trpc.campaigns.createRemarketing.useMutation({
+    onSuccess: (created) => {
+      router.push(`/campaigns/${created.id}`);
+    },
+    onError: (err) => setRemarketingError(err.message),
+  });
+
+  const triggerRemarketing = (segment: Segment) => {
+    setRemarketingError(null);
+    remarketing.mutate({ sourceCampaignId: id, segment });
+  };
 
   const funnelSteps = [
     {
@@ -84,13 +102,40 @@ export default function CampaignDetailPage() {
         <MetricCard label={t("result_conversion")} value="—%" />
       </section>
 
-      <section className="rounded-lg border border-[var(--color-warning-text)] bg-[var(--color-warning-bg)] p-4">
+      <section className="rounded-lg border border-[var(--color-warning-text)] bg-[var(--color-warning-bg)] p-4 space-y-2">
         <p className="text-body-small text-[var(--color-warning-text)]">
           {t("remarketing_cta")}
         </p>
-        <Button type="button" variant="secondary" className="mt-3">
-          {t("new_campaign")}
-        </Button>
+        {remarketingError && <Alert variant="danger">{remarketingError}</Alert>}
+        <div className="flex flex-wrap gap-2">
+          <Button
+            type="button"
+            size="sm"
+            variant="secondary"
+            onClick={() => triggerRemarketing("NO_RECEIVE")}
+            disabled={remarketing.isPending}
+          >
+            {t("negative_no_receive")}
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="secondary"
+            onClick={() => triggerRemarketing("NO_VIEW")}
+            disabled={remarketing.isPending}
+          >
+            {t("negative_no_view")}
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="secondary"
+            onClick={() => triggerRemarketing("NO_RESPONSE")}
+            disabled={remarketing.isPending}
+          >
+            {t("negative_no_response")}
+          </Button>
+        </div>
       </section>
 
       <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4">

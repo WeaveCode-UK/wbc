@@ -8,6 +8,7 @@ import {
   cancelCampaign,
   getRecipients,
 } from "../../../../packages/business/campaigns/use-cases/manage-campaigns";
+import { createRemarketingCampaign } from "@wbc/business/campaigns/use-cases/create-remarketing";
 import { paginationSchema, uuidSchema } from "@wbc/validators";
 import { enqueueJob, getCampaignQueue } from "../lib/queues";
 import { idempotentRoute } from "../trpc/idempotency-middleware";
@@ -91,6 +92,25 @@ export const campaignsRouter = router({
         ctx.tenant.tenantId,
         input.id,
         input.status,
+        campaignRepo,
+      );
+    }),
+
+  // F11.E11: clone a campaign filtered to recipients who didn't react.
+  // The segment names mirror the funnel chart on /campaigns/[id].
+  createRemarketing: protectedProcedure
+    .input(
+      z.object({
+        sourceCampaignId: uuidSchema,
+        segment: z.enum(["NO_RECEIVE", "NO_VIEW", "NO_RESPONSE"]),
+        newName: z.string().optional(),
+        newMessage: z.string().optional(),
+        scheduledAt: z.date().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return createRemarketingCampaign(
+        { tenantId: ctx.tenant.tenantId, ...input },
         campaignRepo,
       );
     }),

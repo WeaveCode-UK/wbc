@@ -25,8 +25,12 @@ export const analyticsRouter = router({
     // ACH-015: tenant prefix is now derived inside getTenantScopedRedis()
     // from the AsyncLocalStorage context — the explicit `:${tenantId}`
     // suffix is no longer needed (and would double-scope the key).
+    // F11.E03: explicit Awaited<ReturnType<...>> on cacheGetForTenant so
+    // the inferred procedure output preserves DashboardData; without it
+    // the cache hit path collapsed to `{}` and broke web typing.
+    type Output = Awaited<ReturnType<typeof getAnalyticsDashboard>>;
     const cacheKey = "analytics:dashboard";
-    const cached = await cacheGetForTenant(cacheKey);
+    const cached = await cacheGetForTenant<Output>(cacheKey);
     if (cached) return cached;
     const result = await getAnalyticsDashboard(
       ctx.tenant.tenantId,

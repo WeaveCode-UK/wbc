@@ -192,6 +192,13 @@ export const salesRouter = router({
       return getAccountsReceivable(ctx.tenant.tenantId, input, paymentRepo);
     }),
 
+  // F11.E15: list returns for the /sales/returns page.
+  listReturns: protectedProcedure
+    .input(z.object({ limit: z.number().int().min(1).max(500).default(100) }))
+    .query(async ({ ctx, input }) => {
+      return returnRepo.listByTenant(ctx.tenant.tenantId, input.limit);
+    }),
+
   // F11.E12: scan for cashbacks expiring within `lookaheadDays` and
   // create one notification per client. Manual trigger now; the cron
   // wiring is a follow-up.

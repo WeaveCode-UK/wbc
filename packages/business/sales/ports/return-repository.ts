@@ -16,4 +16,6 @@ export interface ReturnRepository {
   // sum(refunds) <= sale.total. Without it, a single sale could be
   // refunded an unbounded number of times.
   findBySaleId(tenantId: string, saleId: string): Promise<SaleReturn[]>;
+  // F11.E15: tenant-wide list for the /sales/returns page.
+  listByTenant(tenantId: string, limit?: number): Promise<SaleReturn[]>;
 }

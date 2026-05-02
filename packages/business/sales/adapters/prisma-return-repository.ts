@@ -40,4 +40,13 @@ export class PrismaReturnRepository implements ReturnRepository {
     });
     return list.map(mapReturn);
   }
+
+  async listByTenant(tenantId: string, limit = 100): Promise<SaleReturn[]> {
+    const list = await prisma.return.findMany({
+      where: { sale: { tenantId } },
+      orderBy: { createdAt: "desc" },
+      take: limit,
+    });
+    return list.map(mapReturn);
+  }
 }

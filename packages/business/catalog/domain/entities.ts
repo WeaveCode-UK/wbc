@@ -46,5 +46,9 @@ export interface ShowcaseProduct {
 import { randomBytes } from "crypto";
 
 export function generateShareLink(): string {
-  return randomBytes(16).toString("base64url");
+  // F11.E19: contract is 8 lowercase alphanumeric chars (the matching
+  // test asserts both length and `[a-z0-9]+`). Previously we returned
+  // 22 base64url chars which broke the test and produced URL-unsafe
+  // capitals. randomBytes -> hex -> slice(0, 8) keeps it ASCII-safe.
+  return randomBytes(8).toString("hex").slice(0, 8);
 }

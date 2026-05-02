@@ -80,6 +80,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           {error && (
             <p
               id={`${inputId}-error`}
+              role="alert"
               className="text-caption text-[var(--color-danger)]"
             >
               {error}

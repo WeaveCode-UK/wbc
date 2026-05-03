@@ -14,6 +14,9 @@ const publicPaths = [
   // Public NPS response page — the consultora's customer responds via a
   // tokenised URL without an account.
   "/nps",
+  // Public showcase view — /v/<shareLink> is the URL the consultora
+  // pastes into WhatsApp. Token-protected via the unique shareLink.
+  "/v",
   "/privacy-policy",
 ];
 

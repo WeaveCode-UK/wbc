@@ -111,6 +111,12 @@ const sections: NavSection[] = [
         dot: "var(--color-primary)",
       },
       {
+        href: "/showcases",
+        key: "nav_showcases",
+        icon: "🛍️",
+        dot: "var(--color-primary)",
+      },
+      {
         href: "/promo",
         key: "nav_promo",
         icon: "🎨",

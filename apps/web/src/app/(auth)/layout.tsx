@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { HandwrittenIntro } from "@/components/auth/handwritten-intro";
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   // Lock the auth surfaces to the WeaveCode default+dark palette. The
@@ -41,6 +42,16 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
           {"{w}"}
         </span>
         <span className="tracking-tight">WBC</span>
+      </div>
+
+      {/* Handwritten meaning of the WBC acronym — animates on each mount
+       * (every navigation back to /login replays it). Hidden on the
+       * smallest viewports so it doesn't crowd the card. */}
+      <div className="pointer-events-none absolute left-1/2 top-16 z-10 hidden -translate-x-1/2 sm:top-20 sm:block">
+        <HandwrittenIntro
+          text="Weave Beauty Consultant"
+          className="text-[36px] leading-none text-white/85 sm:text-[48px]"
+        />
       </div>
 
       {/* Card — centred over the brand canvas. The elevated blue lifts it

@@ -106,6 +106,24 @@ export default function ClientsImportPage() {
 
   const report = importMutation.data;
 
+  // F11 follow-up: a sample CSV the consultora can download, fill in
+  // and re-upload. Generated client-side as a Blob so we don't carry a
+  // static file in the repo.
+  const downloadSample = () => {
+    const csv =
+      "nome,telefone,email,aniversario,notas\n" +
+      'Ana Silva,+5511999990001,ana@example.com,1990-04-12,"VIP, alergia a fragrância"\n' +
+      "Beatriz Santos,+5511999990002,bia@example.com,,\n" +
+      "Carla Oliveira,+5511999990003,,1988-09-30,Lead via Instagram\n";
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "wbc-clientes-modelo.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="p-3 sm:p-6 space-y-4">
       <Link
@@ -117,28 +135,42 @@ export default function ClientsImportPage() {
 
       <header>
         <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
-          {t("import")}
+          {t("import_title")}
         </h1>
+        <p className="mt-1 text-body-small text-[var(--color-text-secondary)]">
+          {t("import_format_hint")}
+        </p>
       </header>
 
       <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4 space-y-3">
-        <p className="text-body-small text-[var(--color-text-secondary)]">
-          name · phone · email · birthday · notes
-        </p>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={downloadSample}
+        >
+          {t("import_download_sample")}
+        </Button>
         <input
           type="file"
           accept=".xlsx,.xls,.csv"
           onChange={onFile}
-          className="block w-full text-body-small file:mr-3 file:rounded-md file:border-0 file:bg-[var(--color-primary)] file:px-3 file:py-2 file:text-white file:cursor-pointer"
+          aria-label={t("import_title")}
+          className="block w-full text-body-small file:mr-3 file:rounded-md file:border-0 file:bg-[var(--color-primary)] file:px-3 file:py-2 file:text-white file:cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
         />
         {parseError && <Alert variant="danger">{parseError}</Alert>}
       </section>
 
       {rows.length > 0 && !report && (
         <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4 space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="text-heading-2 text-[var(--color-text-primary)]">
-              {rows.length}
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-heading-3 text-[var(--color-text-primary)]">
+              {t(
+                rows.length === 1
+                  ? "import_preview_count_one"
+                  : "import_preview_count_other",
+                { count: rows.length },
+              )}
             </h2>
             <Button
               type="button"
@@ -171,7 +203,7 @@ export default function ClientsImportPage() {
             ))}
             {rows.length > 50 && (
               <p className="mt-2 text-caption text-[var(--color-text-tertiary)]">
-                +{rows.length - 50}
+                {t("import_preview_more", { count: rows.length - 50 })}
               </p>
             )}
           </div>
@@ -180,20 +212,28 @@ export default function ClientsImportPage() {
 
       {report && (
         <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4 space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="text-heading-2 text-[var(--color-text-primary)]">
-              {report.imported} / {report.total}
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-heading-3 text-[var(--color-text-primary)]">
+              {t("import_done_title", {
+                imported: report.imported,
+                total: report.total,
+              })}
             </h2>
             <Link href="/clients">
               <Button type="button" size="sm">
-                {t("title")}
+                {t("import_back_to_list")}
               </Button>
             </Link>
           </div>
           {report.skipped.length > 0 && (
             <>
               <p className="text-caption text-[var(--color-text-tertiary)]">
-                {report.skipped.length}
+                {t(
+                  report.skipped.length === 1
+                    ? "import_skipped_one"
+                    : "import_skipped_other",
+                  { count: report.skipped.length },
+                )}
               </p>
               <div className="max-h-64 overflow-y-auto">
                 {report.skipped.map((s) => (
@@ -208,7 +248,7 @@ export default function ClientsImportPage() {
             </>
           )}
           {report.skipped.length === 0 && (
-            <EmptyState icon="✅" title={tCommon("save")} />
+            <EmptyState icon="✅" title={t("import_success")} />
           )}
         </section>
       )}

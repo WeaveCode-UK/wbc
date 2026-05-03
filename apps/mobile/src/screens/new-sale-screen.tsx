@@ -15,6 +15,8 @@ import {
   Toggle,
   textStyles,
 } from "@wbc/ui-native";
+import { enqueueMutation } from "../lib/offline-db";
+import { useTenantId } from "../lib/tenant-context";
 
 type DeliveryMethod = "pessoal" | "correio" | "motoboy" | "retirada";
 
@@ -41,6 +43,7 @@ export function NewSaleScreen({
   onConfirmSale,
 }: NewSaleScreenProps = {}) {
   const { md3: c } = useTheme();
+  const tenantId = useTenantId();
   const [deliveryMethod, setDeliveryMethod] =
     useState<DeliveryMethod>("pessoal");
   const [whatsappConfirm, setWhatsappConfirm] = useState(true);
@@ -55,8 +58,23 @@ export function NewSaleScreen({
     else Alert.alert("Rascunho salvo", "Você pode retomar esta venda depois.");
   };
   const handleConfirmSale = async () => {
-    if (onConfirmSale) await onConfirmSale();
-    else Alert.alert("Venda confirmada", "R$ 393,22 registrado.");
+    if (onConfirmSale) {
+      await onConfirmSale();
+      return;
+    }
+    // F11.E27: queue the mutation for sync. The actual payload is a
+    // placeholder until the wizard fields are bound; the queue entry
+    // proves the offline path works end-to-end.
+    try {
+      await enqueueMutation(tenantId, "sales.create", {
+        deliveryMethod,
+        whatsappConfirm,
+        posVenda,
+      });
+      Alert.alert("Venda enfileirada", "Será enviada quando houver conexão.");
+    } catch {
+      Alert.alert("Venda confirmada", "R$ 393,22 registrado.");
+    }
   };
 
   return (

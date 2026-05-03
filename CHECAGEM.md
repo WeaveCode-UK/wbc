@@ -758,3 +758,53 @@ Hoje: 7 specs (`health` + 5 golden + handoff). Faltam:
 | T8.3-12 — Resto E2E                   | 3d         | confiança total         |
 
 **Total estimado:** ~22 dias de engenharia para chegar em **suíte completa + coverage 80% + todos os gates verdes**.
+
+---
+
+## Avaliação do estado atual da suíte (2026-05-04)
+
+Snapshot real após os pushes de coverage:
+
+- **1769 testes passando** (era 35), **80.13% statements / 78.05% branches / 79.43% functions / 80.14% lines**, gate em 75%.
+- 27 testes skipped (alguns intencionais — integration gated em Docker; outros são flake conhecido — dlq-processor com mock leak documentado).
+- Suite roda em ~45s. Husky pre-push roda type-check repo-wide.
+
+### O que está sólido (acima da média de mercado)
+
+- **Money path coberto fundo** — createSale / confirmSale / markPaid / cashback / generate-pix / connect-mercadopago — incluindo property-based testing com fast-check. Já coloca o repo acima de muita startup que vai ao ar cobrando.
+- **Multi-tenant em duas camadas:** evil-twin nos use-cases tenant-scoped + AST guard estático (`packages/shared/src/__tests__/tenant-isolation-guard.test.ts`) que pega regressão futura na hora.
+- **Type tests + JSON Schema snapshot do tRPC** — drift entre `apps/api` ↔ `apps/web` ↔ `apps/mobile` não passa silencioso.
+- **Dep-cruiser enforcing hexagonal** + 4 regras adicionais (domain↛prisma, domain↛next-auth, use-cases↛prisma, use-cases↛bullmq).
+- **Pre-push hook `pnpm type-check` repo-wide.**
+- **Schema drift Prisma↔Zod via snapshot.**
+
+### O que ainda preocupa (em ordem de risco real)
+
+> **Importante:** chegar em 90-95% statements _sem_ resolver os 4 itens abaixo é **teatro de qualidade — número sobe, risco real não cai**. Trate esta lista como pré-requisito antes de perseguir os últimos pontos percentuais.
+
+- [ ] **AVAL.1 — Adapters Prisma puros estão fora dos 80%.** A lógica deles ("o WHERE leva tenantId? a transação envolve outbox?") só é testada via integration (Bloco T5), e essa só roda com Docker. **Hoje o `.github/workflows/ci.yml` não habilita Docker** — então o gate efetivo dos repositórios é zero. Habilitar serviços Postgres + Redis no `test` job do CI (ou um job separado `integration-test` com `services:` map igual ao `dr-drill.yml`) muda o jogo. Esforço: 1-2h.
+
+- [ ] **AVAL.2 — 27 testes skipped.** Alguns são pre-existentes (3) ou intencionais (gated em RUN_INTEGRATION = ~22). Mas tem **mocks vazando entre arquivos** (`apps/worker/src/processors/__tests__/dlq-processor.test.ts` — describe.skip flaky concurrent) mascarando problemas reais. **Resolver os skips é mais valioso que perseguir 90%.** Plano: converter `vi.doMock` pra `vi.mock` per-file + isolation worker (já tem `isolate: true` no config — ainda assim vaza). Esforço: 2-3h.
+
+- [ ] **AVAL.3 — E2E é raso.** Tem 3 specs novos (a11y, i18n, multitenant — esse último `fixme'd`) + os goldens. **A maior parte está `fixme` esperando seed multi-tenant determinístico.** Pra um produto que vai cobrar dinheiro de verdade, o teste **"Bob não vê dados de Alice no fluxo real do navegador"** é o que resta entre você e um vazamento por tenant. Plano: estender `packages/db/prisma/seed.ts` pra criar 2 tenants (Alice T-A + Bob T-B) com cliente/venda/cashback cruzados; remover `fixme` em `e2e/multitenant-isolation.spec.ts` e nos 5 E2E pendentes (T8.2-7). Esforço: 1d.
+
+- [ ] **AVAL.4 — Stryker configurado, nunca rodou.** Coverage diz "esse código foi executado" — mutation testing diz "esse código foi _verificado_". Nas funções de dinheiro (sale-domain, cashback, calculators) vale rodar pra detectar assertions fracas. Já existe `pnpm test:mutation` no package.json e `stryker.config.json` apontando pros alvos certos. Esforço: 1-2h pra primeira run + interpretar resultado.
+
+### Sequência recomendada antes de perseguir mais coverage
+
+1. **AVAL.1** (CI com Docker — 1-2h) — destrava o gate efetivo dos adapters/repos.
+2. **AVAL.3** (seed multi-tenant + 2-3 E2E reais — 1d) — destrava o teste real de tenant isolation.
+3. **AVAL.4** (Stryker nas funções de dinheiro — 1-2h) — confirma que os testes que você já tem estão _verificando_, não só _executando_.
+4. **AVAL.2** (resolver skips — 2-3h) — limpa o ruído pra a próxima rodada.
+5. **SÓ DEPOIS** ir atrás dos 20pp restantes de coverage estatístico — e provavelmente vai parar em ~88-92% naturalmente, com os últimos 8-12pp sendo error paths impossíveis de simular ou stubs sem implementação (e.g. anonymizeClient).
+
+### Por que não perseguir 100% diretamente
+
+Os ~20% restantes hoje são, na proporção:
+
+- ~40% adapters Prisma puros — sem seam testável; integration é o caminho certo (AVAL.1).
+- ~25% server components / Next.js boundary (`cookies()`, `headers()`) — testar via E2E (AVAL.3).
+- ~20% error paths raros (timeouts, race conditions específicas) — mutation testing (AVAL.4) revela quais valem.
+- ~15% stubs e código não-implementado (e.g. `anonymizeClient` espera repo seam).
+
+Forçar 100% nesses casos significa: mocks gigantes que não pegam bug real, testes que duplicam o tipo do TS, ou cobertura de stub que vai mudar quando a feature aterrissar. **Nesta fase do projeto, o ROI inverte em ~85%.**

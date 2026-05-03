@@ -74,4 +74,22 @@ export async function listDemoTenants(): Promise<string[]> {
   return rows.map((r) => r.id);
 }
 
+// Bloco 9 do plano: feature #74 — toggle modo demo. Ligar marca o
+// tenant como demo (passa a ser elegível pra reset diário pelo cron
+// reset_demo_tenants); desligar tira o flag e zera demoResetAt.
+// `resetDemoTenant` (acima) refusa rodar em tenant não-demo, então
+// é seguro permitir desativar a qualquer momento.
+export async function setDemoMode(
+  tenantId: string,
+  enabled: boolean,
+): Promise<void> {
+  await prisma.tenant.update({
+    where: { id: tenantId },
+    data: {
+      isDemo: enabled,
+      demoResetAt: enabled ? new Date() : null,
+    },
+  });
+}
+
 export const PRESERVED_TENANT_TABLES = PRESERVED_TABLES;

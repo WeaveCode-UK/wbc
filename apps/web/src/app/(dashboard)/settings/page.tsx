@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
-import { Alert, Button } from "@wbc/ui";
+import { Alert, Button, ToggleSwitch } from "@wbc/ui";
 import { ProfileSettingsForm } from "./_components/profile-settings-form";
 import { trpc } from "@/lib/trpc";
+import { useToast } from "@/providers/toast-provider";
 
 // ACH-017 (partial): Settings becomes tabbed and Profile is the first tab
 // with a real form. Plan tab still depends on platform.getSubscription which
@@ -17,9 +19,15 @@ type SettingsTab =
   | "pix"
   | "career"
   | "export"
-  | "theme";
+  | "theme"
+  | "demo";
 
-const TABS: Array<{ id: SettingsTab; key: string; fallback?: string }> = [
+const TABS: Array<{
+  id: SettingsTab;
+  key: string;
+  fallback?: string;
+  adminOnly?: boolean;
+}> = [
   { id: "profile", key: "profile" },
   { id: "plan", key: "plan" },
   { id: "landing", key: "landing_page" },
@@ -27,12 +35,34 @@ const TABS: Array<{ id: SettingsTab; key: string; fallback?: string }> = [
   { id: "career", key: "career_goals", fallback: "Metas de carreira" },
   { id: "export", key: "export_data" },
   { id: "theme", key: "theme_title" },
+  { id: "demo", key: "demo_mode_title", adminOnly: true },
 ];
 
 export default function SettingsPage() {
   const t = useTranslations("platform");
+  const { data: session } = useSession();
+  const role = (session?.user as { role?: string } | undefined)?.role;
+  const isAdmin = role === "ADMIN";
+  const visibleTabs = TABS.filter((tab) => !tab.adminOnly || isAdmin);
+  const toast = useToast();
   const [active, setActive] = useState<SettingsTab>("profile");
   const [exportNotice, setExportNotice] = useState<string | null>(null);
+
+  const tenantBadge = trpc.platform.getTenantBadge.useQuery(undefined, {
+    refetchOnMount: false,
+  });
+  const utils = trpc.useUtils();
+  const setDemoMode = trpc.platform.setDemoMode.useMutation({
+    onSuccess: () => {
+      void utils.platform.getTenantBadge.invalidate();
+      toast.success(t("demo_mode_saved"));
+    },
+    onError: (err) => toast.error(err.message),
+  });
+  const resetDemo = trpc.platform.resetDemo.useMutation({
+    onSuccess: () => toast.success(t("demo_mode_reset_done")),
+    onError: (err) => toast.error(err.message),
+  });
 
   const referral = trpc.platform.getReferralCode.useQuery(undefined, {
     enabled: false,
@@ -73,7 +103,7 @@ export default function SettingsPage() {
         aria-label={t("settings")}
         className="mt-4 flex gap-1 overflow-x-auto border-b border-[var(--wc-border)]"
       >
-        {TABS.map((tab) => {
+        {visibleTabs.map((tab) => {
           const isActive = active === tab.id;
           return (
             <button
@@ -220,6 +250,56 @@ export default function SettingsPage() {
                 {t("theme_title")}
               </Button>
             </Link>
+          </div>
+        )}
+
+        {active === "demo" && isAdmin && (
+          <div className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-5 sm:p-6 space-y-4">
+            <div>
+              <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
+                {t("demo_mode_title")}
+              </h2>
+              <p className="text-[13px] text-[var(--wc-fg-3)]">
+                {t("demo_mode_subtitle")}
+              </p>
+            </div>
+
+            <div className="flex items-center justify-between rounded-wc-md border border-[var(--wc-border)] p-4">
+              <div>
+                <p className="text-[14px] font-medium text-[var(--wc-fg-1)]">
+                  {t("demo_mode_toggle")}
+                </p>
+                <p className="text-[12px] text-[var(--wc-fg-3)]">
+                  {t("demo_mode_toggle_help")}
+                </p>
+              </div>
+              <ToggleSwitch
+                checked={Boolean(tenantBadge.data?.isDemo)}
+                onChange={(checked) => setDemoMode.mutate({ enabled: checked })}
+              />
+            </div>
+
+            {tenantBadge.data?.isDemo && (
+              <div className="rounded-wc-md border border-[var(--color-warning-text)] bg-[var(--color-warning-bg)] p-4 space-y-3">
+                <p className="text-[13px] text-[var(--color-warning-text)]">
+                  {t("demo_mode_reset_help")}
+                </p>
+                <Button
+                  type="button"
+                  variant="danger"
+                  size="sm"
+                  onClick={() => {
+                    if (confirm(t("demo_mode_reset_confirm"))) {
+                      resetDemo.mutate();
+                    }
+                  }}
+                  loading={resetDemo.isPending}
+                  disabled={resetDemo.isPending}
+                >
+                  {t("demo_mode_reset_button")}
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </div>

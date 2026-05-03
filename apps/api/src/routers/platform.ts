@@ -19,7 +19,10 @@ import {
   getUnlockedFeatures,
   recomputeUnlockedFeatures,
 } from "@wbc/business/platform/use-cases/progressive-onboarding";
-import { resetDemoTenant } from "@wbc/business/platform/use-cases/demo-mode";
+import {
+  resetDemoTenant,
+  setDemoMode,
+} from "@wbc/business/platform/use-cases/demo-mode";
 import {
   createNpsSurvey,
   getNpsByToken,
@@ -92,6 +95,15 @@ export const platformRouter = router({
       });
     }
   }),
+
+  // Bloco 9 do plano: feature #74 — toggle modo demo. Admin only para
+  // alinhamento com `resetDemo`. Liga/desliga isDemo no tenant.
+  setDemoMode: roleProtectedProcedure("ADMIN")
+    .input(z.object({ enabled: z.boolean() }))
+    .mutation(async ({ ctx, input }) => {
+      await setDemoMode(ctx.tenant.tenantId, input.enabled);
+      return { success: true };
+    }),
 
   // F11.E10: NPS post-delivery survey. Creation lives behind auth (the
   // consultora kicks one off manually before the DELIVERY_COMPLETED

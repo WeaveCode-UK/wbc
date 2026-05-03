@@ -1,0 +1,2172 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`tRPC contract — Zod → JSON Schema snapshot > locks the public shape of every exported Zod schema 1`] = `
+{
+  "acceptInviteSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "displayName": {
+        "maxLength": 100,
+        "minLength": 2,
+        "type": "string",
+      },
+      "inviteToken": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "phone": {
+        "type": "string",
+      },
+    },
+    "required": [
+      "inviteToken",
+      "displayName",
+      "phone",
+    ],
+    "type": "object",
+  },
+  "addTeamMemberSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "phone": {
+        "type": "string",
+      },
+    },
+    "required": [
+      "phone",
+    ],
+    "type": "object",
+  },
+  "adjustStockSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "adjustment": {
+        "type": "integer",
+      },
+      "productId": {
+        "format": "uuid",
+        "type": "string",
+      },
+    },
+    "required": [
+      "productId",
+      "adjustment",
+    ],
+    "type": "object",
+  },
+  "approveTaskSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "taskId": {
+        "format": "uuid",
+        "type": "string",
+      },
+    },
+    "required": [
+      "taskId",
+    ],
+    "type": "object",
+  },
+  "avatarUrlSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "format": "uri",
+    "type": "string",
+  },
+  "bulkTagSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "clientIds": {
+        "items": {
+          "format": "uuid",
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "tagId": {
+        "format": "uuid",
+        "type": "string",
+      },
+    },
+    "required": [
+      "clientIds",
+      "tagId",
+    ],
+    "type": "object",
+  },
+  "calculateGoalReverseSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "targetIncome": {
+        "exclusiveMinimum": 0,
+        "type": "number",
+      },
+    },
+    "required": [
+      "targetIncome",
+    ],
+    "type": "object",
+  },
+  "calculateMarginSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "costPrice": {
+        "exclusiveMinimum": 0,
+        "type": "number",
+      },
+      "salePrice": {
+        "exclusiveMinimum": 0,
+        "type": "number",
+      },
+    },
+    "required": [
+      "costPrice",
+      "salePrice",
+    ],
+    "type": "object",
+  },
+  "cancelCampaignSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "id": {
+        "format": "uuid",
+        "type": "string",
+      },
+    },
+    "required": [
+      "id",
+    ],
+    "type": "object",
+  },
+  "cancelInviteSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "inviteId": {
+        "format": "uuid",
+        "type": "string",
+      },
+    },
+    "required": [
+      "inviteId",
+    ],
+    "type": "object",
+  },
+  "cancelOrderSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "id": {
+        "format": "uuid",
+        "type": "string",
+      },
+    },
+    "required": [
+      "id",
+    ],
+    "type": "object",
+  },
+  "cancelSaleSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "id": {
+        "format": "uuid",
+        "type": "string",
+      },
+    },
+    "required": [
+      "id",
+    ],
+    "type": "object",
+  },
+  "changePasswordSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "currentPassword": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "newPassword": {
+        "allOf": [
+          {
+            "pattern": "[a-zA-Z]",
+          },
+          {
+            "pattern": "[0-9]",
+          },
+        ],
+        "maxLength": 128,
+        "minLength": 12,
+        "type": "string",
+      },
+    },
+    "required": [
+      "currentPassword",
+      "newPassword",
+    ],
+    "type": "object",
+  },
+  "completeOnboardingSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "avatar": {
+        "format": "uri",
+        "type": "string",
+      },
+      "brandId": {
+        "format": "uuid",
+        "type": "string",
+      },
+      "phone": {
+        "type": "string",
+      },
+      "slug": {
+        "maxLength": 50,
+        "minLength": 2,
+        "pattern": "^[a-z0-9-]+$",
+        "type": "string",
+      },
+      "tenantName": {
+        "maxLength": 100,
+        "minLength": 2,
+        "type": "string",
+      },
+    },
+    "required": [
+      "tenantName",
+      "slug",
+      "phone",
+    ],
+    "type": "object",
+  },
+  "completeStepSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "stepId": {
+        "type": "string",
+      },
+    },
+    "required": [
+      "stepId",
+    ],
+    "type": "object",
+  },
+  "confirmCampaignSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "id": {
+        "format": "uuid",
+        "type": "string",
+      },
+    },
+    "required": [
+      "id",
+    ],
+    "type": "object",
+  },
+  "confirmSaleSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "id": {
+        "format": "uuid",
+        "type": "string",
+      },
+    },
+    "required": [
+      "id",
+    ],
+    "type": "object",
+  },
+  "connectMercadoPagoSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "authCode": {
+        "type": "string",
+      },
+    },
+    "required": [
+      "authCode",
+    ],
+    "type": "object",
+  },
+  "convertToClientSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "clientId": {
+        "format": "uuid",
+        "type": "string",
+      },
+    },
+    "required": [
+      "clientId",
+    ],
+    "type": "object",
+  },
+  "correctTextSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "text": {
+        "minLength": 1,
+        "type": "string",
+      },
+    },
+    "required": [
+      "text",
+    ],
+    "type": "object",
+  },
+  "createAppointmentSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "address": {
+        "type": "string",
+      },
+      "clientId": {
+        "format": "uuid",
+        "type": "string",
+      },
+      "endsAt": {
+        "format": "date-time",
+        "type": "string",
+      },
+      "notes": {
+        "type": "string",
+      },
+      "startsAt": {
+        "format": "date-time",
+        "type": "string",
+      },
+      "title": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "type": {
+        "enum": [
+          "VISIT",
+          "DEMO",
+          "BEAUTY_DAY",
+          "DELIVERY",
+          "OTHER",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "title",
+      "type",
+      "startsAt",
+    ],
+    "type": "object",
+  },
+  "createCampaignSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "audioUrl": {
+        "type": "string",
+      },
+      "message": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "name": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "recipientIds": {
+        "items": {
+          "format": "uuid",
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "scheduledAt": {
+        "format": "date-time",
+        "type": "string",
+      },
+    },
+    "required": [
+      "name",
+      "message",
+      "recipientIds",
+    ],
+    "type": "object",
+  },
+  "createClientSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "allergies": {
+        "maxLength": 1000,
+        "type": "string",
+      },
+      "birthday": {
+        "format": "date-time",
+        "type": "string",
+      },
+      "email": {
+        "format": "email",
+        "type": "string",
+      },
+      "hairType": {
+        "enum": [
+          "STRAIGHT",
+          "WAVY",
+          "CURLY",
+          "COILY",
+        ],
+        "type": "string",
+      },
+      "idempotencyKey": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "isLead": {
+        "type": "boolean",
+      },
+      "makeupTones": {
+        "maxLength": 1000,
+        "type": "string",
+      },
+      "name": {
+        "maxLength": 200,
+        "minLength": 1,
+        "type": "string",
+      },
+      "notes": {
+        "maxLength": 5000,
+        "type": "string",
+      },
+      "phone": {
+        "type": "string",
+      },
+      "preferences": {
+        "maxLength": 1000,
+        "type": "string",
+      },
+      "profession": {
+        "maxLength": 1000,
+        "type": "string",
+      },
+      "sex": {
+        "enum": [
+          "MALE",
+          "FEMALE",
+          "OTHER",
+        ],
+        "type": "string",
+      },
+      "skinType": {
+        "enum": [
+          "OILY",
+          "DRY",
+          "COMBINATION",
+          "NORMAL",
+          "SENSITIVE",
+        ],
+        "type": "string",
+      },
+      "source": {
+        "enum": [
+          "MANUAL",
+          "QRCODE",
+          "IMPORT",
+          "AUTOCADASTRO",
+          "WHATSAPP",
+          "SPREADSHEET",
+          "REFERRAL",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "name",
+      "phone",
+    ],
+    "type": "object",
+  },
+  "createDeliverySchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "address": {
+        "type": "string",
+      },
+      "clientId": {
+        "format": "uuid",
+        "type": "string",
+      },
+      "estimatedDays": {
+        "type": "integer",
+      },
+      "method": {
+        "enum": [
+          "PERSONAL",
+          "MAIL",
+          "COURIER",
+          "PICKUP",
+        ],
+        "type": "string",
+      },
+      "saleId": {
+        "format": "uuid",
+        "type": "string",
+      },
+    },
+    "required": [
+      "saleId",
+      "clientId",
+      "method",
+    ],
+    "type": "object",
+  },
+  "createExpenseSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "amount": {
+        "exclusiveMinimum": 0,
+        "type": "number",
+      },
+      "category": {
+        "type": "string",
+      },
+      "date": {
+        "format": "date-time",
+        "type": "string",
+      },
+      "description": {
+        "minLength": 1,
+        "type": "string",
+      },
+    },
+    "required": [
+      "description",
+      "amount",
+      "date",
+    ],
+    "type": "object",
+  },
+  "createInviteSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "email": {
+        "format": "email",
+        "type": "string",
+      },
+      "role": {
+        "enum": [
+          "CONSULTANT",
+          "LEADER",
+          "DIRECTOR",
+          "ADMIN",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "email",
+      "role",
+    ],
+    "type": "object",
+  },
+  "createOrderSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "brandId": {
+        "format": "uuid",
+        "type": "string",
+      },
+      "idempotencyKey": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "items": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "productName": {
+              "maxLength": 1000,
+              "type": "string",
+            },
+            "quantity": {
+              "exclusiveMinimum": 0,
+              "type": "integer",
+            },
+            "unitCost": {
+              "exclusiveMinimum": 0,
+              "type": "number",
+            },
+          },
+          "required": [
+            "productName",
+            "quantity",
+            "unitCost",
+          ],
+          "type": "object",
+        },
+        "type": "array",
+      },
+      "notes": {
+        "maxLength": 5000,
+        "type": "string",
+      },
+    },
+    "required": [
+      "brandId",
+      "items",
+    ],
+    "type": "object",
+  },
+  "createProductSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "brandId": {
+        "format": "uuid",
+        "type": "string",
+      },
+      "category": {
+        "type": "string",
+      },
+      "costPrice": {
+        "exclusiveMinimum": 0,
+        "type": "number",
+      },
+      "description": {
+        "type": "string",
+      },
+      "name": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "photoUrl": {
+        "type": "string",
+      },
+      "price": {
+        "exclusiveMinimum": 0,
+        "type": "number",
+      },
+    },
+    "required": [
+      "name",
+      "brandId",
+      "price",
+    ],
+    "type": "object",
+  },
+  "createReturnSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "reason": {
+        "maxLength": 5000,
+        "minLength": 1,
+        "type": "string",
+      },
+      "refundAmount": {
+        "exclusiveMinimum": 0,
+        "type": "number",
+      },
+      "saleId": {
+        "format": "uuid",
+        "type": "string",
+      },
+    },
+    "required": [
+      "saleId",
+      "reason",
+      "refundAmount",
+    ],
+    "type": "object",
+  },
+  "createSaleSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "campaignId": {
+        "format": "uuid",
+        "type": "string",
+      },
+      "cashbackUsed": {
+        "minimum": 0,
+        "type": "number",
+      },
+      "clientId": {
+        "format": "uuid",
+        "type": "string",
+      },
+      "discount": {
+        "minimum": 0,
+        "type": "number",
+      },
+      "items": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "productId": {
+              "format": "uuid",
+              "type": "string",
+            },
+            "quantity": {
+              "exclusiveMinimum": 0,
+              "type": "integer",
+            },
+            "unitPrice": {
+              "exclusiveMinimum": 0,
+              "type": "number",
+            },
+          },
+          "required": [
+            "productId",
+            "quantity",
+            "unitPrice",
+          ],
+          "type": "object",
+        },
+        "type": "array",
+      },
+      "notes": {
+        "maxLength": 5000,
+        "type": "string",
+      },
+      "paymentMethod": {
+        "maxLength": 1000,
+        "type": "string",
+      },
+    },
+    "required": [
+      "clientId",
+      "items",
+    ],
+    "type": "object",
+  },
+  "createSampleSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "clientId": {
+        "format": "uuid",
+        "type": "string",
+      },
+      "cost": {
+        "exclusiveMinimum": 0,
+        "type": "number",
+      },
+      "productId": {
+        "format": "uuid",
+        "type": "string",
+      },
+      "quantity": {
+        "exclusiveMinimum": 0,
+        "type": "integer",
+      },
+    },
+    "required": [
+      "productId",
+      "quantity",
+      "cost",
+    ],
+    "type": "object",
+  },
+  "createShowcaseSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "clientId": {
+        "format": "uuid",
+        "type": "string",
+      },
+      "name": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "productIds": {
+        "items": {
+          "format": "uuid",
+          "type": "string",
+        },
+        "type": "array",
+      },
+    },
+    "required": [
+      "name",
+      "productIds",
+    ],
+    "type": "object",
+  },
+  "createTagSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "autoRule": {
+        "maxLength": 1000,
+        "type": "string",
+      },
+      "color": {
+        "maxLength": 32,
+        "type": "string",
+      },
+      "name": {
+        "maxLength": 80,
+        "minLength": 1,
+        "type": "string",
+      },
+    },
+    "required": [
+      "name",
+    ],
+    "type": "object",
+  },
+  "createTaskSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "description": {
+        "type": "string",
+      },
+      "memberId": {
+        "type": "string",
+      },
+      "message": {
+        "type": "string",
+      },
+      "scheduledAt": {
+        "format": "date-time",
+        "type": "string",
+      },
+    },
+    "required": [
+      "memberId",
+      "description",
+    ],
+    "type": "object",
+  },
+  "dateRangeSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "from": {
+        "format": "date-time",
+        "type": "string",
+      },
+      "to": {
+        "format": "date-time",
+        "type": "string",
+      },
+    },
+    "required": [
+      "from",
+      "to",
+    ],
+    "type": "object",
+  },
+  "deleteAccountSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "confirmation": {
+        "const": "DELETE",
+        "type": "string",
+      },
+    },
+    "required": [
+      "confirmation",
+    ],
+    "type": "object",
+  },
+  "deleteAppointmentSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "id": {
+        "format": "uuid",
+        "type": "string",
+      },
+    },
+    "required": [
+      "id",
+    ],
+    "type": "object",
+  },
+  "deleteClientSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "id": {
+        "format": "uuid",
+        "type": "string",
+      },
+    },
+    "required": [
+      "id",
+    ],
+    "type": "object",
+  },
+  "deleteExpenseSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "id": {
+        "format": "uuid",
+        "type": "string",
+      },
+    },
+    "required": [
+      "id",
+    ],
+    "type": "object",
+  },
+  "deleteProductSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "id": {
+        "format": "uuid",
+        "type": "string",
+      },
+    },
+    "required": [
+      "id",
+    ],
+    "type": "object",
+  },
+  "deleteShowcaseSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "id": {
+        "format": "uuid",
+        "type": "string",
+      },
+    },
+    "required": [
+      "id",
+    ],
+    "type": "object",
+  },
+  "deleteTagSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "id": {
+        "format": "uuid",
+        "type": "string",
+      },
+    },
+    "required": [
+      "id",
+    ],
+    "type": "object",
+  },
+  "dismissReminderSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "id": {
+        "format": "uuid",
+        "type": "string",
+      },
+    },
+    "required": [
+      "id",
+    ],
+    "type": "object",
+  },
+  "generateBillingMessageSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "amount": {
+        "type": "number",
+      },
+      "clientName": {
+        "type": "string",
+      },
+      "dueDate": {
+        "type": "string",
+      },
+    },
+    "required": [
+      "clientName",
+      "amount",
+      "dueDate",
+    ],
+    "type": "object",
+  },
+  "generateCampaignTextSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "objective": {
+        "minLength": 1,
+        "type": "string",
+      },
+    },
+    "required": [
+      "objective",
+    ],
+    "type": "object",
+  },
+  "generateLabelSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "deliveryId": {
+        "format": "uuid",
+        "type": "string",
+      },
+    },
+    "required": [
+      "deliveryId",
+    ],
+    "type": "object",
+  },
+  "generateReactivationSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "clientName": {
+        "type": "string",
+      },
+      "lastPurchaseDate": {
+        "type": "string",
+      },
+    },
+    "required": [
+      "clientName",
+      "lastPurchaseDate",
+    ],
+    "type": "object",
+  },
+  "getAccountsReceivableSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "status": {
+        "maxLength": 64,
+        "type": "string",
+      },
+    },
+    "type": "object",
+  },
+  "getCACSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "clientId": {
+        "format": "uuid",
+        "type": "string",
+      },
+    },
+    "type": "object",
+  },
+  "getCalendarSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "month": {
+        "maximum": 12,
+        "minimum": 1,
+        "type": "integer",
+      },
+      "year": {
+        "type": "integer",
+      },
+    },
+    "required": [
+      "month",
+      "year",
+    ],
+    "type": "object",
+  },
+  "getCashbackBalanceSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "clientId": {
+        "format": "uuid",
+        "type": "string",
+      },
+    },
+    "required": [
+      "clientId",
+    ],
+    "type": "object",
+  },
+  "getClientByIdSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "id": {
+        "format": "uuid",
+        "type": "string",
+      },
+    },
+    "required": [
+      "id",
+    ],
+    "type": "object",
+  },
+  "getClientEngagementSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "clientId": {
+        "format": "uuid",
+        "type": "string",
+      },
+    },
+    "required": [
+      "clientId",
+    ],
+    "type": "object",
+  },
+  "getFinanceDashboardSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "period": {
+        "type": "string",
+      },
+    },
+    "type": "object",
+  },
+  "getProductRankingSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "limit": {
+        "default": 10,
+        "maximum": 50,
+        "minimum": 1,
+        "type": "integer",
+      },
+    },
+    "type": "object",
+  },
+  "getPublicLandingSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "slug": {
+        "type": "string",
+      },
+    },
+    "required": [
+      "slug",
+    ],
+    "type": "object",
+  },
+  "getPublicShowcaseSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "shareLink": {
+        "type": "string",
+      },
+    },
+    "required": [
+      "shareLink",
+    ],
+    "type": "object",
+  },
+  "getRecipientsSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "id": {
+        "format": "uuid",
+        "type": "string",
+      },
+      "status": {
+        "type": "string",
+      },
+    },
+    "required": [
+      "id",
+    ],
+    "type": "object",
+  },
+  "getSaleByIdSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "id": {
+        "format": "uuid",
+        "type": "string",
+      },
+    },
+    "required": [
+      "id",
+    ],
+    "type": "object",
+  },
+  "getSalesStatsSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "period": {
+        "type": "string",
+      },
+    },
+    "type": "object",
+  },
+  "getSeasonalitySchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "monthsBack": {
+        "default": 12,
+        "maximum": 36,
+        "minimum": 1,
+        "type": "integer",
+      },
+    },
+    "type": "object",
+  },
+  "getTopProductsSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "limit": {
+        "default": 10,
+        "maximum": 50,
+        "minimum": 1,
+        "type": "integer",
+      },
+    },
+    "type": "object",
+  },
+  "getUpcomingBirthdaysSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "days": {
+        "default": 30,
+        "maximum": 90,
+        "minimum": 1,
+        "type": "integer",
+      },
+    },
+    "type": "object",
+  },
+  "idempotencyKeySchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "minLength": 1,
+    "type": "string",
+  },
+  "leaveTenantSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "confirmation": {
+        "const": "LEAVE",
+        "type": "string",
+      },
+    },
+    "required": [
+      "confirmation",
+    ],
+    "type": "object",
+  },
+  "listAppointmentsSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "from": {
+        "format": "date-time",
+        "type": "string",
+      },
+      "to": {
+        "format": "date-time",
+        "type": "string",
+      },
+    },
+    "type": "object",
+  },
+  "listCampaignsSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "limit": {
+        "default": 20,
+        "maximum": 100,
+        "minimum": 1,
+        "type": "integer",
+      },
+      "page": {
+        "default": 1,
+        "maximum": 1000,
+        "minimum": 1,
+        "type": "integer",
+      },
+      "status": {
+        "type": "string",
+      },
+    },
+    "type": "object",
+  },
+  "listClientsSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "classification": {
+        "enum": [
+          "A",
+          "B",
+          "C",
+        ],
+        "type": "string",
+      },
+      "isLead": {
+        "type": "boolean",
+      },
+      "limit": {
+        "default": 20,
+        "maximum": 100,
+        "minimum": 1,
+        "type": "integer",
+      },
+      "page": {
+        "default": 1,
+        "maximum": 1000,
+        "minimum": 1,
+        "type": "integer",
+      },
+      "search": {
+        "maxLength": 1000,
+        "type": "string",
+      },
+      "tagIds": {
+        "items": {
+          "format": "uuid",
+          "type": "string",
+        },
+        "type": "array",
+      },
+    },
+    "type": "object",
+  },
+  "listDeliveriesSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "status": {
+        "type": "string",
+      },
+    },
+    "type": "object",
+  },
+  "listExpensesSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "category": {
+        "type": "string",
+      },
+      "limit": {
+        "default": 20,
+        "maximum": 100,
+        "minimum": 1,
+        "type": "integer",
+      },
+      "page": {
+        "default": 1,
+        "maximum": 1000,
+        "minimum": 1,
+        "type": "integer",
+      },
+    },
+    "type": "object",
+  },
+  "listInvitesSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "status": {
+        "enum": [
+          "PENDING",
+          "ACCEPTED",
+          "EXPIRED",
+          "CANCELLED",
+        ],
+        "type": "string",
+      },
+    },
+    "type": "object",
+  },
+  "listOrdersSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "status": {
+        "maxLength": 64,
+        "type": "string",
+      },
+    },
+    "type": "object",
+  },
+  "listPaymentsSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "saleId": {
+        "format": "uuid",
+        "type": "string",
+      },
+    },
+    "required": [
+      "saleId",
+    ],
+    "type": "object",
+  },
+  "listProductsSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "brandId": {
+        "format": "uuid",
+        "type": "string",
+      },
+      "category": {
+        "type": "string",
+      },
+      "search": {
+        "type": "string",
+      },
+    },
+    "type": "object",
+  },
+  "listRemindersSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "status": {
+        "type": "string",
+      },
+      "type": {
+        "type": "string",
+      },
+    },
+    "type": "object",
+  },
+  "listSalesSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "clientId": {
+        "format": "uuid",
+        "type": "string",
+      },
+      "limit": {
+        "default": 20,
+        "maximum": 100,
+        "minimum": 1,
+        "type": "integer",
+      },
+      "page": {
+        "default": 1,
+        "maximum": 1000,
+        "minimum": 1,
+        "type": "integer",
+      },
+      "status": {
+        "maxLength": 64,
+        "type": "string",
+      },
+    },
+    "type": "object",
+  },
+  "listSamplesSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "limit": {
+        "default": 20,
+        "maximum": 100,
+        "minimum": 1,
+        "type": "integer",
+      },
+      "page": {
+        "default": 1,
+        "maximum": 1000,
+        "minimum": 1,
+        "type": "integer",
+      },
+    },
+    "type": "object",
+  },
+  "listStockSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "lowOnly": {
+        "type": "boolean",
+      },
+    },
+    "type": "object",
+  },
+  "listTasksSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "status": {
+        "type": "string",
+      },
+    },
+    "type": "object",
+  },
+  "markPaidSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "paymentId": {
+        "format": "uuid",
+        "type": "string",
+      },
+    },
+    "required": [
+      "paymentId",
+    ],
+    "type": "object",
+  },
+  "markSampleConvertedSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "id": {
+        "format": "uuid",
+        "type": "string",
+      },
+    },
+    "required": [
+      "id",
+    ],
+    "type": "object",
+  },
+  "mfaConfirmEnrollmentSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "secret": {
+        "maxLength": 64,
+        "minLength": 16,
+        "type": "string",
+      },
+      "token": {
+        "maxLength": 32,
+        "minLength": 6,
+        "pattern": "^[A-Z0-9-]+$",
+        "type": "string",
+      },
+    },
+    "required": [
+      "secret",
+      "token",
+    ],
+    "type": "object",
+  },
+  "mfaDisableSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "currentToken": {
+        "maxLength": 32,
+        "minLength": 6,
+        "pattern": "^[A-Z0-9-]+$",
+        "type": "string",
+      },
+    },
+    "required": [
+      "currentToken",
+    ],
+    "type": "object",
+  },
+  "mfaTotpTokenSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "maxLength": 32,
+    "minLength": 6,
+    "pattern": "^[A-Z0-9-]+$",
+    "type": "string",
+  },
+  "optionalPhoneE164Schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "anyOf": [
+      {
+        "not": {},
+      },
+      {
+        "type": "string",
+      },
+    ],
+  },
+  "paginationSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "limit": {
+        "default": 20,
+        "maximum": 100,
+        "minimum": 1,
+        "type": "integer",
+      },
+      "page": {
+        "default": 1,
+        "maximum": 1000,
+        "minimum": 1,
+        "type": "integer",
+      },
+    },
+    "type": "object",
+  },
+  "passwordPolicySchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "allOf": [
+      {
+        "pattern": "[a-zA-Z]",
+      },
+      {
+        "pattern": "[0-9]",
+      },
+    ],
+    "maxLength": 128,
+    "minLength": 12,
+    "type": "string",
+  },
+  "phoneE164Schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "string",
+  },
+  "phoneSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "pattern": "^\\+?[1-9]\\d{1,14}$",
+    "type": "string",
+  },
+  "receiveOrderSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "id": {
+        "format": "uuid",
+        "type": "string",
+      },
+      "idempotencyKey": {
+        "minLength": 1,
+        "type": "string",
+      },
+    },
+    "required": [
+      "id",
+    ],
+    "type": "object",
+  },
+  "removeMemberSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "memberId": {
+        "format": "uuid",
+        "type": "string",
+      },
+    },
+    "required": [
+      "memberId",
+    ],
+    "type": "object",
+  },
+  "removeTeamMemberSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "memberId": {
+        "type": "string",
+      },
+    },
+    "required": [
+      "memberId",
+    ],
+    "type": "object",
+  },
+  "requestPasswordResetSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "email": {
+        "format": "email",
+        "type": "string",
+      },
+    },
+    "required": [
+      "email",
+    ],
+    "type": "object",
+  },
+  "resendInviteSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "inviteId": {
+        "format": "uuid",
+        "type": "string",
+      },
+    },
+    "required": [
+      "inviteId",
+    ],
+    "type": "object",
+  },
+  "resetPasswordSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "newPassword": {
+        "allOf": [
+          {
+            "pattern": "[a-zA-Z]",
+          },
+          {
+            "pattern": "[0-9]",
+          },
+        ],
+        "maxLength": 128,
+        "minLength": 12,
+        "type": "string",
+      },
+      "token": {
+        "minLength": 1,
+        "type": "string",
+      },
+    },
+    "required": [
+      "token",
+      "newPassword",
+    ],
+    "type": "object",
+  },
+  "revokeSessionSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "sessionId": {
+        "format": "uuid",
+        "type": "string",
+      },
+    },
+    "required": [
+      "sessionId",
+    ],
+    "type": "object",
+  },
+  "sendToClientSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "audioUrl": {
+        "format": "uri",
+        "maxLength": 2048,
+        "type": "string",
+      },
+      "clientId": {
+        "format": "uuid",
+        "type": "string",
+      },
+      "idempotencyKey": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "message": {
+        "maxLength": 5000,
+        "minLength": 1,
+        "type": "string",
+      },
+    },
+    "required": [
+      "clientId",
+      "message",
+    ],
+    "type": "object",
+  },
+  "switchWorkspaceSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "tenantId": {
+        "format": "uuid",
+        "type": "string",
+      },
+    },
+    "required": [
+      "tenantId",
+    ],
+    "type": "object",
+  },
+  "tagClientSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "clientId": {
+        "format": "uuid",
+        "type": "string",
+      },
+      "tagId": {
+        "format": "uuid",
+        "type": "string",
+      },
+    },
+    "required": [
+      "clientId",
+      "tagId",
+    ],
+    "type": "object",
+  },
+  "toggleLandingActiveSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "isActive": {
+        "type": "boolean",
+      },
+    },
+    "required": [
+      "isActive",
+    ],
+    "type": "object",
+  },
+  "untagClientSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "clientId": {
+        "format": "uuid",
+        "type": "string",
+      },
+      "tagId": {
+        "format": "uuid",
+        "type": "string",
+      },
+    },
+    "required": [
+      "clientId",
+      "tagId",
+    ],
+    "type": "object",
+  },
+  "updateAccountSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "name": {
+        "maxLength": 100,
+        "minLength": 2,
+        "type": "string",
+      },
+    },
+    "type": "object",
+  },
+  "updateAppointmentSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "id": {
+        "format": "uuid",
+        "type": "string",
+      },
+      "notes": {
+        "type": "string",
+      },
+      "startsAt": {
+        "format": "date-time",
+        "type": "string",
+      },
+      "title": {
+        "type": "string",
+      },
+    },
+    "required": [
+      "id",
+    ],
+    "type": "object",
+  },
+  "updateClientSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "email": {
+        "anyOf": [
+          {
+            "format": "email",
+            "type": "string",
+          },
+          {
+            "type": "null",
+          },
+        ],
+      },
+      "id": {
+        "format": "uuid",
+        "type": "string",
+      },
+      "isActive": {
+        "type": "boolean",
+      },
+      "name": {
+        "maxLength": 200,
+        "minLength": 1,
+        "type": "string",
+      },
+      "notes": {
+        "anyOf": [
+          {
+            "maxLength": 5000,
+            "type": "string",
+          },
+          {
+            "type": "null",
+          },
+        ],
+      },
+      "phone": {
+        "type": "string",
+      },
+    },
+    "required": [
+      "id",
+    ],
+    "type": "object",
+  },
+  "updateDeliveryStatusSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "id": {
+        "format": "uuid",
+        "type": "string",
+      },
+      "status": {
+        "enum": [
+          "CONFIRMED",
+          "SEPARATED",
+          "SHIPPED",
+          "DELIVERED",
+        ],
+        "type": "string",
+      },
+      "trackingCode": {
+        "type": "string",
+      },
+    },
+    "required": [
+      "id",
+      "status",
+    ],
+    "type": "object",
+  },
+  "updateExpenseSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "amount": {
+        "exclusiveMinimum": 0,
+        "type": "number",
+      },
+      "category": {
+        "type": "string",
+      },
+      "description": {
+        "type": "string",
+      },
+      "id": {
+        "format": "uuid",
+        "type": "string",
+      },
+    },
+    "required": [
+      "id",
+    ],
+    "type": "object",
+  },
+  "updateLandingSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "bio": {
+        "type": "string",
+      },
+      "philosophy": {
+        "type": "string",
+      },
+      "photoUrl": {
+        "type": "string",
+      },
+      "whatsappLink": {
+        "type": "string",
+      },
+    },
+    "type": "object",
+  },
+  "updateMemberRoleSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "memberId": {
+        "format": "uuid",
+        "type": "string",
+      },
+      "newRole": {
+        "enum": [
+          "CONSULTANT",
+          "LEADER",
+          "DIRECTOR",
+          "ADMIN",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "memberId",
+      "newRole",
+    ],
+    "type": "object",
+  },
+  "updateMemberSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "avatar": {
+        "anyOf": [
+          {
+            "anyOf": [
+              {
+                "not": {},
+              },
+              {
+                "format": "uri",
+                "type": "string",
+              },
+            ],
+          },
+          {
+            "type": "null",
+          },
+        ],
+      },
+      "displayName": {
+        "maxLength": 100,
+        "minLength": 2,
+        "type": "string",
+      },
+      "phone": {
+        "type": "string",
+      },
+    },
+    "type": "object",
+  },
+  "updateProductSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "id": {
+        "format": "uuid",
+        "type": "string",
+      },
+      "isActive": {
+        "type": "boolean",
+      },
+      "name": {
+        "type": "string",
+      },
+      "price": {
+        "exclusiveMinimum": 0,
+        "type": "number",
+      },
+    },
+    "required": [
+      "id",
+    ],
+    "type": "object",
+  },
+  "updateSaleStatusSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "id": {
+        "format": "uuid",
+        "type": "string",
+      },
+      "status": {
+        "enum": [
+          "CONFIRMED",
+          "SEPARATED",
+          "SHIPPED",
+          "DELIVERED",
+          "CANCELLED",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "id",
+      "status",
+    ],
+    "type": "object",
+  },
+  "updateStockSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "productId": {
+        "format": "uuid",
+        "type": "string",
+      },
+      "quantity": {
+        "minimum": 0,
+        "type": "integer",
+      },
+    },
+    "required": [
+      "productId",
+      "quantity",
+    ],
+    "type": "object",
+  },
+  "uuidSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "format": "uuid",
+    "type": "string",
+  },
+  "verifyEmailSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "token": {
+        "minLength": 1,
+        "type": "string",
+      },
+    },
+    "required": [
+      "token",
+    ],
+    "type": "object",
+  },
+}
+`;

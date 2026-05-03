@@ -64,7 +64,8 @@
     "react-dom": "19.1.0",
     "turbo": "^2.8.20",
     "typescript": "^5.9.3",
-    "vitest": "^4.1.0"
+    "vitest": "^4.1.0",
+    "zod-to-json-schema": "^3.25.2"
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx,json,md}": [

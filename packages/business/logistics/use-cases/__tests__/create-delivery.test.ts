@@ -29,7 +29,7 @@ describe("createDelivery", () => {
       clientId: "c1",
       clientName: "Maria",
       clientPhone: "+5511999999999",
-      method: "MOTOBOY",
+      method: "DELIVERY",
     });
     expect(r.create).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -56,7 +56,7 @@ describe("createDelivery", () => {
       clientPhone: "+5511999999999",
       address: "Rua A, 123",
       estimatedDate: ts,
-      method: "CORREIOS",
+      method: "SHIPPING",
       notes: "frágil",
     });
     expect(r.create).toHaveBeenCalledWith(
@@ -64,7 +64,7 @@ describe("createDelivery", () => {
         address: "Rua A, 123",
         estimatedDate: ts,
         notes: "frágil",
-        method: "CORREIOS",
+        method: "SHIPPING",
       }),
     );
   });

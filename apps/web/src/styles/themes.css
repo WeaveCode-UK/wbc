@@ -44,11 +44,12 @@
   --color-primary-surface: var(--wc-purple-900);
   --color-primary-surface-hover: var(--wc-purple-800);
   --color-accent: var(--wc-orange);
-  /* Surfaces (Input, Card, Modal…) sit one step above the canvas
-   * (--wc-blue-700) so form fields don't camouflage on dark mode.
-   * --wc-blue-600 = the elevated surface in the WeaveCode DS. */
-  --color-bg-primary: var(--wc-blue-600);
-  --color-bg-secondary: var(--wc-blue-600);
+  /* Surfaces (Input, Card, Modal…) sit two steps above the canvas
+   * (--wc-blue-700) so form fields stay readable on dark mode.
+   * --wc-blue-400 (#364285) gives a clear lift while staying inside
+   * the deep-blue family. */
+  --color-bg-primary: var(--wc-blue-400);
+  --color-bg-secondary: var(--wc-blue-400);
   --color-bg-tertiary: var(--wc-blue-800);
   --color-text-primary: var(--wc-neutral-0);
   --color-text-secondary: rgba(255, 255, 255, 0.78);
@@ -107,10 +108,10 @@
   --color-primary-surface: #2D1422;
   --color-primary-surface-hover: #3D1F2E;
   --color-accent: var(--wc-orange);
-  /* Same fix as the default-dark theme: surface sits one elevation
+  /* Same fix as the default-dark theme: surface sits two elevations
    * above the deep-blue canvas (--wc-blue-700) so inputs and cards
    * don't merge into the page background. */
-  --color-bg-primary: var(--wc-blue-600);
+  --color-bg-primary: var(--wc-blue-400);
   --color-bg-secondary: #2D1422;
   --color-bg-tertiary: var(--wc-blue-800);
   --color-text-primary: var(--wc-neutral-0);

@@ -12,6 +12,7 @@ import {
   SegmentedControl,
 } from "@wbc/ui";
 import { trpc } from "@/lib/trpc";
+import { AddMemberModal } from "../../../components/add-member-modal";
 
 type Tab = "team" | "ranking" | "tasks";
 
@@ -25,6 +26,7 @@ function formatBRL(value: number): string {
 export default function TeamPage() {
   const t = useTranslations("team");
   const [tab, setTab] = useState<Tab>("team");
+  const [addOpen, setAddOpen] = useState(false);
 
   const team = trpc.team.getTeam.useQuery();
   const members = trpc.team.listMembers.useQuery();
@@ -42,7 +44,7 @@ export default function TeamPage() {
         <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
           {t("title")}
         </h1>
-        <Button type="button" size="sm">
+        <Button type="button" size="sm" onClick={() => setAddOpen(true)}>
           {t("add_member")}
         </Button>
       </div>
@@ -145,6 +147,7 @@ export default function TeamPage() {
           </>
         )}
       </div>
+      <AddMemberModal open={addOpen} onClose={() => setAddOpen(false)} />
     </div>
   );
 }

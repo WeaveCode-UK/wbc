@@ -46,19 +46,19 @@ export default defineConfig({
       ],
       exclude: ["**/__tests__/**", "**/index.ts"],
       reporter: ["text", "html", "lcov"],
-      // T12.1 — ramped 2026-05-03 from 20% → 30% after T0+T1+T2-A/B/C/D+T6+T7+T9
-      // landed (statements actually hit 38%, branches 32%, functions 29%,
-      // lines 39%). Set the gate just below the lowest dimension so a
-      // regression breaks CI but legitimate flux doesn't. Next steps
-      // toward CHECAGEM thresholds:
-      //   - 50% after T2-E + T3 + T4 land (sub-agents finishing)
-      //   - 70% after T5 (testcontainers — running)
+      // T12.1 + T12.2 — ramped 2026-05-03 from 20% → 35% after the full
+      // multi-agent push (T0–T9 + T11–T12) landed. Actual: statements
+      // 42%, branches 41%, functions 34%, lines 43%. Gate set just below
+      // the lowest dimension so a regression breaks CI but legitimate
+      // flux doesn't. Next ramps toward CHECAGEM thresholds:
+      //   - 60% after deeper UI/RTL coverage (apps/web component layer)
+      //   - 70% after T5 integration tests run with Docker in CI
       //   - 80% stable target
       thresholds: {
-        lines: 30,
-        branches: 30,
-        functions: 25,
-        statements: 30,
+        lines: 35,
+        branches: 35,
+        functions: 30,
+        statements: 35,
       },
     },
   },

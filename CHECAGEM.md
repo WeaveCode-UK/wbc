@@ -653,28 +653,28 @@ Cada módulo em `packages/business/<x>/domain/` precisa de teste de invariantes.
 
 ### Bloco T4 — Componentes UI (React Testing Library)
 
-- [ ] **T4.1 — `BrandSelector`:** flicker fix (BUG-08 do commit `b8b9c80`) não regrediu; troca de marca persiste no cookie.
-- [ ] **T4.2 — Modais críticos:** `AddClient`, `AddProductModal`, `SendProductModal`, `AddGiftSuggestorModal`, `AddExpenseModal`, `AddOrderModal`, `AddAppointmentModal` — validação Zod, focus ring 3px laranja (WeaveCode DS), touch target ≥44px.
-- [ ] **T4.3 — `MonthCalendar`:** bolinhas por tipo (purple/orange/beauty), navegação meses, click no dia mostra detalhes.
-- [ ] **T4.4 — 4 estados em CADA surface async:** loading skeleton, empty state, error state, success — em `/clients`, `/sales`, `/campaigns`, `/inventory`, `/analytics`. Regra inviolável WeaveCode DS.
-- [ ] **T4.5 — Token-only enforcement (snapshot test):** parse de todos `*.tsx` em `apps/web/src` falha se aparecer hex (`#[0-9a-f]{3,8}`) fora da palette `--wc-*`. Regra WeaveCode DS.
-- [ ] **T4.6 — Georgia `{moment}` rule:** snapshot que valida no máximo 1 elemento por surface usando font Georgia italic.
-- [ ] **T4.7 — `Timeline` em `/clients/[id]`:** une 3 fontes (ScheduledMessage, PostSaleFlow, CampaignRecipient) com cores corretas.
+- [x] **T4.1 — `BrandSelector`:** flicker fix (BUG-08 do commit `b8b9c80`) não regrediu; troca de marca persiste no cookie.
+- [x] **T4.2 — Modais críticos:** `AddClient`, `AddProductModal`, `SendProductModal`, `AddGiftSuggestorModal`, `AddExpenseModal`, `AddOrderModal`, `AddAppointmentModal` — validação Zod, focus ring 3px laranja (WeaveCode DS), touch target ≥44px.
+- [x] **T4.3 — `MonthCalendar`:** bolinhas por tipo (purple/orange/beauty), navegação meses, click no dia mostra detalhes.
+- [x] **T4.4 — 4 estados em CADA surface async:** loading skeleton, empty state, error state, success — em `/clients`, `/sales`, `/campaigns`, `/inventory`, `/analytics`. Regra inviolável WeaveCode DS.
+- [x] **T4.5 — Token-only enforcement (snapshot test):** parse de todos `*.tsx` em `apps/web/src` falha se aparecer hex (`#[0-9a-f]{3,8}`) fora da palette `--wc-*`. Regra WeaveCode DS.
+- [x] **T4.6 — Georgia `{moment}` rule:** snapshot que valida no máximo 1 elemento por surface usando font Georgia italic.
+- [x] **T4.7 — `Timeline` em `/clients/[id]`:** une 3 fontes (ScheduledMessage, PostSaleFlow, CampaignRecipient) com cores corretas.
 
 ### Bloco T5 — Integração (testcontainers)
 
 #### T5-A. Postgres real
 
-- [ ] **T5.1 — Repositórios Prisma (todos):** CRUD feliz; unique constraint; FK violation; optimistic lock onde aplicável (sale, stock).
-- [ ] **T5.2 — RLS bypass attempt:** query SEM `SET app.tenant_id` deve falhar; query COM tenant errado retorna 0 rows. (cross-ref dados-persistencia ACH-004)
-- [ ] **T5.3 — Transação `confirmSale` end-to-end:** rollback completo (sale + stock + outbox + cashback) em qualquer falha intermediária.
-- [ ] **T5.4 — Migrations idempotentes:** rodar `prisma migrate deploy` 2x em DB virgem não falha; rollback de migração problemática.
+- [~] **T5.1 — Repositórios Prisma (todos):** CRUD feliz; unique constraint; FK violation; optimistic lock onde aplicável (sale, stock).
+- [~] **T5.2 — RLS bypass attempt:** query SEM `SET app.tenant_id` deve falhar; query COM tenant errado retorna 0 rows. (cross-ref dados-persistencia ACH-004)
+- [~] **T5.3 — Transação `confirmSale` end-to-end:** rollback completo (sale + stock + outbox + cashback) em qualquer falha intermediária.
+- [~] **T5.4 — Migrations idempotentes:** rodar `prisma migrate deploy` 2x em DB virgem não falha; rollback de migração problemática.
 
 #### T5-B. Redis real
 
-- [ ] **T5.5 — Rate-limit middleware:** bucket por tenant + por rota; janela deslizante (não fixed window); headers `X-RateLimit-*`.
-- [ ] **T5.6 — Idempotency cache:** TTL configurável; cleanup automático.
-- [ ] **T5.7 — BullMQ:** enqueue → process → success; retry com backoff exponencial; DLQ após max-attempts; `dlq-archive` arquiva após retenção.
+- [~] **T5.5 — Rate-limit middleware:** bucket por tenant + por rota; janela deslizante (não fixed window); headers `X-RateLimit-*`.
+- [~] **T5.6 — Idempotency cache:** TTL configurável; cleanup automático.
+- [~] **T5.7 — BullMQ:** enqueue → process → success; retry com backoff exponencial; DLQ após max-attempts; `dlq-archive` arquiva após retenção.
 
 ### Bloco T6 — Rate-limiting (HG1 — bloqueador de abertura pública)
 
@@ -733,9 +733,9 @@ Hoje: 7 specs (`health` + 5 golden + handoff). Faltam:
 `vitest.config.ts` hoje em 20%. Subir conforme blocos forem caindo:
 
 - [x] **T12.1 — 40%** após T1 + T2-A + T2-B fechados.
-- [ ] **T12.2 — 70%** após T2-C + T2-D + T2-E + T3 + T4 fechados.
-- [ ] **T12.3 — 80% (estável)** após T5 + T6 + T8 fechados.
-- [ ] **T12.4 — Pre-commit roda testes relacionados** (ACH-016) — ativar em husky depois de coverage 70%.
+- [~] **T12.2 — 70%** após T2-C + T2-D + T2-E + T3 + T4 fechados.
+- [~] **T12.3 — 80% (estável)** após T5 + T6 + T8 fechados.
+- [~] **T12.4 — Pre-commit roda testes relacionados** (ACH-016) — ativar em husky depois de coverage 70%.
 
 ---
 

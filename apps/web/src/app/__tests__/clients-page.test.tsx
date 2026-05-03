@@ -26,6 +26,13 @@ vi.mock("@/lib/trpc", () => ({
       bulkUpdate: {
         useMutation: () => hoisted.bulkMutation,
       },
+      create: {
+        useMutation: () => ({
+          mutate: vi.fn(),
+          isPending: false,
+          error: null,
+        }),
+      },
     },
     useUtils: () => ({ clients: { list: { invalidate: vi.fn() } } }),
   },

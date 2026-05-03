@@ -470,3 +470,77 @@ schedule-processor.ts            - queue wbc:schedule (lógica marcada como pend
 8. **H3** — coordenar onboarding Mercado Pago para cada consultora
 
 **A8 (R2 storage)** é categoria-mista: humano cria bucket e fornece credencial; agente implementa adapter. Depois de A8, A5 (anexos em campanhas) e melhoria do #75 (PNG do widget) ficam desbloqueados.
+
+---
+
+## Hardening pré-go-live (avaliação de stack 2026-05-03)
+
+Itens que **não estão na fila CHECAGEM** porque não saem da spec v1.2, mas que a stack atual exige antes de produção real receber dinheiro de cliente. Avaliação derivada da inspeção da stack (Next.js 15, tRPC 11, Prisma + Postgres RLS, BullMQ, Sentry, NextAuth, hexagonal arch). São lacunas estruturais, não bugs.
+
+### HG1 — Rate limiting por tenant
+
+**O que:** middleware tRPC que conta requests por `tenantId` numa janela deslizante (Redis `INCR` + `EXPIRE`) e responde `TOO_MANY_REQUESTS` acima do teto. Aplicar antes dos protected procedures.
+
+**Por que:** hoje qualquer tenant pode emitir N requisições paralelas e ocupar 100% do connection pool do Postgres (já tunado em 10 conexões). Um único cliente abusivo — script mal feito, integração quebrada, ou ataque — degrada todos os outros tenants. Não é hipotético: o pool tuning do hardening pass só protege contra fila infinita, não contra exhaustion deliberado.
+
+**Como:** Redis-based limiter no middleware do tRPC. Limites diferentes por plano (Free 60 req/min, Pro 300 req/min). Headers `X-RateLimit-*` na resposta. ~1-2 dias.
+
+**Bloqueador para:** abrir cadastro público, plano Pro pago.
+
+### HG2 — Backup automatizado de Postgres
+
+**O que:** `pg_dump` agendado (cron + container ou managed) com upload pra storage off-site (R2/S3). Retenção mínima 30 dias diários, 12 mensais.
+
+**Por que:** WBC armazena dados de cliente, vendas, cobranças, payment logs — categoria de dado que, se perdida, **vira ação judicial** sob LGPD. RDS/managed Postgres geralmente faz isso, mas a decisão é VPS Hostinger self-hosted (item H8 do checklist) — daí backup é responsabilidade da operação, não automático.
+
+**Como:** WAL archiving + base backup diário; ou `pg_dump` pra começar (mais simples, recovery mais lento). Encriptar antes do upload. ~1 dia.
+
+**Bloqueador para:** F11.E30 produção (humano deve verificar como pré-flight).
+
+### HG3 — Smoketest de restore programado
+
+**O que:** job semanal que pega o backup mais recente, restaura num Postgres efêmero (container), roda um SELECT mínimo (`COUNT` em tenants, sales, payments) e alerta no Slack se restore ou query falhar.
+
+**Por que:** **backup que nunca foi restaurado não é backup, é arquivo.** Disco, encryption, formato, retenção podem corromper sem ninguém notar até precisar — daí é tarde. Smoketest contínuo é a única forma de garantir que o procedimento de DR funciona.
+
+**Como:** GitHub Actions ou cron na própria VPS. Pull do backup mais recente → `pg_restore` em container temporário → query smoke → cleanup. ~0.5 dia.
+
+**Bloqueador para:** confiança operacional. Não bloqueia go-live, mas bloqueia "go-live tranquilo".
+
+### HG4 — Revisão jurídica LGPD (reforça o H7)
+
+**O que:** auditoria por advogado de dados sobre: política de privacidade, termos de uso, contrato com Meta para WhatsApp Business, base legal para tratamento (consentimento vs legítimo interesse), DPO, prazo de retenção, fluxo de exclusão de dados ("direito ao esquecimento"), DPIA se aplicável.
+
+**Por que:** WBC trata categoria especial (alergias, preferências cosméticas vinculadas a CPF inferível por nome+cidade) e dado financeiro (PIX, cobrança). ANPD pode multar até 2% do faturamento. **Não é defensável engenharia sólida + LGPD ignorada** — para a ANPD é o mesmo que negligência grave.
+
+**Como:** contratar revisão. Implementar correções de fluxo (exclusão programática de cliente, export LGPD, audit log de quem viu o quê). Esforço técnico depende do parecer; estimar 3-5 dias após receber o documento.
+
+**Bloqueador para:** abrir cadastro público com cobrança real.
+
+### HG5 — Ativação da suíte de testes
+
+**O que:** ligar de fato vitest + jest nos workspaces, escrever os testes críticos dos use-cases de **dinheiro** (`createSale`, `confirmSale`, `cancelSale`, `markPaid`, `flagExpiringCashback`, `generatePixForPayment`) e de **isolamento de tenant** (RLS bypass attempts, middleware ignored). Coverage não precisa ser 80% — precisa cobrir os caminhos onde erro vira processo judicial.
+
+**Por que:** a regra "ZERO testes até Fase 7" foi consciente e aceitável enquanto não havia dinheiro real circulando. No momento que receber o primeiro pagamento via MercadoPago, qualquer regressão em `confirmSale` ou `markPaid` é prejuízo direto (cobrar errado, devolver indevido, deixar de cobrar). A dívida técnica vira passivo legal.
+
+**Como:** começar pelos 6 use-cases acima (~3 dias). Adicionar property-based testing nos cálculos de cashback/desconto (fast-check). Smoke test E2E do fluxo completo: criar cliente → criar venda → gerar PIX → marcar paga (~2 dias). Total ~5 dias para o mínimo defensável.
+
+**Bloqueador para:** receber dinheiro real. Não bloqueia demo/sandbox.
+
+---
+
+### Síntese de prioridade
+
+| Item                       | Esforço | Bloqueia              |
+| -------------------------- | ------- | --------------------- |
+| HG1 — Rate limiting        | 1-2d    | abertura pública      |
+| HG2 — Backup automatizado  | 1d      | F11.E30 produção      |
+| HG3 — Smoketest de restore | 0.5d    | confiança operacional |
+| HG4 — LGPD                 | 3-5d\*  | cobrança real         |
+| HG5 — Testes críticos      | 5d      | receber dinheiro      |
+
+\* após parecer jurídico chegar.
+
+**Sequência recomendada:** HG2 + HG3 (backup é higiene básica, semana 1) → HG1 (antes de abrir cadastro, semana 2) → HG5 (em paralelo com onboarding de primeiras consultoras pagas, semana 2-3) → HG4 (segue em outro fluxo com o jurídico).
+
+Total estimado: **~10 dias de engenharia** + tempo do parecer jurídico em paralelo.

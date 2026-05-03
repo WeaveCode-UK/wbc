@@ -24,5 +24,8 @@
   "cost_price": "Cost",
   "description_label": "Description",
   "send_product_title": "Send product to a client",
-  "send_product_pick": "Pick the client"
+  "send_product_pick": "Pick the client",
+  "delete_product": "Delete product",
+  "delete_product_confirm": "Delete \"{name}\"? This cannot be undone.",
+  "product_deleted": "Product deleted"
 }

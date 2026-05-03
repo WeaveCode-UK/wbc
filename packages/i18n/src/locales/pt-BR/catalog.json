@@ -24,5 +24,8 @@
   "cost_price": "Custo",
   "description_label": "Descrição",
   "send_product_title": "Enviar produto pra cliente",
-  "send_product_pick": "Escolha a cliente"
+  "send_product_pick": "Escolha a cliente",
+  "delete_product": "Excluir produto",
+  "delete_product_confirm": "Excluir \"{name}\"? A ação não pode ser desfeita.",
+  "product_deleted": "Produto excluído"
 }

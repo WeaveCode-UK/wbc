@@ -15,7 +15,8 @@ import { trpc } from "@/lib/trpc";
 import { useBrandFilter } from "../../../providers/brand-filter-provider";
 import { AddProductModal } from "@/components/add-product-modal";
 import { SendProductModal } from "@/components/send-product-modal";
-import { Send } from "lucide-react";
+import { Send, Trash2 } from "lucide-react";
+import { useToast } from "@/providers/toast-provider";
 
 const CATEGORY_OPTIONS: Array<{ value: string; key: string }> = [
   { value: "", key: "category_all" },
@@ -54,6 +55,17 @@ export default function CatalogPage() {
     price: number | string;
     description: string | null;
   } | null>(null);
+  const toast = useToast();
+  const utils = trpc.useUtils();
+  // QA BUG-04: card de produto não tinha ação de excluir/editar.
+  // Adiciona botão Trash2 que dispara catalog.deleteProduct (com confirm).
+  const deleteProduct = trpc.catalog.deleteProduct.useMutation({
+    onSuccess: () => {
+      toast.success(t("product_deleted"));
+      void utils.catalog.listProducts.invalidate();
+    },
+    onError: (err) => toast.error(err.message),
+  });
 
   // Topbar selector is the source of truth — sync local state when it
   // changes elsewhere (e.g. switched on /showcases then back here).
@@ -160,26 +172,44 @@ export default function CatalogPage() {
                     : p.category.charAt(0).toUpperCase() + p.category.slice(1)}
                 </Badge>
               )}
-              <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center justify-between gap-1">
                 <p className="text-[13px] tabular-nums text-[var(--wc-fg-1)]">
                   {formatBRL(Number(p.price))}
                 </p>
-                <Button
-                  type="button"
-                  size="xs"
-                  variant="ghost"
-                  aria-label={t("send_to_client")}
-                  onClick={() =>
-                    setSendProduct({
-                      id: p.id,
-                      name: p.name,
-                      price: p.price,
-                      description: p.description ?? null,
-                    })
-                  }
-                >
-                  <Send className="h-3.5 w-3.5" strokeWidth={1.75} />
-                </Button>
+                <div className="flex items-center gap-1">
+                  <Button
+                    type="button"
+                    size="xs"
+                    variant="ghost"
+                    aria-label={t("send_to_client")}
+                    onClick={() =>
+                      setSendProduct({
+                        id: p.id,
+                        name: p.name,
+                        price: p.price,
+                        description: p.description ?? null,
+                      })
+                    }
+                  >
+                    <Send className="h-3.5 w-3.5" strokeWidth={1.75} />
+                  </Button>
+                  <Button
+                    type="button"
+                    size="xs"
+                    variant="ghost"
+                    aria-label={t("delete_product")}
+                    onClick={() => {
+                      if (
+                        confirm(t("delete_product_confirm", { name: p.name }))
+                      ) {
+                        deleteProduct.mutate({ id: p.id });
+                      }
+                    }}
+                    disabled={deleteProduct.isPending}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" strokeWidth={1.75} />
+                  </Button>
+                </div>
               </div>
             </div>
           ))}

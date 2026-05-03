@@ -190,6 +190,53 @@ export const catalogRouter = router({
       );
     }),
 
+  // F11 follow-up: showcase update. Replaces the entire product set
+  // in a single transaction so there's no half-applied state if a
+  // delete-then-insert race lands. Name + isActive are nullable in
+  // the patch so the caller can edit metadata without re-sending the
+  // full product list.
+  updateShowcase: protectedProcedure
+    .input(
+      z.object({
+        id: uuidSchema,
+        name: z.string().min(1).optional(),
+        isActive: z.boolean().optional(),
+        productIds: z.array(z.string().uuid()).optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const existing = await prisma.showcase.findFirst({
+        where: { id: input.id, tenantId: ctx.tenant.tenantId },
+        select: { id: true },
+      });
+      if (!existing) {
+        throw new Error("showcase_not_found");
+      }
+      await prisma.$transaction(async (tx) => {
+        const data: { name?: string; isActive?: boolean } = {};
+        if (input.name !== undefined) data.name = input.name;
+        if (input.isActive !== undefined) data.isActive = input.isActive;
+        if (Object.keys(data).length > 0) {
+          await tx.showcase.update({ where: { id: input.id }, data });
+        }
+        if (input.productIds !== undefined) {
+          await tx.showcaseProduct.deleteMany({
+            where: { showcaseId: input.id },
+          });
+          if (input.productIds.length > 0) {
+            await tx.showcaseProduct.createMany({
+              data: input.productIds.map((productId, index) => ({
+                showcaseId: input.id,
+                productId,
+                sortOrder: index,
+              })),
+            });
+          }
+        }
+      });
+      return { success: true };
+    }),
+
   deleteShowcase: createDeleteProcedure((tenantId, id) =>
     deleteShowcase(tenantId, id, showcaseRepo),
   ),

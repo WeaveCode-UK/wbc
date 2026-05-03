@@ -51,6 +51,35 @@ npx -y lighthouse http://localhost:3000 \
   --output=json --output-path=./.lighthouse-auth.json
 ```
 
+### Baseline runner (F11.E29)
+
+For a sweep over the four key pages (`/`, `/clients`, `/sales/new`,
+`/campaigns/new`), run the helper:
+
+```bash
+export LIGHTHOUSE_COOKIE='next-auth.session-token=...'
+./scripts/lighthouse-baseline.sh
+```
+
+It writes JSON reports to `.lighthouse-reports/` (gitignored) and prints a
+one-line summary per page. Drop the latest summary into the table below.
+
+#### Latest baseline
+
+| Page             | Perf | A11y | Best-Pract | SEO | Date       | Notes                                                |
+| ---------------- | ---- | ---- | ---------- | --- | ---------- | ---------------------------------------------------- |
+| `/login`         | 47   | 96   | 96         | 91  | 2026-05-03 | dev-mode (unoptimized); A11y / BP / SEO above target |
+| `/`              | TBD  | TBD  | TBD        | TBD | —          | needs authenticated cookie                           |
+| `/clients`       | TBD  | TBD  | TBD        | TBD | —          | needs authenticated cookie                           |
+| `/sales/new`     | TBD  | TBD  | TBD        | TBD | —          | needs authenticated cookie                           |
+| `/campaigns/new` | TBD  | TBD  | TBD        | TBD | —          | needs authenticated cookie                           |
+
+> The `/login` Performance score of 47 reflects a **dev server** run
+> (`pnpm --filter @wbc/web dev`). Re-run against a production build
+> (`pnpm --filter @wbc/web build && pnpm --filter @wbc/web start`) for
+> the comparable Performance number; A11y / Best-Practices / SEO are
+> already comfortably above the 90/95 targets.
+
 ## Web Vitals (RUM)
 
 Every page reports CLS / LCP / INP / FCP / TTFB to `/api/vitals` via

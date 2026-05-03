@@ -12,6 +12,9 @@ coverage/
 .mcp.json
 *.tsbuildinfo
 
+# F11.E29: Lighthouse JSON reports (run output, not source).
+.lighthouse-reports/
+
 # Framework de auditoria — backups temporários e settings locais
 .auditoria-backup-*/
 .claude/settings.local.json

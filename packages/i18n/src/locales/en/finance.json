@@ -17,5 +17,20 @@
   "category_marketing": "Marketing",
   "category_logistics": "Logistics",
   "category_other": "Other",
-  "date": "Date"
+  "date": "Date",
+  "calculators": "Calculators",
+  "calculators_title": "Margin and goal calculators",
+  "calculators_subtitle": "No spreadsheet needed — fill in and see the result.",
+  "calc_margin_title": "Profit margin",
+  "calc_margin_help": "How much you keep from each sale of a product.",
+  "calc_margin_negative": "Sale price must be greater than cost for a positive margin.",
+  "calc_margin_absolute": "Profit per unit",
+  "calc_margin_percentage": "% over sale price",
+  "calc_goal_title": "Reverse goal",
+  "calc_goal_help": "Tell WBC how much you want to make; it tells you how much to sell.",
+  "calc_goal_target": "How much I want to make this month",
+  "calc_goal_required_sales": "Sales required",
+  "calc_goal_note": "Calculated with a 30% average margin. For finer numbers, tune per-product on the margin calculator.",
+  "cost_price": "Cost price",
+  "sale_price": "Sale price"
 }

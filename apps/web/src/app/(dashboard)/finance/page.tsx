@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Banknote, Inbox, Meh, ThumbsDown, ThumbsUp } from "lucide-react";
@@ -76,13 +77,20 @@ export default function FinancePage() {
 
   return (
     <div className="p-3 sm:p-6 space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2 flex-wrap">
         <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
           {t("title")}
         </h1>
-        <Button type="button" size="sm" onClick={() => setExpenseOpen(true)}>
-          {t("new_expense")}
-        </Button>
+        <div className="flex gap-2">
+          <Link href="/finance/calculators">
+            <Button type="button" size="sm" variant="ghost">
+              {t("calculators")}
+            </Button>
+          </Link>
+          <Button type="button" size="sm" onClick={() => setExpenseOpen(true)}>
+            {t("new_expense")}
+          </Button>
+        </div>
       </div>
 
       <AddExpenseModal

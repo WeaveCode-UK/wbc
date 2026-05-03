@@ -1,8 +1,17 @@
 import type { ReactNode } from "react";
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
+  // Lock the auth surfaces to the WeaveCode default+dark palette. The
+  // ThemeProvider writes data-theme/data-mode on <html>; declaring the
+  // same attributes on a closer ancestor wins by selector specificity
+  // and keeps /login looking identical regardless of what the user
+  // picked in the dashboard topbar.
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[var(--wc-blue-800)] bg-wc-dot-pattern bg-wc-dot text-white">
+    <div
+      data-theme="default"
+      data-mode="dark"
+      className="relative min-h-screen overflow-hidden bg-[var(--wc-blue-800)] bg-wc-dot-pattern bg-wc-dot text-white"
+    >
       {/* Purple radial accent — same vibe as the original split layout but
        * spread across the full canvas, behind the central card. */}
       <div

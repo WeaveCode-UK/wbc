@@ -10,6 +10,7 @@ export default defineConfig({
       "@wbc/ui": path.resolve(__dirname, "packages/ui/src"),
       "@wbc/validators": path.resolve(__dirname, "packages/validators/src"),
       "@wbc/db": path.resolve(__dirname, "packages/db/src"),
+      "@wbc/business": path.resolve(__dirname, "packages/business"),
     },
   },
   test: {

@@ -35,7 +35,12 @@ export default function DashboardLayout({
             <button
               type="button"
               onClick={() => setTheme(theme === "default" ? "rose" : "default")}
-              className="text-caption text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)] transition-colors px-2 py-1 rounded-md hover:bg-[var(--color-bg-secondary)]"
+              aria-label={
+                theme === "default"
+                  ? `Trocar para tema rosa`
+                  : `Trocar para tema padrão`
+              }
+              className="text-caption text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] px-2 py-1 rounded-md hover:bg-[var(--color-bg-secondary)]"
             >
               {theme === "default"
                 ? `💜 ${t("theme_default")}`
@@ -44,7 +49,10 @@ export default function DashboardLayout({
             <button
               type="button"
               onClick={toggleMode}
-              className="text-caption text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)] transition-colors px-2 py-1 rounded-md hover:bg-[var(--color-bg-secondary)]"
+              aria-label={
+                mode === "light" ? "Ativar modo escuro" : "Ativar modo claro"
+              }
+              className="text-caption text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] px-2 py-1 rounded-md hover:bg-[var(--color-bg-secondary)]"
             >
               {mode === "light" ? "🌙 Dark" : "☀️ Light"}
             </button>
@@ -55,7 +63,7 @@ export default function DashboardLayout({
               type="button"
               onClick={() => signOut({ callbackUrl: "/login" })}
               aria-label="Sair"
-              className="text-caption text-[var(--color-text-tertiary)] hover:text-[var(--color-danger-text)] transition-colors px-2 py-1 rounded-md hover:bg-[var(--color-bg-secondary)]"
+              className="text-caption text-[var(--color-text-tertiary)] hover:text-[var(--color-danger-text)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] px-2 py-1 rounded-md hover:bg-[var(--color-bg-secondary)]"
             >
               Sair
             </button>

@@ -30,6 +30,25 @@ export function AddClientModal({
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [isLead, setIsLead] = useState(false);
+  const [touched, setTouched] = useState({
+    name: false,
+    phone: false,
+    email: false,
+  });
+
+  // F11.E28: inline validation. Phone must be E.164 (+countryNumber);
+  // email is best-effort. Errors only show after the field has been
+  // blurred to avoid yelling at the user mid-typing.
+  const phoneError =
+    touched.phone && phone && !/^\+\d{10,15}$/.test(phone)
+      ? "Use formato internacional, ex: +5511999990000"
+      : undefined;
+  const emailError =
+    touched.email && email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+      ? "E-mail inválido"
+      : undefined;
+  const nameError = touched.name && !name ? "Nome obrigatório" : undefined;
+  const hasErrors = Boolean(phoneError || emailError || nameError);
 
   const utils = trpc.useUtils();
   const create = trpc.clients.create.useMutation({
@@ -73,41 +92,35 @@ export function AddClientModal({
           {t("add_client")}
         </h2>
 
-        <div className="space-y-1">
-          <label className="text-caption text-[var(--color-text-tertiary)]">
-            {t("name")}
-          </label>
-          <Input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            autoFocus
-            required
-          />
-        </div>
+        <Input
+          label={t("name")}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          onBlur={() => setTouched((s) => ({ ...s, name: true }))}
+          error={nameError}
+          autoFocus
+          required
+        />
 
-        <div className="space-y-1">
-          <label className="text-caption text-[var(--color-text-tertiary)]">
-            {t("phone")}
-          </label>
-          <Input
-            type="tel"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            placeholder="+5511999990000"
-            required
-          />
-        </div>
+        <Input
+          label={t("phone")}
+          type="tel"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          onBlur={() => setTouched((s) => ({ ...s, phone: true }))}
+          error={phoneError}
+          placeholder="+5511999990000"
+          required
+        />
 
-        <div className="space-y-1">
-          <label className="text-caption text-[var(--color-text-tertiary)]">
-            {t("email")}
-          </label>
-          <Input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
+        <Input
+          label={t("email")}
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          onBlur={() => setTouched((s) => ({ ...s, email: true }))}
+          error={emailError}
+        />
 
         <label className="flex items-center gap-2 text-body-small text-[var(--color-text-secondary)]">
           <input
@@ -128,9 +141,10 @@ export function AddClientModal({
           <Button
             type="button"
             onClick={submit}
-            disabled={create.isPending || !name || !phone}
+            loading={create.isPending}
+            disabled={create.isPending || !name || !phone || hasErrors}
           >
-            {create.isPending ? "..." : tCommon("save")}
+            {tCommon("save")}
           </Button>
         </div>
       </div>

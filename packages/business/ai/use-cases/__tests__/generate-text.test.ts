@@ -14,6 +14,10 @@ function makeFakeProvider(text = "ok"): AIProvider & {
   const calls: Array<{ system: string; user: string }> = [];
   return {
     calls,
+    async generate(prompt) {
+      calls.push({ system: "", user: prompt });
+      return { text, inputTokens: 10, outputTokens: 5, model: "fake" };
+    },
     async generateChat({ system, user }) {
       calls.push({ system, user });
       return { text, inputTokens: 10, outputTokens: 5, model: "fake" };
@@ -40,7 +44,7 @@ function makeFakeRepo(): AIRepository & {
       recordings.push({ tenantId, mode, prompt });
     },
     async getUsage() {
-      return { used: 0, limit: 30 };
+      return { used: 0, limit: 30, remaining: 30 };
     },
   };
 }

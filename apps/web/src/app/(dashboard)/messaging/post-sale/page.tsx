@@ -1,18 +1,57 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Alert, ToggleSwitch } from "@wbc/ui";
-import { useState } from "react";
+import { Alert, Button, ToggleSwitch } from "@wbc/ui";
+import { trpc } from "@/lib/trpc";
+import { useToast } from "@/providers/toast-provider";
 
-// F11.E14: post-sale 2+2+2 flow config. The flow itself is wired
-// inside the messaging worker; this page is the user-facing toggle.
-// Backend persistence of the toggle is queued — for now state stays
-// local with a TODO note.
+// F11.E14 + follow-up: post-sale 2+2+2 flow config. Persistence is
+// now wired to messaging.getPostSaleConfig / updatePostSaleConfig
+// (Tenant table — see migration in this commit). The worker reads
+// the same fields when scheduling outgoing messages.
 
 export default function PostSalePage() {
   const t = useTranslations("messaging");
+  const toast = useToast();
+  const config = trpc.messaging.getPostSaleConfig.useQuery();
+  const utils = trpc.useUtils();
+  const update = trpc.messaging.updatePostSaleConfig.useMutation({
+    onSuccess: () => {
+      toast.success("Cadência salva");
+      void utils.messaging.getPostSaleConfig.invalidate();
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
   const [enabled, setEnabled] = useState(true);
   const [delays, setDelays] = useState({ d2: 2, w2: 14, m2: 60 });
+
+  useEffect(() => {
+    if (!config.data) return;
+    setEnabled(config.data.postSaleEnabled);
+    setDelays({
+      d2: config.data.postSaleDayDelay,
+      w2: config.data.postSaleWeekDelay,
+      m2: config.data.postSaleMonthDelay,
+    });
+  }, [config.data]);
+
+  const save = () => {
+    update.mutate({
+      enabled,
+      dayDelay: delays.d2,
+      weekDelay: delays.w2,
+      monthDelay: delays.m2,
+    });
+  };
+
+  const isDirty =
+    config.data &&
+    (config.data.postSaleEnabled !== enabled ||
+      config.data.postSaleDayDelay !== delays.d2 ||
+      config.data.postSaleWeekDelay !== delays.w2 ||
+      config.data.postSaleMonthDelay !== delays.m2);
 
   return (
     <div className="p-3 sm:p-6 space-y-4">
@@ -74,10 +113,16 @@ export default function PostSalePage() {
         </section>
       )}
 
-      <Alert variant="warning">
-        Persistência da configuração será wirada num próximo épico. Os valores
-        acima são apenas para visualização.
-      </Alert>
+      <div className="flex justify-end">
+        <Button
+          type="button"
+          onClick={save}
+          loading={update.isPending}
+          disabled={!isDirty || update.isPending}
+        >
+          Salvar
+        </Button>
+      </div>
     </div>
   );
 }

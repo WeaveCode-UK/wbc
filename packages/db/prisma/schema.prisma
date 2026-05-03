@@ -31,6 +31,15 @@ model Tenant {
   // these and skips them on cost-billing aggregations.
   isDemo       Boolean   @default(false)
   demoResetAt  DateTime?
+  // F11 follow-up: post-sale 2+2+2 messaging cadence. The page in
+  // /messaging/post-sale lets the consultora tune both the toggle and
+  // the per-stage delays (in days). The worker's post-sale-flow uses
+  // these values when scheduling messages — falling back to (2, 14, 60)
+  // when null preserves the original 2+2+2 cadence.
+  postSaleEnabled    Boolean @default(true)
+  postSaleDayDelay   Int     @default(2)
+  postSaleWeekDelay  Int     @default(14)
+  postSaleMonthDelay Int     @default(60)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

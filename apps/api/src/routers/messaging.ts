@@ -10,6 +10,7 @@ import { personalizeMessage } from "../../../../packages/business/messaging/doma
 import { generateWhatsappLink } from "@wbc/business/messaging/use-cases/generate-whatsapp-link";
 import type { WhatsAppPort } from "../../../../packages/business/messaging/ports/whatsapp-port";
 import { z } from "zod";
+import { prisma } from "@wbc/db";
 import { uuidSchema } from "@wbc/validators";
 // ACH-008 apis-integracoes: schema centralised in @wbc/validators.
 import { sendToClientSchema } from "@wbc/validators";
@@ -200,5 +201,51 @@ export const messagingRouter = router({
         kind: input.kind,
         customMessage: input.customMessage,
       });
+    }),
+
+  // F11 follow-up: post-sale 2+2+2 cadence config (read+write). The
+  // page in /messaging/post-sale was previously a local-state stub
+  // marked TODO. The post-sale-flow scheduler reads these values
+  // when planning messages; nullables fall back to (2, 14, 60).
+  getPostSaleConfig: protectedProcedure.query(async ({ ctx }) => {
+    const tenant = await prisma.tenant.findUnique({
+      where: { id: ctx.tenant.tenantId },
+      select: {
+        postSaleEnabled: true,
+        postSaleDayDelay: true,
+        postSaleWeekDelay: true,
+        postSaleMonthDelay: true,
+      },
+    });
+    return (
+      tenant ?? {
+        postSaleEnabled: true,
+        postSaleDayDelay: 2,
+        postSaleWeekDelay: 14,
+        postSaleMonthDelay: 60,
+      }
+    );
+  }),
+
+  updatePostSaleConfig: protectedProcedure
+    .input(
+      z.object({
+        enabled: z.boolean(),
+        dayDelay: z.number().int().min(1).max(30),
+        weekDelay: z.number().int().min(1).max(180),
+        monthDelay: z.number().int().min(1).max(365),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      await prisma.tenant.update({
+        where: { id: ctx.tenant.tenantId },
+        data: {
+          postSaleEnabled: input.enabled,
+          postSaleDayDelay: input.dayDelay,
+          postSaleWeekDelay: input.weekDelay,
+          postSaleMonthDelay: input.monthDelay,
+        },
+      });
+      return { success: true };
     }),
 });

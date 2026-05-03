@@ -4,6 +4,7 @@ import { logger } from "../lib/logger";
 import { WhatsAppN2Adapter } from "@wbc/business/messaging/adapters/whatsapp-n2-adapter";
 import { generateWhatsappLink } from "@wbc/business/messaging/use-cases/generate-whatsapp-link";
 import { createPushableNotification } from "@wbc/business/schedule/use-cases/notification-fanout";
+import { selectWhatsAppChannel } from "../lib/select-whatsapp-channel";
 
 // Item 11 da spec / item 9 do handoff: confirmação automática de venda via
 // WhatsApp.
@@ -24,15 +25,6 @@ const whatsappN2 = new WhatsAppN2Adapter();
 interface SaleConfirmedPayload {
   saleId: string;
   tenantId: string;
-}
-
-async function shouldUseN2(tenantId: string): Promise<boolean> {
-  if (!process.env.WHATSAPP_API_TOKEN) return false;
-  const subscription = await prisma.subscription.findUnique({
-    where: { tenantId },
-    select: { plan: true, status: true },
-  });
-  return subscription?.plan === "PRO" && subscription.status === "ACTIVE";
 }
 
 export function registerSaleConfirmationMessenger(): void {
@@ -56,8 +48,10 @@ export function registerSaleConfirmationMessenger(): void {
       kind: "SALE_CONFIRMED",
     });
 
-    const useN2 = await shouldUseN2(payload.tenantId);
-    if (useN2) {
+    // Bloco 2 do plano: lógica N1/N2 extraída pra selectWhatsAppChannel
+    // pra ser reutilizada pelo messaging-processor.
+    const channel = await selectWhatsAppChannel(payload.tenantId);
+    if (channel === "N2") {
       try {
         await whatsappN2.sendText(sale.client.phone, link.message, {
           idempotencyKey: `sale-confirmed:${sale.id}`,

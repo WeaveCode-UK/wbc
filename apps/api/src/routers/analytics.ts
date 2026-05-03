@@ -6,11 +6,13 @@ import {
   getProductRanking,
   getClientEngagement,
 } from "../../../../packages/business/analytics/use-cases/get-stats";
+import { getSeasonality } from "../../../../packages/business/analytics/use-cases/get-seasonality";
 // ACH-008 apis-integracoes: schemas centralised in @wbc/validators.
 import {
   getClientEngagementSchema,
   getProductRankingSchema,
   getSalesStatsSchema,
+  getSeasonalitySchema,
 } from "@wbc/validators";
 // ACH-015: tenant-scoped cache helpers prefix the key automatically and
 // throw TenantContextMissingError if invoked outside a runWithTenant
@@ -69,6 +71,22 @@ export const analyticsRouter = router({
         input.clientId,
         analyticsRepo,
       );
+    }),
+
+  getSeasonality: protectedProcedure
+    .input(getSeasonalitySchema)
+    .query(async ({ ctx, input }) => {
+      const cacheKey = `analytics:seasonality:${input.monthsBack}`;
+      type Output = Awaited<ReturnType<typeof getSeasonality>>;
+      const cached = await cacheGetForTenant<Output>(cacheKey);
+      if (cached) return cached;
+      const result = await getSeasonality(
+        ctx.tenant.tenantId,
+        input.monthsBack,
+        analyticsRepo,
+      );
+      await cacheSetForTenant(cacheKey, result, 600);
+      return result;
     }),
 
   recalculateABC: protectedProcedure.mutation(async ({ ctx }) => {

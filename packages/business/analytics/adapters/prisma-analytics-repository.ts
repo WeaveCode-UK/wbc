@@ -5,6 +5,7 @@ import type {
   SalesStats,
   ProductRankingItem,
   ClientEngagement,
+  SeasonalityBucket,
 } from "../ports/analytics-repository";
 import { MS_PER_DAY, DAYS_IN_WEEK } from "../domain/constants";
 import {
@@ -169,6 +170,53 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
         daysSinceLastPurchase,
       },
     };
+  }
+
+  async getSeasonality(
+    tenantId: string,
+    monthsBack: number,
+  ): Promise<SeasonalityBucket[]> {
+    const now = new Date();
+    const start = new Date(
+      now.getFullYear(),
+      now.getMonth() - monthsBack + 1,
+      1,
+    );
+    const sales = await prisma.sale.findMany({
+      where: {
+        tenantId,
+        status: { in: COMPLETED_SALE_STATUSES },
+        createdAt: { gte: start },
+      },
+      select: { createdAt: true, total: true },
+    });
+
+    const buckets = new Map<string, SeasonalityBucket>();
+    for (let i = 0; i < monthsBack; i++) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const key = `${d.getFullYear()}-${d.getMonth()}`;
+      buckets.set(key, {
+        year: d.getFullYear(),
+        month: d.getMonth() + 1,
+        salesCount: 0,
+        revenue: 0,
+      });
+    }
+
+    for (const sale of sales) {
+      const d = sale.createdAt;
+      const key = `${d.getFullYear()}-${d.getMonth()}`;
+      const bucket = buckets.get(key);
+      if (!bucket) continue;
+      bucket.salesCount += 1;
+      bucket.revenue += Number(sale.total);
+    }
+
+    return Array.from(buckets.values()).sort(
+      (a, b) =>
+        new Date(a.year, a.month - 1, 1).getTime() -
+        new Date(b.year, b.month - 1, 1).getTime(),
+    );
   }
 
   async calculateABCClassification(

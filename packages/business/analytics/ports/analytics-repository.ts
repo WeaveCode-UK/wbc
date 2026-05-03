@@ -27,10 +27,27 @@ export interface ClientEngagement {
   };
 }
 
+export interface SeasonalityBucket {
+  year: number;
+  month: number;
+  salesCount: number;
+  revenue: number;
+}
+
 export interface AnalyticsRepository {
   getDashboard(tenantId: string): Promise<DashboardData>;
   getSalesStats(tenantId: string): Promise<SalesStats>;
-  getProductRanking(tenantId: string, limit: number): Promise<ProductRankingItem[]>;
-  getClientEngagement(tenantId: string, clientId: string): Promise<ClientEngagement>;
+  getProductRanking(
+    tenantId: string,
+    limit: number,
+  ): Promise<ProductRankingItem[]>;
+  getClientEngagement(
+    tenantId: string,
+    clientId: string,
+  ): Promise<ClientEngagement>;
   calculateABCClassification(tenantId: string): Promise<{ updated: number }>;
+  getSeasonality(
+    tenantId: string,
+    monthsBack: number,
+  ): Promise<SeasonalityBucket[]>;
 }

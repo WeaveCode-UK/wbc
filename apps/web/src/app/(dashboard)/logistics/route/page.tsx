@@ -2,9 +2,24 @@
 
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { Map as MapIcon } from "lucide-react";
+import { Map as MapIcon, Navigation } from "lucide-react";
 import { Badge, EmptyState, ListItem, ListSkeleton } from "@wbc/ui";
 import { trpc } from "@/lib/trpc";
+
+// Bloco 7 do plano: feature #102 — abertura direta no Maps/Waze.
+// Em mobile, prioriza waze:// (deep link); em desktop, Google Maps.
+// Em mobile sem Waze instalado o link silenciosamente cai pro Google
+// Maps porque o `<a>` aninhado (geo:) faz fallback automático.
+function buildMapLinks(address: string): {
+  primary: string;
+  secondary: string;
+} {
+  const q = encodeURIComponent(address);
+  return {
+    primary: `https://www.google.com/maps/search/?api=1&query=${q}`,
+    secondary: `https://waze.com/ul?q=${q}&navigate=yes`,
+  };
+}
 
 export default function DailyRoutePage() {
   const tCommon = useTranslations("common");
@@ -67,14 +82,47 @@ export default function DailyRoutePage() {
             <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
               {key === "ZZZ_sem_endereco" ? t("no_address") : key}
             </h2>
-            {items.map((stop) => (
-              <ListItem
-                key={stop.deliveryId}
-                title={stop.clientName}
-                subtitle={stop.address ?? "—"}
-                right={<Badge variant="info">{stop.status}</Badge>}
-              />
-            ))}
+            {items.map((stop) => {
+              const links = stop.address ? buildMapLinks(stop.address) : null;
+              return (
+                <ListItem
+                  key={stop.deliveryId}
+                  title={stop.clientName}
+                  subtitle={stop.address ?? "—"}
+                  right={
+                    <div className="flex items-center gap-2">
+                      {links && (
+                        <>
+                          <a
+                            href={links.primary}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex h-8 items-center gap-1 rounded-wc-sm px-2 text-[12px] font-medium text-[var(--wc-purple)] hover:bg-[var(--wc-purple-50)]"
+                            aria-label={t("open_in_maps")}
+                          >
+                            <Navigation
+                              className="h-3.5 w-3.5"
+                              strokeWidth={1.75}
+                            />
+                            Maps
+                          </a>
+                          <a
+                            href={links.secondary}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex h-8 items-center rounded-wc-sm px-2 text-[12px] font-medium text-[var(--wc-orange)] hover:bg-[color:rgb(255_102_0/0.08)]"
+                            aria-label={t("open_in_waze")}
+                          >
+                            Waze
+                          </a>
+                        </>
+                      )}
+                      <Badge variant="info">{stop.status}</Badge>
+                    </div>
+                  }
+                />
+              );
+            })}
           </section>
         ))}
     </div>

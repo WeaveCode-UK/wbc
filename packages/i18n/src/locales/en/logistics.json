@@ -10,5 +10,7 @@
   "route_subtitle_one": "{count} stop · grouped by neighbourhood",
   "route_subtitle_other": "{count} stops · grouped by neighbourhood",
   "no_route": "No deliveries scheduled for today",
-  "no_address": "No address"
+  "no_address": "No address",
+  "open_in_maps": "Open in Google Maps",
+  "open_in_waze": "Open in Waze"
 }

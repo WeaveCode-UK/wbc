@@ -10,5 +10,7 @@
   "route_subtitle_one": "{count} parada · agrupado por bairro",
   "route_subtitle_other": "{count} paradas · agrupado por bairro",
   "no_route": "Nenhuma entrega para hoje",
-  "no_address": "Sem endereço"
+  "no_address": "Sem endereço",
+  "open_in_maps": "Abrir no Google Maps",
+  "open_in_waze": "Abrir no Waze"
 }

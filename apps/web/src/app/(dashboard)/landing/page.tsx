@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import QRCode from "qrcode";
 import { Alert, Button, Input, ToggleSwitch } from "@wbc/ui";
 import { Label } from "@wbc/ui/components/label";
 import { trpc } from "@/lib/trpc";
@@ -41,6 +42,8 @@ export default function LandingPage() {
   const [whatsapp, setWhatsapp] = useState("");
   const [photoUrl, setPhotoUrl] = useState("");
   const [notice, setNotice] = useState<string | null>(null);
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
+  const [showQR, setShowQR] = useState(false);
 
   useEffect(() => {
     if (!data) return;
@@ -52,6 +55,26 @@ export default function LandingPage() {
 
   const slug = data?.slug ?? "";
   const publicUrl = slug ? `https://wbc.com.br/${slug}` : "—";
+  const waShareUrl = slug
+    ? `https://wa.me/?text=${encodeURIComponent(`Conhece minha loja: ${publicUrl}`)}`
+    : "";
+
+  useEffect(() => {
+    if (!slug) return;
+    QRCode.toDataURL(publicUrl, { width: 256, margin: 1 })
+      .then(setQrDataUrl)
+      .catch(() => setQrDataUrl(null));
+  }, [slug, publicUrl]);
+
+  const handleCopy = async () => {
+    if (!slug) return;
+    try {
+      await navigator.clipboard.writeText(publicUrl);
+      setNotice("Link copiado!");
+    } catch {
+      setNotice("Não consegui copiar — selecione e copie manualmente.");
+    }
+  };
 
   const onSave = () => {
     setNotice(null);
@@ -183,20 +206,57 @@ export default function LandingPage() {
             <p className="text-[12px] text-[var(--wc-fg-3)]">
               {t("share_link")}
             </p>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Button
                 type="button"
                 variant="secondary"
                 size="sm"
-                onClick={() => slug && navigator.clipboard.writeText(publicUrl)}
+                onClick={handleCopy}
                 disabled={!slug}
               >
                 {t("copy_link")}
               </Button>
-              <Button type="button" variant="ghost" size="sm" disabled={!slug}>
+              <a
+                href={waShareUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-disabled={!slug}
+                className={
+                  "inline-flex h-9 items-center rounded-wc-sm border border-[var(--wc-border)] px-3 text-[13px] font-medium transition-colors " +
+                  (slug
+                    ? "text-[var(--wc-fg-1)] hover:bg-[var(--wc-bg-muted)]"
+                    : "pointer-events-none text-[var(--wc-fg-3)] opacity-60")
+                }
+              >
                 {t("share_link_action")}
+              </a>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowQR((v) => !v)}
+                disabled={!slug}
+              >
+                {showQR ? "Esconder QR" : "QR Code"}
               </Button>
             </div>
+            {showQR && qrDataUrl && (
+              <div className="flex flex-col items-start gap-2 pt-2">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={qrDataUrl}
+                  alt={`QR code para ${publicUrl}`}
+                  className="h-40 w-40 rounded-wc-md border border-[var(--wc-border)] bg-white p-2"
+                />
+                <a
+                  href={qrDataUrl}
+                  download={`wbc-${slug}-qr.png`}
+                  className="text-[12px] text-[var(--wc-purple)] hover:underline"
+                >
+                  Baixar PNG
+                </a>
+              </div>
+            )}
           </div>
 
           <div className="flex justify-end pt-2">

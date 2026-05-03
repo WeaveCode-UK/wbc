@@ -13,6 +13,7 @@ import {
 } from "@wbc/ui";
 import { trpc } from "@/lib/trpc";
 import { useBrandFilter } from "../../../providers/brand-filter-provider";
+import { AddProductModal } from "@/components/add-product-modal";
 
 const CATEGORY_OPTIONS: Array<{ value: string; key: string }> = [
   { value: "", key: "category_all" },
@@ -44,6 +45,7 @@ export default function CatalogPage() {
   const [category, setCategory] = useState<string | null>("");
   const { activeBrandId, setActiveBrandId } = useBrandFilter();
   const [brandId, setBrandId] = useState<string | null>(activeBrandId);
+  const [addOpen, setAddOpen] = useState(false);
 
   // Topbar selector is the source of truth — sync local state when it
   // changes elsewhere (e.g. switched on /showcases then back here).
@@ -87,10 +89,12 @@ export default function CatalogPage() {
             {t("subtitle")}
           </p>
         </div>
-        <Button type="button" size="sm">
+        <Button type="button" size="sm" onClick={() => setAddOpen(true)}>
           {t("new_product")}
         </Button>
       </header>
+
+      <AddProductModal open={addOpen} onClose={() => setAddOpen(false)} />
 
       <SearchBar
         value={search}

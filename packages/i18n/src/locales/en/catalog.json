@@ -16,5 +16,13 @@
   "stock_out": "Out of stock",
   "send_to_client": "Send to client",
   "no_products": "No products found",
-  "no_products_hint": "Add products or adjust filters"
+  "no_products_hint": "Add products or adjust filters",
+  "product_name": "Name",
+  "brand": "Brand",
+  "category": "Category",
+  "price": "Price",
+  "cost_price": "Cost",
+  "description_label": "Description",
+  "send_product_title": "Send product to a client",
+  "send_product_pick": "Pick the client"
 }

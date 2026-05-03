@@ -1,4 +1,5 @@
 import pino, { type Logger } from "pino";
+import pretty from "pino-pretty";
 import { getActiveTraceContext } from "./observability/trace-context";
 
 /**
@@ -45,8 +46,27 @@ const REDACT_PATHS = [
   "*.headers.cookie",
 ];
 
+// Pino's `transport: { target: "pino-pretty" }` runs pino-pretty in a
+// worker thread. That worker is owned by the Next.js dev process; when
+// HMR invalidates `.next/server/vendor-chunks/lib/worker.js`, the
+// thread exits, and every subsequent `logger.info()` throws
+// "the worker has exited" — which, being thrown from a Redis
+// `on('connect')` handler / tRPC middleware, becomes an uncaught
+// exception and brings the whole dev server down in cascade. See the
+// 2026-05-03 /schedule incident.
+//
+// Using pino-pretty as an in-process Writable stream keeps formatting
+// identical (colors, single-line, etc.) without the worker boundary
+// that HMR breaks. Production keeps the JSON-to-stdout default.
+function buildDestination(): pino.DestinationStream | undefined {
+  if (process.env.NODE_ENV === "development") {
+    return pretty({ colorize: true, sync: true });
+  }
+  return undefined;
+}
+
 export function createLogger(service: string): Logger {
-  return pino({
+  const baseOptions = {
     name: `wbc-${service}`,
     level: getLogLevel(),
     redact: { paths: REDACT_PATHS, censor: "[REDACTED]" },
@@ -58,9 +78,7 @@ export function createLogger(service: string): Logger {
       if (!ctx) return {};
       return { traceId: ctx.traceId, spanId: ctx.spanId };
     },
-    transport:
-      process.env.NODE_ENV === "development"
-        ? { target: "pino-pretty", options: { colorize: true } }
-        : undefined,
-  });
+  };
+  const destination = buildDestination();
+  return destination ? pino(baseOptions, destination) : pino(baseOptions);
 }

@@ -248,4 +248,109 @@ export const messagingRouter = router({
       });
       return { success: true };
     }),
+
+  // Bloco 3 do plano: feature #66 — histórico de comunicação por cliente.
+  // Une 3 fontes (ScheduledMessage, PostSaleFlow joined com Sale, e
+  // CampaignRecipient joined com Campaign) num único feed ordenado por
+  // tempo, com limite. Notification é pulada porque não armazena clientId
+  // (vínculo é via parsing do `type`, frágil).
+  listSentToClient: protectedProcedure
+    .input(
+      z.object({
+        clientId: uuidSchema,
+        limit: z.number().int().min(1).max(100).default(30),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const tenantId = ctx.tenant.tenantId;
+      const [scheduled, postSale, campaignRecipients] = await Promise.all([
+        prisma.scheduledMessage.findMany({
+          where: { tenantId, clientId: input.clientId },
+          orderBy: { sendAt: "desc" },
+          take: input.limit,
+          select: {
+            id: true,
+            type: true,
+            message: true,
+            sendAt: true,
+            status: true,
+          },
+        }),
+        prisma.postSaleFlow.findMany({
+          where: {
+            clientId: input.clientId,
+            sale: { tenantId },
+          },
+          orderBy: { scheduledAt: "desc" },
+          take: input.limit,
+          select: {
+            id: true,
+            stage: true,
+            messageVariant: true,
+            scheduledAt: true,
+            sentAt: true,
+            status: true,
+          },
+        }),
+        prisma.campaignRecipient.findMany({
+          where: {
+            clientId: input.clientId,
+            campaign: { tenantId },
+          },
+          orderBy: { sentAt: "desc" },
+          take: input.limit,
+          select: {
+            id: true,
+            status: true,
+            sentAt: true,
+            campaign: {
+              select: { name: true, message: true, createdAt: true },
+            },
+          },
+        }),
+      ]);
+
+      type Event = {
+        id: string;
+        kind: "SCHEDULED" | "POST_SALE" | "CAMPAIGN";
+        type: string;
+        title: string;
+        body: string;
+        at: Date;
+        status: string;
+      };
+
+      const events: Event[] = [
+        ...scheduled.map((s) => ({
+          id: s.id,
+          kind: "SCHEDULED" as const,
+          type: s.type,
+          title: s.type,
+          body: s.message,
+          at: s.sendAt,
+          status: s.status,
+        })),
+        ...postSale.map((p) => ({
+          id: p.id,
+          kind: "POST_SALE" as const,
+          type: p.stage,
+          title: `Pós-venda ${p.stage} (variante ${p.messageVariant})`,
+          body: "",
+          at: p.sentAt ?? p.scheduledAt,
+          status: p.status,
+        })),
+        ...campaignRecipients.map((r) => ({
+          id: r.id,
+          kind: "CAMPAIGN" as const,
+          type: "CAMPAIGN",
+          title: `Campanha: ${r.campaign.name}`,
+          body: r.campaign.message,
+          at: r.sentAt ?? r.campaign.createdAt,
+          status: r.status,
+        })),
+      ];
+
+      events.sort((a, b) => b.at.getTime() - a.at.getTime());
+      return events.slice(0, input.limit);
+    }),
 });

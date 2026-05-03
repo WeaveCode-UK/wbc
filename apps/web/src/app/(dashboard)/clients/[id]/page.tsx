@@ -14,6 +14,7 @@ import {
   ListSkeleton,
   MetricCard,
   Tag,
+  Timeline,
 } from "@wbc/ui";
 import {
   AlertTriangle,
@@ -78,6 +79,10 @@ export default function ClientProfilePage() {
   );
   const giftSuggestors = trpc.clients.listGiftSuggestors.useQuery(
     { clientId: id },
+    { enabled: !!id },
+  );
+  const messageHistory = trpc.messaging.listSentToClient.useQuery(
+    { clientId: id, limit: 30 },
     { enabled: !!id },
   );
   const utils = trpc.useUtils();
@@ -441,6 +446,42 @@ export default function ClientProfilePage() {
         clientId={id}
         onClose={() => setGiftSuggestorOpen(false)}
       />
+
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-4">
+        <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
+          {t("history_title")}
+        </h2>
+        <p className="mt-1 text-[12px] text-[var(--wc-fg-3)]">
+          {t("history_help")}
+        </p>
+        <div className="mt-3">
+          {messageHistory.isLoading && <ListSkeleton count={3} />}
+          {!messageHistory.isLoading &&
+            (messageHistory.data ?? []).length === 0 && (
+              <p className="text-[12px] text-[var(--wc-fg-3)]">
+                {t("history_empty")}
+              </p>
+            )}
+          {(messageHistory.data ?? []).length > 0 && (
+            <Timeline
+              events={(messageHistory.data ?? []).map((e) => ({
+                color:
+                  e.kind === "CAMPAIGN"
+                    ? "var(--wc-orange)"
+                    : e.kind === "POST_SALE"
+                      ? "var(--wc-purple)"
+                      : "var(--wc-info)",
+                title: e.title,
+                description: e.body || undefined,
+                time: new Intl.DateTimeFormat("pt-BR", {
+                  dateStyle: "short",
+                  timeStyle: "short",
+                }).format(new Date(e.at)),
+              }))}
+            />
+          )}
+        </div>
+      </section>
 
       <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-4">
         <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">

@@ -22,6 +22,7 @@ import {
 import { getCashbackBalance } from "../../../../packages/business/sales/use-cases/manage-cashback";
 import { flagExpiringCashbacks } from "@wbc/business/sales/use-cases/flag-expiring-cashback";
 import { generatePixForPayment } from "@wbc/business/sales/use-cases/generate-pix";
+import { createMpPixCharge } from "@wbc/business/sales/use-cases/create-mp-pix-charge";
 import { createReturn } from "../../../../packages/business/sales/use-cases/create-return";
 import { paginationSchema, uuidSchema } from "@wbc/validators";
 import { listOk } from "../trpc/responses";
@@ -232,6 +233,20 @@ export const salesRouter = router({
     .input(z.object({ paymentId: uuidSchema }))
     .mutation(async ({ ctx, input }) => {
       return generatePixForPayment({
+        tenantId: ctx.tenant.tenantId,
+        paymentId: input.paymentId,
+      });
+    }),
+
+  // F11 follow-up: dynamic PIX via Mercado Pago. Returns a real charge
+  // id + QR. The webhook /api/webhooks/mercadopago auto-marks PAID
+  // when MP confirms — no human polling needed. Requires
+  // MERCADOPAGO_ACCESS_TOKEN; throws "MercadoPagoNotConfiguredError"
+  // when missing.
+  generateMpPix: protectedProcedure
+    .input(z.object({ paymentId: uuidSchema }))
+    .mutation(async ({ ctx, input }) => {
+      return createMpPixCharge({
         tenantId: ctx.tenant.tenantId,
         paymentId: input.paymentId,
       });

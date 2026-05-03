@@ -36,14 +36,36 @@ export default function FinancePage() {
   const receivables = trpc.sales.getAccountsReceivable.useQuery({});
   const nps = trpc.platform.npsStats.useQuery();
   const pixConfig = trpc.platform.getPixConfig.useQuery();
-  const [pixModalCode, setPixModalCode] = useState<string | null>(null);
+  const [pixModal, setPixModal] = useState<{
+    code: string;
+    qrBase64?: string;
+    caption?: string;
+  } | null>(null);
 
   const generatePix = trpc.sales.generatePix.useMutation({
     onSuccess: (result) => {
-      setPixModalCode(result.pixQrCode);
+      setPixModal({
+        code: result.pixQrCode,
+        caption: "PIX estático — confirme manualmente quando receber.",
+      });
     },
     onError: (err) => toast.error(err.message),
   });
+  const generateMpPix = trpc.sales.generateMpPix.useMutation({
+    onSuccess: (result) => {
+      setPixModal({
+        code: result.pixQrCode,
+        qrBase64: result.qrCodeBase64,
+        caption: `PIX automático via Mercado Pago — confirma sozinho. Expira ${new Date(result.expiresAt).toLocaleString("pt-BR")}.`,
+      });
+      void utils.sales.getAccountsReceivable.invalidate();
+    },
+    onError: (err) => toast.error(err.message),
+  });
+  const utils = trpc.useUtils();
+  const hasMercadoPago = Boolean(
+    process.env.NEXT_PUBLIC_MERCADOPAGO_ENABLED === "true",
+  );
 
   const dashData = dashboard.data;
   const expensesData = expenses.data?.data ?? [];
@@ -147,6 +169,21 @@ export default function FinancePage() {
                           PIX
                         </Button>
                       )}
+                      {p.status !== "PAID" && hasMercadoPago && (
+                        <Button
+                          type="button"
+                          size="xs"
+                          onClick={() =>
+                            generateMpPix.mutate({ paymentId: p.id })
+                          }
+                          loading={
+                            generateMpPix.isPending &&
+                            generateMpPix.variables?.paymentId === p.id
+                          }
+                        >
+                          PIX auto
+                        </Button>
+                      )}
                       <Badge
                         variant={p.status === "PAID" ? "success" : "warning"}
                       >
@@ -186,8 +223,10 @@ export default function FinancePage() {
       </section>
 
       <PixModal
-        code={pixModalCode}
-        onClose={() => setPixModalCode(null)}
+        code={pixModal?.code ?? null}
+        qrCodeBase64={pixModal?.qrBase64 ?? null}
+        caption={pixModal?.caption}
+        onClose={() => setPixModal(null)}
         onCopied={() => toast.success(tCommon("copied"))}
       />
     </div>

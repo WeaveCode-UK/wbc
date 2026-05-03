@@ -6,6 +6,7 @@ import {
   parseMercadoPagoPayload,
   verifyMercadoPagoSignature,
 } from "@wbc/business/finance/adapters/mercadopago-webhook-handler";
+import { syncMpPayment } from "@wbc/business/sales/use-cases/sync-mp-payment";
 
 // ACH-003 apis-integracoes: MercadoPago webhook route. The handler
 // package parses/validates; this route plugs it into HTTP and logs
@@ -101,8 +102,35 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // TODO(ACH-003 follow-up): forward `payload` to a payment-sync use-case
-  // that updates Payment.status and publishes PAYMENT_RECEIVED.
+  // F11 follow-up: forward to the payment-sync use-case. We only act
+  // on `payment` notifications — MP also fires "merchant_order"
+  // events for orchestrated flows we don't use. Errors here go back
+  // as 500 so MP retries (the retry will be deduped by the Redis
+  // lock above when it re-fires within the TTL).
+  if (payload.type === "payment" && payload.data?.id) {
+    try {
+      const result = await syncMpPayment({ mercadopagoId: payload.data.id });
+      return NextResponse.json(
+        {
+          received: true,
+          matched: result.matched,
+          status: result.newStatus,
+        },
+        { status: 200 },
+      );
+    } catch (error) {
+      // Fall through to 500 — MP will retry and the dedup lock
+      // ensures we don't double-process once it succeeds.
+      return NextResponse.json(
+        {
+          error: "sync_failed",
+          message: error instanceof Error ? error.message : "unknown",
+        },
+        { status: 500 },
+      );
+    }
+  }
+
   return NextResponse.json(
     {
       received: true,

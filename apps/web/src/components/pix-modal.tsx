@@ -10,16 +10,30 @@ import { Button } from "@wbc/ui";
 
 interface PixModalProps {
   code: string | null;
+  /** When provided, skip the qrcode lib and use this pre-rendered PNG. */
+  qrCodeBase64?: string | null;
+  /** Optional caption distinguishing static vs dynamic PIX. */
+  caption?: string;
   onClose: () => void;
   onCopied?: () => void;
 }
 
-export function PixModal({ code, onClose, onCopied }: PixModalProps) {
+export function PixModal({
+  code,
+  qrCodeBase64,
+  caption,
+  onClose,
+  onCopied,
+}: PixModalProps) {
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (!code) {
       setQrDataUrl(null);
+      return;
+    }
+    if (qrCodeBase64) {
+      setQrDataUrl(`data:image/png;base64,${qrCodeBase64}`);
       return;
     }
     let cancelled = false;
@@ -34,7 +48,7 @@ export function PixModal({ code, onClose, onCopied }: PixModalProps) {
     return () => {
       cancelled = true;
     };
-  }, [code]);
+  }, [code, qrCodeBase64]);
 
   if (!code) return null;
 
@@ -62,7 +76,7 @@ export function PixModal({ code, onClose, onCopied }: PixModalProps) {
           PIX gerado
         </h2>
         <p className="text-body-small text-[var(--color-text-secondary)]">
-          Mande o QR ou cole o código no WhatsApp dela.
+          {caption ?? "Mande o QR ou cole o código no WhatsApp dela."}
         </p>
 
         <div className="flex justify-center">

@@ -57,6 +57,7 @@ import {
   registerLoyaltyHandler,
   registerNotificationPushHandler,
 } from "./processors/event-handlers";
+import { registerSaleConfirmationMessenger } from "./processors/sale-confirmation-handler";
 import { PrismaNotificationRepository } from "../../../packages/business/schedule/adapters/prisma-schedule-repository";
 import { PrismaPostSaleFlowRepository } from "../../../packages/business/messaging/adapters/prisma-messaging-repository";
 import { startMessagingWorker } from "./processors/messaging-processor";
@@ -118,6 +119,9 @@ registerNotificationEventHandlers(new PrismaNotificationRepository());
 // F11.E25: SALE_CONFIRMED → loyalty earn; NOTIFICATION_CREATED → Expo push fan-out.
 registerLoyaltyHandler();
 registerNotificationPushHandler();
+// Item 9 do handoff: SALE_CONFIRMED → confirmação automática via WhatsApp
+// (N2 quando Pro+token, fallback notificação com deep link N1).
+registerSaleConfirmationMessenger();
 
 logger.info("WBC Worker starting...");
 logger.info("Domain event handlers registered");

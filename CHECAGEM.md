@@ -573,83 +573,83 @@ Ordem da lista é por **ROI / risco** (do que mais dói se quebrar pra menos cr�
   - ⚠️ **195 warnings intencionais** já marcados como warn no base — `no-restricted-syntax` (109 — ACH-004, `z.object` em routers) e `no-restricted-imports` (81 — ACH-021, deep-relative imports). Flip pra error depois que routers forem normalizados.
   - 📋 Regras-chave: `@typescript-eslint/no-explicit-any: error` (CLAUDE.md), `consistent-type-imports`, `no-console: warn`, plugin Next core-web-vitals nos apps web/landing.
   - 🚫 `no-undef` desabilitado em arquivos TS (recomendação oficial typescript-eslint — TS já cobre isso melhor).
-- [ ] **T0.2 — `pnpm type-check` por commit.** Hoje só roda em checkpoint de fase. Mover pra hook `pre-push` do husky + manter no CI. Esforço: 15min.
-- [ ] **T0.3 — Reforçar `pnpm arch:check` (dependency-cruiser).** Auditar `.dependency-cruiser.cjs` — confirmar que existem regras "domain não importa de adapters/db/next-auth/prisma" e "use-cases não importam Prisma direto". Adicionar as que faltarem. Esforço: 1h.
-- [ ] **T0.4 — Type tests com `expectTypeOf` (vitest).** Para schemas Zod críticos: `Sale`, `Client`, `Campaign`, `AuthSession`. Para o contract do tRPC (input/output types). Falha se inferência mudar silenciosamente. Esforço: 1d.
-- [ ] **T0.5 — Schema drift Prisma ↔ Zod.** Snapshot da saída de `prisma generate` vs schemas Zod em `packages/validators`. Diff em CI bloqueia drift. Esforço: 0.5d.
-- [ ] **T0.6 — License check em CI.** `pnpm license:check` já existe — promover a step obrigatório no `ci.yml`. Esforço: 15min.
-- [ ] **T0.7 — Lockfile integrity em CI.** `pnpm install --frozen-lockfile` como primeiro step. Esforço: 15min.
+- [x] **T0.2 — `pnpm type-check` por commit.** Hoje só roda em checkpoint de fase. Mover pra hook `pre-push` do husky + manter no CI. Esforço: 15min.
+- [x] **T0.3 — Reforçar `pnpm arch:check` (dependency-cruiser).** Auditar `.dependency-cruiser.cjs` — confirmar que existem regras "domain não importa de adapters/db/next-auth/prisma" e "use-cases não importam Prisma direto". Adicionar as que faltarem. Esforço: 1h.
+- [x] **T0.4 — Type tests com `expectTypeOf` (vitest).** Para schemas Zod críticos: `Sale`, `Client`, `Campaign`, `AuthSession`. Para o contract do tRPC (input/output types). Falha se inferência mudar silenciosamente. Esforço: 1d.
+- [x] **T0.5 — Schema drift Prisma ↔ Zod.** Snapshot da saída de `prisma generate` vs schemas Zod em `packages/validators`. Diff em CI bloqueia drift. Esforço: 0.5d.
+- [x] **T0.6 — License check em CI.** `pnpm license:check` já existe — promover a step obrigatório no `ci.yml`. Esforço: 15min.
+- [x] **T0.7 — Lockfile integrity em CI.** `pnpm install --frozen-lockfile` como primeiro step. Esforço: 15min.
 
 ### Bloco T1 — Domain (puro, invariantes)
 
 Cada módulo em `packages/business/<x>/domain/` precisa de teste de invariantes. Hoje existem testes em: `analytics`, `clients`, `sales`, `auth`, `catalog`, `platform`, `inventory`, `finance`, `messaging` (parcial). Faltam ou estão fracos:
 
-- [ ] **T1.1 — `sale-domain`:** total = sum(items) − discount + shipping + tax; status transitions DRAFT→CONFIRMED→DELIVERED→PAID válidas, demais rejeitadas; cancelamento só de status permitidos.
-- [ ] **T1.2 — `client-domain`:** classification ABC consistente com revenue threshold; tag count ≤ limit do plano; CPF format (libphonenumber-js para phone).
-- [ ] **T1.3 — `cashback-domain`:** cálculo de %, expiração, saldo nunca negativo, FIFO no consumo.
-- [ ] **T1.4 — `loyalty-domain`:** 1 ponto / R$10 (ACH-077), redenção não excede saldo, multiplicadores por categoria.
-- [ ] **T1.5 — `campaign-domain`:** scheduledAt ≥ now, recipient count ≤ tenant limit, template variables substituem corretamente (`{{nome}}`).
-- [ ] **T1.6 — `inventory-domain`:** stock ≥ 0, adjust não quebra invariante, alerta de estoque baixo dispara no threshold.
-- [ ] **T1.7 — `auth-domain`:** password policy (length, complexity), MFA TOTP window ±1 step, session expiry, rotação de refresh token.
-- [ ] **T1.8 — Property-based testing com `fast-check`** nos cálculos de dinheiro: `calculateMargin`, `calculateGoalReverse`, cashback, CAC. **Crítico — esses são "se quebrar, processo judicial".**
+- [x] **T1.1 — `sale-domain`:** total = sum(items) − discount + shipping + tax; status transitions DRAFT→CONFIRMED→DELIVERED→PAID válidas, demais rejeitadas; cancelamento só de status permitidos.
+- [x] **T1.2 — `client-domain`:** classification ABC consistente com revenue threshold; tag count ≤ limit do plano; CPF format (libphonenumber-js para phone).
+- [x] **T1.3 — `cashback-domain`:** cálculo de %, expiração, saldo nunca negativo, FIFO no consumo.
+- [x] **T1.4 — `loyalty-domain`:** 1 ponto / R$10 (ACH-077), redenção não excede saldo, multiplicadores por categoria.
+- [x] **T1.5 — `campaign-domain`:** scheduledAt ≥ now, recipient count ≤ tenant limit, template variables substituem corretamente (`{{nome}}`).
+- [x] **T1.6 — `inventory-domain`:** stock ≥ 0, adjust não quebra invariante, alerta de estoque baixo dispara no threshold.
+- [x] **T1.7 — `auth-domain`:** password policy (length, complexity), MFA TOTP window ±1 step, session expiry, rotação de refresh token.
+- [x] **T1.8 — Property-based testing com `fast-check`** nos cálculos de dinheiro: `calculateMargin`, `calculateGoalReverse`, cashback, CAC. **Crítico — esses são "se quebrar, processo judicial".**
 
 ### Bloco T2 — Use-cases (com `DeepMockProxy<PrismaClient>`)
 
 #### T2-A. Bloco crítico (DINHEIRO) — bloqueador de receita real
 
-- [ ] **T2.1 — `createSale.execute`:** validação de client+products do mesmo tenant; rollback de estoque em qualquer falha; outbox write atômico na mesma transação.
-- [ ] **T2.2 — `confirmSale.execute`:** decrement de estoque idempotente; outbox publica `SALE_CONFIRMED` com traceparent; chamada duplicada com mesma key não duplica efeito (cross-ref ACH-001 confiabilidade-resiliencia).
-- [ ] **T2.3 — `cancelSale.execute`:** restitui estoque, cancela cashback pendente, emite evento; só permite em status cancelável.
-- [ ] **T2.4 — `markPaid.execute`:** não duplica pagamento (idempotência por `paymentId`); registra audit log; atualiza `accountsReceivable`.
-- [ ] **T2.5 — `flagExpiringCashback.execute`:** corner case timezone (consultora em America/Sao_Paulo, expira no minuto exato), cron diário não duplica notificação.
-- [ ] **T2.6 — `generatePixForPayment.execute`:** HMAC do webhook MP validado; idempotência por `mp_payment_id`; valor exato (Decimal, sem float).
-- [ ] **T2.7 — `connectMercadoPago.execute`:** OAuth code não pode ser reusado; salva `refresh_token` cifrado (não em plaintext); rejeita state mismatch (CSRF).
-- [ ] **T2.8 — Race condition `confirmSale`:** Postgres Serializable isolation sob 2 chamadas concorrentes — só uma vence, outra recebe erro retryable.
+- [x] **T2.1 — `createSale.execute`:** validação de client+products do mesmo tenant; rollback de estoque em qualquer falha; outbox write atômico na mesma transação.
+- [x] **T2.2 — `confirmSale.execute`:** decrement de estoque idempotente; outbox publica `SALE_CONFIRMED` com traceparent; chamada duplicada com mesma key não duplica efeito (cross-ref ACH-001 confiabilidade-resiliencia).
+- [x] **T2.3 — `cancelSale.execute`:** restitui estoque, cancela cashback pendente, emite evento; só permite em status cancelável.
+- [x] **T2.4 — `markPaid.execute`:** não duplica pagamento (idempotência por `paymentId`); registra audit log; atualiza `accountsReceivable`.
+- [x] **T2.5 — `flagExpiringCashback.execute`:** corner case timezone (consultora em America/Sao_Paulo, expira no minuto exato), cron diário não duplica notificação.
+- [x] **T2.6 — `generatePixForPayment.execute`:** HMAC do webhook MP validado; idempotência por `mp_payment_id`; valor exato (Decimal, sem float).
+- [x] **T2.7 — `connectMercadoPago.execute`:** OAuth code não pode ser reusado; salva `refresh_token` cifrado (não em plaintext); rejeita state mismatch (CSRF).
+- [x] **T2.8 — Race condition `confirmSale`:** Postgres Serializable isolation sob 2 chamadas concorrentes — só uma vence, outra recebe erro retryable.
 
 #### T2-B. Multi-tenant — bloqueador de abertura pública
 
-- [ ] **T2.9 — Evil-twin para CADA use-case tenant-scoped.** Helper já existe em `packages/shared/src/__tests__/test-utils/mock-tenant-ctx.ts`. Para cada use-case: cenário "tenant A passa ID de recurso do tenant B → erro `TENANT_MISMATCH`". Cobre os 17 módulos (`ai`, `analytics`, `auth`, `campaigns`, `catalog`, `clients`, `finance`, `finops`, `inventory`, `landing`, `logistics`, `loyalty`, `messaging`, `platform`, `sales`, `schedule`, `team`).
-- [ ] **T2.10 — Verificar que TODA chamada Prisma inclui `tenantId` no `where`.** Teste estático que faz parse AST dos repositórios e falha se encontrar `prisma.X.findMany`/`findFirst`/`update`/`delete` sem `tenantId`. Regra inviolável CLAUDE.md.
+- [x] **T2.9 — Evil-twin para CADA use-case tenant-scoped.** Helper já existe em `packages/shared/src/__tests__/test-utils/mock-tenant-ctx.ts`. Para cada use-case: cenário "tenant A passa ID de recurso do tenant B → erro `TENANT_MISMATCH`". Cobre os 17 módulos (`ai`, `analytics`, `auth`, `campaigns`, `catalog`, `clients`, `finance`, `finops`, `inventory`, `landing`, `logistics`, `loyalty`, `messaging`, `platform`, `sales`, `schedule`, `team`).
+- [x] **T2.10 — Verificar que TODA chamada Prisma inclui `tenantId` no `where`.** Teste estático que faz parse AST dos repositórios e falha se encontrar `prisma.X.findMany`/`findFirst`/`update`/`delete` sem `tenantId`. Regra inviolável CLAUDE.md.
 
 #### T2-C. Resiliência
 
-- [ ] **T2.11 — `idempotent(key, fn)` wrapper:** chamada duplicada retorna cache; TTL expira e re-executa; cache miss em key nova.
-- [ ] **T2.12 — Outbox publisher:** escreve evento na MESMA transação do estado de domínio; propaga `traceparent` no metadata.
-- [ ] **T2.13 — Outbox subscriber:** `withIdempotentHandler` no piloto não duplica side-effect; falhas vão pra DLQ após N tentativas.
-- [ ] **T2.14 — `claimPending` atômico:** dois workers concorrentes via `FOR UPDATE SKIP LOCKED` pegam rows disjuntos.
-- [ ] **T2.15 — Circuit-breaker `deepseek-adapter`:** abre após N falhas consecutivas; half-open recovery após cooldown; closed depois de N sucessos.
+- [x] **T2.11 — `idempotent(key, fn)` wrapper:** chamada duplicada retorna cache; TTL expira e re-executa; cache miss em key nova.
+- [x] **T2.12 — Outbox publisher:** escreve evento na MESMA transação do estado de domínio; propaga `traceparent` no metadata.
+- [x] **T2.13 — Outbox subscriber:** `withIdempotentHandler` no piloto não duplica side-effect; falhas vão pra DLQ após N tentativas.
+- [x] **T2.14 — `claimPending` atômico:** dois workers concorrentes via `FOR UPDATE SKIP LOCKED` pegam rows disjuntos.
+- [x] **T2.15 — Circuit-breaker `deepseek-adapter`:** abre após N falhas consecutivas; half-open recovery após cooldown; closed depois de N sucessos.
 
 #### T2-D. Auth (5 procedures, ACH-005)
 
-- [ ] **T2.16 — `requestPasswordReset`:** gera token único, salva HASH (não plaintext), dispara email Resend; rate-limited.
-- [ ] **T2.17 — `consumePasswordReset`:** token válido troca senha; usado / expirado / forjado → reject; novo token invalida o anterior.
-- [ ] **T2.18 — `enrollMFA` / `confirmMFA` / `disableMFA`:** TOTP window ±1 step; backup codes one-shot (consumir invalida); disable exige password atual.
-- [ ] **T2.19 — Login com MFA habilitado sem código → 401.** Login com código inválido → 401 + counter incrementa rate-limit. Após N tentativas → 429.
-- [ ] **T2.20 — Sessão NextAuth:** Edge config (`auth.config.edge.ts`) não importa nada de Node; JWT assinado pelo Node decodifica no Edge (ver CLAUDE.md F11.E02).
+- [x] **T2.16 — `requestPasswordReset`:** gera token único, salva HASH (não plaintext), dispara email Resend; rate-limited.
+- [x] **T2.17 — `consumePasswordReset`:** token válido troca senha; usado / expirado / forjado → reject; novo token invalida o anterior.
+- [x] **T2.18 — `enrollMFA` / `confirmMFA` / `disableMFA`:** TOTP window ±1 step; backup codes one-shot (consumir invalida); disable exige password atual.
+- [x] **T2.19 — Login com MFA habilitado sem código → 401.** Login com código inválido → 401 + counter incrementa rate-limit. Após N tentativas → 429.
+- [x] **T2.20 — Sessão NextAuth:** Edge config (`auth.config.edge.ts`) não importa nada de Node; JWT assinado pelo Node decodifica no Edge (ver CLAUDE.md F11.E02).
 
 #### T2-E. Módulos órfãos (ACH-012, sem teste hoje)
 
-- [ ] **T2.21 — `campaigns.create`:** fan-out grava N `CampaignRecipient`; scheduledAt no futuro; substitui `{{nome}}` corretamente.
-- [ ] **T2.22 — `campaigns.createRemarketing`:** filtra NO_VIEW/NO_RESPONSE da campanha original.
-- [ ] **T2.23 — `schedule.buildRestockReminders`:** timezone do tenant; média real de dias entre compras; ignora clientes inativos.
-- [ ] **T2.24 — `schedule.buildDateReminders`:** aniversário no fuso correto; não duplica se cron rodar 2x.
-- [ ] **T2.25 — `analytics.recalculateABC`:** corner cases revenue=0; tenant sem vendas; threshold A/B/C respeitados.
-- [ ] **T2.26 — `analytics.getSeasonality` / `getProductRanking`:** queries agregadoras corretas em corner cases (mês sem venda).
-- [ ] **T2.27 — `ai.generateCampaignText` / `generateBillingMessage` / `generateReactivation` / `correctText`:** mock circuit-breaker; tracking de uso incrementa; limite 30/mês corta com erro claro.
-- [ ] **T2.28 — `ai.getUsage`:** counter zera no 1º do mês (cron); contagem isolada por tenant.
-- [ ] **T2.29 — `team.getRanking`:** empate, ausência de vendas, exclusão de membros inativos.
-- [ ] **T2.30 — `landing.update` / `getPublic`:** slug único por tenant; toggleActive remove do público.
+- [x] **T2.21 — `campaigns.create`:** fan-out grava N `CampaignRecipient`; scheduledAt no futuro; substitui `{{nome}}` corretamente.
+- [x] **T2.22 — `campaigns.createRemarketing`:** filtra NO_VIEW/NO_RESPONSE da campanha original.
+- [x] **T2.23 — `schedule.buildRestockReminders`:** timezone do tenant; média real de dias entre compras; ignora clientes inativos.
+- [x] **T2.24 — `schedule.buildDateReminders`:** aniversário no fuso correto; não duplica se cron rodar 2x.
+- [x] **T2.25 — `analytics.recalculateABC`:** corner cases revenue=0; tenant sem vendas; threshold A/B/C respeitados.
+- [x] **T2.26 — `analytics.getSeasonality` / `getProductRanking`:** queries agregadoras corretas em corner cases (mês sem venda).
+- [x] **T2.27 — `ai.generateCampaignText` / `generateBillingMessage` / `generateReactivation` / `correctText`:** mock circuit-breaker; tracking de uso incrementa; limite 30/mês corta com erro claro.
+- [x] **T2.28 — `ai.getUsage`:** counter zera no 1º do mês (cron); contagem isolada por tenant.
+- [x] **T2.29 — `team.getRanking`:** empate, ausência de vendas, exclusão de membros inativos.
+- [x] **T2.30 — `landing.update` / `getPublic`:** slug único por tenant; toggleActive remove do público.
 
 ### Bloco T3 — Adapters (com `nock` / mocks HTTP)
 
-- [ ] **T3.1 — `whatsapp-n2-adapter`:** payload Meta Cloud API correto; retry on 429 com backoff; DLQ on 4xx (não-429); rate limit por phone number id.
-- [ ] **T3.2 — `whatsapp-webhook-handler`:** assinatura `X-Hub-Signature-256` validada (rejeitar fuzz de bytes inválidos); status `delivered` / `read` mapeados em `CampaignRecipient`.
-- [ ] **T3.3 — `whatsapp-n1-adapter`:** deep link gerado com phone E.164 + texto urlencoded.
-- [ ] **T3.4 — `mercadopago-adapter` + webhook handler:** HMAC validado; idempotência por `payment_id`; valor em centavos exato (sem float).
-- [ ] **T3.5 — `deepseek-adapter`:** circuit-breaker (T2.15); timeout configurável; redaction de PII no log.
-- [ ] **T3.6 — `resend-email-sender`:** template render via i18n; fallback retry em 5xx; dry-run em dev.
-- [ ] **T3.7 — `expo-push-adapter` (em `event-handlers.ts`):** payload Expo Push correto; HTTP direto (sem SDK) trata 502/503.
-- [ ] **T3.8 — Sentry redaction (`packages/shared/src/sentry-redaction.ts`):** PII (email, phone, CPF) nunca chega ao Sentry.
+- [x] **T3.1 — `whatsapp-n2-adapter`:** payload Meta Cloud API correto; retry on 429 com backoff; DLQ on 4xx (não-429); rate limit por phone number id.
+- [x] **T3.2 — `whatsapp-webhook-handler`:** assinatura `X-Hub-Signature-256` validada (rejeitar fuzz de bytes inválidos); status `delivered` / `read` mapeados em `CampaignRecipient`.
+- [x] **T3.3 — `whatsapp-n1-adapter`:** deep link gerado com phone E.164 + texto urlencoded.
+- [x] **T3.4 — `mercadopago-adapter` + webhook handler:** HMAC validado; idempotência por `payment_id`; valor em centavos exato (sem float).
+- [x] **T3.5 — `deepseek-adapter`:** circuit-breaker (T2.15); timeout configurável; redaction de PII no log.
+- [x] **T3.6 — `resend-email-sender`:** template render via i18n; fallback retry em 5xx; dry-run em dev.
+- [x] **T3.7 — `expo-push-adapter` (em `event-handlers.ts`):** payload Expo Push correto; HTTP direto (sem SDK) trata 502/503.
+- [x] **T3.8 — Sentry redaction (`packages/shared/src/sentry-redaction.ts`):** PII (email, phone, CPF) nunca chega ao Sentry.
 
 ### Bloco T4 — Componentes UI (React Testing Library)
 
@@ -678,61 +678,61 @@ Cada módulo em `packages/business/<x>/domain/` precisa de teste de invariantes.
 
 ### Bloco T6 — Rate-limiting (HG1 — bloqueador de abertura pública)
 
-- [ ] **T6.1 — Plano Free:** 60 req/min — 61ª retorna `TOO_MANY_REQUESTS` (429).
-- [ ] **T6.2 — Plano Pro:** 300 req/min — idem.
-- [ ] **T6.3 — Headers obrigatórios:** `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`, `Retry-After`.
-- [ ] **T6.4 — Janela deslizante:** testar borda da janela (req no segundo 59 vs segundo 60).
-- [ ] **T6.5 — Isolamento entre tenants:** tenant A esgotando bucket NÃO afeta tenant B.
-- [ ] **T6.6 — Auth endpoints (`/login`, `/reset-password`, `/mfa/*`):** rate-limit por IP **E** por email (defesa em profundidade).
-- [ ] **T6.7 — Connection pool não exhauste:** ataque com 1k req/s simultâneas → pool de 10 não esgota, requests excedentes ficam em fila ou recebem 429.
+- [x] **T6.1 — Plano Free:** 60 req/min — 61ª retorna `TOO_MANY_REQUESTS` (429).
+- [x] **T6.2 — Plano Pro:** 300 req/min — idem.
+- [x] **T6.3 — Headers obrigatórios:** `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`, `Retry-After`.
+- [x] **T6.4 — Janela deslizante:** testar borda da janela (req no segundo 59 vs segundo 60).
+- [x] **T6.5 — Isolamento entre tenants:** tenant A esgotando bucket NÃO afeta tenant B.
+- [x] **T6.6 — Auth endpoints (`/login`, `/reset-password`, `/mfa/*`):** rate-limit por IP **E** por email (defesa em profundidade).
+- [x] **T6.7 — Connection pool não exhauste:** ataque com 1k req/s simultâneas → pool de 10 não esgota, requests excedentes ficam em fila ou recebem 429.
 
 ### Bloco T7 — Contratos (ACH-010)
 
-- [ ] **T7.1 — JSON Schema dos schemas Zod do tRPC:** gerar com `zod-to-json-schema`, snapshot em `packages/validators/__snapshots__/`. Diff em CI bloqueia breaking change silenciosa entre `apps/api` e `apps/mobile` / `apps/web`.
-- [ ] **T7.2 — Pact (futuro):** webhook Meta + webhook Mercado Pago. Pular até integração real estar live.
+- [x] **T7.1 — JSON Schema dos schemas Zod do tRPC:** gerar com `zod-to-json-schema`, snapshot em `packages/validators/__snapshots__/`. Diff em CI bloqueia breaking change silenciosa entre `apps/api` e `apps/mobile` / `apps/web`.
+- [~] **T7.2 — Pact (futuro):** webhook Meta + webhook Mercado Pago. Pular até integração real estar live.
 
 ### Bloco T8 — E2E (Playwright)
 
 Hoje: 7 specs (`health` + 5 golden + handoff). Faltam:
 
-- [ ] **T8.1 — Multi-tenant isolation E2E:** Alice (tenant A) cria cliente "João". Bob (tenant B) NÃO vê João em listagem, search, nem chamando `/api/trpc/clients.getById?id=<id-do-João>` direto.
+- [~] **T8.1 — Multi-tenant isolation E2E:** Alice (tenant A) cria cliente "João". Bob (tenant B) NÃO vê João em listagem, search, nem chamando `/api/trpc/clients.getById?id=<id-do-João>` direto.
 - [ ] **T8.2 — Fluxo "dinheiro" completo:** login → cria cliente → cria venda DRAFT → confirma → estoque decrementa → outbox publica `SALE_CONFIRMED` → handler dispara mensagem → cashback creditado → saldo aparece em `/clients/[id]`.
 - [ ] **T8.3 — Webhook MP:** simula webhook HMAC válido → venda vira `PAID` → audit log registrado.
 - [ ] **T8.4 — Cancelamento pós-pago:** cancela venda paga → estoque restitui, cashback estorna, registro de devolução.
 - [ ] **T8.5 — Fluxo campanha:** cria campanha agendada → mock worker varre fila → fan-out gera N recipients → webhook Meta `delivered` chega → estatísticas atualizam em `/campaigns/[id]`.
 - [ ] **T8.6 — Auth 2.0 completo:** cadastro novo tenant → email verification → enroll MFA TOTP → logout → login com TOTP → reset senha → login com nova senha.
 - [ ] **T8.7 — Google OAuth (mock provider):** primeiro login cria conta; segundo reusa.
-- [ ] **T8.8 — Acessibilidade (`@axe-core/playwright`):** rodar axe em `/`, `/clients`, `/sales/new`, `/campaigns/new`, `/settings`, `/analytics`. Zero violações `serious` ou `critical`.
-- [ ] **T8.9 — i18n switching:** trocar cookie `NEXT_LOCALE` para `en` → toda string da página renderiza em inglês.
-- [ ] **T8.10 — Detector de strings hardcoded (regra inviolável):** parse das páginas, falha se encontrar texto fora de `t(...)` / `useTranslations()`.
-- [ ] **T8.11 — Lighthouse gate:** LCP < 2.5s, TTI < 3.5s nas rotas mais visitadas. `.lighthouse-reports/` já existe — promover a gate hard-fail no CI.
-- [ ] **T8.12 — Mobile (Expo / React Native):** smoke test do fluxo offline-first (`apps/mobile/src/lib/offline-store.ts`) — criar venda offline, sync ao reconectar.
+- [~] **T8.8 — Acessibilidade (`@axe-core/playwright`):** rodar axe em `/`, `/clients`, `/sales/new`, `/campaigns/new`, `/settings`, `/analytics`. Zero violações `serious` ou `critical`.
+- [~] **T8.9 — i18n switching:** trocar cookie `NEXT_LOCALE` para `en` → toda string da página renderiza em inglês.
+- [~] **T8.10 — Detector de strings hardcoded (regra inviolável):** parse das páginas, falha se encontrar texto fora de `t(...)` / `useTranslations()`.
+- [~] **T8.11 — Lighthouse gate:** LCP < 2.5s, TTI < 3.5s nas rotas mais visitadas. `.lighthouse-reports/` já existe — promover a gate hard-fail no CI.
+- [~] **T8.12 — Mobile (Expo / React Native):** smoke test do fluxo offline-first (`apps/mobile/src/lib/offline-store.ts`) — criar venda offline, sync ao reconectar.
 
 ### Bloco T9 — Segurança
 
-- [ ] **T9.1 — `gitleaks` pre-commit virar HARD-FAIL no CI** (hoje pre-commit já roda; CI precisa dele duro).
-- [ ] **T9.2 — `pnpm audit` no CI:** falha em CVE high/critical. Adicionar allowlist explícito pra falsos positivos.
-- [ ] **T9.3 — OWASP ZAP baseline contra staging:** XSS, SQLi básico, CSP headers, cookies `Secure`/`HttpOnly`/`SameSite=Lax`.
-- [ ] **T9.4 — Webhook signature fuzz:** bytes inválidos / truncados / replay com timestamp velho → reject (Meta + MP).
-- [ ] **T9.5 — Tenant isolation pen test automatizado:** script que tenta IDOR em CADA router (passa ID de outro tenant em todos os params relevantes).
-- [ ] **T9.6 — Rate-limit pen test:** 1k req/s → não derruba pool, 429s devolvidos corretamente.
-- [ ] **T9.7 — Secrets em logs:** scan automático de `pino` output (test fixtures) — falha se PII/token aparecer não-redacted.
-- [ ] **T9.8 — SAST workflow (já existe `.github/workflows/sast.yml`):** confirmar que está rodando e bloqueando merge.
+- [x] **T9.1 — `gitleaks` pre-commit virar HARD-FAIL no CI** (hoje pre-commit já roda; CI precisa dele duro).
+- [x] **T9.2 — `pnpm audit` no CI:** falha em CVE high/critical. Adicionar allowlist explícito pra falsos positivos.
+- [~] **T9.3 — OWASP ZAP baseline contra staging:** XSS, SQLi básico, CSP headers, cookies `Secure`/`HttpOnly`/`SameSite=Lax`.
+- [~] **T9.4 — Webhook signature fuzz:** bytes inválidos / truncados / replay com timestamp velho → reject (Meta + MP).
+- [~] **T9.5 — Tenant isolation pen test automatizado:** script que tenta IDOR em CADA router (passa ID de outro tenant em todos os params relevantes).
+- [~] **T9.6 — Rate-limit pen test:** 1k req/s → não derruba pool, 429s devolvidos corretamente.
+- [x] **T9.7 — Secrets em logs:** scan automático de `pino` output (test fixtures) — falha se PII/token aparecer não-redacted.
+- [x] **T9.8 — SAST workflow (já existe `.github/workflows/sast.yml`):** confirmar que está rodando e bloqueando merge.
 
 ### Bloco T10 — Backup / DR (HG2 + HG3)
 
-- [ ] **T10.1 — Job `pg_dump` cifrado + upload R2:** já tem scaffold (commit `0c514d2`). Confirmar que roda diariamente, retenção 30d daily + 12 monthly.
-- [ ] **T10.2 — Smoketest semanal de restore:** workflow `dr-drill.yml` já existe — confirmar que pega backup mais recente, restaura em container efêmero, roda `SELECT count(*)` em tenants/sales/payments, alerta Slack se falhar. **Backup que nunca foi restaurado não é backup, é arquivo.**
+- [x] **T10.1 — Job `pg_dump` cifrado + upload R2:** já tem scaffold (commit `0c514d2`). Confirmar que roda diariamente, retenção 30d daily + 12 monthly.
+- [x] **T10.2 — Smoketest semanal de restore:** workflow `dr-drill.yml` já existe — confirmar que pega backup mais recente, restaura em container efêmero, roda `SELECT count(*)` em tenants/sales/payments, alerta Slack se falhar. **Backup que nunca foi restaurado não é backup, é arquivo.**
 
 ### Bloco T11 — Mutation testing (camada extra)
 
-- [ ] **T11.1 — `Stryker` em domain + use-cases de dinheiro:** score mínimo 60%. Pega assertion fraca (teste passa, mas não cobre nada de fato). Esforço inicial 1d + manutenção contínua.
+- [~] **T11.1 — `Stryker` em domain + use-cases de dinheiro:** score mínimo 60%. Pega assertion fraca (teste passa, mas não cobre nada de fato). Esforço inicial 1d + manutenção contínua.
 
 ### Bloco T12 — Coverage gate escalonado
 
 `vitest.config.ts` hoje em 20%. Subir conforme blocos forem caindo:
 
-- [ ] **T12.1 — 40%** após T1 + T2-A + T2-B fechados.
+- [x] **T12.1 — 40%** após T1 + T2-A + T2-B fechados.
 - [ ] **T12.2 — 70%** após T2-C + T2-D + T2-E + T3 + T4 fechados.
 - [ ] **T12.3 — 80% (estável)** após T5 + T6 + T8 fechados.
 - [ ] **T12.4 — Pre-commit roda testes relacionados** (ACH-016) — ativar em husky depois de coverage 70%.

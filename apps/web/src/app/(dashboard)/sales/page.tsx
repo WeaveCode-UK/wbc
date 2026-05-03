@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import {
@@ -48,6 +49,7 @@ function statusVariant(
 
 export default function SalesPage() {
   const t = useTranslations("sales");
+  const router = useRouter();
   const [filter, setFilter] = useState<StatusFilter>("all");
 
   const sales = trpc.sales.list.useQuery({
@@ -124,6 +126,7 @@ export default function SalesPage() {
               key={sale.id}
               title={formatBRL(Number(sale.total ?? 0))}
               subtitle={`${formatDate(sale.createdAt)}${sale.paymentMethod ? ` · ${sale.paymentMethod}` : ""}`}
+              onClick={() => router.push(`/sales/${sale.id}`)}
               right={
                 <Badge variant={statusVariant(sale.status)}>
                   {sale.status}

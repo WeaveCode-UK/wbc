@@ -10,6 +10,38 @@
 
 ---
 
+## ⭐ TL;DR — Faltam apenas 8 features pra fechar a spec v1.2
+
+Depois do plano `tidy-mixing-rossum` (13 commits, 21 features movidas pra ✅), a spec v1.2 está em **96/105 = 91% implementada**. As 8 restantes estão todas fora do alcance do código hoje:
+
+### ⏳ 3 aguardando provisionamento de bucket R2 (humano cria, agente liga)
+
+| #   | Feature                              | O que falta                                                                       |
+| --- | ------------------------------------ | --------------------------------------------------------------------------------- |
+| 4   | Campanhas com áudio                  | bucket R2 (Cloudflare) → adapter `r2-adapter.ts` (~1h de código depois das creds) |
+| 6   | Anexos em campanhas (foto/vídeo/PDF) | mesmo R2 + dropzone no wizard step 2                                              |
+| 75  | Widget WhatsApp em PNG real          | mesmo R2 + lib `sharp` no Docker image (hoje só SVG download)                     |
+
+### 🚧 5 aguardando decisão/credencial humana (código pronto, sem o que codar)
+
+| #   | Feature                              | O que falta — quem faz                                                       |
+| --- | ------------------------------------ | ---------------------------------------------------------------------------- |
+| 2   | WhatsApp N2 (Meta Cloud API)         | WABA verificado + token + templates aprovados pela Meta (1–4 sem) — Robson   |
+| 24  | Importação contatos WhatsApp         | **impossível tecnicamente** — Meta não expõe API geral de contatos           |
+| 49  | Push Notifications mobile real       | Apple Developer ($99/ano) + Firebase Service Account + APNs key — Robson     |
+| 53  | Sync automático de níveis das marcas | **impossível tecnicamente** — nenhuma marca (Mary Kay, Avon…) expõe API      |
+| 80  | Landing page nome.wbc.com.br         | domínio `wbc.com.br` no Registro.br + DNS Cloudflare + wildcard SSL — Robson |
+
+### ⛔ 1 descontinuada por decisão de Fase 10
+
+| #   | Feature                | Substituto                                                    |
+| --- | ---------------------- | ------------------------------------------------------------- |
+| 63  | Login OTP via WhatsApp | Auth 2.0: email + senha + MFA (TOTP) + Google OAuth (F10.E03) |
+
+**Resumo:** das 8 que faltam, **2 são tecnicamente impossíveis** (#24 e #53 — limitações de APIs externas), **3 dependem de bucket R2** (humano provê creds, agente termina), **3 dependem de credenciais/contas externas** (Meta, Apple/Google, Registro.br). Nenhuma exige mais código novo de feature da spec.
+
+---
+
 ## Sumário Executivo (após execução do plano)
 
 Das 105 features da spec v1.2:

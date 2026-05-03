@@ -52,18 +52,18 @@ export default defineConfig({
       ],
       exclude: ["**/__tests__/**", "**/index.ts"],
       reporter: ["text", "html", "lcov"],
-      // T12.3 — ramped 2026-05-03 from 35% → 65% after the second
-      // multi-agent push (errors+VO+shared, adapters+infra, UI 19+15
-      // components). Actual: statements 74%, branches 72%, functions
-      // 74%, lines 74%. Gate set ~10pp below the lowest dimension so a
-      // regression breaks CI but legitimate flux doesn't. Final ramp
-      // toward 80% comes after auth use-case agent finishes (T2-D was
-      // shallow on the 22 untested auth use-cases; in flight now).
+      // T12 — ramped 2026-05-03 to 75% after the third coverage push
+      // (auth use-cases agent + main-thread fills on shared utilities,
+      // events, optimistic-update, sentry-noise-filter, client domain
+      // edge cases). Actual at gate raise: statements 80.13%,
+      // branches 78.05%, functions 79.43%, lines 80.14%. We crossed
+      // the CHECAGEM "80% stable" target. Gate held ~5pp below to
+      // tolerate small regressions while still blocking large drops.
       thresholds: {
-        lines: 65,
-        branches: 60,
-        functions: 65,
-        statements: 65,
+        lines: 75,
+        branches: 70,
+        functions: 75,
+        statements: 75,
       },
     },
   },

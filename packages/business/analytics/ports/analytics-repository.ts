@@ -19,11 +19,19 @@ export interface ProductRankingItem {
 }
 
 export interface ClientEngagement {
-  score: number;
+  score: number; // 0..100
   breakdown: {
     salesCount: number;
     totalSpent: number;
     daysSinceLastPurchase: number;
+    avgTicket: number;
+    referralsCount: number;
+  };
+  components: {
+    frequency: number; // 0..40
+    recency: number; // 0..30
+    ticket: number; // 0..20
+    referrals: number; // 0..10
   };
 }
 

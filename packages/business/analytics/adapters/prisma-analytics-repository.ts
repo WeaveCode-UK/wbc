@@ -11,7 +11,7 @@ import { MS_PER_DAY, DAYS_IN_WEEK } from "../domain/constants";
 import {
   computeAvgTicket,
   computeDaysSince,
-  computeEngagementScore,
+  computeEngagementScoreV2,
   classifyABC,
 } from "../domain/value-objects";
 // ACH-012 revisor follow-up: reuse centralised status enum instead of
@@ -160,15 +160,29 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
     ]);
 
     const daysSinceLastPurchase = computeDaysSince(lastSale?.createdAt);
-    const { score } = computeEngagementScore(salesCount, daysSinceLastPurchase);
+    const totalSpentValue = Number(totalSpent._sum.total ?? 0);
+    const avgTicket = computeAvgTicket(totalSpentValue, salesCount);
+    // Indicações por cliente ainda não têm fonte (Client não tem self-ref
+    // referredById e Referral é entre tenants). Quando a fonte existir, basta
+    // popular este campo — o cálculo já reserva 10 pontos pra ele.
+    const referralsCount = 0;
+    const { score, breakdown: components } = computeEngagementScoreV2({
+      salesCount,
+      daysSinceLastPurchase,
+      avgTicket,
+      referralsCount,
+    });
 
     return {
       score,
       breakdown: {
         salesCount,
-        totalSpent: Number(totalSpent._sum.total ?? 0),
+        totalSpent: totalSpentValue,
         daysSinceLastPurchase,
+        avgTicket,
+        referralsCount,
       },
+      components,
     };
   }
 

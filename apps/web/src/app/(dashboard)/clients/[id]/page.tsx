@@ -58,6 +58,10 @@ export default function ClientProfilePage() {
     { clientId: id },
     { enabled: !!id },
   );
+  const engagement = trpc.analytics.getClientEngagement.useQuery(
+    { clientId: id },
+    { enabled: !!id },
+  );
 
   if (client.isLoading) {
     return (
@@ -153,7 +157,7 @@ export default function ClientProfilePage() {
         />
         <MetricCard
           label={t("profile_stat_engagement")}
-          value={String(c.engagementScore ?? 0)}
+          value={`${engagement.data?.score ?? c.engagementScore ?? 0}/100`}
         />
         <MetricCard
           label={t("profile_stat_last_purchase")}
@@ -161,6 +165,57 @@ export default function ClientProfilePage() {
         />
         <MetricCard label={t("cashback")} value={formatBRL(cashbackValue)} />
       </section>
+
+      {engagement.data && (
+        <section
+          aria-label={t("profile_stat_engagement")}
+          className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-4"
+        >
+          <header className="flex items-baseline justify-between">
+            <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
+              {t("profile_stat_engagement")}
+            </h2>
+            <span className="text-[26px] font-semibold text-[var(--wc-purple)]">
+              {engagement.data.score}
+              <span className="text-[13px] text-[var(--wc-fg-3)]">/100</span>
+            </span>
+          </header>
+          <dl className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div>
+              <dt className="text-[11px] text-[var(--wc-fg-3)]">
+                {t("profile_engagement_frequency")}
+              </dt>
+              <dd className="text-[13px] text-[var(--wc-fg-1)]">
+                {engagement.data.components.frequency}/40
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[11px] text-[var(--wc-fg-3)]">
+                {t("profile_engagement_recency")}
+              </dt>
+              <dd className="text-[13px] text-[var(--wc-fg-1)]">
+                {engagement.data.components.recency}/30
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[11px] text-[var(--wc-fg-3)]">
+                {t("profile_engagement_ticket")}
+              </dt>
+              <dd className="text-[13px] text-[var(--wc-fg-1)]">
+                {engagement.data.components.ticket}/20
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[11px] text-[var(--wc-fg-3)]">
+                {t("profile_engagement_referrals")}
+              </dt>
+              <dd className="text-[13px] text-[var(--wc-fg-1)]">
+                {engagement.data.components.referrals}/10
+              </dd>
+            </div>
+          </dl>
+        </section>
+      )}
 
       {c.allergies && (
         <Alert

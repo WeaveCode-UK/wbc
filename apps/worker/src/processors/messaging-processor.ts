@@ -1,4 +1,5 @@
-import { Worker, Job } from "bullmq";
+import type { Job } from "bullmq";
+import { Worker } from "bullmq";
 import { JOB_QUEUES, logIfInvalidJobData } from "@wbc/shared";
 import { prisma } from "@wbc/db";
 import { connection } from "../lib/redis";

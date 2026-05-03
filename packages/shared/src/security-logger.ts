@@ -55,7 +55,6 @@ export function logSecurityEvent(data: SecurityEvent): void {
     // eslint-disable-next-line no-console
     console.log(JSON.stringify({ ...entry, msg }));
   } else {
-    // eslint-disable-next-line no-console
     console.warn(JSON.stringify({ ...entry, msg }));
   }
 }

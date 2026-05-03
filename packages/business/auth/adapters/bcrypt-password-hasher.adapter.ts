@@ -1,7 +1,9 @@
-import type { PasswordHasher } from '../ports/password-hasher.port';
+import type { PasswordHasher } from "../ports/password-hasher.port";
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const bcrypt = require('bcryptjs') as { hash: (s: string, n: number) => Promise<string>; compare: (s: string, h: string) => Promise<boolean> };
+const bcrypt = require("bcryptjs") as {
+  hash: (s: string, n: number) => Promise<string>;
+  compare: (s: string, h: string) => Promise<boolean>;
+};
 
 const COST_FACTOR = 12;
 

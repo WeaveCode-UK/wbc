@@ -1,4 +1,5 @@
-import { Worker, Job } from "bullmq";
+import type { Job } from "bullmq";
+import { Worker } from "bullmq";
 import { connection } from "../lib/redis";
 import { logger } from "../lib/logger";
 import { PrismaAnalyticsRepository } from "../../../../packages/business/analytics/adapters/prisma-analytics-repository";

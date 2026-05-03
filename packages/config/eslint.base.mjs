@@ -1,19 +1,36 @@
 import js from "@eslint/js";
+import nextPlugin from "@next/eslint-plugin-next";
 import tsPlugin from "@typescript-eslint/eslint-plugin";
 import tsParser from "@typescript-eslint/parser";
+import globals from "globals";
+
+const k6Globals = { __ENV: "readonly", __VU: "readonly", __ITER: "readonly" };
 
 export default [
   js.configs.recommended,
   {
+    languageOptions: {
+      ecmaVersion: "latest",
+      sourceType: "module",
+      globals: { ...globals.node, ...globals.browser, ...globals.es2022 },
+    },
+  },
+  {
     files: ["**/*.ts", "**/*.tsx"],
     languageOptions: {
       parser: tsParser,
-      parserOptions: { project: true },
+      parserOptions: { ecmaVersion: "latest", sourceType: "module" },
+      globals: { ...globals.node, ...globals.browser, ...globals.es2022 },
     },
     plugins: { "@typescript-eslint": tsPlugin },
     rules: {
+      // typescript-eslint recommends disabling no-undef in TS — TS already
+      // handles undefined identifiers and is more accurate (it knows about
+      // ambient types like NodeJS, RequestInit, React without imports).
+      "no-undef": "off",
+      "no-unused-vars": "off",
       "@typescript-eslint/no-explicit-any": "error",
-      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
+      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
       "@typescript-eslint/consistent-type-imports": ["error", { prefer: "type-imports" }],
       "no-console": ["warn", { allow: ["warn", "error"] }],
       // ACH-021 codigo-manutenibilidade: block deep-relative imports that
@@ -53,5 +70,44 @@ export default [
       ],
     },
   },
-  { ignores: ["node_modules/", "dist/", ".next/", "coverage/"] },
+  {
+    files: ["apps/web/**/*.{ts,tsx}", "apps/landing/**/*.{ts,tsx}"],
+    plugins: { "@next/next": nextPlugin },
+    rules: {
+      ...nextPlugin.configs.recommended.rules,
+      ...nextPlugin.configs["core-web-vitals"].rules,
+    },
+  },
+  {
+    files: ["scripts/load-tests/**/*.js"],
+    languageOptions: { globals: k6Globals },
+  },
+  {
+    files: ["e2e/**/*.ts", "**/*.test.ts", "**/*.test.tsx", "**/__tests__/**"],
+    languageOptions: { globals: { ...globals.node, ...globals.jest } },
+  },
+  {
+    ignores: [
+      "**/node_modules/",
+      "**/dist/",
+      "**/.next/",
+      "**/.turbo/",
+      "**/coverage/",
+      "**/build/",
+      "**/.expo/",
+      "**/*.config.js",
+      "**/next-env.d.ts",
+      ".lighthouse-reports/",
+      ".auditoria-backup-*/",
+      "Auditoria/",
+      "begin/",
+      "prompts/",
+      "docs/",
+      "deploy/",
+      "runtime-templates/",
+      "WeaveCode Design System/",
+      "**/generated/",
+      "packages/db/prisma/migrations/",
+    ],
+  },
 ];

@@ -1,4 +1,5 @@
-import { Worker, Queue, Job } from "bullmq";
+import type { Job } from "bullmq";
+import { Worker, Queue } from "bullmq";
 import { connection } from "../lib/redis";
 import { logger } from "../lib/logger";
 import { PrismaCampaignRepository } from "../../../../packages/business/campaigns/adapters/prisma-campaign-repository";

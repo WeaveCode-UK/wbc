@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import { prisma } from "../index";
 import type { DomainEvent } from "@wbc/shared";
 import type { OutboxPort } from "@wbc/shared/events";

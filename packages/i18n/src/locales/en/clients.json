@@ -46,6 +46,8 @@
   "profile_engagement_recency": "Recency",
   "profile_engagement_ticket": "Ticket",
   "profile_engagement_referrals": "Referrals",
+  "profile_suggestions": "Suggested for this client",
+  "profile_suggestions_hint": "Based on the saved beauty profile and preferences.",
   "profile_stat_last_purchase": "Last purchase",
   "profile_allergy_warning": "Allergy alert",
   "profile_cashback_card": "Cashback available",

@@ -46,6 +46,8 @@
   "profile_engagement_recency": "Recência",
   "profile_engagement_ticket": "Ticket",
   "profile_engagement_referrals": "Indicações",
+  "profile_suggestions": "Sugestões pra esta cliente",
+  "profile_suggestions_hint": "Baseadas no perfil de beleza e preferências cadastradas.",
   "profile_stat_last_purchase": "Última compra",
   "profile_allergy_warning": "Alerta de alergia",
   "profile_cashback_card": "Cashback disponível",

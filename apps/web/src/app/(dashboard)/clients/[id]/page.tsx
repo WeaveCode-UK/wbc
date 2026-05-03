@@ -62,6 +62,10 @@ export default function ClientProfilePage() {
     { clientId: id },
     { enabled: !!id },
   );
+  const suggestions = trpc.clients.getSuggestions.useQuery(
+    { clientId: id, limit: 5 },
+    { enabled: !!id },
+  );
 
   if (client.isLoading) {
     return (
@@ -302,6 +306,36 @@ export default function ClientProfilePage() {
               ))}
         </div>
       </section>
+
+      {suggestions.data && suggestions.data.length > 0 && (
+        <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-4">
+          <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
+            {t("profile_suggestions")}
+          </h2>
+          <p className="mt-1 text-[11px] text-[var(--wc-fg-3)]">
+            {t("profile_suggestions_hint")}
+          </p>
+          <ul className="mt-3 space-y-2">
+            {suggestions.data.map((s) => (
+              <li
+                key={s.product.id}
+                className="flex items-center justify-between border-b border-[var(--wc-border)] pb-2 last:border-b-0"
+              >
+                <div>
+                  <div className="text-[13px] text-[var(--wc-fg-1)]">
+                    {s.product.name}
+                  </div>
+                  <div className="text-[11px] text-[var(--wc-fg-3)]">
+                    {s.product.category ?? "—"} ·{" "}
+                    {formatBRL(Number(s.product.price))}
+                  </div>
+                </div>
+                <Tag label={`${s.matchScore} pts`} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-4">
         <div className="flex items-center justify-between">

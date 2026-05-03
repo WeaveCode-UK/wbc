@@ -14,6 +14,8 @@ import { bulkUpdateClients } from "@wbc/business/clients/use-cases/bulk-update-c
 import { importClients } from "@wbc/business/clients/use-cases/import-clients";
 import { selfRegisterClient } from "@wbc/business/clients/use-cases/self-register-client";
 import { flagInactiveClients } from "@wbc/business/clients/use-cases/flag-inactive-clients";
+import { suggestProductsForClient } from "@wbc/business/clients/use-cases/suggest-products-for-client";
+import { PrismaProductRepository } from "@wbc/business/catalog/adapters/prisma-product-repository";
 import { PrismaWishlistRepository } from "@wbc/business/clients/adapters/prisma-wishlist-repository";
 import {
   addToWishlist,
@@ -55,6 +57,7 @@ const clientRepo = new PrismaClientRepository();
 const tagRepo = new PrismaTagRepository();
 const tenantRepo = new PrismaTenantRepository();
 const wishlistRepo = new PrismaWishlistRepository();
+const productRepo = new PrismaProductRepository();
 
 export const clientsRouter = router({
   list: protectedProcedure
@@ -310,5 +313,25 @@ export const clientsRouter = router({
     .mutation(async ({ input }) => {
       await removeFromWishlist(input.clientId, input.productId, wishlistRepo);
       return { success: true };
+    }),
+
+  // Item 3 do handoff: sugestões por perfil. Pure rule engine — sem IA.
+  getSuggestions: protectedProcedure
+    .input(
+      z.object({
+        clientId: uuidSchema,
+        limit: z.number().int().min(1).max(20).default(5),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      return suggestProductsForClient(
+        {
+          tenantId: ctx.tenant.tenantId,
+          clientId: input.clientId,
+          limit: input.limit,
+        },
+        clientRepo,
+        productRepo,
+      );
     }),
 });

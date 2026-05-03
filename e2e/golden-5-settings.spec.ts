@@ -41,12 +41,10 @@ test.describe("golden path 5 · settings", () => {
     expect(download.suggestedFilename()).toMatch(/wbc-export-/);
   });
 
-  test.fixme("logout button (needs F11.E20.5 to add it to the topbar)", async ({
-    page,
-  }) => {
+  test("logout button on the topbar redirects to /login", async ({ page }) => {
     await loginAs(page);
     await page.goto("/");
-    await page.getByRole("button", { name: /Sair|Logout/i }).click();
-    await page.waitForURL(/\/login/);
+    await page.getByRole("button", { name: /^Sair$/i }).click();
+    await page.waitForURL(/\/login/, { timeout: 10_000 });
   });
 });

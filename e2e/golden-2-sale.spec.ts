@@ -29,13 +29,13 @@ test.describe("golden path 2 · sale flow", () => {
     await expect(page.locator("text=Ticket médio")).toBeVisible();
   });
 
-  test.fixme("creating a new client via 'Adicionar cliente' button (needs F11.E20.5)", async ({
+  test("creating a new client via 'Adicionar cliente' button opens the modal", async ({
     page,
   }) => {
     await loginAs(page);
     await page.goto("/clients");
     await page.getByRole("button", { name: /Adicionar cliente/i }).click();
-    // A modal/form should appear; F11.E20.5 wires it.
+    // F11 follow-up wired the AddClientModal — name + phone are required.
     await expect(page.locator('input[name="name"]')).toBeVisible();
   });
 

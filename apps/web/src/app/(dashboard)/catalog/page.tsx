@@ -14,6 +14,8 @@ import {
 import { trpc } from "@/lib/trpc";
 import { useBrandFilter } from "../../../providers/brand-filter-provider";
 import { AddProductModal } from "@/components/add-product-modal";
+import { SendProductModal } from "@/components/send-product-modal";
+import { Send } from "lucide-react";
 
 const CATEGORY_OPTIONS: Array<{ value: string; key: string }> = [
   { value: "", key: "category_all" },
@@ -46,6 +48,12 @@ export default function CatalogPage() {
   const { activeBrandId, setActiveBrandId } = useBrandFilter();
   const [brandId, setBrandId] = useState<string | null>(activeBrandId);
   const [addOpen, setAddOpen] = useState(false);
+  const [sendProduct, setSendProduct] = useState<{
+    id: string;
+    name: string;
+    price: number | string;
+    description: string | null;
+  } | null>(null);
 
   // Topbar selector is the source of truth — sync local state when it
   // changes elsewhere (e.g. switched on /showcases then back here).
@@ -152,11 +160,34 @@ export default function CatalogPage() {
                     : p.category.charAt(0).toUpperCase() + p.category.slice(1)}
                 </Badge>
               )}
-              <p className="text-[13px] tabular-nums text-[var(--wc-fg-1)]">
-                {formatBRL(Number(p.price))}
-              </p>
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-[13px] tabular-nums text-[var(--wc-fg-1)]">
+                  {formatBRL(Number(p.price))}
+                </p>
+                <Button
+                  type="button"
+                  size="xs"
+                  variant="ghost"
+                  aria-label={t("send_to_client")}
+                  onClick={() =>
+                    setSendProduct({
+                      id: p.id,
+                      name: p.name,
+                      price: p.price,
+                      description: p.description ?? null,
+                    })
+                  }
+                >
+                  <Send className="h-3.5 w-3.5" strokeWidth={1.75} />
+                </Button>
+              </div>
             </div>
           ))}
+          <SendProductModal
+            open={sendProduct !== null}
+            product={sendProduct}
+            onClose={() => setSendProduct(null)}
+          />
         </div>
       )}
     </div>

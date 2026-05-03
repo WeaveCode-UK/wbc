@@ -14,6 +14,8 @@
   "send_message": "Send message",
   "ask_ai": "Ask AI",
   "today": "Today",
+  "today_empty_title": "Nothing for today",
+  "today_empty_hint": "Appointments and billing for today will show up here",
   "pending_billing": "Pending billing",
   "restock_reminder": "Restock reminder",
   "birthday_today": "Birthday today",

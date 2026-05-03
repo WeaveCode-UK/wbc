@@ -33,6 +33,12 @@ export function TrpcProvider({ children }: { children: ReactNode }) {
           queries: {
             staleTime: 30_000,
             refetchOnWindowFocus: false,
+            // QA found dashboards stuck on skeletons because the default
+            // 3-retry exponential backoff keeps `isLoading` true for ~10s
+            // even when the API is failing. One retry is enough to hide
+            // a transient blip; beyond that the UI should fall through
+            // to its empty/error state so the user isn't left guessing.
+            retry: 1,
           },
         },
       }),

@@ -86,7 +86,7 @@ export default function SalesPage() {
           value={formatBRL(Number(finance.data?.receivables ?? 0))}
         />
         <MetricCard
-          label={t("items")}
+          label={filter === "all" ? t("items") : t("items_filtered")}
           value={String(sales.data?.meta?.total ?? 0)}
         />
       </div>
@@ -95,11 +95,11 @@ export default function SalesPage() {
         value={filter}
         onChange={(v) => setFilter(v as StatusFilter)}
         options={[
-          { value: "all", label: t("title") },
-          { value: "DRAFT", label: t("wizard_save_draft") },
-          { value: "CONFIRMED", label: t("confirm") },
-          { value: "DELIVERED", label: t("status") },
-          { value: "CANCELLED", label: t("cancel") },
+          { value: "all", label: t("filter_all") },
+          { value: "DRAFT", label: t("filter_draft") },
+          { value: "CONFIRMED", label: t("filter_confirmed") },
+          { value: "DELIVERED", label: t("filter_delivered") },
+          { value: "CANCELLED", label: t("filter_cancelled") },
         ]}
       />
 

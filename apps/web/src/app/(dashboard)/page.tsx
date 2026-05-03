@@ -170,8 +170,8 @@ export default function DashboardPage() {
                 strokeWidth={1.75}
               />
             }
-            title={t("summary")}
-            description={t("pending")}
+            title={t("today_empty_title")}
+            description={t("today_empty_hint")}
           />
         </div>
       </div>

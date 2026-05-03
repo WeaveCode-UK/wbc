@@ -6,6 +6,8 @@
   "plan_hint": "Gerencie sua assinatura",
   "landing_page": "Landing Page",
   "landing_page_hint": "Configure sua página pessoal",
+  "pix_settings": "PIX",
+  "pix_settings_hint": "Cadastre sua chave para gerar QR Code direto da venda",
   "export_data": "Exportar Dados",
   "export_data_hint": "Exporte seus dados em CSV",
   "theme_title": "Tema e idioma",

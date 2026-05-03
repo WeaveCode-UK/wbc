@@ -40,6 +40,14 @@ model Tenant {
   postSaleDayDelay   Int     @default(2)
   postSaleWeekDelay  Int     @default(14)
   postSaleMonthDelay Int     @default(60)
+  // F11 follow-up: PIX merchant config. The BR-Code generator (EMV
+  // payload for "PIX copia e cola" + QR) reads these. Mercado Pago
+  // integration is a follow-up — for now we issue static QR codes
+  // that the customer's bank app resolves directly.
+  pixKey           String?
+  pixKeyType       String?  // CPF | CNPJ | EMAIL | PHONE | RANDOM
+  pixMerchantName  String?  // visible in the bank app, max 25 chars
+  pixMerchantCity  String?  // visible in the bank app, max 15 chars
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

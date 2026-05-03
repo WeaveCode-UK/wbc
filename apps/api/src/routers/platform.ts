@@ -181,6 +181,51 @@ export const platformRouter = router({
       return { success: true };
     }),
 
+  // F11 follow-up: PIX merchant config (read+write). Used by
+  // /settings/pix. Stored as plain columns on Tenant (no separate
+  // table — it's a 4-field config block, not a relation).
+  getPixConfig: protectedProcedure.query(async ({ ctx }) => {
+    const tenant = await prisma.tenant.findUnique({
+      where: { id: ctx.tenant.tenantId },
+      select: {
+        pixKey: true,
+        pixKeyType: true,
+        pixMerchantName: true,
+        pixMerchantCity: true,
+      },
+    });
+    return (
+      tenant ?? {
+        pixKey: null,
+        pixKeyType: null,
+        pixMerchantName: null,
+        pixMerchantCity: null,
+      }
+    );
+  }),
+
+  updatePixConfig: protectedProcedure
+    .input(
+      z.object({
+        pixKey: z.string().min(1).max(80),
+        pixKeyType: z.enum(["CPF", "CNPJ", "EMAIL", "PHONE", "RANDOM"]),
+        pixMerchantName: z.string().min(1).max(25),
+        pixMerchantCity: z.string().min(1).max(15),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      await prisma.tenant.update({
+        where: { id: ctx.tenant.tenantId },
+        data: {
+          pixKey: input.pixKey,
+          pixKeyType: input.pixKeyType,
+          pixMerchantName: input.pixMerchantName,
+          pixMerchantCity: input.pixMerchantCity,
+        },
+      });
+      return { success: true };
+    }),
+
   // F11.E26: subscription details for /settings/plan. Returns the
   // current plan, status, billing cycle and AI quota usage so the page
   // can render plan/billing without falling back to the JWT.

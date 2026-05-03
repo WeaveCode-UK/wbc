@@ -21,6 +21,7 @@ import {
 } from "../../../../packages/business/sales/use-cases/manage-payments";
 import { getCashbackBalance } from "../../../../packages/business/sales/use-cases/manage-cashback";
 import { flagExpiringCashbacks } from "@wbc/business/sales/use-cases/flag-expiring-cashback";
+import { generatePixForPayment } from "@wbc/business/sales/use-cases/generate-pix";
 import { createReturn } from "../../../../packages/business/sales/use-cases/create-return";
 import { paginationSchema, uuidSchema } from "@wbc/validators";
 import { listOk } from "../trpc/responses";
@@ -222,6 +223,18 @@ export const salesRouter = router({
       const revenue = Number(aggregate._sum.total ?? 0);
       const conversion = recipientCount > 0 ? purchased / recipientCount : 0;
       return { purchased, revenue, recipientCount, conversion };
+    }),
+
+  // F11 follow-up: PIX BR Code generation for a payment row. Reads
+  // the tenant's PIX merchant config and persists the resulting QR
+  // payload + link on the payment.
+  generatePix: protectedProcedure
+    .input(z.object({ paymentId: uuidSchema }))
+    .mutation(async ({ ctx, input }) => {
+      return generatePixForPayment({
+        tenantId: ctx.tenant.tenantId,
+        paymentId: input.paymentId,
+      });
     }),
 
   // F11.E12: scan for cashbacks expiring within `lookaheadDays` and

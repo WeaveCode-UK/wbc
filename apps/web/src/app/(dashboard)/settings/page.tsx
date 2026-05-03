@@ -10,12 +10,13 @@ import { trpc } from "@/lib/trpc";
 // ACH-017 (partial): Settings becomes tabbed and Profile is the first tab
 // with a real form. Plan tab still depends on platform.getSubscription which
 // is not yet exposed; tracked under F11.E15 in prompts/fase-11.
-type SettingsTab = "profile" | "plan" | "landing" | "export" | "theme";
+type SettingsTab = "profile" | "plan" | "landing" | "pix" | "export" | "theme";
 
 const TABS: Array<{ id: SettingsTab; key: string }> = [
   { id: "profile", key: "profile" },
   { id: "plan", key: "plan" },
   { id: "landing", key: "landing_page" },
+  { id: "pix", key: "pix_settings" },
   { id: "export", key: "export_data" },
   { id: "theme", key: "theme_title" },
 ];
@@ -118,6 +119,22 @@ export default function SettingsPage() {
             <Link href="/landing">
               <Button type="button" size="sm">
                 {t("landing_page")}
+              </Button>
+            </Link>
+          </div>
+        )}
+
+        {active === "pix" && (
+          <div className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-6 space-y-3">
+            <h2 className="text-heading-3 text-[var(--color-text-primary)]">
+              {t("pix_settings")}
+            </h2>
+            <p className="text-body-small text-[var(--color-text-tertiary)]">
+              {t("pix_settings_hint")}
+            </p>
+            <Link href="/settings/pix">
+              <Button type="button" size="sm">
+                {t("pix_settings")}
               </Button>
             </Link>
           </div>

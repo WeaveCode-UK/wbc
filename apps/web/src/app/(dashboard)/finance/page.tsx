@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   Badge,
@@ -10,6 +11,8 @@ import {
   MetricCard,
 } from "@wbc/ui";
 import { trpc } from "@/lib/trpc";
+import { useToast } from "@/providers/toast-provider";
+import { PixModal } from "../../../components/pix-modal";
 
 function formatBRL(value: number): string {
   return new Intl.NumberFormat("pt-BR", {
@@ -26,10 +29,21 @@ function formatDate(value: Date | string | null | undefined): string {
 
 export default function FinancePage() {
   const t = useTranslations("finance");
+  const tCommon = useTranslations("common");
+  const toast = useToast();
   const dashboard = trpc.finance.getDashboard.useQuery({});
   const expenses = trpc.finance.listExpenses.useQuery({ page: 1, limit: 20 });
   const receivables = trpc.sales.getAccountsReceivable.useQuery({});
   const nps = trpc.platform.npsStats.useQuery();
+  const pixConfig = trpc.platform.getPixConfig.useQuery();
+  const [pixModalCode, setPixModalCode] = useState<string | null>(null);
+
+  const generatePix = trpc.sales.generatePix.useMutation({
+    onSuccess: (result) => {
+      setPixModalCode(result.pixQrCode);
+    },
+    onError: (err) => toast.error(err.message),
+  });
 
   const dashData = dashboard.data;
   const expensesData = expenses.data?.data ?? [];
@@ -107,18 +121,42 @@ export default function FinancePage() {
             <EmptyState icon="📥" title={t("no_data")} />
           )}
           {!receivables.isLoading &&
-            receivablesData.map((p) => (
-              <ListItem
-                key={p.id}
-                title={formatBRL(Number(p.amount))}
-                subtitle={`${formatDate(p.dueDate)}`}
-                right={
-                  <Badge variant={p.status === "PAID" ? "success" : "warning"}>
-                    {p.status}
-                  </Badge>
-                }
-              />
-            ))}
+            receivablesData.map((p) => {
+              const canGeneratePix =
+                p.status !== "PAID" && Boolean(pixConfig.data?.pixKey);
+              return (
+                <ListItem
+                  key={p.id}
+                  title={formatBRL(Number(p.amount))}
+                  subtitle={`${formatDate(p.dueDate)}`}
+                  right={
+                    <div className="flex items-center gap-1.5">
+                      {canGeneratePix && (
+                        <Button
+                          type="button"
+                          size="xs"
+                          variant="secondary"
+                          onClick={() =>
+                            generatePix.mutate({ paymentId: p.id })
+                          }
+                          loading={
+                            generatePix.isPending &&
+                            generatePix.variables?.paymentId === p.id
+                          }
+                        >
+                          PIX
+                        </Button>
+                      )}
+                      <Badge
+                        variant={p.status === "PAID" ? "success" : "warning"}
+                      >
+                        {p.status}
+                      </Badge>
+                    </div>
+                  }
+                />
+              );
+            })}
         </div>
       </section>
 
@@ -146,6 +184,12 @@ export default function FinancePage() {
             ))}
         </div>
       </section>
+
+      <PixModal
+        code={pixModalCode}
+        onClose={() => setPixModalCode(null)}
+        onCopied={() => toast.success(tCommon("copied"))}
+      />
     </div>
   );
 }

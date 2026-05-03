@@ -6,6 +6,8 @@
   "plan_hint": "Manage your subscription",
   "landing_page": "Landing Page",
   "landing_page_hint": "Configure your personal page",
+  "pix_settings": "PIX",
+  "pix_settings_hint": "Set up your key to generate a QR code straight from a sale",
   "export_data": "Export Data",
   "export_data_hint": "Export your data as CSV",
   "theme_title": "Theme and language",

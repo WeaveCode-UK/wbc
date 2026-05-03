@@ -144,9 +144,10 @@ export default function ClientsImportPage() {
               type="button"
               size="sm"
               onClick={onCommit}
+              loading={importMutation.isPending}
               disabled={importMutation.isPending}
             >
-              {importMutation.isPending ? "..." : tCommon("confirm")}
+              {tCommon("confirm")}
             </Button>
           </div>
           {importMutation.error && (

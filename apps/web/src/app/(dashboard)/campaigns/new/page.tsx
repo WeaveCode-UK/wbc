@@ -222,9 +222,10 @@ export default function NewCampaignPage() {
                   if (!name) return;
                   generateAi.mutate({ objective: name });
                 }}
+                loading={generateAi.isPending}
                 disabled={generateAi.isPending || !name}
               >
-                {generateAi.isPending ? "..." : t("wizard_ai_generate")}
+                {t("wizard_ai_generate")}
               </Button>
               {generateAi.error && (
                 <p className="mt-2 text-caption text-[var(--color-danger-text)]">
@@ -311,9 +312,10 @@ export default function NewCampaignPage() {
               type="button"
               variant="success"
               onClick={submit}
+              loading={create.isPending}
               disabled={create.isPending || recipientCount === 0}
             >
-              {create.isPending ? "..." : t("wizard_confirm")}
+              {t("wizard_confirm")}
             </Button>
           )}
         </div>

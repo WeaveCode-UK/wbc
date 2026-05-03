@@ -150,9 +150,10 @@ export default function ReturnsPage() {
               refundAmount: Number(refund),
             })
           }
+          loading={create.isPending}
           disabled={create.isPending || !selectedSaleId || !reason || !refund}
         >
-          {create.isPending ? "..." : tCommon("confirm")}
+          {tCommon("confirm")}
         </Button>
       </section>
 

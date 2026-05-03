@@ -207,9 +207,10 @@ export default function LandingPage() {
             <Button
               type="button"
               onClick={onSave}
+              loading={update.isPending}
               disabled={update.isPending || landing.isLoading}
             >
-              {update.isPending ? "..." : tCommon("save")}
+              {tCommon("save")}
             </Button>
           </div>
         </section>

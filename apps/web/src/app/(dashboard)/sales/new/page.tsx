@@ -393,11 +393,12 @@ export default function NewSalePage() {
               type="button"
               variant="success"
               onClick={submit}
+              loading={createSale.isPending}
               disabled={
                 createSale.isPending || cart.length === 0 || !selectedClientId
               }
             >
-              {createSale.isPending ? "..." : tCommon("confirm")}
+              {tCommon("confirm")}
             </Button>
           )}
         </div>

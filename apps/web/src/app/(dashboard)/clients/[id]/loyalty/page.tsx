@@ -122,6 +122,7 @@ export default function LoyaltyExtractPage() {
           <Button
             type="button"
             onClick={onRedeem}
+            loading={redeem.isPending}
             disabled={
               redeem.isPending ||
               balanceValue === 0 ||
@@ -129,7 +130,7 @@ export default function LoyaltyExtractPage() {
               Number(redeemAmount) > balanceValue
             }
           >
-            {redeem.isPending ? "..." : tCommon("confirm")}
+            {tCommon("confirm")}
           </Button>
         </div>
       </section>

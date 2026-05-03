@@ -94,9 +94,10 @@ export default function AiPage() {
         <Button
           type="button"
           onClick={onGenerate}
+          loading={isPending}
           disabled={isPending || !text || used >= limit}
         >
-          {isPending ? "..." : tCommon("create")}
+          {tCommon("create")}
         </Button>
       </section>
 

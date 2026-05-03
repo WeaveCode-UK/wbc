@@ -113,9 +113,10 @@ export default function NewPromoCardPage() {
           <Button
             type="button"
             onClick={onGenerate}
+            loading={generate.isPending}
             disabled={!title || generate.isPending}
           >
-            {generate.isPending ? "..." : tCommon("create")}
+            {tCommon("create")}
           </Button>
         </section>
 

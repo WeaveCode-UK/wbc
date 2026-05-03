@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Alert, Button, Input } from "@wbc/ui";
+import { Alert, Badge, Button, Input } from "@wbc/ui";
+import { Check } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useToast } from "@/providers/toast-provider";
 
@@ -21,10 +23,32 @@ const KEY_TYPES = [
 
 type KeyType = (typeof KEY_TYPES)[number]["value"];
 
+// Bloco 10 do plano: feature #79 — Mercado Pago OAuth real. O painel
+// usa NEXT_PUBLIC_MERCADOPAGO_CLIENT_ID (operador define) pra montar a
+// URL de autorização. Sem essa env, o botão fica oculto.
+function buildMpAuthorizeUrl(
+  redirectUri: string,
+  state: string,
+): string | null {
+  const clientId = process.env.NEXT_PUBLIC_MERCADOPAGO_CLIENT_ID;
+  if (!clientId) return null;
+  const params = new URLSearchParams({
+    client_id: clientId,
+    response_type: "code",
+    platform_id: "mp",
+    redirect_uri: redirectUri,
+    state,
+  });
+  return `https://auth.mercadopago.com.br/authorization?${params.toString()}`;
+}
+
 export default function PixSettingsPage() {
   const tCommon = useTranslations("common");
   const toast = useToast();
+  const searchParams = useSearchParams();
+  const mpStatusParam = searchParams?.get("mp");
   const config = trpc.platform.getPixConfig.useQuery();
+  const mpStatus = trpc.finance.getMercadoPagoStatus.useQuery();
   const utils = trpc.useUtils();
   const update = trpc.platform.updatePixConfig.useMutation({
     onSuccess: () => {
@@ -33,6 +57,28 @@ export default function PixSettingsPage() {
     },
     onError: (err) => toast.error(err.message),
   });
+  const disconnectMp = trpc.finance.disconnectMercadoPago.useMutation({
+    onSuccess: () => {
+      toast.success("Mercado Pago desconectado");
+      void utils.finance.getMercadoPagoStatus.invalidate();
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
+  useEffect(() => {
+    if (!mpStatusParam) return;
+    if (mpStatusParam === "connected") {
+      toast.success("Mercado Pago conectado");
+      void utils.finance.getMercadoPagoStatus.invalidate();
+    } else if (mpStatusParam === "not_configured") {
+      toast.error("Operador ainda não configurou MERCADOPAGO_CLIENT_ID");
+    } else if (mpStatusParam.startsWith("error")) {
+      const detail = searchParams?.get("detail") ?? "";
+      toast.error(`Falha na conexão MP${detail ? `: ${detail}` : ""}`);
+    } else if (mpStatusParam === "forbidden") {
+      toast.error("Apenas admin pode conectar Mercado Pago");
+    }
+  }, [mpStatusParam, searchParams, toast, utils]);
 
   const [pixKey, setPixKey] = useState("");
   const [pixKeyType, setPixKeyType] = useState<KeyType>("CPF");
@@ -141,6 +187,87 @@ export default function PixSettingsPage() {
             {tCommon("save")}
           </Button>
         </div>
+      </section>
+
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-5 sm:p-6 space-y-4">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
+              Mercado Pago
+            </h2>
+            <p className="text-[13px] text-[var(--wc-fg-3)]">
+              Conecte sua conta MP pra gerar PIX automático com confirmação por
+              webhook. Sem precisar marcar manualmente cada pagamento.
+            </p>
+          </div>
+          {mpStatus.data?.connected && (
+            <Badge variant="success">
+              <Check className="h-3 w-3" strokeWidth={2} /> Conectado
+            </Badge>
+          )}
+        </div>
+
+        {mpStatus.data?.connected ? (
+          <div className="rounded-wc-md bg-[var(--wc-bg-muted)] p-3 space-y-3">
+            <div className="text-[12px] text-[var(--wc-fg-2)]">
+              Conta MP ID:{" "}
+              <span className="text-[var(--wc-fg-1)] tabular-nums">
+                {mpStatus.data.userId}
+              </span>
+              {mpStatus.data.connectedAt && (
+                <>
+                  {" · desde "}
+                  <span className="text-[var(--wc-fg-1)]">
+                    {new Date(mpStatus.data.connectedAt).toLocaleDateString(
+                      "pt-BR",
+                    )}
+                  </span>
+                </>
+              )}
+            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                if (
+                  confirm(
+                    "Desconectar Mercado Pago? PIX automático para de funcionar.",
+                  )
+                ) {
+                  disconnectMp.mutate();
+                }
+              }}
+              loading={disconnectMp.isPending}
+            >
+              Desconectar
+            </Button>
+          </div>
+        ) : (
+          (() => {
+            const redirectUri =
+              typeof window !== "undefined"
+                ? `${window.location.origin}/api/oauth/mercadopago/callback`
+                : "";
+            const url = buildMpAuthorizeUrl(redirectUri, "wbc-mp-connect");
+            if (!url) {
+              return (
+                <Alert variant="warning">
+                  Operador ainda não configurou MERCADOPAGO_CLIENT_ID — peça pra
+                  habilitar essa integração.
+                </Alert>
+              );
+            }
+            return (
+              <a
+                href={url}
+                className="inline-flex h-10 items-center justify-center rounded-wc-sm bg-[var(--wc-purple)] px-4 text-[13px] font-medium text-white hover:bg-[var(--wc-purple-600)]"
+              >
+                Conectar Mercado Pago
+              </a>
+            );
+          })()
+        )}
       </section>
     </div>
   );

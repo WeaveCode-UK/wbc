@@ -23,6 +23,13 @@ import {
 import { paginationSchema, uuidSchema } from "@wbc/validators";
 import { requirePermission } from "@wbc/business/auth/guards/permission.guard";
 import type { Role } from "@wbc/business/auth/domain/entities/tenant-member.entity";
+import {
+  connectMercadoPago,
+  disconnectMercadoPago,
+  getMercadoPagoStatus,
+  MercadoPagoOAuthNotConfiguredError,
+} from "@wbc/business/finance/use-cases/connect-mercadopago";
+import { TRPCError } from "@trpc/server";
 
 const expenseRepo = new PrismaExpenseRepository();
 const financeRepo = new PrismaFinanceRepository();
@@ -125,21 +132,48 @@ export const financeRouter = router({
   // ACH-011: billing/payment integrations are ADMIN-only AND require the
   // dedicated `tenant:billing` permission. Two gates so a future ADMIN role
   // remap cannot silently expose this surface.
+  //
+  // Bloco 10 do plano: stub substituído por OAuth real. Pré-req para
+  // funcionar: MERCADOPAGO_CLIENT_ID e MERCADOPAGO_CLIENT_SECRET no .env
+  // do operador-mãe + redirect URI registrada no painel MP.
   connectMercadoPago: adminOnly
-    .input(z.object({ authCode: z.string() }))
-    .mutation(async ({ ctx }) => {
+    .input(
+      z.object({
+        authCode: z.string().min(1),
+        redirectUri: z.string().url(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
       requirePermission(ctx.tenant.role as Role, "tenant:billing");
-      return {
-        success: false,
-        message: "Mercado Pago integration coming in Phase 5",
-      };
+      try {
+        const result = await connectMercadoPago(
+          ctx.tenant.tenantId,
+          input.authCode,
+          input.redirectUri,
+        );
+        return { success: true, ...result };
+      } catch (error) {
+        if (error instanceof MercadoPagoOAuthNotConfiguredError) {
+          throw new TRPCError({
+            code: "PRECONDITION_FAILED",
+            message: error.message,
+          });
+        }
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message:
+            error instanceof Error ? error.message : "mercadopago_oauth_failed",
+        });
+      }
     }),
 
   disconnectMercadoPago: adminOnly.mutation(async ({ ctx }) => {
     requirePermission(ctx.tenant.role as Role, "tenant:billing");
-    return {
-      success: false,
-      message: "Mercado Pago integration coming in Phase 5",
-    };
+    await disconnectMercadoPago(ctx.tenant.tenantId);
+    return { success: true };
+  }),
+
+  getMercadoPagoStatus: protectedProcedure.query(async ({ ctx }) => {
+    return getMercadoPagoStatus(ctx.tenant.tenantId);
   }),
 });

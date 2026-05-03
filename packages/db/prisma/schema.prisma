@@ -48,6 +48,15 @@ model Tenant {
   pixKeyType       String?  // CPF | CNPJ | EMAIL | PHONE | RANDOM
   pixMerchantName  String?  // visible in the bank app, max 25 chars
   pixMerchantCity  String?  // visible in the bank app, max 15 chars
+  // Bloco 10 do plano: Mercado Pago OAuth. Cada tenant conecta sua
+  // própria conta MP (via authorization code flow). O access_token vai
+  // direto para a conta dela; a aplicação principal só intermedia.
+  // mercadoPagoAccessToken NÃO é encriptado em coluna por hora — fica
+  // em string plain protegida pelo RLS do tenant. Em produção, mover
+  // pra pgcrypto column-level encryption é follow-up.
+  mercadoPagoAccessToken String?
+  mercadoPagoUserId      String?
+  mercadoPagoConnectedAt DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

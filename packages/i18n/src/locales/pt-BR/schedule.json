@@ -15,5 +15,7 @@
   "type_delivery": "Entrega",
   "type_other": "Outro",
   "starts_at": "Data e hora",
-  "address": "Endere\u00e7o"
+  "address": "Endere\u00e7o",
+  "view_list": "Lista",
+  "view_calendar": "Calend\u00e1rio"
 }

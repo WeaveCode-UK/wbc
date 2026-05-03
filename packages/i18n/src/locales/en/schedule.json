@@ -15,5 +15,7 @@
   "type_delivery": "Delivery",
   "type_other": "Other",
   "starts_at": "Date and time",
-  "address": "Address"
+  "address": "Address",
+  "view_list": "List",
+  "view_calendar": "Calendar"
 }

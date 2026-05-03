@@ -25,3 +25,7 @@ export {
 } from "./components/skeleton";
 export { ListSkeleton } from "./components/list-skeleton";
 export { ConfirmModal } from "./components/confirm-modal";
+export {
+  MonthCalendar,
+  type MonthCalendarEvent,
+} from "./components/month-calendar";

@@ -14,6 +14,7 @@
  * and merges poorly with concurrent auth work — it should land on its
  * own branch with no other changes.
  */
+import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import {
   router,
@@ -206,6 +207,100 @@ export const authRouter = router({
         displayName: input.displayName,
         phone: input.phone,
       });
+    }),
+
+  // F11 follow-up: mobile sign-in. Issues a NextAuth-compatible JWT
+  // (same secret + claims) that the mobile app stores in
+  // expo-secure-store and sends as `Authorization: Bearer ...`. The
+  // tRPC route handler accepts both the cookie-based session (web)
+  // and this Bearer flow (mobile).
+  signInForMobile: publicProcedure
+    .input(
+      z.object({
+        email: z.string().email(),
+        password: z.string().min(1),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const account = await prisma.account.findUnique({
+        where: { email: input.email.toLowerCase() },
+        select: {
+          id: true,
+          passwordHash: true,
+          name: true,
+          email: true,
+          emailVerified: true,
+          tenantMembers: {
+            select: {
+              tenantId: true,
+              role: true,
+              tenant: { select: { subscription: { select: { plan: true } } } },
+            },
+            take: 1,
+          },
+        },
+      });
+      if (!account || !account.passwordHash) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Invalid credentials",
+        });
+      }
+      const ok = await passwordHasher.verify(
+        input.password,
+        account.passwordHash,
+      );
+      if (!ok) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "Invalid credentials",
+        });
+      }
+      const member = account.tenantMembers[0];
+      if (!member) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Account has no workspace",
+        });
+      }
+
+      const secret = process.env.AUTH_SECRET;
+      if (!secret) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "AUTH_SECRET not configured",
+        });
+      }
+      const { encode } = await import("next-auth/jwt");
+      // The salt must match the session cookie name so getToken /
+      // decode on the server side can read it. Auth.js derives the
+      // encryption key from (secret, salt).
+      const salt =
+        process.env.NODE_ENV === "production"
+          ? "__Secure-authjs.session-token"
+          : "authjs.session-token";
+      const token = await encode({
+        secret,
+        salt,
+        token: {
+          sub: account.id,
+          name: account.name ?? "",
+          email: account.email,
+          tid: member.tenantId,
+          role: member.role,
+          plan: member.tenant.subscription?.plan ?? "ESSENTIAL",
+        },
+        // 30 days — mobile sessions are typically long-lived. The
+        // server-side blacklist still applies on logout if needed.
+        maxAge: 60 * 60 * 24 * 30,
+      });
+
+      return {
+        token,
+        accountId: account.id,
+        tenantId: member.tenantId,
+        role: member.role,
+      };
     }),
 
   // ═══════════════════════════════════════════

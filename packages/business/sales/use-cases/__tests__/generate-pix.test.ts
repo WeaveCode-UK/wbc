@@ -51,7 +51,9 @@ describe("generatePixForPayment", () => {
     await generatePixForPayment({ tenantId: "t1", paymentId: "pay-1" }).catch(
       () => undefined,
     );
-    const call = findFirstPayment.mock.calls[0][0];
+    const call = findFirstPayment.mock.calls[0]![0] as {
+      where: { id: string; sale: { tenantId: string } };
+    };
     expect(call.where.id).toBe("pay-1");
     expect(call.where.sale.tenantId).toBe("t1");
   });

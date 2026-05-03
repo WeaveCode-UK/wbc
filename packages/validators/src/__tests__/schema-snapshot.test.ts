@@ -42,7 +42,8 @@ function describeSchema(schema: z.ZodTypeAny): unknown {
     const shape = schema.shape as Record<string, z.ZodTypeAny>;
     const out: Record<string, unknown> = {};
     for (const k of Object.keys(shape).sort()) {
-      out[k] = describeSchema(shape[k]);
+      const inner = shape[k];
+      if (inner) out[k] = describeSchema(inner);
     }
     return { object: out };
   }
@@ -144,7 +145,8 @@ describe("Prisma model field snapshot (drift guard vs validators)", () => {
         continue;
       }
       const fields: string[] = [];
-      for (const raw of match[1].split("\n")) {
+      const body = match[1] ?? "";
+      for (const raw of body.split("\n")) {
         const line = raw.trim();
         if (!line || line.startsWith("//") || line.startsWith("@@")) continue;
         // First token is the field name.

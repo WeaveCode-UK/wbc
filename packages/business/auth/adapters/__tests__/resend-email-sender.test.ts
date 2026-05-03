@@ -58,11 +58,11 @@ afterEach(() => {
 describe("ResendEmailSender — dev / prod env behaviour", () => {
   beforeEach(() => {
     delete process.env.RESEND_API_KEY;
-    delete process.env.NODE_ENV;
+    (process.env as Record<string, string | undefined>).NODE_ENV = undefined;
   });
 
   it("dry-run in dev when RESEND_API_KEY is missing — DOES NOT call fetch", async () => {
-    process.env.NODE_ENV = "development";
+    (process.env as Record<string, string>).NODE_ENV = "development";
     const fn = mockFetch([{ ok: true, status: 200 }]);
     const sender = new ResendEmailSender();
 
@@ -76,7 +76,7 @@ describe("ResendEmailSender — dev / prod env behaviour", () => {
   });
 
   it("dry-run in test when RESEND_API_KEY is missing — DOES NOT call fetch", async () => {
-    process.env.NODE_ENV = "test";
+    (process.env as Record<string, string>).NODE_ENV = "test";
     const fn = mockFetch([{ ok: true, status: 200 }]);
     const sender = new ResendEmailSender();
 
@@ -94,13 +94,13 @@ describe("ResendEmailSender — dev / prod env behaviour", () => {
     // delegates to `requireEnv("RESEND_API_KEY")` which throws a plain
     // Error. What matters here is "fail at boot, not on first send" —
     // we just check the throw, not the exact class.
-    process.env.NODE_ENV = "production";
+    (process.env as Record<string, string>).NODE_ENV = "production";
     delete process.env.RESEND_API_KEY;
     expect(() => new ResendEmailSender()).toThrow(/RESEND_API_KEY/);
   });
 
   it("constructor.opts.apiKey overrides env (useful in tests)", async () => {
-    process.env.NODE_ENV = "production";
+    (process.env as Record<string, string>).NODE_ENV = "production";
     const fn = mockFetch([{ ok: true, status: 200 }]);
     const sender = new ResendEmailSender({ apiKey: "RE-OVERRIDE" });
 

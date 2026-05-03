@@ -116,7 +116,9 @@ function findViolationsInFile(absPath: string, relPath: string): Violation[] {
   const callRe = /prisma\.(\w+)\.(\w+)\s*\(\s*(\{[\s\S]{0,800}?\})\s*[,)]/g;
   let match: RegExpExecArray | null;
   while ((match = callRe.exec(stripped)) !== null) {
-    const [, model, op, args] = match;
+    const model = match[1] ?? "";
+    const op = match[2] ?? "";
+    const args = match[3] ?? "";
     if (!TENANT_SENSITIVE_OPS.includes(op)) continue;
     if (GLOBAL_MODELS.has(model)) continue;
     // Heuristic: must mention `tenantId` somewhere inside the call args,

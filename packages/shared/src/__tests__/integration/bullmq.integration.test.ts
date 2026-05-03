@@ -80,31 +80,36 @@ describe.skipIf(!SHOULD_RUN_INTEGRATION)("bullmq smoke (redis)", () => {
   it("retries a failing job and marks it failed after maxAttempts", async () => {
     const queueName = `t5-7-retry-${Date.now()}`;
     const queue = new Queue(queueName, { connection });
+    const TOTAL_ATTEMPTS = 2;
 
     let attempts = 0;
-    const failed = new Promise<{ failedReason: string; attemptsMade: number }>(
-      (resolve) => {
-        const worker = new Worker(
-          queueName,
-          async () => {
-            attempts += 1;
-            // WHY: throw on every attempt so the retry path is exercised
-            // up to `attempts: 2` (kept low to keep the test fast — the
-            // production default is 3 with exp backoff).
-            throw new Error("intentional");
-          },
-          { connection },
-        );
-        worker.once("failed", (job) => {
-          if (!job) return;
+    // WHY: BullMQ fires `failed` on every attempt, not just the final
+    // one — accumulate every emission and resolve once we've observed
+    // `attemptsMade === TOTAL_ATTEMPTS`. That's the moment the job is
+    // declared dead and the retry budget is exhausted.
+    let worker: Worker;
+    const exhausted = new Promise<{
+      failedReason: string;
+      attemptsMade: number;
+    }>((resolve) => {
+      worker = new Worker<unknown, unknown>(
+        queueName,
+        async () => {
+          attempts += 1;
+          throw new Error("intentional");
+        },
+        { connection },
+      );
+      worker.on("failed", (job) => {
+        if (!job) return;
+        if (job.attemptsMade >= TOTAL_ATTEMPTS) {
           resolve({
             failedReason: job.failedReason ?? "",
             attemptsMade: job.attemptsMade,
           });
-          void worker.close();
-        });
-      },
-    );
+        }
+      });
+    });
 
     await queue.add(
       "always-fail",
@@ -112,14 +117,15 @@ describe.skipIf(!SHOULD_RUN_INTEGRATION)("bullmq smoke (redis)", () => {
       // WHY: shrink the retry budget so the test finishes in <5s. The
       // important assertion is "max attempts hit + failed surfaces" —
       // the exact count is configurable.
-      { attempts: 2, backoff: { type: "fixed", delay: 50 } },
+      { attempts: TOTAL_ATTEMPTS, backoff: { type: "fixed", delay: 50 } },
     );
 
-    const result = await failed;
-    expect(result.attemptsMade).toBe(2);
+    const result = await exhausted;
+    expect(result.attemptsMade).toBe(TOTAL_ATTEMPTS);
     expect(result.failedReason).toContain("intentional");
-    expect(attempts).toBe(2);
+    expect(attempts).toBe(TOTAL_ATTEMPTS);
 
+    await worker!.close();
     await queue.close();
   });
 });

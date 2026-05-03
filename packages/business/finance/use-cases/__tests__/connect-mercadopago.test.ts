@@ -74,7 +74,9 @@ describe("connectMercadoPago", () => {
     await connectMercadoPago("t1", "AUTH_CODE", "https://x/callback");
 
     expect(fetchMock).toHaveBeenCalledOnce();
-    const [url, init] = fetchMock.mock.calls[0];
+    const call = fetchMock.mock.calls[0]!;
+    const url = call[0] as string;
+    const init = call[1] as { method: string; body: string };
     expect(url).toBe("https://api.mercadopago.com/oauth/token");
     expect(init.method).toBe("POST");
     expect(init.body).toContain("grant_type=authorization_code");

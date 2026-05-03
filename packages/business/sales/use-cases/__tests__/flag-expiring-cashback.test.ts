@@ -69,7 +69,7 @@ describe("flagExpiringCashbacks", () => {
     expect(r.flagged).toBe(1);
     expect(createPushable).toHaveBeenCalledTimes(1);
     // Aggregated amount appears formatted in the title.
-    const call = createPushable.mock.calls[0][0];
+    const call = createPushable.mock.calls[0]![0];
     expect(call.title).toContain("R$");
   });
 
@@ -92,7 +92,7 @@ describe("flagExpiringCashbacks", () => {
 
     await flagExpiringCashbacks("t1");
     expect(createPushable).toHaveBeenCalledTimes(1);
-    expect(createPushable.mock.calls[0][0].title).toContain("10");
+    expect(createPushable.mock.calls[0]![0].title).toContain("10");
   });
 
   it("keeps the earliest expiry when aggregating per client", async () => {
@@ -110,7 +110,7 @@ describe("flagExpiringCashbacks", () => {
     ]);
 
     await flagExpiringCashbacks("t1");
-    const body = createPushable.mock.calls[0][0].body as string;
+    const body = createPushable.mock.calls[0]![0].body as string;
     expect(body).toContain("2026-05-08");
   });
 

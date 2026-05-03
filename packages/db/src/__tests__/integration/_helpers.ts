@@ -6,7 +6,7 @@
 // keep its `beforeAll` short and explicit.
 
 import { execSync } from "node:child_process";
-import { readFileSync, readdirSync } from "node:fs";
+import { readdirSync } from "node:fs";
 import path from "node:path";
 
 // WHY: opt-in. The default `pnpm test` run on a developer laptop without
@@ -57,16 +57,12 @@ export function applyMigrations(databaseUrl: string): void {
     if (!SQL_TO_REPLAY.has(dir)) continue;
     const sqlPath = path.join(migrationsDir, dir, "migration.sql");
     // WHY: `prisma db execute --file` ships with the prisma CLI, so we
-    // don't need a local `psql` install. `--schema` makes prisma read
-    // the datasource block, but we want the container URL — pass `--url`
-    // explicitly so the file is sent to the *test* DB, not whatever
-    // DATABASE_URL points at.
+    // don't need a local `psql` install. We pass `--url` explicitly so
+    // the file is sent to the *test* container, not whatever
+    // DATABASE_URL the developer happens to have set globally.
     execSync(
       `pnpm exec prisma db execute --file "${sqlPath}" --url "${databaseUrl}"`,
       { cwd: dbPackageRoot, env, stdio: "pipe" },
     );
   }
-  // WHY: silence the "unused" warning when the loop happens to skip
-  // every entry; readFileSync stays available for future expansions.
-  void readFileSync;
 }

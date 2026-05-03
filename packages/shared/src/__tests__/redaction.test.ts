@@ -85,13 +85,13 @@ describe("redactSecurityFields composite", () => {
   });
 
   it("preserves untracked fields verbatim — never strips operational context", () => {
-    const out = redactSecurityFields({
+    // Cast to allow extra fields not in the typed signature.
+    const input = {
       phone: "+5511987654321",
-      // @ts-expect-error — extra field not in the typed signature
       ipAddress: "192.168.0.1",
-      // @ts-expect-error
       userAgent: "Mozilla/5.0",
-    });
+    } as unknown as Parameters<typeof redactSecurityFields>[0];
+    const out = redactSecurityFields(input);
     expect((out as Record<string, unknown>).ipAddress).toBe("192.168.0.1");
     expect((out as Record<string, unknown>).userAgent).toBe("Mozilla/5.0");
   });

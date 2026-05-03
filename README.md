@@ -45,6 +45,12 @@ pnpm db:migrate
 # 4. (Opcional) Seed de dados
 pnpm db:seed
 
+# Se já tinha dados antigos com emojis quebrados nos templates do
+# sistema (sintoma reportado na 2ª passada de auditoria — `🌸` virou
+# `�` por slice em surrogate pair), basta zerar e re-seedar:
+#   pnpm --filter @wbc/db exec prisma migrate reset --force
+#   pnpm db:seed
+
 # 5. Subir web + api + worker em paralelo
 pnpm dev
 ```

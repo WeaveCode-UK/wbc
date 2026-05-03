@@ -7,6 +7,7 @@ import { trpc } from "@/lib/trpc";
 
 export default function DailyRoutePage() {
   const tCommon = useTranslations("common");
+  const t = useTranslations("logistics");
   const route = trpc.logistics.getOrderedRoute.useQuery({});
   const stops = route.data ?? [];
 
@@ -30,16 +31,17 @@ export default function DailyRoutePage() {
       </Link>
 
       <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
-        🗺️ Roteiro do dia
+        🗺️ {t("daily_route")}
       </h1>
       <p className="text-caption text-[var(--color-text-tertiary)]">
-        {stops.length} parada{stops.length === 1 ? "" : "s"} · agrupado por
-        bairro
+        {t(stops.length === 1 ? "route_subtitle_one" : "route_subtitle_other", {
+          count: stops.length,
+        })}
       </p>
 
       {route.isLoading && <ListSkeleton count={4} variant="card" />}
       {!route.isLoading && stops.length === 0 && (
-        <EmptyState icon="🗺️" title="Nenhuma entrega para hoje" />
+        <EmptyState icon="🗺️" title={t("no_route")} />
       )}
 
       {!route.isLoading &&
@@ -49,7 +51,7 @@ export default function DailyRoutePage() {
             className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-3 sm:p-4 space-y-2"
           >
             <h2 className="text-heading-2 text-[var(--color-text-primary)]">
-              {key === "ZZZ_sem_endereco" ? "Sem endereço" : key}
+              {key === "ZZZ_sem_endereco" ? t("no_address") : key}
             </h2>
             {items.map((stop) => (
               <ListItem

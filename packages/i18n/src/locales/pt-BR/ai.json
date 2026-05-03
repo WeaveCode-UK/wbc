@@ -1,1 +1,12 @@
-{}
+{
+  "title": "IA",
+  "monthly_usage": "Gerações no mês",
+  "mode_campaign": "Campanha",
+  "mode_billing": "Cobrança",
+  "mode_reactivation": "Reativação",
+  "mode_correction": "Corrigir",
+  "input_placeholder_campaign": "Objetivo da campanha",
+  "input_placeholder_billing": "Vencimento (ex: 2026-05-15)",
+  "input_placeholder_reactivation": "Última compra (ex: 2026-01-10)",
+  "input_placeholder_correction": "Texto para corrigir"
+}

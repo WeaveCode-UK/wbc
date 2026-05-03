@@ -45,7 +45,7 @@ function statusVariant(
 }
 
 export default function LogisticsHubPage() {
-  const tCommon = useTranslations("common");
+  const t = useTranslations("logistics");
   const [filter, setFilter] = useState<StatusFilter>("all");
 
   const list = trpc.logistics.listDeliveries.useQuery({
@@ -58,11 +58,11 @@ export default function LogisticsHubPage() {
     <div className="p-3 sm:p-6 space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
-          🚚 Logística
+          🚚 {t("title")}
         </h1>
         <Link href="/logistics/route">
           <Button type="button" size="sm">
-            Roteiro do dia
+            {t("daily_route")}
           </Button>
         </Link>
       </div>
@@ -71,18 +71,18 @@ export default function LogisticsHubPage() {
         value={filter}
         onChange={(v) => setFilter(v as StatusFilter)}
         options={[
-          { value: "all", label: tCommon("filter") },
-          { value: "CONFIRMED", label: "Confirmadas" },
-          { value: "SEPARATED", label: "Separadas" },
-          { value: "SHIPPED", label: "Enviadas" },
-          { value: "DELIVERED", label: "Entregues" },
+          { value: "all", label: t("filter_all") },
+          { value: "CONFIRMED", label: t("status_confirmed") },
+          { value: "SEPARATED", label: t("status_separated") },
+          { value: "SHIPPED", label: t("status_shipped") },
+          { value: "DELIVERED", label: t("status_delivered") },
         ]}
       />
 
       <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-2 sm:p-4">
         {list.isLoading && <ListSkeleton count={6} />}
         {!list.isLoading && rows.length === 0 && (
-          <EmptyState icon="📦" title="Nenhuma entrega" />
+          <EmptyState icon="📦" title={t("no_deliveries")} />
         )}
         {rows.map((d) => (
           <ListItem

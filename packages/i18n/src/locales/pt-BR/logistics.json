@@ -1,1 +1,14 @@
-{}
+{
+  "title": "Logística",
+  "daily_route": "Roteiro do dia",
+  "filter_all": "Todas",
+  "status_confirmed": "Confirmadas",
+  "status_separated": "Separadas",
+  "status_shipped": "Enviadas",
+  "status_delivered": "Entregues",
+  "no_deliveries": "Nenhuma entrega",
+  "route_subtitle_one": "{count} parada · agrupado por bairro",
+  "route_subtitle_other": "{count} paradas · agrupado por bairro",
+  "no_route": "Nenhuma entrega para hoje",
+  "no_address": "Sem endereço"
+}

@@ -9,6 +9,7 @@ type Mode = "campaign" | "billing" | "reactivation" | "correction";
 
 export default function AiPage() {
   const tCommon = useTranslations("common");
+  const t = useTranslations("ai");
   const [mode, setMode] = useState<Mode>("campaign");
   const [text, setText] = useState("");
   const [output, setOutput] = useState("");
@@ -59,19 +60,19 @@ export default function AiPage() {
   return (
     <div className="p-3 sm:p-6 space-y-4">
       <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
-        ✨ IA
+        ✨ {t("title")}
       </h1>
 
-      <MetricCard label="Gerações no mês" value={`${used} / ${limit}`} />
+      <MetricCard label={t("monthly_usage")} value={`${used} / ${limit}`} />
 
       <SegmentedControl
         value={mode}
         onChange={(v) => setMode(v as Mode)}
         options={[
-          { value: "campaign", label: "Campanha" },
-          { value: "billing", label: "Cobrança" },
-          { value: "reactivation", label: "Reativação" },
-          { value: "correction", label: "Corrigir" },
+          { value: "campaign", label: t("mode_campaign") },
+          { value: "billing", label: t("mode_billing") },
+          { value: "reactivation", label: t("mode_reactivation") },
+          { value: "correction", label: t("mode_correction") },
         ]}
       />
 
@@ -81,12 +82,12 @@ export default function AiPage() {
           onChange={(e) => setText(e.target.value)}
           placeholder={
             mode === "campaign"
-              ? "Objetivo da campanha"
+              ? t("input_placeholder_campaign")
               : mode === "billing"
-                ? "Vencimento (ex: 2026-05-15)"
+                ? t("input_placeholder_billing")
                 : mode === "reactivation"
-                  ? "Última compra (ex: 2026-01-10)"
-                  : "Texto para corrigir"
+                  ? t("input_placeholder_reactivation")
+                  : t("input_placeholder_correction")
           }
           className="w-full min-h-[120px] rounded-md border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-3 text-body-small text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
         />

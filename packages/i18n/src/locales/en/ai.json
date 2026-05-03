@@ -1,1 +1,12 @@
-{}
+{
+  "title": "AI",
+  "monthly_usage": "Monthly generations",
+  "mode_campaign": "Campaign",
+  "mode_billing": "Billing",
+  "mode_reactivation": "Reactivation",
+  "mode_correction": "Correct",
+  "input_placeholder_campaign": "Campaign objective",
+  "input_placeholder_billing": "Due date (e.g. 2026-05-15)",
+  "input_placeholder_reactivation": "Last purchase (e.g. 2026-01-10)",
+  "input_placeholder_correction": "Text to correct"
+}

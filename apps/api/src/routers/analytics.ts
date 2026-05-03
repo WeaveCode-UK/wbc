@@ -1,4 +1,5 @@
 import { router, protectedProcedure } from "../trpc/trpc";
+import { prisma } from "@wbc/db";
 import { PrismaAnalyticsRepository } from "../../../../packages/business/analytics/adapters/prisma-analytics-repository";
 import { getAnalyticsDashboard } from "../../../../packages/business/analytics/use-cases/get-dashboard";
 import {
@@ -61,7 +62,27 @@ export const analyticsRouter = router({
   getProductRanking: protectedProcedure
     .input(getProductRankingSchema)
     .query(async ({ ctx, input }) => {
-      return getProductRanking(ctx.tenant.tenantId, input.limit, analyticsRepo);
+      const ranking = await getProductRanking(
+        ctx.tenant.tenantId,
+        input.limit,
+        analyticsRepo,
+      );
+      const ids = ranking.map((r) => r.productId);
+      const products = ids.length
+        ? await prisma.product.findMany({
+            where: { tenantId: ctx.tenant.tenantId, id: { in: ids } },
+            select: { id: true, name: true, brand: { select: { name: true } } },
+          })
+        : [];
+      const byId = new Map(products.map((p) => [p.id, p]));
+      return ranking.map((r) => {
+        const p = byId.get(r.productId);
+        return {
+          ...r,
+          productName: p?.name ?? r.productId,
+          brandName: p?.brand?.name ?? null,
+        };
+      });
     }),
 
   getClientEngagement: protectedProcedure

@@ -103,7 +103,7 @@ export default function SalesPage() {
         ]}
       />
 
-      <div className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-2 sm:p-4">
+      <div className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-2 sm:p-4">
         {sales.isLoading && <ListSkeleton count={6} />}
 
         {!sales.isLoading && data.length === 0 && (

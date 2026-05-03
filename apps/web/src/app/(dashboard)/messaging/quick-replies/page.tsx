@@ -21,6 +21,7 @@ interface Reply {
 
 export default function QuickRepliesPage() {
   const tCommon = useTranslations("common");
+  const tMsg = useTranslations("messaging");
   const [label, setLabel] = useState("");
   const [text, setText] = useState("");
 
@@ -42,21 +43,21 @@ export default function QuickRepliesPage() {
   return (
     <div className="p-3 sm:p-6 space-y-4">
       <h1 className="text-[26px] sm:text-[32px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
-        Quick replies
+        {tMsg("quick_replies")}
       </h1>
 
-      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white p-4 space-y-3 shadow-wc-xs">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] p-4 space-y-3 shadow-wc-xs">
         <Input
           value={label}
           onChange={(e) => setLabel(e.target.value)}
-          placeholder="Atalho (ex: BV)"
+          placeholder={tMsg("quick_reply_label_placeholder")}
           maxLength={80}
         />
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="Mensagem completa"
-          className="w-full min-h-[80px] rounded-md border border-[var(--wc-border)] bg-white p-2 text-body-small text-[var(--wc-fg-1)] focus:outline-none focus:ring-2 focus:ring-[var(--wc-purple)]"
+          placeholder={tMsg("quick_reply_text_placeholder")}
+          className="w-full min-h-[80px] rounded-md border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] p-2 text-body-small text-[var(--wc-fg-1)] focus:outline-none focus:ring-2 focus:ring-[var(--wc-purple)]"
         />
         {create.error && <Alert variant="danger">{create.error.message}</Alert>}
         <Button
@@ -68,7 +69,7 @@ export default function QuickRepliesPage() {
         </Button>
       </section>
 
-      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white p-2 sm:p-4 shadow-wc-xs">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] p-2 sm:p-4 shadow-wc-xs">
         {list.isLoading && <ListSkeleton count={3} />}
         {!list.isLoading && replies.length === 0 && (
           <EmptyState
@@ -78,7 +79,7 @@ export default function QuickRepliesPage() {
                 strokeWidth={1.75}
               />
             }
-            title="Nenhuma resposta rápida"
+            title={tMsg("quick_replies_empty")}
           />
         )}
         {replies.map((r) => (

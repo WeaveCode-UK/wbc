@@ -123,7 +123,7 @@ export default function NewCampaignPage() {
 
       {submitError && <Alert variant="danger">{submitError}</Alert>}
 
-      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white p-4 space-y-4 shadow-wc-xs">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] p-4 space-y-4 shadow-wc-xs">
         {step === 1 && (
           <>
             <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
@@ -201,10 +201,10 @@ export default function NewCampaignPage() {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder={t("wizard_message_placeholder")}
-              className="w-full min-h-[120px] rounded-md border border-[var(--wc-border)] bg-white p-3 text-body-small text-[var(--wc-fg-1)] placeholder:text-[var(--wc-fg-3)] focus:outline-none focus:ring-2 focus:ring-[var(--wc-purple)]"
+              className="w-full min-h-[120px] rounded-md border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] p-3 text-body-small text-[var(--wc-fg-1)] placeholder:text-[var(--wc-fg-3)] focus:outline-none focus:ring-2 focus:ring-[var(--wc-purple)]"
             />
             <p className="text-caption text-[var(--wc-fg-3)]">
-              {t("wizard_message_variables")}
+              {t("wizard_message_variables", { nome: "{nome}" })}
             </p>
 
             <div className="rounded-md bg-[var(--wc-purple-50)] p-3">

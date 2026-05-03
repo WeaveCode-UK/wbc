@@ -62,7 +62,7 @@ export default function DailyRoutePage() {
         Array.from(grouped.entries()).map(([key, items]) => (
           <section
             key={key}
-            className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-3 sm:p-5 space-y-2"
+            className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-3 sm:p-5 space-y-2"
           >
             <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
               {key === "ZZZ_sem_endereco" ? t("no_address") : key}

@@ -46,8 +46,10 @@ export interface TemporalComparison {
   current: { salesCount: number; revenue: number };
   previousMonth: { salesCount: number; revenue: number };
   sameMonthLastYear: { salesCount: number; revenue: number };
-  deltaVsPreviousMonthPct: number; // (current - previous) / previous * 100
-  deltaVsLastYearPct: number;
+  // null when the prior period had zero revenue (division undefined). UI
+  // should render "n/d" or a dash rather than a misleading "+100%".
+  deltaVsPreviousMonthPct: number | null;
+  deltaVsLastYearPct: number | null;
 }
 
 export interface AnalyticsRepository {

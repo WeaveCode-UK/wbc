@@ -9,5 +9,13 @@
   "goal_calculator": "Meta reversa",
   "cac": "Custo de aquisição",
   "no_data": "Sem dados financeiros",
-  "no_data_hint": "Registre vendas e despesas para ver seu financeiro"
+  "no_data_hint": "Registre vendas e despesas para ver seu financeiro",
+  "description": "Descrição",
+  "amount": "Valor",
+  "category": "Categoria",
+  "category_operational": "Operacional",
+  "category_marketing": "Marketing",
+  "category_logistics": "Logística",
+  "category_other": "Outra",
+  "date": "Data"
 }

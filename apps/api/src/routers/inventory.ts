@@ -1,4 +1,5 @@
 import { router, protectedProcedure } from "../trpc/trpc";
+import { prisma } from "@wbc/db";
 import { PrismaStockRepository } from "../../../../packages/business/inventory/adapters/prisma-stock-repository";
 import { PrismaBrandOrderRepository } from "../../../../packages/business/inventory/adapters/prisma-brand-order-repository";
 import { PrismaSampleRepository } from "../../../../packages/business/inventory/adapters/prisma-sample-repository";
@@ -43,7 +44,29 @@ export const inventoryRouter = router({
   listStock: protectedProcedure
     .input(listStockSchema)
     .query(async ({ ctx, input }) => {
-      return listStock(ctx.tenant.tenantId, input.lowOnly, stockRepo);
+      const stocks = await listStock(
+        ctx.tenant.tenantId,
+        input.lowOnly,
+        stockRepo,
+      );
+      // Enrich with product names so the UI doesn't render UUIDs.
+      // Single round-trip, scoped to the tenant via stock filtering above.
+      const productIds = stocks.map((s) => s.productId);
+      const products = productIds.length
+        ? await prisma.product.findMany({
+            where: { tenantId: ctx.tenant.tenantId, id: { in: productIds } },
+            select: { id: true, name: true, brand: { select: { name: true } } },
+          })
+        : [];
+      const byId = new Map(products.map((p) => [p.id, p]));
+      return stocks.map((s) => {
+        const p = byId.get(s.productId);
+        return {
+          ...s,
+          productName: p?.name ?? s.productId,
+          brandName: p?.brand?.name ?? null,
+        };
+      });
     }),
 
   updateStock: protectedProcedure
@@ -71,7 +94,23 @@ export const inventoryRouter = router({
   listOrders: protectedProcedure
     .input(listOrdersSchema)
     .query(async ({ ctx, input }) => {
-      return listOrders(ctx.tenant.tenantId, input.status, orderRepo);
+      const orders = await listOrders(
+        ctx.tenant.tenantId,
+        input.status,
+        orderRepo,
+      );
+      const brandIds = Array.from(new Set(orders.map((o) => o.brandId)));
+      const brands = brandIds.length
+        ? await prisma.brand.findMany({
+            where: { id: { in: brandIds } },
+            select: { id: true, name: true },
+          })
+        : [];
+      const byId = new Map(brands.map((b) => [b.id, b]));
+      return orders.map((o) => ({
+        ...o,
+        brandName: byId.get(o.brandId)?.name ?? o.brandId,
+      }));
     }),
 
   createOrder: protectedProcedure

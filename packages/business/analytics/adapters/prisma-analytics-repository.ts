@@ -283,8 +283,10 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
       aggregate(lastYearStart, lastYearEnd),
     ]);
 
-    const pctDelta = (cur: number, prev: number) =>
-      prev > 0 ? ((cur - prev) / prev) * 100 : cur > 0 ? 100 : 0;
+    // null when prior is zero (delta undefined). Returning 100% would lie:
+    // "infinitely better than nothing" is not a useful business signal.
+    const pctDelta = (cur: number, prev: number): number | null =>
+      prev > 0 ? ((cur - prev) / prev) * 100 : null;
 
     return {
       current,

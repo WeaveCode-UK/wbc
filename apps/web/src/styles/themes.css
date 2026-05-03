@@ -71,6 +71,35 @@
   --color-info-text: #93C5FD;
 }
 
+/* ----- WeaveCode Design System tokens — Dark mode bridge -----
+ * The design system file (`weavecode/colors_and_type.css`) only flips its
+ * native tokens (`--wc-bg-elevated`, `--wc-fg-1`, `--wc-border`, …) when
+ * `[data-theme="dark"]` is set. WBC, however, uses
+ * `[data-theme="default|rose"][data-mode="dark"]`. Without this block
+ * components that reference `var(--wc-fg-1)` keep rendering the LIGHT value
+ * (near-black text) on the dark navy canvas → invisible lists, inputs, etc.
+ *
+ * Re-declare the dark surface here so any element under [data-mode="dark"]
+ * picks up the dark WC palette, regardless of the chosen brand theme. */
+[data-mode="dark"] {
+  --wc-bg:            var(--wc-blue-700);
+  --wc-bg-elevated:   var(--wc-blue-600);
+  --wc-bg-muted:      var(--wc-blue-800);
+  --wc-surface:       var(--wc-blue-600);
+  --wc-border:        rgba(255, 255, 255, 0.10);
+  --wc-border-strong: rgba(255, 255, 255, 0.18);
+  --wc-divider:       rgba(255, 255, 255, 0.08);
+  --wc-fg-1:          #FFFFFF;
+  --wc-fg-2:          rgba(255, 255, 255, 0.78);
+  --wc-fg-3:          rgba(255, 255, 255, 0.55);
+  --wc-fg-muted:      rgba(255, 255, 255, 0.45);
+  --wc-shadow-xs:     0 1px 2px rgba(0, 0, 0, 0.40);
+  --wc-shadow-sm:     0 2px 6px rgba(0, 0, 0, 0.45);
+  --wc-shadow-md:     0 8px 20px rgba(0, 0, 0, 0.50);
+  --wc-shadow-lg:     0 16px 36px rgba(0, 0, 0, 0.55);
+  --wc-shadow-xl:     0 28px 60px rgba(0, 0, 0, 0.60);
+}
+
 /* ----- Rose (Beauty vertical) — Light ----- */
 [data-theme="rose"][data-mode="light"] {
   --color-primary: var(--wc-beauty);

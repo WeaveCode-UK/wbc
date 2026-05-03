@@ -183,7 +183,7 @@ export default function ClientsPage() {
         </Alert>
       )}
 
-      <div className="rounded-wc-lg border border-[var(--wc-border)] bg-white overflow-hidden p-2 sm:p-4">
+      <div className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] overflow-hidden p-2 sm:p-4">
         {list.isLoading && <ListSkeleton count={6} />}
 
         {!list.isLoading && (list.data?.data.length ?? 0) === 0 && (

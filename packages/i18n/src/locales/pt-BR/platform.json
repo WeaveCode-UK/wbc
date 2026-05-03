@@ -10,6 +10,8 @@
   "pix_settings_hint": "Cadastre sua chave para gerar QR Code direto da venda",
   "export_data": "Exportar Dados",
   "export_data_hint": "Exporte seus dados em CSV",
+  "referral_label": "Código de indicação",
+  "referral_generate": "Gerar código",
   "theme_title": "Tema e idioma",
   "theme_subtitle": "Escolha o visual e o idioma do app",
   "theme_color": "Tema de cor",

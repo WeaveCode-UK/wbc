@@ -94,7 +94,7 @@ const sections: NavSection[] = [
         Icon: ShoppingBag,
         vertical: "beauty",
       },
-      { href: "/promo", key: "nav_promo", Icon: Palette },
+      { href: "/promo/new", key: "nav_promo", Icon: Palette },
       { href: "/tags", key: "nav_tags", Icon: Tag },
     ],
   },

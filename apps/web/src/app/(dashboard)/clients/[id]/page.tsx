@@ -173,7 +173,7 @@ export default function ClientProfilePage() {
       {engagement.data && (
         <section
           aria-label={t("profile_stat_engagement")}
-          className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-4"
+          className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-4"
         >
           <header className="flex items-baseline justify-between">
             <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
@@ -241,7 +241,7 @@ export default function ClientProfilePage() {
       )}
 
       {loyalty.data && (
-        <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-4">
+        <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-4">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="flex items-center gap-2 text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
@@ -249,7 +249,7 @@ export default function ClientProfilePage() {
                   className="h-4 w-4 text-[var(--wc-orange)]"
                   strokeWidth={1.75}
                 />
-                Loyalty
+                {t("loyalty")}
               </h2>
               <p className="text-[11px] text-[var(--wc-fg-3)]">
                 {loyalty.data.balance} · {loyalty.data.lifetimeEarned}
@@ -265,7 +265,7 @@ export default function ClientProfilePage() {
       )}
 
       {c.notes && (
-        <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-4">
+        <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-4">
           <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
             {t("profile_consultant_notes")}
           </h2>
@@ -275,7 +275,7 @@ export default function ClientProfilePage() {
         </section>
       )}
 
-      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-4">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-4">
         <div className="flex items-center justify-between">
           <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
             {t("profile_timeline")}
@@ -308,7 +308,7 @@ export default function ClientProfilePage() {
       </section>
 
       {suggestions.data && suggestions.data.length > 0 && (
-        <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-4">
+        <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-4">
           <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
             {t("profile_suggestions")}
           </h2>
@@ -337,7 +337,7 @@ export default function ClientProfilePage() {
         </section>
       )}
 
-      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-4">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-4">
         <div className="flex items-center justify-between">
           <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
             {t("profile_wishlist")}
@@ -359,7 +359,7 @@ export default function ClientProfilePage() {
         </div>
       </section>
 
-      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-4">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-4">
         <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
           {t("profile_beauty")}
         </h2>

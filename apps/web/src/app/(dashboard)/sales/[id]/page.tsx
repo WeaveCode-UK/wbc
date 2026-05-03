@@ -183,7 +183,7 @@ export default function SaleDetailPage() {
         <MetricCard label="Parcelas" value={String(paymentList.length)} />
       </div>
 
-      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-2 sm:p-4">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-2 sm:p-4">
         <h2 className="px-2 text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
           Itens
         </h2>
@@ -213,7 +213,7 @@ export default function SaleDetailPage() {
         )}
       </section>
 
-      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-2 sm:p-4">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-2 sm:p-4">
         <h2 className="px-2 text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
           Cobranças
         </h2>

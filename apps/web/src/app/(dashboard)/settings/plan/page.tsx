@@ -34,7 +34,7 @@ export default function PlanPage() {
         {t("plan")}
       </h1>
 
-      <section className="rounded-wc-lg border border-[var(--wc-purple)] ring-1 ring-[var(--wc-purple)]/20 bg-white shadow-wc-md p-6 space-y-3">
+      <section className="rounded-wc-lg border border-[var(--wc-purple)] ring-1 ring-[var(--wc-purple)]/20 bg-[var(--wc-bg-elevated)] shadow-wc-md p-6 space-y-3">
         <div className="flex items-start justify-between gap-3">
           <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
             {tenant?.name ?? "—"}
@@ -63,7 +63,7 @@ export default function PlanPage() {
       )}
 
       {sub && (
-        <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-6 space-y-3">
+        <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-6 space-y-3">
           <h3 className="text-[15px] font-medium text-[var(--wc-fg-1)]">
             Ciclo atual
           </h3>

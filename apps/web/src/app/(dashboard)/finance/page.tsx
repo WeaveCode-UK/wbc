@@ -14,6 +14,7 @@ import {
 import { trpc } from "@/lib/trpc";
 import { useToast } from "@/providers/toast-provider";
 import { PixModal } from "../../../components/pix-modal";
+import { AddExpenseModal } from "@/components/add-expense-modal";
 
 function formatBRL(value: number): string {
   return new Intl.NumberFormat("pt-BR", {
@@ -42,6 +43,7 @@ export default function FinancePage() {
     qrBase64?: string;
     caption?: string;
   } | null>(null);
+  const [expenseOpen, setExpenseOpen] = useState(false);
 
   const generatePix = trpc.sales.generatePix.useMutation({
     onSuccess: (result) => {
@@ -78,10 +80,15 @@ export default function FinancePage() {
         <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
           {t("title")}
         </h1>
-        <Button type="button" size="sm">
+        <Button type="button" size="sm" onClick={() => setExpenseOpen(true)}>
           {t("new_expense")}
         </Button>
       </div>
+
+      <AddExpenseModal
+        open={expenseOpen}
+        onClose={() => setExpenseOpen(false)}
+      />
 
       <div className="grid gap-2 sm:gap-3 grid-cols-2 lg:grid-cols-4">
         <MetricCard

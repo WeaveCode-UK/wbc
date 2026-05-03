@@ -12,12 +12,14 @@ import {
   SegmentedControl,
 } from "@wbc/ui";
 import { trpc } from "@/lib/trpc";
+import { AddOrderModal } from "@/components/add-order-modal";
 
 type StockFilter = "all" | "low" | "out";
 
 export default function InventoryPage() {
   const t = useTranslations("inventory");
   const [filter, setFilter] = useState<StockFilter>("all");
+  const [orderOpen, setOrderOpen] = useState(false);
 
   const stock = trpc.inventory.listStock.useQuery({});
   const orders = trpc.inventory.listOrders.useQuery({});
@@ -37,10 +39,12 @@ export default function InventoryPage() {
         <h1 className="text-[26px] sm:text-[32px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
           {t("title")}
         </h1>
-        <Button type="button" size="sm">
+        <Button type="button" size="sm" onClick={() => setOrderOpen(true)}>
           {t("new_order")}
         </Button>
       </header>
+
+      <AddOrderModal open={orderOpen} onClose={() => setOrderOpen(false)} />
 
       <SegmentedControl
         value={filter}
@@ -52,7 +56,7 @@ export default function InventoryPage() {
         ]}
       />
 
-      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-3 sm:p-5">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-3 sm:p-5">
         <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)] mb-3">
           {t("stock")}
         </h2>
@@ -65,7 +69,7 @@ export default function InventoryPage() {
                 strokeWidth={1.75}
               />
             }
-            title={t("no_stock")}
+            title={t("no_stock_empty")}
             description={t("no_stock_hint")}
           />
         )}
@@ -86,15 +90,15 @@ export default function InventoryPage() {
             return (
               <ListItem
                 key={s.id}
-                title={s.productId}
-                subtitle={`${t("quantity")}: ${s.quantity} · ${t("min_alert")}: ${s.minAlert}`}
+                title={s.productName}
+                subtitle={`${s.brandName ? `${s.brandName} · ` : ""}${t("quantity")}: ${s.quantity} · ${t("min_alert")}: ${s.minAlert}`}
                 right={<Badge variant={variant}>{label}</Badge>}
               />
             );
           })}
       </section>
 
-      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-3 sm:p-5">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-3 sm:p-5">
         <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)] mb-3">
           {t("orders")}
         </h2>
@@ -114,7 +118,7 @@ export default function InventoryPage() {
           ordersData.map((o) => (
             <ListItem
               key={o.id}
-              title={o.brandId}
+              title={o.brandName}
               subtitle={new Date(o.orderedAt).toLocaleDateString("pt-BR")}
               right={<Badge variant="info">{o.status}</Badge>}
             />

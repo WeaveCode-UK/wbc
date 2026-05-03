@@ -69,7 +69,7 @@ export default function ThemeSettingsPage() {
         </p>
       </header>
 
-      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 sm:p-6 space-y-3">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-5 sm:p-6 space-y-3">
         <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
           {t("theme_color")}
         </h2>
@@ -91,7 +91,7 @@ export default function ThemeSettingsPage() {
                   "flex items-center gap-3 rounded-wc-lg border p-3 text-left transition-colors " +
                   (checked
                     ? "border-[var(--wc-purple)] ring-2 ring-[var(--wc-purple)] bg-[var(--wc-purple-50)]"
-                    : "border-[var(--wc-border)] bg-white hover:bg-[var(--wc-bg-muted)]")
+                    : "border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] hover:bg-[var(--wc-bg-muted)]")
                 }
               >
                 <span
@@ -113,7 +113,7 @@ export default function ThemeSettingsPage() {
         </div>
       </section>
 
-      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 sm:p-6">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-5 sm:p-6">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
@@ -127,7 +127,7 @@ export default function ThemeSettingsPage() {
         </div>
       </section>
 
-      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 sm:p-6 space-y-3">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-5 sm:p-6 space-y-3">
         <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
           {t("theme_language")}
         </h2>
@@ -149,7 +149,7 @@ export default function ThemeSettingsPage() {
                   "flex w-full items-center justify-between rounded-md border px-3 py-2 text-left transition-colors " +
                   (checked
                     ? "border-[var(--wc-purple)] ring-2 ring-[var(--wc-purple)] bg-[var(--wc-purple-50)]"
-                    : "border-[var(--wc-border)] bg-white hover:bg-[var(--wc-bg-muted)]")
+                    : "border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] hover:bg-[var(--wc-bg-muted)]")
                 }
               >
                 <span className="text-[13px] text-[var(--wc-fg-1)]">

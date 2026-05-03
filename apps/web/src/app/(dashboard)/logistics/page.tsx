@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Package } from "lucide-react";
@@ -47,6 +47,7 @@ function statusVariant(
 
 export default function LogisticsHubPage() {
   const t = useTranslations("logistics");
+  const router = useRouter();
   const [filter, setFilter] = useState<StatusFilter>("all");
 
   const list = trpc.logistics.listDeliveries.useQuery({
@@ -61,11 +62,13 @@ export default function LogisticsHubPage() {
         <h1 className="text-[26px] sm:text-[32px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
           {t("title")}
         </h1>
-        <Link href="/logistics/route">
-          <Button type="button" size="sm">
-            {t("daily_route")}
-          </Button>
-        </Link>
+        <Button
+          type="button"
+          size="sm"
+          onClick={() => router.push("/logistics/route")}
+        >
+          {t("daily_route")}
+        </Button>
       </header>
 
       <SegmentedControl
@@ -80,7 +83,7 @@ export default function LogisticsHubPage() {
         ]}
       />
 
-      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-3 sm:p-5">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-3 sm:p-5">
         {list.isLoading && <ListSkeleton count={6} />}
         {!list.isLoading && rows.length === 0 && (
           <EmptyState

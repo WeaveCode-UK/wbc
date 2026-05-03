@@ -91,7 +91,7 @@ export default function CareerGoalsPage() {
         </p>
       </header>
 
-      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-4 sm:p-5">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-4 sm:p-5">
         <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
           Nova meta
         </h2>
@@ -163,7 +163,7 @@ export default function CareerGoalsPage() {
         {goals.isLoading && <ListSkeleton count={3} variant="card" />}
 
         {!goals.isLoading && (goals.data ?? []).length === 0 && (
-          <div className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs">
+          <div className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs">
             <EmptyState
               icon={
                 <Award
@@ -190,7 +190,7 @@ export default function CareerGoalsPage() {
             return (
               <article
                 key={g.id}
-                className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-4 space-y-3"
+                className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-4 space-y-3"
               >
                 <header className="flex items-start justify-between gap-3">
                   <div>

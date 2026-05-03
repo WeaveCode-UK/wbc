@@ -66,7 +66,7 @@ export default function DashboardPage() {
       <OnboardingChecklist />
 
       <div className="grid gap-2 sm:gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-wc-lg bg-white border border-[var(--wc-border)] p-4 sm:p-5 space-y-1 shadow-wc-xs">
+        <div className="rounded-wc-lg bg-[var(--wc-bg-elevated)] border border-[var(--wc-border)] p-4 sm:p-5 space-y-1 shadow-wc-xs">
           <p className="text-[10px] uppercase tracking-[0.06em] font-medium text-[var(--wc-fg-3)]">
             {t("sales_month")}
           </p>
@@ -81,7 +81,7 @@ export default function DashboardPage() {
             </p>
           )}
         </div>
-        <div className="rounded-wc-lg bg-white border border-[var(--wc-border)] p-4 sm:p-5 space-y-1 shadow-wc-xs">
+        <div className="rounded-wc-lg bg-[var(--wc-bg-elevated)] border border-[var(--wc-border)] p-4 sm:p-5 space-y-1 shadow-wc-xs">
           <p className="text-[10px] uppercase tracking-[0.06em] font-medium text-[var(--wc-fg-3)]">
             {t("revenue")}
           </p>
@@ -96,7 +96,7 @@ export default function DashboardPage() {
             </p>
           )}
         </div>
-        <div className="rounded-wc-lg bg-white border border-[var(--wc-border)] p-4 sm:p-5 space-y-1 shadow-wc-xs">
+        <div className="rounded-wc-lg bg-[var(--wc-bg-elevated)] border border-[var(--wc-border)] p-4 sm:p-5 space-y-1 shadow-wc-xs">
           <p className="text-[10px] uppercase tracking-[0.06em] font-medium text-[var(--wc-fg-3)]">
             {t("reminders")}
           </p>
@@ -116,7 +116,7 @@ export default function DashboardPage() {
             </p>
           )}
         </div>
-        <div className="rounded-wc-lg bg-white border border-[var(--wc-border)] p-4 sm:p-5 space-y-1 shadow-wc-xs">
+        <div className="rounded-wc-lg bg-[var(--wc-bg-elevated)] border border-[var(--wc-border)] p-4 sm:p-5 space-y-1 shadow-wc-xs">
           <p className="text-[10px] uppercase tracking-[0.06em] font-medium text-[var(--wc-fg-3)]">
             {t("today")}
           </p>
@@ -134,7 +134,7 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-3 sm:gap-4 lg:grid-cols-2">
-        <div className="rounded-wc-lg bg-white border border-[var(--wc-border)] p-4 sm:p-5 space-y-4 shadow-wc-xs">
+        <div className="rounded-wc-lg bg-[var(--wc-bg-elevated)] border border-[var(--wc-border)] p-4 sm:p-5 space-y-4 shadow-wc-xs">
           <h2 className="text-[15px] font-medium text-[var(--wc-fg-1)]">
             {t("quick_actions")}
           </h2>
@@ -159,7 +159,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="rounded-wc-lg bg-white border border-[var(--wc-border)] p-4 sm:p-5 space-y-4 shadow-wc-xs">
+        <div className="rounded-wc-lg bg-[var(--wc-bg-elevated)] border border-[var(--wc-border)] p-4 sm:p-5 space-y-4 shadow-wc-xs">
           <h2 className="text-[15px] font-medium text-[var(--wc-fg-1)]">
             {t("today")}
           </h2>

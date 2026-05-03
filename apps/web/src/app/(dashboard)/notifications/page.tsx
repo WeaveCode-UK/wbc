@@ -62,7 +62,7 @@ export default function NotificationsPage() {
       <section className="space-y-2">
         {list.isLoading && <ListSkeleton count={5} />}
         {!list.isLoading && items.length === 0 && (
-          <div className="rounded-wc-lg border border-[var(--wc-border)] bg-white p-2 sm:p-4 shadow-wc-xs">
+          <div className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] p-2 sm:p-4 shadow-wc-xs">
             <EmptyState
               icon={
                 <Bell
@@ -78,7 +78,7 @@ export default function NotificationsPage() {
           <div
             key={n.id}
             className={
-              "rounded-wc-md border border-[var(--wc-border)] bg-white p-4 transition-all duration-150 hover:shadow-wc-xs hover:-translate-y-px " +
+              "rounded-wc-md border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] p-4 transition-all duration-150 hover:shadow-wc-xs hover:-translate-y-px " +
               (!n.read ? "bg-[var(--wc-purple-50)]" : "")
             }
           >

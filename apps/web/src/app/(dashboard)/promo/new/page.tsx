@@ -51,7 +51,7 @@ export default function NewPromoCardPage() {
       </header>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 space-y-4">
+        <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-5 space-y-4">
           <div className="space-y-1">
             <Label>Template</Label>
             <SegmentedControl
@@ -120,7 +120,7 @@ export default function NewPromoCardPage() {
           </Button>
         </section>
 
-        <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 space-y-3">
+        <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-5 space-y-3">
           <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
             Pré-visualização
           </h2>

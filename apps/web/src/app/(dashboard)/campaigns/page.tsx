@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Lock, Megaphone } from "lucide-react";
@@ -50,6 +51,7 @@ function statusVariant(
 
 export default function CampaignsPage() {
   const t = useTranslations("campaigns");
+  const router = useRouter();
   const [filter, setFilter] = useState<StatusFilter>("all");
 
   const list = trpc.campaigns.list.useQuery({
@@ -70,11 +72,13 @@ export default function CampaignsPage() {
         <h1 className="text-[26px] sm:text-[32px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
           {t("title")}
         </h1>
-        <Link href="/campaigns/new">
-          <Button type="button" size="sm">
-            {t("new_campaign")}
-          </Button>
-        </Link>
+        <Button
+          type="button"
+          size="sm"
+          onClick={() => router.push("/campaigns/new")}
+        >
+          {t("new_campaign")}
+        </Button>
       </div>
 
       {campaignsLocked && (
@@ -97,7 +101,7 @@ export default function CampaignsPage() {
         ]}
       />
 
-      <div className="rounded-wc-lg border border-[var(--wc-border)] bg-white p-2 sm:p-4 shadow-wc-xs">
+      <div className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] p-2 sm:p-4 shadow-wc-xs">
         {list.isLoading && <ListSkeleton count={4} />}
 
         {!list.isLoading && data.length === 0 && (

@@ -74,7 +74,7 @@ export function BottomNav() {
           id="bottom-nav-more"
           role="menu"
           aria-label={t("nav_more")}
-          className="fixed bottom-16 left-3 right-3 z-50 rounded-wc-lg border border-[var(--wc-border)] bg-white p-3 shadow-wc-lg md:hidden"
+          className="fixed bottom-16 left-3 right-3 z-50 rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] p-3 shadow-wc-lg md:hidden"
         >
           <ul className="grid grid-cols-3 gap-2">
             {moreNavItems.map(({ href, key, Icon }) => (
@@ -102,7 +102,7 @@ export function BottomNav() {
         </div>
       )}
       <nav
-        className="fixed bottom-0 left-0 right-0 z-50 border-t border-[var(--wc-border)] bg-white md:hidden"
+        className="fixed bottom-0 left-0 right-0 z-50 border-t border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] md:hidden"
         aria-label="Main navigation"
       >
         <div className="flex items-center justify-around px-2">

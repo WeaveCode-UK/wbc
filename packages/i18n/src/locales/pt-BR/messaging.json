@@ -1,1 +1,27 @@
-{}
+{
+  "title": "Mensagens",
+  "post_sale_title": "Pós-venda 2+2+2",
+  "post_sale_intro": "Mensagem 2 dias depois da entrega → 2 semanas → 2 meses, na cadência configurada abaixo.",
+  "post_sale_active": "Fluxo ativo",
+  "post_sale_subtitle": "Quando ativo, gera mensagens automáticas em três janelas após cada venda.",
+  "cadence_days": "Cadência (em dias)",
+  "first_message": "1ª mensagem",
+  "second_message": "2ª mensagem",
+  "third_message": "3ª mensagem",
+  "templates": "Templates",
+  "templates_title": "Templates de mensagem",
+  "templates_tab_personal": "Meus + sistema",
+  "templates_tab_community": "Comunidade",
+  "templates_empty": "Nenhum template",
+  "community_empty": "Feed vazio",
+  "template_name_placeholder": "Nome",
+  "template_category_placeholder": "PROMOTION",
+  "template_text_placeholder": "Mensagem (use {placeholder})",
+  "template_badge_system": "sistema",
+  "template_badge_mine": "meu",
+  "quick_replies": "Respostas rápidas",
+  "quick_replies_empty": "Nenhuma resposta rápida",
+  "quick_reply_label_placeholder": "Atalho (ex: BV)",
+  "quick_reply_text_placeholder": "Mensagem completa",
+  "saved": "Cadência salva"
+}

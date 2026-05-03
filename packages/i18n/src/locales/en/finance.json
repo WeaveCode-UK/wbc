@@ -9,5 +9,13 @@
   "goal_calculator": "Goal reverse",
   "cac": "Customer acquisition cost",
   "no_data": "No financial data",
-  "no_data_hint": "Record sales and expenses to see your finances"
+  "no_data_hint": "Record sales and expenses to see your finances",
+  "description": "Description",
+  "amount": "Amount",
+  "category": "Category",
+  "category_operational": "Operations",
+  "category_marketing": "Marketing",
+  "category_logistics": "Logistics",
+  "category_other": "Other",
+  "date": "Date"
 }

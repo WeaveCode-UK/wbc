@@ -70,7 +70,7 @@ export default function WishlistPage() {
         {t("wishlist")}
       </h1>
 
-      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-4 space-y-3">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-4 space-y-3">
         <SearchBar
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -95,7 +95,7 @@ export default function WishlistPage() {
                     !already && add.mutate({ clientId: id, productId: p.id })
                   }
                   disabled={already || add.isPending}
-                  className="block w-full text-left px-3 py-2 hover:bg-white disabled:opacity-50"
+                  className="block w-full text-left px-3 py-2 hover:bg-[var(--wc-bg-elevated)] disabled:opacity-50"
                 >
                   <span className="text-[13px] text-[var(--wc-fg-1)]">
                     {p.name}
@@ -115,7 +115,7 @@ export default function WishlistPage() {
         )}
       </section>
 
-      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white overflow-hidden p-2 sm:p-4">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] overflow-hidden p-2 sm:p-4">
         {list.isLoading && <ListSkeleton count={3} />}
         {!list.isLoading && items.length === 0 && (
           <EmptyState

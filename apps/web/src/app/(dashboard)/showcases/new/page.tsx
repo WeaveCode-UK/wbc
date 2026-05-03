@@ -79,7 +79,7 @@ export default function NewShowcasePage() {
         Nova vitrine
       </h1>
 
-      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 space-y-3">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-5 space-y-3">
         <Input
           label="Nome da vitrine"
           value={name}
@@ -99,7 +99,7 @@ export default function NewShowcasePage() {
             id="showcase-client"
             value={clientId}
             onChange={(e) => setClientId(e.target.value)}
-            className="h-10 w-full rounded-md border border-[var(--wc-border)] bg-white px-3 text-[13px] text-[var(--wc-fg-1)]"
+            className="h-10 w-full rounded-md border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] px-3 text-[13px] text-[var(--wc-fg-1)]"
           >
             <option value="">Vitrine geral (sem cliente específico)</option>
             {clientList.map((c) => (
@@ -111,7 +111,7 @@ export default function NewShowcasePage() {
         </div>
       </section>
 
-      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 space-y-3">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-5 space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="text-[15px] font-medium text-[var(--wc-fg-1)]">
             Produtos

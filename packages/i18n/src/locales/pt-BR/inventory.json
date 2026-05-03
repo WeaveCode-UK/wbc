@@ -11,6 +11,12 @@
   "receive": "Receber",
   "sample_roi": "ROI de amostras",
   "add_product": "Adicionar produto",
-  "no_stock": "Nenhum produto no estoque",
-  "no_stock_hint": "Adicione produtos ao seu catálogo primeiro"
+  "no_stock": "Sem estoque",
+  "no_stock_hint": "Adicione produtos ao seu catálogo primeiro",
+  "no_stock_empty": "Nenhum produto no estoque",
+  "brand": "Marca",
+  "items": "Itens",
+  "product_name": "Produto",
+  "unit_cost": "Custo unitário",
+  "notes": "Observações"
 }

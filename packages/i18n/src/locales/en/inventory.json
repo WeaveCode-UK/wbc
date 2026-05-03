@@ -11,6 +11,12 @@
   "receive": "Receive",
   "sample_roi": "Sample ROI",
   "add_product": "Add product",
-  "no_stock": "No products in stock",
-  "no_stock_hint": "Add products to your catalog first"
+  "no_stock": "Out of stock",
+  "no_stock_hint": "Add products to your catalog first",
+  "no_stock_empty": "No products in stock",
+  "brand": "Brand",
+  "items": "Items",
+  "product_name": "Product",
+  "unit_cost": "Unit cost",
+  "notes": "Notes"
 }

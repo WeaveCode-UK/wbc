@@ -6,5 +6,14 @@
   "my_day": "Meu dia",
   "calendar": "Calend\u00e1rio",
   "reminders": "Lembretes",
-  "birthdays": "Anivers\u00e1rios"
+  "birthdays": "Anivers\u00e1rios",
+  "appointment_title": "T\u00edtulo",
+  "type": "Tipo",
+  "type_visit": "Visita",
+  "type_demo": "Demonstra\u00e7\u00e3o",
+  "type_beauty_day": "Beauty day",
+  "type_delivery": "Entrega",
+  "type_other": "Outro",
+  "starts_at": "Data e hora",
+  "address": "Endere\u00e7o"
 }

@@ -30,9 +30,15 @@ function formatBRL(value: number): string {
   }).format(value);
 }
 
-function formatPct(value: number): string {
+function formatPct(value: number | null): string {
+  if (value === null || !Number.isFinite(value)) return "n/d";
   const sign = value >= 0 ? "+" : "";
   return `${sign}${value.toFixed(1)}%`;
+}
+
+function deltaArrow(value: number | null): string {
+  if (value === null) return "·";
+  return value >= 0 ? "↑" : "↓";
 }
 
 export default function AnalyticsPage() {
@@ -79,22 +85,18 @@ export default function AnalyticsPage() {
             <MetricCard
               label="Vs. mês anterior"
               value={formatBRL(temporal.data.previousMonth.revenue)}
-              change={`${
-                temporal.data.deltaVsPreviousMonthPct >= 0 ? "↑" : "↓"
-              } ${formatPct(temporal.data.deltaVsPreviousMonthPct)}`}
+              change={`${deltaArrow(temporal.data.deltaVsPreviousMonthPct)} ${formatPct(temporal.data.deltaVsPreviousMonthPct)}`}
             />
             <MetricCard
               label="Vs. mesmo mês ano anterior"
               value={formatBRL(temporal.data.sameMonthLastYear.revenue)}
-              change={`${
-                temporal.data.deltaVsLastYearPct >= 0 ? "↑" : "↓"
-              } ${formatPct(temporal.data.deltaVsLastYearPct)}`}
+              change={`${deltaArrow(temporal.data.deltaVsLastYearPct)} ${formatPct(temporal.data.deltaVsLastYearPct)}`}
             />
           </>
         )}
       </section>
 
-      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-4 sm:p-5">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-4 sm:p-5">
         <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
           Sazonalidade — últimos 12 meses
         </h2>
@@ -147,7 +149,7 @@ export default function AnalyticsPage() {
         )}
       </section>
 
-      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-4 sm:p-5">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-4 sm:p-5">
         <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
           Top produtos
         </h2>
@@ -187,9 +189,16 @@ export default function AnalyticsPage() {
                   <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[var(--wc-purple-50)] text-[12px] font-semibold text-[var(--wc-purple)]">
                     {idx + 1}
                   </span>
-                  <span className="text-[13px] text-[var(--wc-fg-1)]">
-                    {item.productId.slice(0, 8)}…
-                  </span>
+                  <div className="flex flex-col">
+                    <span className="text-[13px] text-[var(--wc-fg-1)]">
+                      {item.productName}
+                    </span>
+                    {item.brandName && (
+                      <span className="text-[11px] text-[var(--wc-fg-3)]">
+                        {item.brandName}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <div className="text-right text-[12px] text-[var(--wc-fg-2)]">
                   <div>{item.totalQuantity} un</div>

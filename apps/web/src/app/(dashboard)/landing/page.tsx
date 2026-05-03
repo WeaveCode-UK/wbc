@@ -114,7 +114,7 @@ export default function LandingPage() {
       )}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 space-y-3">
+        <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-5 space-y-3">
           <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
             {t("preview_title")}
           </h2>
@@ -123,7 +123,7 @@ export default function LandingPage() {
           </p>
           <div className="aspect-[9/16] w-full max-w-sm rounded-wc-lg bg-gradient-to-br from-[var(--wc-purple-50)] to-[var(--wc-bg-muted)] p-4">
             <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
-              <div className="h-20 w-20 rounded-full bg-white overflow-hidden">
+              <div className="h-20 w-20 rounded-full bg-[var(--wc-bg-elevated)] overflow-hidden">
                 {photoUrl && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -141,7 +141,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 space-y-4">
+        <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-5 space-y-4">
           <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
             {t("form_title")}
           </h2>
@@ -177,7 +177,7 @@ export default function LandingPage() {
             <textarea
               value={philosophy}
               onChange={(e) => setPhilosophy(e.target.value)}
-              className="w-full min-h-[80px] rounded-md border border-[var(--wc-border)] bg-white p-2 text-[13px] text-[var(--wc-fg-1)] focus:outline-none focus:ring-2 focus:ring-[var(--wc-purple)]"
+              className="w-full min-h-[80px] rounded-md border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] p-2 text-[13px] text-[var(--wc-fg-1)] focus:outline-none focus:ring-2 focus:ring-[var(--wc-purple)]"
             />
           </div>
 
@@ -246,7 +246,7 @@ export default function LandingPage() {
                 <img
                   src={qrDataUrl}
                   alt={`QR code para ${publicUrl}`}
-                  className="h-40 w-40 rounded-wc-md border border-[var(--wc-border)] bg-white p-2"
+                  className="h-40 w-40 rounded-wc-md border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] p-2"
                 />
                 <a
                   href={qrDataUrl}

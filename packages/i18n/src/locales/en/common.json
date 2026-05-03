@@ -8,6 +8,8 @@
   "delete": "Delete",
   "edit": "Edit",
   "create": "Create",
+  "add": "Add",
+  "select": "Select…",
   "search": "Search",
   "filter": "Filter",
   "clear_filters": "Clear filters",

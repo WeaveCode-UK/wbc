@@ -77,7 +77,7 @@ export default function AiPage() {
         ]}
       />
 
-      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 space-y-3">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-5 space-y-3">
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
@@ -90,7 +90,7 @@ export default function AiPage() {
                   ? t("input_placeholder_reactivation")
                   : t("input_placeholder_correction")
           }
-          className="w-full min-h-[120px] rounded-md border border-[var(--wc-border)] bg-white p-3 text-[13px] text-[var(--wc-fg-1)] focus:outline-none focus:ring-2 focus:ring-[var(--wc-purple)]"
+          className="w-full min-h-[120px] rounded-md border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] p-3 text-[13px] text-[var(--wc-fg-1)] focus:outline-none focus:ring-2 focus:ring-[var(--wc-purple)]"
         />
         {error && <Alert variant="danger">{error.message}</Alert>}
         <Button

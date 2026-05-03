@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { signOut } from "next-auth/react";
 import { useTranslations } from "next-intl";
@@ -95,7 +96,7 @@ export default function DashboardLayout({
           <Sidebar mode={sidebarMode === "rail" ? "rail" : "full"} />
         )}
         <div className="flex flex-1 flex-col min-w-0">
-          <header className="hidden md:flex h-14 items-center justify-between border-b border-[var(--wc-border)] bg-white px-4 shrink-0">
+          <header className="hidden md:flex h-14 items-center justify-between border-b border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] px-4 shrink-0">
             <div className="flex items-center gap-3">
               <button
                 type="button"
@@ -151,9 +152,13 @@ export default function DashboardLayout({
                 />
                 {mode === "light" ? "Dark" : "Light"}
               </button>
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--wc-purple)] text-white text-[11px] font-semibold">
+              <Link
+                href="/settings"
+                aria-label="Abrir configurações da conta"
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--wc-purple)] text-white text-[11px] font-semibold transition-transform duration-wc-2 hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--wc-orange)] focus-visible:ring-offset-2"
+              >
                 MC
-              </div>
+              </Link>
               <button
                 type="button"
                 onClick={() => signOut({ callbackUrl: "/login" })}

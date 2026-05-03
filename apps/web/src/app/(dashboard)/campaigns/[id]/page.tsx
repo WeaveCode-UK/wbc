@@ -144,7 +144,7 @@ export default function CampaignDetailPage() {
         })}
       </section>
 
-      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white p-4 space-y-3 shadow-wc-xs">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] p-4 space-y-3 shadow-wc-xs">
         <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
           {t("funnel_title")}
         </h2>
@@ -195,26 +195,26 @@ export default function CampaignDetailPage() {
         </div>
       </section>
 
-      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white p-4 shadow-wc-xs">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] p-4 shadow-wc-xs">
         <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
           {t("negative_lists")}
         </h2>
         <div className="mt-3 flex flex-wrap gap-2">
           <button
             type="button"
-            className="rounded-full border border-[var(--color-danger-text)] bg-[var(--color-danger-bg)] px-3 py-1 text-caption text-[var(--color-danger-text)] hover:bg-white"
+            className="rounded-full border border-[var(--color-danger-text)] bg-[var(--color-danger-bg)] px-3 py-1 text-caption text-[var(--color-danger-text)] hover:bg-[var(--wc-bg-elevated)]"
           >
             {t("negative_no_receive")}
           </button>
           <button
             type="button"
-            className="rounded-full border border-[var(--color-warning-text)] bg-[var(--color-warning-bg)] px-3 py-1 text-caption text-[var(--color-warning-text)] hover:bg-white"
+            className="rounded-full border border-[var(--color-warning-text)] bg-[var(--color-warning-bg)] px-3 py-1 text-caption text-[var(--color-warning-text)] hover:bg-[var(--wc-bg-elevated)]"
           >
             {t("negative_no_view")}
           </button>
           <button
             type="button"
-            className="rounded-full border border-[var(--wc-border)] bg-[var(--wc-bg-muted)] px-3 py-1 text-caption text-[var(--wc-fg-2)] hover:bg-white"
+            className="rounded-full border border-[var(--wc-border)] bg-[var(--wc-bg-muted)] px-3 py-1 text-caption text-[var(--wc-fg-2)] hover:bg-[var(--wc-bg-elevated)]"
           >
             {t("negative_no_response")}
           </button>

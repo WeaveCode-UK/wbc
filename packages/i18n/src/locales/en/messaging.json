@@ -1,1 +1,27 @@
-{}
+{
+  "title": "Messages",
+  "post_sale_title": "Post-sale 2+2+2",
+  "post_sale_intro": "Message 2 days after delivery → 2 weeks → 2 months, on the cadence set below.",
+  "post_sale_active": "Active flow",
+  "post_sale_subtitle": "When active, automatic messages are generated in three windows after each sale.",
+  "cadence_days": "Cadence (in days)",
+  "first_message": "1st message",
+  "second_message": "2nd message",
+  "third_message": "3rd message",
+  "templates": "Templates",
+  "templates_title": "Message templates",
+  "templates_tab_personal": "Mine + system",
+  "templates_tab_community": "Community",
+  "templates_empty": "No templates yet",
+  "community_empty": "Empty feed",
+  "template_name_placeholder": "Name",
+  "template_category_placeholder": "PROMOTION",
+  "template_text_placeholder": "Message (use {placeholder})",
+  "template_badge_system": "system",
+  "template_badge_mine": "mine",
+  "quick_replies": "Quick replies",
+  "quick_replies_empty": "No quick replies yet",
+  "quick_reply_label_placeholder": "Shortcut (e.g. WL)",
+  "quick_reply_text_placeholder": "Full message",
+  "saved": "Cadence saved"
+}

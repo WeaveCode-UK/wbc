@@ -258,7 +258,7 @@ export default function ShowcaseDetailPage() {
         </div>
       </header>
 
-      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 space-y-3">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-5 space-y-3">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-1">
             <p className="text-[12px] text-[var(--wc-fg-3)]">Link público</p>
@@ -300,7 +300,7 @@ export default function ShowcaseDetailPage() {
         )}
       </section>
 
-      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-2 sm:p-4 space-y-2">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-2 sm:p-4 space-y-2">
         <h2 className="text-[15px] font-medium px-2 text-[var(--wc-fg-1)]">
           Produtos
         </h2>
@@ -365,7 +365,7 @@ export default function ShowcaseDetailPage() {
       </section>
 
       {editing && (
-        <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 space-y-3">
+        <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-5 space-y-3">
           <h2 className="text-[15px] font-medium text-[var(--wc-fg-1)]">
             Adicionar produtos
           </h2>

@@ -65,7 +65,7 @@ export default function ReturnsPage() {
         Devoluções
       </h1>
 
-      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 sm:p-6 space-y-3">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-5 sm:p-6 space-y-3">
         <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
           Nova devolução
         </h2>
@@ -88,7 +88,9 @@ export default function ReturnsPage() {
                   onClick={() => setSelectedSaleId(sale.id)}
                   className={
                     "block w-full text-left px-3 py-2 transition-colors " +
-                    (checked ? "bg-[var(--wc-purple-50)]" : "hover:bg-white")
+                    (checked
+                      ? "bg-[var(--wc-purple-50)]"
+                      : "hover:bg-[var(--wc-bg-elevated)]")
                   }
                 >
                   <span className="text-body-small text-[var(--wc-fg-1)]">
@@ -149,7 +151,7 @@ export default function ReturnsPage() {
         </Button>
       </section>
 
-      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-2 sm:p-4">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-2 sm:p-4">
         {list.isLoading && <ListSkeleton count={4} />}
         {!list.isLoading && rows.length === 0 && (
           <EmptyState icon="↩️" title="Nenhuma devolução" />

@@ -143,7 +143,7 @@ export default function ClientsImportPage() {
         </p>
       </header>
 
-      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-4 space-y-3">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-4 space-y-3">
         <Button
           type="button"
           variant="ghost"
@@ -163,7 +163,7 @@ export default function ClientsImportPage() {
       </section>
 
       {rows.length > 0 && !report && (
-        <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-4 space-y-3">
+        <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-4 space-y-3">
           <div className="flex items-center justify-between gap-3">
             <h2 className="text-[15px] font-medium text-[var(--wc-fg-1)]">
               {t(
@@ -212,7 +212,7 @@ export default function ClientsImportPage() {
       )}
 
       {report && (
-        <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-4 space-y-3">
+        <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-4 space-y-3">
           <div className="flex items-center justify-between gap-3">
             <h2 className="text-[15px] font-medium text-[var(--wc-fg-1)]">
               {t("import_done_title", {

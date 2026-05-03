@@ -35,6 +35,7 @@ type Tab = "personal" | "community";
 
 export default function TemplatesPage() {
   const tCommon = useTranslations("common");
+  const tMsg = useTranslations("messaging");
   const [tab, setTab] = useState<Tab>("personal");
   const [name, setName] = useState("");
   const [text, setText] = useState("");
@@ -66,36 +67,38 @@ export default function TemplatesPage() {
   return (
     <div className="p-3 sm:p-6 space-y-4">
       <h1 className="text-[26px] sm:text-[32px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
-        Templates de mensagem
+        {tMsg("templates_title")}
       </h1>
 
       <SegmentedControl
         value={tab}
         onChange={(v) => setTab(v as Tab)}
         options={[
-          { value: "personal", label: "Meus + sistema" },
-          { value: "community", label: "Comunidade" },
+          { value: "personal", label: tMsg("templates_tab_personal") },
+          { value: "community", label: tMsg("templates_tab_community") },
         ]}
       />
 
       {tab === "personal" && (
         <>
-          <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white p-4 space-y-3 shadow-wc-xs">
+          <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] p-4 space-y-3 shadow-wc-xs">
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Nome"
+              placeholder={tMsg("template_name_placeholder")}
             />
             <Input
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              placeholder="PROMOTION"
+              placeholder={tMsg("template_category_placeholder")}
             />
             <textarea
               value={text}
               onChange={(e) => setText(e.target.value)}
-              placeholder="Mensagem (use {{nome}})"
-              className="w-full min-h-[80px] rounded-md border border-[var(--wc-border)] bg-white p-2 text-body-small text-[var(--wc-fg-1)] focus:outline-none focus:ring-2 focus:ring-[var(--wc-purple)]"
+              placeholder={tMsg("template_text_placeholder", {
+                placeholder: "{{nome}}",
+              })}
+              className="w-full min-h-[80px] rounded-md border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] p-2 text-body-small text-[var(--wc-fg-1)] focus:outline-none focus:ring-2 focus:ring-[var(--wc-purple)]"
             />
             {create.error && (
               <Alert variant="danger">{create.error.message}</Alert>
@@ -111,7 +114,7 @@ export default function TemplatesPage() {
             </Button>
           </section>
 
-          <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white p-2 sm:p-4 shadow-wc-xs">
+          <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] p-2 sm:p-4 shadow-wc-xs">
             {list.isLoading && <ListSkeleton count={3} />}
             {!list.isLoading && templates.length === 0 && (
               <EmptyState
@@ -121,18 +124,20 @@ export default function TemplatesPage() {
                     strokeWidth={1.75}
                   />
                 }
-                title="Nenhum template"
+                title={tMsg("templates_empty")}
               />
             )}
             {templates.map((tpl) => (
               <ListItem
                 key={tpl.id}
                 title={tpl.name}
-                subtitle={tpl.text.slice(0, 60)}
+                subtitle={tpl.text}
                 right={
                   <div className="flex gap-2">
                     <Badge variant={tpl.isSystem ? "info" : "neutral"}>
-                      {tpl.isSystem ? "sistema" : "meu"}
+                      {tpl.isSystem
+                        ? tMsg("template_badge_system")
+                        : tMsg("template_badge_mine")}
                     </Badge>
                     {!tpl.isSystem && (
                       <>
@@ -164,7 +169,7 @@ export default function TemplatesPage() {
       )}
 
       {tab === "community" && (
-        <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white p-2 sm:p-4 shadow-wc-xs">
+        <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] p-2 sm:p-4 shadow-wc-xs">
           {community.isLoading && <ListSkeleton count={3} />}
           {!community.isLoading && feed.length === 0 && (
             <EmptyState
@@ -174,13 +179,13 @@ export default function TemplatesPage() {
                   strokeWidth={1.75}
                 />
               }
-              title="Feed vazio"
+              title={tMsg("community_empty")}
             />
           )}
           {feed.map((tpl) => (
             <ListItem
               key={tpl.id}
-              title={tpl.text.slice(0, 80)}
+              title={tpl.text}
               subtitle={tpl.topic ?? ""}
               right={
                 <span className="text-caption text-[var(--wc-fg-3)]">

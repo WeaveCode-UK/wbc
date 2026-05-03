@@ -23,6 +23,14 @@ const CATEGORY_OPTIONS: Array<{ value: string; key: string }> = [
   { value: "body", key: "category_body" },
 ];
 
+const CATEGORY_KEYS: Record<string, string> = {
+  skincare: "category_skincare",
+  makeup: "category_makeup",
+  haircare: "category_haircare",
+  fragrance: "category_fragrance",
+  body: "category_body",
+};
+
 function formatBRL(value: number): string {
   return new Intl.NumberFormat("pt-BR", {
     style: "currency",
@@ -108,7 +116,7 @@ export default function CatalogPage() {
       {products.isLoading && <ListSkeleton count={6} variant="card" />}
 
       {!products.isLoading && data.length === 0 && (
-        <div className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs">
+        <div className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs">
           <EmptyState
             icon={
               <ShoppingBag
@@ -127,13 +135,19 @@ export default function CatalogPage() {
           {data.map((p) => (
             <div
               key={p.id}
-              className="rounded-wc-md border border-[var(--wc-border)] bg-white shadow-wc-xs p-3 space-y-2"
+              className="rounded-wc-md border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-3 space-y-2"
             >
               <div className="aspect-square w-full rounded-wc-md bg-[var(--wc-bg-muted)]" />
               <p className="text-[13px] font-medium text-[var(--wc-fg-1)] truncate">
                 {p.name}
               </p>
-              {p.category && <Badge variant="neutral">{p.category}</Badge>}
+              {p.category && (
+                <Badge variant="neutral">
+                  {CATEGORY_KEYS[p.category]
+                    ? t(CATEGORY_KEYS[p.category])
+                    : p.category.charAt(0).toUpperCase() + p.category.slice(1)}
+                </Badge>
+              )}
               <p className="text-[13px] tabular-nums text-[var(--wc-fg-1)]">
                 {formatBRL(Number(p.price))}
               </p>

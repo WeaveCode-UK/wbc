@@ -73,7 +73,7 @@ export function CookieConsentBanner() {
     <div
       role="region"
       aria-label="Cookie consent"
-      className="fixed inset-x-0 bottom-0 z-50 border-t border-[var(--wc-border)] bg-white p-4 shadow-wc-lg"
+      className="fixed inset-x-0 bottom-0 z-50 border-t border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] p-4 shadow-wc-lg"
     >
       <div className="mx-auto flex max-w-3xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-[13px] font-light text-[var(--wc-fg-2)]">
@@ -90,7 +90,7 @@ export function CookieConsentBanner() {
           <button
             type="button"
             onClick={essentialOnly}
-            className="min-h-[44px] rounded-wc-sm border border-[var(--wc-border)] bg-white px-4 text-[13px] font-medium text-[var(--wc-fg-1)] transition-colors duration-wc-2 hover:bg-[var(--wc-bg-muted)]"
+            className="min-h-[44px] rounded-wc-sm border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] px-4 text-[13px] font-medium text-[var(--wc-fg-1)] transition-colors duration-wc-2 hover:bg-[var(--wc-bg-muted)]"
           >
             Só essenciais
           </button>

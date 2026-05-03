@@ -108,7 +108,7 @@ export default function LoyaltyExtractPage() {
         />
       </div>
 
-      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-4 space-y-3">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-4 space-y-3">
         <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
           {t("profile_cashback_remind")}
         </h2>
@@ -140,7 +140,7 @@ export default function LoyaltyExtractPage() {
         </div>
       </section>
 
-      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-4 space-y-3">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-4 space-y-3">
         <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
           {t("profile_timeline")}
         </h2>

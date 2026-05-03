@@ -6,5 +6,14 @@
   "my_day": "My day",
   "calendar": "Calendar",
   "reminders": "Reminders",
-  "birthdays": "Birthdays"
+  "birthdays": "Birthdays",
+  "appointment_title": "Title",
+  "type": "Type",
+  "type_visit": "Visit",
+  "type_demo": "Demo",
+  "type_beauty_day": "Beauty day",
+  "type_delivery": "Delivery",
+  "type_other": "Other",
+  "starts_at": "Date and time",
+  "address": "Address"
 }

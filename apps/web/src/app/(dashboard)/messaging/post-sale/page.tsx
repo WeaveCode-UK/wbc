@@ -64,14 +64,14 @@ export default function PostSalePage() {
         configurada abaixo.
       </Alert>
 
-      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white p-4 space-y-3 shadow-wc-xs">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] p-4 space-y-3 shadow-wc-xs">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
               Fluxo ativo
             </h2>
             <p className="text-caption text-[var(--wc-fg-3)]">
-              {t("title", { fallback: "Mensagens" })}
+              {t("post_sale_subtitle")}
             </p>
           </div>
           <ToggleSwitch checked={enabled} onChange={setEnabled} />
@@ -79,7 +79,7 @@ export default function PostSalePage() {
       </section>
 
       {enabled && (
-        <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white p-4 space-y-3 shadow-wc-xs">
+        <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] p-4 space-y-3 shadow-wc-xs">
           <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
             Cadência (em dias)
           </h2>
@@ -105,7 +105,7 @@ export default function PostSalePage() {
                       [opt.key]: Number(e.target.value),
                     }))
                   }
-                  className="w-full rounded-md border border-[var(--wc-border)] bg-white p-2 text-body-small text-[var(--wc-fg-1)] focus:outline-none focus:ring-2 focus:ring-[var(--wc-purple)]"
+                  className="w-full rounded-md border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] p-2 text-body-small text-[var(--wc-fg-1)] focus:outline-none focus:ring-2 focus:ring-[var(--wc-purple)]"
                 />
               </label>
             ))}

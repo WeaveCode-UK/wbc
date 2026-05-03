@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { ShoppingBag } from "lucide-react";
@@ -20,6 +21,7 @@ function publicShowcaseUrl(shareLink: string): string {
 
 export default function ShowcasesPage() {
   const tCommon = useTranslations("common");
+  const router = useRouter();
   const toast = useToast();
   const [busy, setBusy] = useState<string | null>(null);
 
@@ -53,11 +55,13 @@ export default function ShowcasesPage() {
         <h1 className="text-[26px] sm:text-[32px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
           Vitrines
         </h1>
-        <Link href="/showcases/new">
-          <Button type="button" size="sm">
-            Nova vitrine
-          </Button>
-        </Link>
+        <Button
+          type="button"
+          size="sm"
+          onClick={() => router.push("/showcases/new")}
+        >
+          Nova vitrine
+        </Button>
       </div>
 
       <p className="text-[13px] sm:text-[14px] font-light text-[var(--wc-fg-2)]">
@@ -65,7 +69,7 @@ export default function ShowcasesPage() {
         cliente. Sem login do lado dela.
       </p>
 
-      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-2 sm:p-4">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-2 sm:p-4">
         {list.isLoading && <ListSkeleton count={4} />}
         {!list.isLoading && data.length === 0 && (
           <EmptyState

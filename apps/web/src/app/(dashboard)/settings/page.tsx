@@ -106,7 +106,7 @@ export default function SettingsPage() {
         {active === "profile" && <ProfileSettingsForm />}
 
         {active === "plan" && (
-          <div className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 sm:p-6 space-y-2">
+          <div className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-5 sm:p-6 space-y-2">
             <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
               {t("plan")}
             </h2>
@@ -117,7 +117,7 @@ export default function SettingsPage() {
         )}
 
         {active === "landing" && (
-          <div className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 sm:p-6 space-y-3">
+          <div className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-5 sm:p-6 space-y-3">
             <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
               {t("landing_page")}
             </h2>
@@ -133,7 +133,7 @@ export default function SettingsPage() {
         )}
 
         {active === "pix" && (
-          <div className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 sm:p-6 space-y-3">
+          <div className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-5 sm:p-6 space-y-3">
             <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
               {t("pix_settings")}
             </h2>
@@ -149,7 +149,7 @@ export default function SettingsPage() {
         )}
 
         {active === "career" && (
-          <div className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 sm:p-6 space-y-3">
+          <div className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-5 sm:p-6 space-y-3">
             <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
               Metas de carreira
             </h2>
@@ -166,7 +166,7 @@ export default function SettingsPage() {
         )}
 
         {active === "export" && (
-          <div className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 sm:p-6 space-y-3">
+          <div className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-5 sm:p-6 space-y-3">
             <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
               {t("export_data")}
             </h2>
@@ -187,7 +187,9 @@ export default function SettingsPage() {
               {exportMutation.isFetching ? "..." : t("export_data")}
             </Button>
             <div className="border-t border-[var(--wc-border)] pt-3 space-y-1">
-              <p className="text-[12px] text-[var(--wc-fg-3)]">Referral</p>
+              <p className="text-[12px] text-[var(--wc-fg-3)]">
+                {t("referral_label")}
+              </p>
               <Button
                 type="button"
                 variant="ghost"
@@ -196,17 +198,17 @@ export default function SettingsPage() {
                 disabled={referral.isFetching}
               >
                 {referral.data
-                  ? referral.data.code || t("settings")
+                  ? referral.data.code || t("referral_generate")
                   : referral.isFetching
                     ? "..."
-                    : t("settings")}
+                    : t("referral_generate")}
               </Button>
             </div>
           </div>
         )}
 
         {active === "theme" && (
-          <div className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 sm:p-6 space-y-3">
+          <div className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-5 sm:p-6 space-y-3">
             <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
               {t("theme_title")}
             </h2>

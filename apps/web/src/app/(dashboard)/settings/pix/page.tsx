@@ -77,7 +77,7 @@ export default function PixSettingsPage() {
         intermediar pagamento.
       </Alert>
 
-      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 sm:p-6 space-y-4">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-5 sm:p-6 space-y-4">
         <div className="space-y-1">
           <label
             htmlFor="pix-key-type"
@@ -89,7 +89,7 @@ export default function PixSettingsPage() {
             id="pix-key-type"
             value={pixKeyType}
             onChange={(e) => setPixKeyType(e.target.value as KeyType)}
-            className="h-10 w-full rounded-md border border-[var(--wc-border)] bg-white px-3 text-[13px] text-[var(--wc-fg-1)]"
+            className="h-10 w-full rounded-md border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] px-3 text-[13px] text-[var(--wc-fg-1)]"
           >
             {KEY_TYPES.map((t) => (
               <option key={t.value} value={t.value}>

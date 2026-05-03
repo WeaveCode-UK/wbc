@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Bell, Cake, Calendar } from "lucide-react";
 import { Badge, Button, EmptyState, ListItem, ListSkeleton } from "@wbc/ui";
 import { trpc } from "@/lib/trpc";
+import { AddAppointmentModal } from "@/components/add-appointment-modal";
 
 // The schedule port intentionally returns `unknown[]` from the repo, so
 // the procedure output is also `unknown[]`. Re-narrow at the consumer.
@@ -37,6 +39,7 @@ function formatDateTime(value: Date | string | null | undefined): string {
 
 export default function SchedulePage() {
   const t = useTranslations("schedule");
+  const [addOpen, setAddOpen] = useState(false);
 
   const appointments = trpc.schedule.listAppointments.useQuery({});
   const birthdays = trpc.schedule.getUpcomingBirthdays.useQuery({});
@@ -52,12 +55,14 @@ export default function SchedulePage() {
         <h1 className="text-[26px] sm:text-[32px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
           {t("title")}
         </h1>
-        <Button type="button" size="sm">
+        <Button type="button" size="sm" onClick={() => setAddOpen(true)}>
           {t("new_appointment")}
         </Button>
       </header>
 
-      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-3 sm:p-5">
+      <AddAppointmentModal open={addOpen} onClose={() => setAddOpen(false)} />
+
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-3 sm:p-5">
         <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)] mb-3">
           {t("calendar")}
         </h2>
@@ -85,7 +90,7 @@ export default function SchedulePage() {
           ))}
       </section>
 
-      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-3 sm:p-5">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-3 sm:p-5">
         <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)] mb-3">
           {t("reminders")}
         </h2>
@@ -112,7 +117,7 @@ export default function SchedulePage() {
           ))}
       </section>
 
-      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-3 sm:p-5">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-3 sm:p-5">
         <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)] mb-3">
           {t("birthdays")}
         </h2>

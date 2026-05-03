@@ -59,19 +59,21 @@ export default function ClientsQrPage() {
 
       <header>
         <h1 className="text-[26px] sm:text-[32px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
-          QR Code
+          {t("qr_title")}
         </h1>
         <p className="mt-1 text-[13px] sm:text-[14px] font-light text-[var(--wc-fg-2)]">
-          {t("import")}
+          {t("qr_subtitle")}
         </p>
       </header>
 
-      {!slug && <Alert variant="warning">{t("no_clients_hint")}</Alert>}
+      {!slug && !workspaces.isLoading && (
+        <Alert variant="warning">{t("qr_no_workspace")}</Alert>
+      )}
 
       {renderError && <Alert variant="danger">{renderError}</Alert>}
 
       {dataUrl && (
-        <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-4 flex flex-col items-center gap-3">
+        <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-4 flex flex-col items-center gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={dataUrl}
@@ -90,11 +92,11 @@ export default function ClientsQrPage() {
               variant="secondary"
               onClick={() => navigator.clipboard.writeText(url)}
             >
-              Copiar link
+              {t("qr_copy_link")}
             </Button>
             <a href={dataUrl} download={`wbc-qr-${slug}.png`}>
               <Button type="button" size="sm">
-                PNG
+                {t("qr_download_png")}
               </Button>
             </a>
           </div>

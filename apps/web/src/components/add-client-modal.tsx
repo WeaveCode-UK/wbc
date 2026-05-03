@@ -87,7 +87,7 @@ export function AddClientModal({
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="w-full max-w-md space-y-4 rounded-wc-xl bg-white p-6 shadow-wc-xl">
+      <div className="w-full max-w-md space-y-4 rounded-wc-xl bg-[var(--wc-bg-elevated)] p-6 shadow-wc-xl">
         <h2 className="text-heading-2 text-[var(--color-text-primary)]">
           {t("add_client")}
         </h2>

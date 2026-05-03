@@ -45,7 +45,7 @@ export default function ReferralPage() {
 
       {data?.code && (
         <>
-          <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-6 text-center space-y-3">
+          <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-6 text-center space-y-3">
             <p className="text-[12px] text-[var(--wc-fg-3)]">Seu código</p>
             <p
               className="text-[24px] font-semibold tracking-wider text-[var(--wc-purple)]"
@@ -61,7 +61,7 @@ export default function ReferralPage() {
             </Button>
           </section>
 
-          <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 sm:p-6">
+          <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-5 sm:p-6">
             <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
               Estatísticas
             </h2>

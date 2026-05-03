@@ -1,10 +1,10 @@
-import { subscribe, EVENTS } from '@wbc/shared';
-import type { PostSaleFlowRepository } from '../ports/messaging-repository';
+import { subscribe, EVENTS } from "@wbc/shared";
+import type { PostSaleFlowRepository } from "../ports/messaging-repository";
 
 const POST_SALE_STAGES = [
-  { stage: 'TWO_DAYS', daysAfter: 2 },
-  { stage: 'TWO_WEEKS', daysAfter: 14 },
-  { stage: 'TWO_MONTHS', daysAfter: 60 },
+  { stage: "TWO_DAYS", daysAfter: 2 },
+  { stage: "TWO_WEEKS", daysAfter: 14 },
+  { stage: "TWO_MONTHS", daysAfter: 60 },
 ] as const;
 
 export async function createPostSaleFlows(
@@ -13,6 +13,10 @@ export async function createPostSaleFlows(
   clientId: string,
   repo: PostSaleFlowRepository,
 ): Promise<void> {
+  // Item 48 da spec: ao confirmar uma nova venda do mesmo cliente, descarta
+  // os PostSaleFlow pendentes anteriores antes de criar os novos para que a
+  // sequência 2d/2w/2m sempre conte do dia da última compra. Coberto pelo
+  // teste post-sale-flow.test.ts.
   await repo.deletePendingByClient(clientId);
 
   const now = new Date();
@@ -27,21 +31,34 @@ export async function createPostSaleFlows(
       stage: stage.stage as string,
       messageVariant: variant,
       scheduledAt,
-      status: 'PENDING',
+      status: "PENDING",
     };
   });
 
   await repo.createMany(flows);
 }
 
-export function registerPostSaleEventHandler(repo: PostSaleFlowRepository): void {
+export function registerPostSaleEventHandler(
+  repo: PostSaleFlowRepository,
+): void {
   subscribe(EVENTS.SALE_CONFIRMED, async (event) => {
-    const payload = event.payload as { tenantId: string; saleId: string; clientId: string };
-    await createPostSaleFlows(payload.tenantId, payload.saleId, payload.clientId, repo);
+    const payload = event.payload as {
+      tenantId: string;
+      saleId: string;
+      clientId: string;
+    };
+    await createPostSaleFlows(
+      payload.tenantId,
+      payload.saleId,
+      payload.clientId,
+      repo,
+    );
   });
 }
 
-export async function processPendingPostSaleFlows(repo: PostSaleFlowRepository): Promise<number> {
+export async function processPendingPostSaleFlows(
+  repo: PostSaleFlowRepository,
+): Promise<number> {
   const pendingFlows = await repo.findPending(50);
   let processed = 0;
   for (const flow of pendingFlows) {

@@ -1,0 +1,21 @@
+{
+  "$schema": "./node_modules/@stryker-mutator/core/schema/stryker-schema.json",
+  "_comment": "T11 — mutation testing focused on money-path domain + use-cases. Full repo mutation is too slow for every commit; run weekly via CI scheduled job.",
+  "packageManager": "pnpm",
+  "testRunner": "vitest",
+  "vitest": { "configFile": "vitest.config.ts" },
+  "reporters": ["html", "clear-text", "progress"],
+  "mutate": [
+    "packages/business/sales/domain/**/*.ts",
+    "packages/business/sales/use-cases/{create-sale,confirm-sale,cancel-sale,manage-payments,manage-cashback,flag-expiring-cashback}.ts",
+    "packages/business/finance/use-cases/{calculators,connect-mercadopago}.ts",
+    "packages/business/loyalty/domain/**/*.ts",
+    "!**/*.test.ts",
+    "!**/__tests__/**"
+  ],
+  "thresholds": { "high": 80, "low": 60, "break": 50 },
+  "timeoutMS": 60000,
+  "concurrency": 4,
+  "tempDirName": ".stryker-tmp",
+  "checkers": []
+}

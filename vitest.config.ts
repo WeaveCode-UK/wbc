@@ -11,6 +11,8 @@ export default defineConfig({
       "@wbc/validators": path.resolve(__dirname, "packages/validators/src"),
       "@wbc/db": path.resolve(__dirname, "packages/db/src"),
       "@wbc/business": path.resolve(__dirname, "packages/business"),
+      "@wbc/i18n": path.resolve(__dirname, "packages/i18n"),
+      "@": path.resolve(__dirname, "apps/web/src"),
     },
   },
   test: {

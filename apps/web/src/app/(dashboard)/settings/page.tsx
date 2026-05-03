@@ -10,13 +10,21 @@ import { trpc } from "@/lib/trpc";
 // ACH-017 (partial): Settings becomes tabbed and Profile is the first tab
 // with a real form. Plan tab still depends on platform.getSubscription which
 // is not yet exposed; tracked under F11.E15 in prompts/fase-11.
-type SettingsTab = "profile" | "plan" | "landing" | "pix" | "export" | "theme";
+type SettingsTab =
+  | "profile"
+  | "plan"
+  | "landing"
+  | "pix"
+  | "career"
+  | "export"
+  | "theme";
 
-const TABS: Array<{ id: SettingsTab; key: string }> = [
+const TABS: Array<{ id: SettingsTab; key: string; fallback?: string }> = [
   { id: "profile", key: "profile" },
   { id: "plan", key: "plan" },
   { id: "landing", key: "landing_page" },
   { id: "pix", key: "pix_settings" },
+  { id: "career", key: "career_goals", fallback: "Metas de carreira" },
   { id: "export", key: "export_data" },
   { id: "theme", key: "theme_title" },
 ];
@@ -83,7 +91,7 @@ export default function SettingsPage() {
                   : "text-[var(--wc-fg-2)] hover:text-[var(--wc-fg-1)]")
               }
             >
-              {t(tab.key)}
+              {tab.fallback ?? t(tab.key)}
             </button>
           );
         })}
@@ -135,6 +143,23 @@ export default function SettingsPage() {
             <Link href="/settings/pix">
               <Button type="button" size="sm">
                 {t("pix_settings")}
+              </Button>
+            </Link>
+          </div>
+        )}
+
+        {active === "career" && (
+          <div className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 sm:p-6 space-y-3">
+            <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
+              Metas de carreira
+            </h2>
+            <p className="text-[13px] text-[var(--wc-fg-3)]">
+              Acompanhe níveis e faturamento alvo por marca; receba alerta
+              quando faltar pouco.
+            </p>
+            <Link href="/settings/career">
+              <Button type="button" size="sm">
+                Abrir metas
               </Button>
             </Link>
           </div>

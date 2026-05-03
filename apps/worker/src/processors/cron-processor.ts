@@ -7,6 +7,7 @@ import { flagExpiringCashbacks } from "@wbc/business/sales/use-cases/flag-expiri
 import { buildRestockReminders } from "@wbc/business/schedule/use-cases/build-restock-reminders";
 import { buildDateReminders } from "@wbc/business/schedule/use-cases/build-date-reminders";
 import { notifyClientMilestones } from "@wbc/business/schedule/use-cases/notify-client-milestones";
+import { notifyUrgentCareerGoals } from "@wbc/business/team/use-cases/manage-career-goals";
 import { recomputeUnlockedFeatures } from "@wbc/business/platform/use-cases/progressive-onboarding";
 import {
   resetDemoTenant,
@@ -33,7 +34,8 @@ type CronType =
   | "build_date_reminders"
   | "refresh_unlocked_features"
   | "reset_demo_tenants"
-  | "notify_client_milestones";
+  | "notify_client_milestones"
+  | "notify_career_goals";
 
 const cronQueue = new Queue<CronJob>(QUEUE_NAME, {
   connection,
@@ -56,6 +58,7 @@ const CRON_SCHEDULES: Record<CronType, string> = {
   refresh_unlocked_features: "0 */6 * * *", // every 6h
   reset_demo_tenants: "0 3 * * *", // 03:00 UTC daily — early
   notify_client_milestones: "30 8 * * *", // 08:30 UTC daily, after build_date_reminders
+  notify_career_goals: "0 9 * * *", // 09:00 UTC daily
 };
 
 async function listAllTenants(): Promise<string[]> {
@@ -88,6 +91,9 @@ async function runForTenant(type: CronType, tenantId: string): Promise<void> {
       return;
     case "notify_client_milestones":
       await notifyClientMilestones(tenantId);
+      return;
+    case "notify_career_goals":
+      await notifyUrgentCareerGoals(tenantId);
       return;
   }
 }

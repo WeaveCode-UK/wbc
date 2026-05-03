@@ -19,6 +19,11 @@ import {
   completeTask,
 } from "../../../../packages/business/team/use-cases/manage-tasks";
 import { getTeamRanking } from "../../../../packages/business/team/use-cases/get-ranking";
+import {
+  createCareerGoal,
+  listCareerGoals,
+  deactivateCareerGoal,
+} from "../../../../packages/business/team/use-cases/manage-career-goals";
 import { uuidSchema } from "@wbc/validators";
 
 const teamRepo = new PrismaTeamRepository();
@@ -125,4 +130,36 @@ export const teamRouter = router({
     if (!team) return [];
     return getTeamRanking(ctx.tenant.tenantId, team.id, memberRepo);
   }),
+
+  // Item 53 da spec / item 7 do handoff: tracker de carreira/níveis
+  // por marca. Cron diário (notify_career_goals) faz a notificação.
+  listCareerGoals: protectedProcedure.query(async ({ ctx }) => {
+    return listCareerGoals(ctx.tenant.tenantId);
+  }),
+  createCareerGoal: protectedProcedure
+    .input(
+      z.object({
+        brandName: z.string().min(1).max(80),
+        levelName: z.string().min(1).max(80),
+        targetRevenue: z.number().positive(),
+        targetByDate: z.coerce.date(),
+        startsAt: z.coerce.date().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return createCareerGoal({
+        tenantId: ctx.tenant.tenantId,
+        brandName: input.brandName,
+        levelName: input.levelName,
+        targetRevenue: input.targetRevenue,
+        targetByDate: input.targetByDate,
+        startsAt: input.startsAt,
+      });
+    }),
+  deactivateCareerGoal: protectedProcedure
+    .input(z.object({ id: uuidSchema }))
+    .mutation(async ({ ctx, input }) => {
+      await deactivateCareerGoal(ctx.tenant.tenantId, input.id);
+      return { success: true };
+    }),
 });

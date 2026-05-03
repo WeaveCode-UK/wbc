@@ -24,7 +24,11 @@ function buildMapLinks(address: string): {
 export default function DailyRoutePage() {
   const tCommon = useTranslations("common");
   const t = useTranslations("logistics");
-  const route = trpc.logistics.getOrderedRoute.useQuery({});
+  // QA BUG-08: cache reduz "skeleton infinito" entre navegações.
+  const route = trpc.logistics.getOrderedRoute.useQuery(
+    {},
+    { staleTime: 60_000 },
+  );
   const stops = route.data ?? [];
 
   // Group by groupKey for visual ordering — same neighbourhood as a

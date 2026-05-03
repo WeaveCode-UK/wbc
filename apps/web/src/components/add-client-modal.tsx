@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { X } from "lucide-react";
 import { Alert, Button, Input } from "@wbc/ui";
 import { trpc } from "@/lib/trpc";
 import { useToast } from "@/providers/toast-provider";
@@ -88,9 +89,19 @@ export function AddClientModal({
       }}
     >
       <div className="w-full max-w-md space-y-4 rounded-wc-xl bg-[var(--wc-bg-elevated)] p-6 shadow-wc-xl">
-        <h2 className="text-heading-2 text-[var(--color-text-primary)]">
-          {t("add_client")}
-        </h2>
+        <div className="flex items-start justify-between gap-3">
+          <h2 className="text-heading-2 text-[var(--color-text-primary)]">
+            {t("add_client")}
+          </h2>
+          <button
+            type="button"
+            aria-label={tCommon("close")}
+            onClick={onClose}
+            className="-m-2 inline-flex h-9 w-9 items-center justify-center rounded-md text-[var(--color-text-tertiary)] hover:bg-[var(--wc-bg-muted)] hover:text-[var(--color-text-primary)]"
+          >
+            <X className="h-4 w-4" strokeWidth={1.75} />
+          </button>
+        </div>
 
         <Input
           label={t("name")}
@@ -110,6 +121,7 @@ export function AddClientModal({
           onBlur={() => setTouched((s) => ({ ...s, phone: true }))}
           error={phoneError}
           placeholder="+5511999990000"
+          helper={!phoneError ? t("phone_helper") : undefined}
           required
         />
 
@@ -120,6 +132,7 @@ export function AddClientModal({
           onChange={(e) => setEmail(e.target.value)}
           onBlur={() => setTouched((s) => ({ ...s, email: true }))}
           error={emailError}
+          helper={!emailError ? t("email_helper") : undefined}
         />
 
         <label className="flex items-center gap-2 text-body-small text-[var(--color-text-secondary)]">

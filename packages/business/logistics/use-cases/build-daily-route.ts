@@ -44,6 +44,12 @@ export async function buildDailyRoute(
   const endOfDay = new Date(startOfDay);
   endOfDay.setDate(endOfDay.getDate() + 1);
 
+  // QA BUG-08: query estava sem limite, retornando todas as deliveries
+  // CONFIRMED/SEPARATED/SHIPPED de qualquer data. Em dev a tabela tem
+  // 100+ rows seedadas e o skeleton ficava parado ~2s. Limitamos a 200
+  // (paginação não é necessária — uma rota de >200 paradas/dia não faz
+  // sentido operacional) e ordenamos por createdAt desc para priorizar
+  // deliveries recentes quando truncar.
   const deliveries = await prisma.delivery.findMany({
     where: {
       sale: { tenantId },
@@ -58,6 +64,8 @@ export async function buildDailyRoute(
       status: true,
       createdAt: true,
     },
+    orderBy: { createdAt: "desc" },
+    take: 200,
   });
 
   // Resolve client names in a single round-trip rather than relying on

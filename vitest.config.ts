@@ -22,7 +22,17 @@ export default defineConfig({
       "packages/**/__tests__/**/*.test.tsx",
       "apps/**/__tests__/**/*.test.ts",
       "apps/**/__tests__/**/*.test.tsx",
+      // T5 — testcontainers integration tests. Each file gates itself on
+      // `process.env.RUN_INTEGRATION` (or CI) via `it.skipIf(...)`, so
+      // bringing them into the default include set does not slow down
+      // `pnpm test` when Docker isn't available.
+      "packages/**/__tests__/integration/**/*.integration.test.ts",
     ],
+    // T5: starting a Postgres container, running `prisma migrate deploy`
+    // and tearing down can blow past the default 5s timeout — bump to 60s
+    // for the whole run; the unit tests are unaffected.
+    testTimeout: 60_000,
+    hookTimeout: 60_000,
     environment: "jsdom",
     setupFiles: ["./vitest.setup.ts"],
     coverage: {
@@ -36,16 +46,19 @@ export default defineConfig({
       ],
       exclude: ["**/__tests__/**", "**/index.ts"],
       reporter: ["text", "html", "lcov"],
-      // ACH-014 testes-qualidade: escalonamento planejado de coverage.
-      // Fase 4 (hoje): 20% — suíte mínima conforme CLAUDE.md "ZERO
-      // testes até Fase 7". Fase 6: 40%. Fase 7: 70%. Estável: 80%.
-      // O gate de CI falha se coverage cair abaixo deste threshold
-      // (ACH-006: `pnpm test:coverage` no workflow).
+      // T12.1 — ramped 2026-05-03 from 20% → 30% after T0+T1+T2-A/B/C/D+T6+T7+T9
+      // landed (statements actually hit 38%, branches 32%, functions 29%,
+      // lines 39%). Set the gate just below the lowest dimension so a
+      // regression breaks CI but legitimate flux doesn't. Next steps
+      // toward CHECAGEM thresholds:
+      //   - 50% after T2-E + T3 + T4 land (sub-agents finishing)
+      //   - 70% after T5 (testcontainers — running)
+      //   - 80% stable target
       thresholds: {
-        lines: 20,
-        branches: 20,
-        functions: 20,
-        statements: 20,
+        lines: 30,
+        branches: 30,
+        functions: 25,
+        statements: 30,
       },
     },
   },

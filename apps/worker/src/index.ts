@@ -67,6 +67,10 @@ import {
   startCronWorker,
   registerCronSchedules,
 } from "./processors/cron-processor";
+import {
+  startScheduledMessageWorker,
+  registerScheduledMessageSchedule,
+} from "./processors/scheduled-message-processor";
 import { startAnalyticsWorker } from "./processors/analytics-processor";
 import { startDLQWorker } from "./processors/dlq-processor";
 import {
@@ -165,16 +169,25 @@ const workers = [
   startAnalyticsWorker(),
   startDLQWorker(),
   startCronWorker(),
+  startScheduledMessageWorker(),
 ];
 
 logger.info(
-  "BullMQ workers started (messaging, campaigns, schedule, analytics, dlq, cron)",
+  "BullMQ workers started (messaging, campaigns, schedule, analytics, dlq, cron, scheduled-messages)",
 );
 
 // F11.E24: register cron schedules. Idempotent — repeatable jobs are
 // keyed by jobId so re-running on boot doesn't duplicate.
 void registerCronSchedules().catch((err) => {
   logger.error({ err: (err as Error).message }, "registerCronSchedules failed");
+});
+// Bloco 1 do plano: scanner que varre ScheduledMessage + PostSaleFlow
+// e enfileira em wbc:messaging. Idempotente via jobId.
+void registerScheduledMessageSchedule().catch((err) => {
+  logger.error(
+    { err: (err as Error).message },
+    "registerScheduledMessageSchedule failed",
+  );
 });
 // Cache invalidation handlers
 subscribe(EVENTS.TENANT_PLAN_CHANGED, async (event) => {

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { EmptyState, Skeleton } from "@wbc/ui";
 import { trpc } from "@/lib/trpc";
+import { OnboardingChecklist } from "../../components/onboarding-checklist";
 
 function formatBRL(value: number): string {
   return new Intl.NumberFormat("pt-BR", {
@@ -47,6 +48,8 @@ export default function DashboardPage() {
           {t("summary")}
         </p>
       </header>
+
+      <OnboardingChecklist />
 
       <div className="grid gap-2 sm:gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-lg bg-[var(--color-bg-secondary)] p-3 sm:p-4 space-y-1">

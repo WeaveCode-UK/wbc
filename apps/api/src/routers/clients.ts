@@ -22,6 +22,12 @@ import {
   removeFromWishlist,
   listWishlist,
 } from "@wbc/business/clients/use-cases/manage-wishlist";
+import { PrismaGiftSuggestorRepository } from "@wbc/business/clients/adapters/prisma-gift-suggestor-repository";
+import {
+  listGiftSuggestors,
+  addGiftSuggestor,
+  removeGiftSuggestor,
+} from "@wbc/business/clients/use-cases/manage-gift-suggestors";
 import { PrismaTenantRepository } from "@wbc/business/auth/adapters/prisma-tenant-repository";
 import { deleteClient } from "@wbc/business/clients/use-cases/delete-client";
 import { listClients } from "@wbc/business/clients/use-cases/list-clients";
@@ -58,6 +64,7 @@ const tagRepo = new PrismaTagRepository();
 const tenantRepo = new PrismaTenantRepository();
 const wishlistRepo = new PrismaWishlistRepository();
 const productRepo = new PrismaProductRepository();
+const giftSuggestorRepo = new PrismaGiftSuggestorRepository();
 
 export const clientsRouter = router({
   list: protectedProcedure
@@ -312,6 +319,47 @@ export const clientsRouter = router({
     .input(z.object({ clientId: uuidSchema, productId: uuidSchema }))
     .mutation(async ({ input }) => {
       await removeFromWishlist(input.clientId, input.productId, wishlistRepo);
+      return { success: true };
+    }),
+
+  // Bloco 4 do plano: feature #29 — presenteadores. Schema GiftSuggestor
+  // existia no banco desde F2.E02 mas nunca teve procedure ou UI.
+  listGiftSuggestors: protectedProcedure
+    .input(z.object({ clientId: uuidSchema }))
+    .query(async ({ ctx, input }) => {
+      return listGiftSuggestors(
+        ctx.tenant.tenantId,
+        input.clientId,
+        giftSuggestorRepo,
+      );
+    }),
+  addGiftSuggestor: protectedProcedure
+    .input(
+      z.object({
+        clientId: uuidSchema,
+        suggestorName: z.string().min(1).max(120),
+        suggestorPhone: z.string().regex(/^\+\d{10,15}$/, {
+          message: "Use formato internacional, ex: +5511999990000",
+        }),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return addGiftSuggestor(
+        ctx.tenant.tenantId,
+        input.clientId,
+        input.suggestorName,
+        input.suggestorPhone,
+        giftSuggestorRepo,
+      );
+    }),
+  removeGiftSuggestor: protectedProcedure
+    .input(z.object({ id: uuidSchema }))
+    .mutation(async ({ ctx, input }) => {
+      await removeGiftSuggestor(
+        ctx.tenant.tenantId,
+        input.id,
+        giftSuggestorRepo,
+      );
       return { success: true };
     }),
 

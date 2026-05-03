@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   Avatar,
@@ -14,9 +15,18 @@ import {
   MetricCard,
   Tag,
 } from "@wbc/ui";
-import { AlertTriangle, Clock, Gift, Star, Wallet } from "lucide-react";
+import {
+  AlertTriangle,
+  Clock,
+  Gift,
+  Heart,
+  Star,
+  Wallet,
+  X,
+} from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { WhatsappButton } from "@/components/whatsapp-button";
+import { AddGiftSuggestorModal } from "@/components/add-gift-suggestor-modal";
 
 const BEAUTY_KEYS = [
   "skin_type",
@@ -66,6 +76,16 @@ export default function ClientProfilePage() {
     { clientId: id, limit: 5 },
     { enabled: !!id },
   );
+  const giftSuggestors = trpc.clients.listGiftSuggestors.useQuery(
+    { clientId: id },
+    { enabled: !!id },
+  );
+  const utils = trpc.useUtils();
+  const removeGiftSuggestor = trpc.clients.removeGiftSuggestor.useMutation({
+    onSuccess: () =>
+      void utils.clients.listGiftSuggestors.invalidate({ clientId: id }),
+  });
+  const [giftSuggestorOpen, setGiftSuggestorOpen] = useState(false);
 
   if (client.isLoading) {
     return (
@@ -358,6 +378,69 @@ export default function ClientProfilePage() {
           />
         </div>
       </section>
+
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-4">
+        <div className="flex items-center justify-between">
+          <h2 className="flex items-center gap-2 text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
+            <Heart
+              className="h-4 w-4 text-[var(--wc-orange)]"
+              strokeWidth={1.75}
+            />
+            {t("gift_suggestors_section_title")}
+          </h2>
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            onClick={() => setGiftSuggestorOpen(true)}
+          >
+            {t("gift_suggestor_add")}
+          </Button>
+        </div>
+        <p className="mt-1 text-[12px] text-[var(--wc-fg-3)]">
+          {t("gift_suggestors_help")}
+        </p>
+        <div className="mt-3 space-y-2">
+          {giftSuggestors.isLoading && <ListSkeleton count={2} />}
+          {!giftSuggestors.isLoading &&
+            (giftSuggestors.data ?? []).length === 0 && (
+              <p className="text-[12px] text-[var(--wc-fg-3)]">
+                {t("gift_suggestors_empty")}
+              </p>
+            )}
+          {(giftSuggestors.data ?? []).map((s) => (
+            <div
+              key={s.id}
+              className="flex items-center justify-between rounded-wc-sm border border-[var(--wc-border)] px-3 py-2"
+            >
+              <div>
+                <p className="text-[13px] text-[var(--wc-fg-1)]">
+                  {s.suggestorName}
+                </p>
+                <p className="text-[11px] text-[var(--wc-fg-3)]">
+                  {s.suggestorPhone}
+                </p>
+              </div>
+              <Button
+                type="button"
+                size="xs"
+                variant="ghost"
+                aria-label={t("gift_suggestor_remove")}
+                onClick={() => removeGiftSuggestor.mutate({ id: s.id })}
+                disabled={removeGiftSuggestor.isPending}
+              >
+                <X className="h-4 w-4" strokeWidth={1.75} />
+              </Button>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <AddGiftSuggestorModal
+        open={giftSuggestorOpen}
+        clientId={id}
+        onClose={() => setGiftSuggestorOpen(false)}
+      />
 
       <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-elevated)] shadow-wc-xs p-4">
         <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">

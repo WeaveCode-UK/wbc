@@ -42,6 +42,14 @@ import { OnboardingScreen } from "./screens/onboarding-screen";
 import { registerForPushNotifications } from "./lib/push-notifications";
 import { useOnlineSync } from "./lib/use-online-sync";
 import { useTenantId } from "./lib/tenant-context";
+import {
+  trpc as trpcClient,
+  sendMutation,
+  getStoredToken,
+  clearToken,
+} from "./lib/trpc-client";
+import { useHydration } from "./lib/use-hydration";
+import { LoginScreen } from "./screens/login-screen";
 
 function TopAppBar() {
   const { md3: c } = useTheme();
@@ -64,32 +72,38 @@ function TopAppBar() {
   );
 }
 
-// F11.E27: no-op send used while the mobile app is not yet wired to a
-// tRPC client. The hook still drains the queue (and removes
-// non-retryable entries), so when the real `send` is dropped in,
-// pending writes flow without further glue.
-const noopSend = async (): Promise<void> => undefined;
-
-function AppContent() {
+function AppContent({ onSignOut }: { onSignOut: () => void }) {
   const { md3: c } = useTheme();
   const [activeTab, setActiveTab] = useState("myday");
   const [showOnboarding] = useState(false);
   const tenantId = useTenantId();
 
-  // F11.E27: register for Expo Push once after auth (here, after the
-  // app shell mounts since auth is not yet wired). The sink is a
-  // no-op until apps/mobile carries a tRPC client; the resulting
-  // token is logged so devs can paste it into the API.
+  // F11 follow-up: real Expo Push registration. The sink now hits
+  // platform.registerPushToken so the worker's notification fan-out
+  // (F11.E25) actually has tokens to push to.
   useEffect(() => {
-    void registerForPushNotifications(async ({ token }) => {
-      if (typeof console !== "undefined") {
-        console.log("[wbc] expo push token:", token);
+    void registerForPushNotifications(async ({ token, platform }) => {
+      try {
+        await trpcClient.platform.registerPushToken.mutate({
+          token,
+          platform,
+        });
+      } catch (err) {
+        if (typeof console !== "undefined") {
+          console.warn("[wbc] push token register failed:", err);
+        }
       }
     });
   }, []);
 
-  // F11.E27: drain the SQLite mutation queue when online.
-  useOnlineSync(tenantId, noopSend);
+  // F11 follow-up: real SQLite mutation queue drain. `sendMutation`
+  // routes operation strings through the typed tRPC client.
+  useOnlineSync(tenantId, sendMutation);
+
+  // F11 follow-up: warm SQLite cache from the server right after auth.
+  // Subsequent renders read from offline-repos and ignore the mock
+  // fallback because the cache now has rows.
+  useHydration(tenantId);
 
   if (showOnboarding) {
     return <OnboardingScreen />;
@@ -104,7 +118,7 @@ function AppContent() {
       case "sales":
         return <SalesListScreen />;
       case "menu":
-        return <MenuScreen />;
+        return <MenuScreen onSignOut={onSignOut} />;
       default:
         return <MyDayScreen />;
     }
@@ -132,8 +146,23 @@ function App() {
     Manrope_500Medium,
     Manrope_700Bold,
   });
+  const [authState, setAuthState] = useState<"loading" | "in" | "out">(
+    "loading",
+  );
 
-  if (!fontsLoaded) {
+  // F11 follow-up: hydrate auth from secure-store on cold start. The
+  // stored JWT is good for 30 days (auth.signInForMobile) so the user
+  // only sees the LoginScreen on first launch / after explicit sign-out.
+  useEffect(() => {
+    void getStoredToken().then((t) => setAuthState(t ? "in" : "out"));
+  }, []);
+
+  const handleSignOut = async () => {
+    await clearToken();
+    setAuthState("out");
+  };
+
+  if (!fontsLoaded || authState === "loading") {
     return (
       <View style={styles.loading}>
         <ActivityIndicator size="large" color="#8127E8" />
@@ -143,7 +172,11 @@ function App() {
 
   return (
     <NativeThemeProvider>
-      <AppContent />
+      {authState === "in" ? (
+        <AppContent onSignOut={handleSignOut} />
+      ) : (
+        <LoginScreen onAuthenticated={() => setAuthState("in")} />
+      )}
     </NativeThemeProvider>
   );
 }

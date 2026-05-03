@@ -27,10 +27,12 @@ export default function TeamPage() {
   const [tab, setTab] = useState<Tab>("team");
 
   const team = trpc.team.getTeam.useQuery();
+  const members = trpc.team.listMembers.useQuery();
   const ranking = trpc.team.getRanking.useQuery();
   const tasks = trpc.team.listTasks.useQuery({});
 
   const teamData = team.data;
+  const membersData = members.data ?? [];
   const rankingData = ranking.data ?? [];
   const tasksData = tasks.data ?? [];
 
@@ -58,14 +60,19 @@ export default function TeamPage() {
       <div className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-2 sm:p-4">
         {tab === "team" && (
           <>
-            {team.isLoading && <ListSkeleton count={2} />}
-            {!team.isLoading && !teamData && (
-              <EmptyState
-                icon="👥"
-                title={t("no_members")}
-                description={t("no_members_hint")}
-              />
+            {(team.isLoading || members.isLoading) && (
+              <ListSkeleton count={3} />
             )}
+            {!team.isLoading &&
+              !members.isLoading &&
+              !teamData &&
+              membersData.length === 0 && (
+                <EmptyState
+                  icon="👥"
+                  title={t("no_members")}
+                  description={t("no_members_hint")}
+                />
+              )}
             {!team.isLoading && teamData && (
               <ListItem
                 avatar={<Avatar name={teamData.name} size="md" />}
@@ -73,6 +80,20 @@ export default function TeamPage() {
                 subtitle={t("role")}
               />
             )}
+            {!members.isLoading &&
+              membersData.map((m) => (
+                <ListItem
+                  key={m.id}
+                  avatar={<Avatar name={m.name} size="md" />}
+                  title={m.name}
+                  subtitle={m.role}
+                  right={
+                    m.isActive ? undefined : (
+                      <Badge variant="warning">inativa</Badge>
+                    )
+                  }
+                />
+              ))}
           </>
         )}
 

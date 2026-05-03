@@ -25,12 +25,29 @@ const STAT_KEYS = [
   "stats_responded",
 ] as const;
 
+function formatBRL(value: number): string {
+  return new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  }).format(value);
+}
+
 export default function CampaignDetailPage() {
   const t = useTranslations("campaigns");
   const router = useRouter();
   const params = useParams<{ id: string }>();
   const id = params?.id ?? "";
   const [remarketingError, setRemarketingError] = useState<string | null>(null);
+
+  // F11.E26: real campaign + recipient counts + conversion stats.
+  const detail = trpc.campaigns.getById.useQuery(
+    { id },
+    { enabled: Boolean(id) },
+  );
+  const conversion = trpc.sales.getConversionStats.useQuery(
+    { campaignId: id },
+    { enabled: Boolean(id) },
+  );
 
   const remarketing = trpc.campaigns.createRemarketing.useMutation({
     onSuccess: (created) => {
@@ -44,33 +61,53 @@ export default function CampaignDetailPage() {
     remarketing.mutate({ sourceCampaignId: id, segment });
   };
 
+  const counts = detail.data?.counts;
+  const sentTotal =
+    (counts?.sent ?? 0) +
+    (counts?.received ?? 0) +
+    (counts?.viewed ?? 0) +
+    (counts?.replied ?? 0);
+  const stats = {
+    sent: sentTotal,
+    received:
+      (counts?.received ?? 0) + (counts?.viewed ?? 0) + (counts?.replied ?? 0),
+    viewed: (counts?.viewed ?? 0) + (counts?.replied ?? 0),
+    responded: counts?.replied ?? 0,
+    purchased: conversion.data?.purchased ?? 0,
+  };
+  const revenue = conversion.data?.revenue ?? 0;
+  const conversionRate = conversion.data?.conversion ?? 0;
+
   const funnelSteps = [
     {
       label: t("stats_sent"),
-      value: 0,
+      value: stats.sent,
       color: "var(--color-primary)",
     },
     {
       label: t("stats_received"),
-      value: 0,
+      value: stats.received,
       color: "var(--color-info-text)",
     },
     {
       label: t("stats_viewed"),
-      value: 0,
+      value: stats.viewed,
       color: "var(--color-warning-text)",
     },
     {
       label: t("stats_responded"),
-      value: 0,
+      value: stats.responded,
       color: "var(--color-success-text)",
     },
     {
       label: t("stats_purchased"),
-      value: 0,
+      value: stats.purchased,
       color: "var(--color-danger-text)",
     },
   ];
+
+  const notFound = detail.isFetched && !detail.data;
+  const campaign = detail.data?.campaign;
 
   return (
     <div className="p-3 sm:p-6 space-y-6">
@@ -83,7 +120,7 @@ export default function CampaignDetailPage() {
 
       <header>
         <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
-          {t("campaign_not_found")}
+          {notFound ? t("campaign_not_found") : (campaign?.name ?? "—")}
         </h1>
         <p className="text-caption text-[var(--color-text-tertiary)]">
           ID: {id}
@@ -94,9 +131,17 @@ export default function CampaignDetailPage() {
         aria-label={t("funnel_title")}
         className="grid grid-cols-2 gap-3 sm:grid-cols-4"
       >
-        {STAT_KEYS.map((key) => (
-          <MetricCard key={key} label={t(key)} value="—" />
-        ))}
+        {STAT_KEYS.map((key) => {
+          const v =
+            key === "stats_sent"
+              ? stats.sent
+              : key === "stats_received"
+                ? stats.received
+                : key === "stats_viewed"
+                  ? stats.viewed
+                  : stats.responded;
+          return <MetricCard key={key} label={t(key)} value={String(v)} />;
+        })}
       </section>
 
       <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4 space-y-3">
@@ -107,8 +152,11 @@ export default function CampaignDetailPage() {
       </section>
 
       <section className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <MetricCard label={t("result_revenue")} value="R$ —" />
-        <MetricCard label={t("result_conversion")} value="—%" />
+        <MetricCard label={t("result_revenue")} value={formatBRL(revenue)} />
+        <MetricCard
+          label={t("result_conversion")}
+          value={`${(conversionRate * 100).toFixed(1)}%`}
+        />
       </section>
 
       <section className="rounded-lg border border-[var(--color-warning-text)] bg-[var(--color-warning-bg)] p-4 space-y-2">

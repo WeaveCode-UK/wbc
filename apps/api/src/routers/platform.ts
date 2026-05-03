@@ -180,4 +180,28 @@ export const platformRouter = router({
       await removePushToken(input.token);
       return { success: true };
     }),
+
+  // F11.E26: subscription details for /settings/plan. Returns the
+  // current plan, status, billing cycle and AI quota usage so the page
+  // can render plan/billing without falling back to the JWT.
+  getSubscription: protectedProcedure.query(async ({ ctx }) => {
+    const sub = await prisma.subscription.findUnique({
+      where: { tenantId: ctx.tenant.tenantId },
+      select: {
+        id: true,
+        plan: true,
+        status: true,
+        startsAt: true,
+        expiresAt: true,
+        aiGenerationsUsed: true,
+        aiGenerationsLimit: true,
+        billingCycleStart: true,
+        billingCycleEnd: true,
+        monthlyCostBudgetUSD: true,
+        monthlyCostAccumulatedUSD: true,
+        monthlyCostBlockedAt: true,
+      },
+    });
+    return sub;
+  }),
 });

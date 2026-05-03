@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { prisma } from "@wbc/db";
 import { router, protectedProcedure } from "../trpc/trpc";
 import { createGetByIdProcedure } from "../trpc/crud-helpers";
 import { idempotent } from "../trpc/idempotency-middleware";
@@ -197,6 +198,30 @@ export const salesRouter = router({
     .input(z.object({ limit: z.number().int().min(1).max(500).default(100) }))
     .query(async ({ ctx, input }) => {
       return returnRepo.listByTenant(ctx.tenant.tenantId, input.limit);
+    }),
+
+  // F11.E26: campaign conversion stats. Sums confirmed sales tied to
+  // the given campaignId so the campaigns/[id] page can render
+  // revenue + conversion%.
+  getConversionStats: protectedProcedure
+    .input(z.object({ campaignId: z.string().uuid() }))
+    .query(async ({ ctx, input }) => {
+      const aggregate = await prisma.sale.aggregate({
+        where: {
+          tenantId: ctx.tenant.tenantId,
+          campaignId: input.campaignId,
+          status: { in: ["CONFIRMED", "DELIVERED"] },
+        },
+        _sum: { total: true },
+        _count: { _all: true },
+      });
+      const recipientCount = await prisma.campaignRecipient.count({
+        where: { campaignId: input.campaignId },
+      });
+      const purchased = aggregate._count._all;
+      const revenue = Number(aggregate._sum.total ?? 0);
+      const conversion = recipientCount > 0 ? purchased / recipientCount : 0;
+      return { purchased, revenue, recipientCount, conversion };
     }),
 
   // F11.E12: scan for cashbacks expiring within `lookaheadDays` and

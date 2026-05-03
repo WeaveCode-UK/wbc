@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { prisma } from "@wbc/db";
 import { router, protectedProcedure } from "../trpc/trpc";
 import { PrismaCampaignRepository } from "../../../../packages/business/campaigns/adapters/prisma-campaign-repository";
 import {
@@ -33,6 +34,46 @@ export const campaignsRouter = router({
         limit: input.limit,
         total: result.total,
       });
+    }),
+
+  // F11.E26: campaign detail + funnel counts in a single round-trip.
+  // Counts come from a single groupBy on CampaignRecipient so the page
+  // can render the funnel without N status queries.
+  getById: protectedProcedure
+    .input(z.object({ id: uuidSchema }))
+    .query(async ({ ctx, input }) => {
+      const campaign = await campaignRepo.findById(
+        ctx.tenant.tenantId,
+        input.id,
+      );
+      if (!campaign) return null;
+
+      const grouped = await prisma.campaignRecipient.groupBy({
+        by: ["status"],
+        where: { campaignId: input.id },
+        _count: { _all: true },
+      });
+      const counts = {
+        pending: 0,
+        sent: 0,
+        received: 0,
+        viewed: 0,
+        replied: 0,
+        failed: 0,
+      };
+      for (const row of grouped) {
+        const key = row.status.toLowerCase() as keyof typeof counts;
+        if (key in counts) counts[key] = row._count._all;
+      }
+      const total =
+        counts.pending +
+        counts.sent +
+        counts.received +
+        counts.viewed +
+        counts.replied +
+        counts.failed;
+
+      return { campaign, counts, total };
     }),
 
   create: protectedProcedure

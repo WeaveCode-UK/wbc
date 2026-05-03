@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import {
+  ActionSheet,
   Avatar,
   Alert,
   Badge,
@@ -21,13 +22,17 @@ import {
   Clock,
   Gift,
   Heart,
+  Pencil,
   Star,
+  Trash2,
+  UserX,
   Wallet,
   X,
 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { WhatsappButton } from "@/components/whatsapp-button";
 import { AddGiftSuggestorModal } from "@/components/add-gift-suggestor-modal";
+import { useToast } from "@/providers/toast-provider";
 
 const BEAUTY_KEYS = [
   "skin_type",
@@ -53,8 +58,11 @@ function formatDate(value: Date | string | null | undefined): string {
 
 export default function ClientProfilePage() {
   const t = useTranslations("clients");
+  const router = useRouter();
+  const toast = useToast();
   const params = useParams<{ id: string }>();
   const id = params?.id ?? "";
+  const [moreOpen, setMoreOpen] = useState(false);
 
   const client = trpc.clients.getById.useQuery({ id }, { enabled: !!id });
   const sales = trpc.sales.list.useQuery(
@@ -91,6 +99,26 @@ export default function ClientProfilePage() {
       void utils.clients.listGiftSuggestors.invalidate({ clientId: id }),
   });
   const [giftSuggestorOpen, setGiftSuggestorOpen] = useState(false);
+
+  // BUG-02 + BUG-03 do QA: o botão "Mais" não tinha handler e não havia
+  // fluxo de excluir cliente exposto na UI. ActionSheet abaixo cobre
+  // editar (link futuro), desativar/reativar (soft) e excluir (hard).
+  const deleteClient = trpc.clients.delete.useMutation({
+    onSuccess: () => {
+      toast.success(t("delete_done"));
+      void utils.clients.list.invalidate();
+      router.push("/clients");
+    },
+    onError: (err) => toast.error(err.message),
+  });
+  const updateActive = trpc.clients.update.useMutation({
+    onSuccess: () => {
+      toast.success(t("toggle_active_done"));
+      void utils.clients.list.invalidate();
+      void utils.clients.getById.invalidate({ id });
+    },
+    onError: (err) => toast.error(err.message),
+  });
 
   if (client.isLoading) {
     return (
@@ -159,14 +187,48 @@ export default function ClientProfilePage() {
         className="grid grid-cols-2 gap-2 sm:grid-cols-4"
       >
         <WhatsappButton clientId={c.id} label={t("profile_action_whatsapp")} />
-        <Button type="button">{t("profile_action_sell")}</Button>
-        <Button type="button" variant="secondary">
+        <Button type="button" onClick={() => router.push("/sales/new")}>
+          {t("profile_action_sell")}
+        </Button>
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={() => router.push("/schedule")}
+        >
           {t("profile_action_schedule")}
         </Button>
-        <Button type="button" variant="ghost">
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={() => setMoreOpen(true)}
+          aria-haspopup="dialog"
+          aria-expanded={moreOpen}
+        >
           {t("profile_action_more")}
         </Button>
       </section>
+
+      <ActionSheet
+        open={moreOpen}
+        onClose={() => setMoreOpen(false)}
+        items={[
+          {
+            icon: <UserX className="h-4 w-4" strokeWidth={1.75} />,
+            label: c.isActive ? t("deactivate_client") : t("reactivate_client"),
+            onClick: () => updateActive.mutate({ id, isActive: !c.isActive }),
+          },
+          {
+            icon: <Trash2 className="h-4 w-4" strokeWidth={1.75} />,
+            label: t("delete_client_action"),
+            destructive: true,
+            onClick: () => {
+              if (confirm(t("delete_confirm"))) {
+                deleteClient.mutate({ id });
+              }
+            },
+          },
+        ]}
+      />
 
       <section
         aria-label="stats"

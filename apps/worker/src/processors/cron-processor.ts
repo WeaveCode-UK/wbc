@@ -5,6 +5,7 @@ import { logger } from "../lib/logger";
 import { flagInactiveClients } from "@wbc/business/clients/use-cases/flag-inactive-clients";
 import { flagExpiringCashbacks } from "@wbc/business/sales/use-cases/flag-expiring-cashback";
 import { buildRestockReminders } from "@wbc/business/schedule/use-cases/build-restock-reminders";
+import { buildRestockRemindersPerProduct } from "@wbc/business/schedule/use-cases/build-restock-reminders-per-product";
 import { buildDateReminders } from "@wbc/business/schedule/use-cases/build-date-reminders";
 import { notifyClientMilestones } from "@wbc/business/schedule/use-cases/notify-client-milestones";
 import { notifyUrgentCareerGoals } from "@wbc/business/team/use-cases/manage-career-goals";
@@ -78,7 +79,11 @@ async function runForTenant(type: CronType, tenantId: string): Promise<void> {
       await flagExpiringCashbacks(tenantId);
       return;
     case "build_restock_reminders":
+      // Run both: per-client cycle (catch-all) and per-product cycle
+      // (more precise, item 13 do handoff). They idempotency-guard
+      // by triggerDate so they don't double-create.
       await buildRestockReminders(tenantId);
+      await buildRestockRemindersPerProduct(tenantId);
       return;
     case "build_date_reminders":
       await buildDateReminders(tenantId);

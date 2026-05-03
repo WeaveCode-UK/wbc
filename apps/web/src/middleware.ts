@@ -11,6 +11,10 @@ const publicPaths = [
   "/verify-email",
   "/invite",
   "/api/auth",
+  // Public NPS response page — the consultora's customer responds via a
+  // tokenised URL without an account.
+  "/nps",
+  "/privacy-policy",
 ];
 
 const isProduction = process.env.NODE_ENV === "production";

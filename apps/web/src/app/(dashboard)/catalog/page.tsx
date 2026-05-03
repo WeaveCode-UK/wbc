@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { ShoppingBag } from "lucide-react";
 import {
@@ -12,6 +12,7 @@ import {
   SearchBar,
 } from "@wbc/ui";
 import { trpc } from "@/lib/trpc";
+import { useBrandFilter } from "../../../providers/brand-filter-provider";
 
 const CATEGORY_OPTIONS: Array<{ value: string; key: string }> = [
   { value: "", key: "category_all" },
@@ -33,7 +34,19 @@ export default function CatalogPage() {
   const t = useTranslations("catalog");
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<string | null>("");
-  const [brandId, setBrandId] = useState<string | null>(null);
+  const { activeBrandId, setActiveBrandId } = useBrandFilter();
+  const [brandId, setBrandId] = useState<string | null>(activeBrandId);
+
+  // Topbar selector is the source of truth — sync local state when it
+  // changes elsewhere (e.g. switched on /showcases then back here).
+  useEffect(() => {
+    setBrandId(activeBrandId);
+  }, [activeBrandId]);
+
+  const handleBrandChange = (next: string | null) => {
+    setBrandId(next);
+    setActiveBrandId(next);
+  };
 
   const products = trpc.catalog.listProducts.useQuery({
     search: search || undefined,
@@ -82,7 +95,7 @@ export default function CatalogPage() {
         <FilterChips
           chips={brandChips}
           selected={brandId}
-          onChange={setBrandId}
+          onChange={handleBrandChange}
         />
       )}
 

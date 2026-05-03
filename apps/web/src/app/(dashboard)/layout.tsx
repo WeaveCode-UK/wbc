@@ -16,8 +16,10 @@ import {
 import { Badge } from "@wbc/ui";
 import { Sidebar } from "../../components/sidebar";
 import { BottomNav } from "../../components/bottom-nav";
+import { BrandSelector } from "../../components/brand-selector";
 import { ErrorBoundary } from "../../components/error-boundary";
 import { useTheme } from "../../providers/theme-provider";
+import { BrandFilterProvider } from "../../providers/brand-filter-provider";
 import { trpc } from "@/lib/trpc";
 
 const SIDEBAR_STORAGE_KEY = "wbc-sidebar-mode";
@@ -87,85 +89,92 @@ export default function DashboardLayout({
         : Menu;
 
   return (
-    <div className="flex min-h-screen bg-[var(--wc-bg)]">
-      {sidebarMode !== "hidden" && (
-        <Sidebar mode={sidebarMode === "rail" ? "rail" : "full"} />
-      )}
-      <div className="flex flex-1 flex-col min-w-0">
-        <header className="hidden md:flex h-14 items-center justify-between border-b border-[var(--wc-border)] bg-white px-4 shrink-0">
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={cycleSidebar}
-              aria-label={MODE_LABEL[sidebarMode]}
-              title={MODE_LABEL[sidebarMode]}
-              className="inline-flex h-9 items-center gap-2 rounded-wc-sm px-3 text-[13px] font-medium text-[var(--wc-fg-2)] hover:bg-[var(--wc-bg-muted)] hover:text-[var(--wc-fg-1)] transition-colors duration-wc-2"
-            >
-              <ToggleIcon
-                className="h-5 w-5"
-                strokeWidth={1.75}
-                aria-hidden="true"
-              />
-              Menu
-            </button>
-            {tenantBadge.data?.isDemo && <Badge variant="warning">DEMO</Badge>}
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setTheme(theme === "default" ? "rose" : "default")}
-              aria-label={
-                theme === "default"
-                  ? `Trocar para tema rosa`
-                  : `Trocar para tema padrão`
-              }
-              className="inline-flex items-center gap-2 rounded-wc-sm px-3 py-1.5 text-[12px] font-medium text-[var(--wc-fg-3)] hover:bg-[var(--wc-bg-muted)] hover:text-[var(--wc-fg-2)] transition-colors duration-wc-2"
-            >
-              <ThemeIcon
-                className="h-4 w-4"
-                strokeWidth={1.75}
-                aria-hidden="true"
-              />
-              {theme === "default" ? t("theme_default") : t("theme_rose")}
-            </button>
-            <button
-              type="button"
-              onClick={toggleMode}
-              aria-label={
-                mode === "light" ? "Ativar modo escuro" : "Ativar modo claro"
-              }
-              className="inline-flex items-center gap-2 rounded-wc-sm px-3 py-1.5 text-[12px] font-medium text-[var(--wc-fg-3)] hover:bg-[var(--wc-bg-muted)] hover:text-[var(--wc-fg-2)] transition-colors duration-wc-2"
-            >
-              <ModeIcon
-                className="h-4 w-4"
-                strokeWidth={1.75}
-                aria-hidden="true"
-              />
-              {mode === "light" ? "Dark" : "Light"}
-            </button>
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--wc-purple)] text-white text-[11px] font-semibold">
-              MC
+    <BrandFilterProvider>
+      <div className="flex min-h-screen bg-[var(--wc-bg)]">
+        {sidebarMode !== "hidden" && (
+          <Sidebar mode={sidebarMode === "rail" ? "rail" : "full"} />
+        )}
+        <div className="flex flex-1 flex-col min-w-0">
+          <header className="hidden md:flex h-14 items-center justify-between border-b border-[var(--wc-border)] bg-white px-4 shrink-0">
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={cycleSidebar}
+                aria-label={MODE_LABEL[sidebarMode]}
+                title={MODE_LABEL[sidebarMode]}
+                className="inline-flex h-9 items-center gap-2 rounded-wc-sm px-3 text-[13px] font-medium text-[var(--wc-fg-2)] hover:bg-[var(--wc-bg-muted)] hover:text-[var(--wc-fg-1)] transition-colors duration-wc-2"
+              >
+                <ToggleIcon
+                  className="h-5 w-5"
+                  strokeWidth={1.75}
+                  aria-hidden="true"
+                />
+                Menu
+              </button>
+              {tenantBadge.data?.isDemo && (
+                <Badge variant="warning">DEMO</Badge>
+              )}
             </div>
-            <button
-              type="button"
-              onClick={() => signOut({ callbackUrl: "/login" })}
-              aria-label="Sair"
-              className="inline-flex items-center gap-2 rounded-wc-sm px-3 py-1.5 text-[12px] font-medium text-[var(--wc-fg-3)] hover:bg-[var(--wc-bg-muted)] hover:text-[var(--wc-error)] transition-colors duration-wc-2"
-            >
-              <LogOut
-                className="h-4 w-4"
-                strokeWidth={1.75}
-                aria-hidden="true"
-              />
-              Sair
-            </button>
-          </div>
-        </header>
-        <main className="flex-1 pb-20 md:pb-0 overflow-y-auto">
-          <ErrorBoundary>{children}</ErrorBoundary>
-        </main>
+            <div className="flex items-center gap-2">
+              <BrandSelector />
+              <button
+                type="button"
+                onClick={() =>
+                  setTheme(theme === "default" ? "rose" : "default")
+                }
+                aria-label={
+                  theme === "default"
+                    ? `Trocar para tema rosa`
+                    : `Trocar para tema padrão`
+                }
+                className="inline-flex items-center gap-2 rounded-wc-sm px-3 py-1.5 text-[12px] font-medium text-[var(--wc-fg-3)] hover:bg-[var(--wc-bg-muted)] hover:text-[var(--wc-fg-2)] transition-colors duration-wc-2"
+              >
+                <ThemeIcon
+                  className="h-4 w-4"
+                  strokeWidth={1.75}
+                  aria-hidden="true"
+                />
+                {theme === "default" ? t("theme_default") : t("theme_rose")}
+              </button>
+              <button
+                type="button"
+                onClick={toggleMode}
+                aria-label={
+                  mode === "light" ? "Ativar modo escuro" : "Ativar modo claro"
+                }
+                className="inline-flex items-center gap-2 rounded-wc-sm px-3 py-1.5 text-[12px] font-medium text-[var(--wc-fg-3)] hover:bg-[var(--wc-bg-muted)] hover:text-[var(--wc-fg-2)] transition-colors duration-wc-2"
+              >
+                <ModeIcon
+                  className="h-4 w-4"
+                  strokeWidth={1.75}
+                  aria-hidden="true"
+                />
+                {mode === "light" ? "Dark" : "Light"}
+              </button>
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--wc-purple)] text-white text-[11px] font-semibold">
+                MC
+              </div>
+              <button
+                type="button"
+                onClick={() => signOut({ callbackUrl: "/login" })}
+                aria-label="Sair"
+                className="inline-flex items-center gap-2 rounded-wc-sm px-3 py-1.5 text-[12px] font-medium text-[var(--wc-fg-3)] hover:bg-[var(--wc-bg-muted)] hover:text-[var(--wc-error)] transition-colors duration-wc-2"
+              >
+                <LogOut
+                  className="h-4 w-4"
+                  strokeWidth={1.75}
+                  aria-hidden="true"
+                />
+                Sair
+              </button>
+            </div>
+          </header>
+          <main className="flex-1 pb-20 md:pb-0 overflow-y-auto">
+            <ErrorBoundary>{children}</ErrorBoundary>
+          </main>
+        </div>
+        <BottomNav />
       </div>
-      <BottomNav />
-    </div>
+    </BrandFilterProvider>
   );
 }

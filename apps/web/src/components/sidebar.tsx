@@ -108,6 +108,11 @@ const sections: NavSection[] = [
         Icon: BarChart3,
         vertical: "health",
       },
+      {
+        href: "/analytics",
+        key: "nav_analytics",
+        Icon: BarChart3,
+      },
       { href: "/ai", key: "nav_ai", Icon: Sparkles },
       { href: "/team", key: "nav_team", Icon: UsersRound },
     ],

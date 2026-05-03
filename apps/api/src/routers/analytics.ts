@@ -7,6 +7,7 @@ import {
   getClientEngagement,
 } from "../../../../packages/business/analytics/use-cases/get-stats";
 import { getSeasonality } from "../../../../packages/business/analytics/use-cases/get-seasonality";
+import { getTemporalComparison } from "../../../../packages/business/analytics/use-cases/get-temporal-comparison";
 // ACH-008 apis-integracoes: schemas centralised in @wbc/validators.
 import {
   getClientEngagementSchema,
@@ -88,6 +89,19 @@ export const analyticsRouter = router({
       await cacheSetForTenant(cacheKey, result, 600);
       return result;
     }),
+
+  getTemporalComparison: protectedProcedure.query(async ({ ctx }) => {
+    const cacheKey = "analytics:temporal";
+    type Output = Awaited<ReturnType<typeof getTemporalComparison>>;
+    const cached = await cacheGetForTenant<Output>(cacheKey);
+    if (cached) return cached;
+    const result = await getTemporalComparison(
+      ctx.tenant.tenantId,
+      analyticsRepo,
+    );
+    await cacheSetForTenant(cacheKey, result, 600);
+    return result;
+  }),
 
   recalculateABC: protectedProcedure.mutation(async ({ ctx }) => {
     // ACH-012: validated enqueue (warn-only) instead of raw Queue.add.

@@ -42,6 +42,14 @@ export interface SeasonalityBucket {
   revenue: number;
 }
 
+export interface TemporalComparison {
+  current: { salesCount: number; revenue: number };
+  previousMonth: { salesCount: number; revenue: number };
+  sameMonthLastYear: { salesCount: number; revenue: number };
+  deltaVsPreviousMonthPct: number; // (current - previous) / previous * 100
+  deltaVsLastYearPct: number;
+}
+
 export interface AnalyticsRepository {
   getDashboard(tenantId: string): Promise<DashboardData>;
   getSalesStats(tenantId: string): Promise<SalesStats>;
@@ -58,4 +66,5 @@ export interface AnalyticsRepository {
     tenantId: string,
     monthsBack: number,
   ): Promise<SeasonalityBucket[]>;
+  getTemporalComparison(tenantId: string): Promise<TemporalComparison>;
 }

@@ -6,6 +6,7 @@ import type {
   ProductRankingItem,
   ClientEngagement,
   SeasonalityBucket,
+  TemporalComparison,
 } from "../ports/analytics-repository";
 import { MS_PER_DAY, DAYS_IN_WEEK } from "../domain/constants";
 import {
@@ -231,6 +232,67 @@ export class PrismaAnalyticsRepository implements AnalyticsRepository {
         new Date(a.year, a.month - 1, 1).getTime() -
         new Date(b.year, b.month - 1, 1).getTime(),
     );
+  }
+
+  async getTemporalComparison(tenantId: string): Promise<TemporalComparison> {
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const monthEnd = new Date(
+      now.getFullYear(),
+      now.getMonth() + 1,
+      0,
+      23,
+      59,
+      59,
+    );
+    const prevMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const prevMonthEnd = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      0,
+      23,
+      59,
+      59,
+    );
+    const lastYearStart = new Date(now.getFullYear() - 1, now.getMonth(), 1);
+    const lastYearEnd = new Date(
+      now.getFullYear() - 1,
+      now.getMonth() + 1,
+      0,
+      23,
+      59,
+      59,
+    );
+
+    async function aggregate(start: Date, end: Date) {
+      const where = {
+        tenantId,
+        status: { in: COMPLETED_SALE_STATUSES },
+        createdAt: { gte: start, lte: end },
+      };
+      const [count, agg] = await Promise.all([
+        prisma.sale.count({ where }),
+        prisma.sale.aggregate({ where, _sum: { total: true } }),
+      ]);
+      return { salesCount: count, revenue: Number(agg._sum.total ?? 0) };
+    }
+
+    const [current, previousMonth, sameMonthLastYear] = await Promise.all([
+      aggregate(monthStart, monthEnd),
+      aggregate(prevMonthStart, prevMonthEnd),
+      aggregate(lastYearStart, lastYearEnd),
+    ]);
+
+    const pctDelta = (cur: number, prev: number) =>
+      prev > 0 ? ((cur - prev) / prev) * 100 : cur > 0 ? 100 : 0;
+
+    return {
+      current,
+      previousMonth,
+      sameMonthLastYear,
+      deltaVsPreviousMonthPct: pctDelta(current.revenue, previousMonth.revenue),
+      deltaVsLastYearPct: pctDelta(current.revenue, sameMonthLastYear.revenue),
+    };
   }
 
   async calculateABCClassification(

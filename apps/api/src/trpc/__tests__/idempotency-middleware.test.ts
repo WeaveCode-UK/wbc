@@ -165,4 +165,80 @@ describe("resolveIdempotencyKey", () => {
     const key = resolveIdempotencyKey("auth.accept", "t1", { foo: 1 });
     expect(key.startsWith("auth.accept:t1:")).toBe(true);
   });
+
+  // Coverage extension: branches not pinned by the original suite.
+
+  it("derives a key when idempotencyKey is empty string (treats it as absent)", () => {
+    // Some clients send `""` for "no key"; we must NOT use the empty
+    // value verbatim (that would collide every empty-key call into a
+    // single cache slot and dedupe unrelated requests).
+    const key = resolveIdempotencyKey("x", "t1", { idempotencyKey: "" });
+    expect(key.startsWith("x:t1:")).toBe(true);
+  });
+
+  it("derives a key when input is a primitive (no idempotencyKey on it)", () => {
+    // Defensive: input could be a string/number from a non-object
+    // mutation. The hash must still produce a stable, route-scoped key.
+    const key = resolveIdempotencyKey("x", "t1", "raw-string");
+    expect(key.startsWith("x:t1:")).toBe(true);
+  });
+});
+
+describe("checkIdempotency — Redis read failure paths", () => {
+  it("returns isDuplicate=false when Redis throws on get (not a double-call hazard)", async () => {
+    fakeRedis.get.mockRejectedValueOnce(new Error("redis down"));
+    const { isDuplicate } = await checkIdempotency("k1");
+    // Graceful degradation — a Redis blip doesn't pretend a previous
+    // run already happened. Worst case: the handler runs twice, which
+    // the downstream DB constraints catch.
+    expect(isDuplicate).toBe(false);
+  });
+});
+
+describe("storeIdempotencyResult — Redis write failure paths", () => {
+  it("does not throw when Redis fails — request still completes", async () => {
+    fakeRedis.set.mockRejectedValueOnce(new Error("redis down"));
+    await expect(
+      storeIdempotencyResult("k1", { x: 1 }),
+    ).resolves.toBeUndefined();
+  });
+});
+
+describe("deriveIdempotencyKey — canonical form properties", () => {
+  it("produces stable keys regardless of nested key order", () => {
+    // The canonicaliser sorts keys at every nesting level. This is the
+    // bug ACH-001 review-fix locks: nested objects used to collapse to {}.
+    const a = deriveIdempotencyKey("inv.create", "t1", {
+      meta: { z: 1, a: 2 },
+      items: [{ qty: 1, productName: "X" }],
+    });
+    const b = deriveIdempotencyKey("inv.create", "t1", {
+      items: [{ productName: "X", qty: 1 }],
+      meta: { a: 2, z: 1 },
+    });
+    expect(a).toBe(b);
+  });
+
+  it("treats arrays as positional (order-sensitive)", () => {
+    // Reordering items in a list IS a different mutation; keys must differ.
+    const a = deriveIdempotencyKey("x", "t1", {
+      items: [{ id: "A" }, { id: "B" }],
+    });
+    const b = deriveIdempotencyKey("x", "t1", {
+      items: [{ id: "B" }, { id: "A" }],
+    });
+    expect(a).not.toBe(b);
+  });
+
+  it("scopes by tenantId (same input across tenants → different keys)", () => {
+    const a = deriveIdempotencyKey("x", "t1", { foo: 1 });
+    const b = deriveIdempotencyKey("x", "t2", { foo: 1 });
+    expect(a).not.toBe(b);
+  });
+
+  it("scopes by route (same input across routes → different keys)", () => {
+    const a = deriveIdempotencyKey("clients.create", "t1", { name: "A" });
+    const b = deriveIdempotencyKey("clients.update", "t1", { name: "A" });
+    expect(a).not.toBe(b);
+  });
 });

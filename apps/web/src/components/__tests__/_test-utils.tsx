@@ -12,6 +12,10 @@ import ptFinance from "@wbc/i18n/src/locales/pt-BR/finance.json";
 import ptInventory from "@wbc/i18n/src/locales/pt-BR/inventory.json";
 import ptSchedule from "@wbc/i18n/src/locales/pt-BR/schedule.json";
 import ptSales from "@wbc/i18n/src/locales/pt-BR/sales.json";
+import ptMessaging from "@wbc/i18n/src/locales/pt-BR/messaging.json";
+import ptCampaigns from "@wbc/i18n/src/locales/pt-BR/campaigns.json";
+import ptAnalytics from "@wbc/i18n/src/locales/pt-BR/analytics.json";
+import ptTeam from "@wbc/i18n/src/locales/pt-BR/team.json";
 
 // T4 — UI test helpers. Wraps render() with the next-intl provider preloaded
 // with pt-BR messages from `@wbc/i18n` so components that call
@@ -25,6 +29,10 @@ const messages: Record<string, Record<string, string>> = {
   inventory: ptInventory as Record<string, string>,
   schedule: ptSchedule as Record<string, string>,
   sales: ptSales as Record<string, string>,
+  messaging: ptMessaging as Record<string, string>,
+  campaigns: ptCampaigns as Record<string, string>,
+  analytics: ptAnalytics as Record<string, string>,
+  team: ptTeam as Record<string, string>,
 };
 
 function Wrapper({ children }: { children: ReactNode }) {

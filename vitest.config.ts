@@ -17,6 +17,12 @@ export default defineConfig({
   },
   test: {
     globals: true,
+    // Coverage push: isolate each test file in its own worker. Without
+    // this, agent-written suites that stub process.env or vi.mock at
+    // module scope leak across the run and one file's setup poisons
+    // another's. Cost is ~25% slower runs — acceptable trade-off for
+    // green CI.
+    isolate: true,
     include: [
       "packages/**/__tests__/**/*.test.ts",
       "packages/**/__tests__/**/*.test.tsx",
@@ -46,19 +52,18 @@ export default defineConfig({
       ],
       exclude: ["**/__tests__/**", "**/index.ts"],
       reporter: ["text", "html", "lcov"],
-      // T12.1 + T12.2 — ramped 2026-05-03 from 20% → 35% after the full
-      // multi-agent push (T0–T9 + T11–T12) landed. Actual: statements
-      // 42%, branches 41%, functions 34%, lines 43%. Gate set just below
-      // the lowest dimension so a regression breaks CI but legitimate
-      // flux doesn't. Next ramps toward CHECAGEM thresholds:
-      //   - 60% after deeper UI/RTL coverage (apps/web component layer)
-      //   - 70% after T5 integration tests run with Docker in CI
-      //   - 80% stable target
+      // T12.3 — ramped 2026-05-03 from 35% → 65% after the second
+      // multi-agent push (errors+VO+shared, adapters+infra, UI 19+15
+      // components). Actual: statements 74%, branches 72%, functions
+      // 74%, lines 74%. Gate set ~10pp below the lowest dimension so a
+      // regression breaks CI but legitimate flux doesn't. Final ramp
+      // toward 80% comes after auth use-case agent finishes (T2-D was
+      // shallow on the 22 untested auth use-cases; in flight now).
       thresholds: {
-        lines: 35,
-        branches: 35,
-        functions: 30,
-        statements: 35,
+        lines: 65,
+        branches: 60,
+        functions: 65,
+        statements: 65,
       },
     },
   },

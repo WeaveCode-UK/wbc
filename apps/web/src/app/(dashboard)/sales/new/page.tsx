@@ -59,10 +59,24 @@ export default function NewSalePage() {
     search: productSearch || undefined,
   });
 
+  // QA BUG-06: o último step do wizard se chama "Confirmar venda" mas
+  // a mutation create deixava em DRAFT — usuária via R$0 no card Total
+  // mesmo após "confirmar". Agora encadeamos create → confirm na sequência
+  // pra entregar status CONFIRMED de fato. Idempotência preservada via
+  // ID gerado pela API.
+  const utils = trpc.useUtils();
+  const confirmSale = trpc.sales.confirm.useMutation({
+    onSuccess: () => {
+      void utils.sales.list.invalidate();
+      router.push(`/sales`);
+    },
+    onError: (error) => setSubmitError(error.message),
+  });
   const createSale = trpc.sales.create.useMutation({
     onSuccess: (sale) => {
-      router.push(`/sales`);
-      void sale;
+      // Dispara confirm logo em seguida; em caso de falha o usuário
+      // ainda tem a venda DRAFT salva e pode confirmar depois.
+      confirmSale.mutate({ id: sale.id });
     },
     onError: (error) => {
       setSubmitError(error.message);

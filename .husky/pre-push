@@ -1,0 +1,2 @@
+echo "→ pre-push: type-check across all workspaces…"
+pnpm type-check

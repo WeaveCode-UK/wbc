@@ -39,6 +39,38 @@ module.exports = {
       to: { path: 'packages/business/[^/]+/adapters' },
     },
     {
+      name: 'domain-cannot-import-prisma',
+      comment:
+        'Hexagonal (ADR-001): domain/ é puro — não pode tocar em Prisma client, schema ou repos. Acesso a dados é via ports/ implementadas em adapters/.',
+      severity: 'error',
+      from: { path: 'packages/business/[^/]+/domain' },
+      to: { path: '(@prisma/client|^packages/db/)' },
+    },
+    {
+      name: 'domain-cannot-import-next-auth',
+      comment:
+        'Hexagonal (ADR-001): domain/ não pode depender de framework HTTP/auth. NextAuth é detalhe de adapter web.',
+      severity: 'error',
+      from: { path: 'packages/business/[^/]+/domain' },
+      to: { path: '(^next-auth|^@auth/)' },
+    },
+    {
+      name: 'use-cases-cannot-import-prisma-directly',
+      comment:
+        'Hexagonal (ADR-001): use-cases dependem de ports/ — nunca instanciam Prisma direto. A composition root injeta o repo concreto.',
+      severity: 'error',
+      from: { path: 'packages/business/[^/]+/use-cases' },
+      to: { path: '(@prisma/client|^packages/db/src/index)' },
+    },
+    {
+      name: 'use-cases-cannot-import-bullmq-redis-directly',
+      comment:
+        'Hexagonal (ADR-001): use-cases não tocam em BullMQ/ioredis direto — usam ports. Adapters concretos estão em adapters/ ou packages/shared/redis.',
+      severity: 'error',
+      from: { path: 'packages/business/[^/]+/use-cases' },
+      to: { path: '^(bullmq|ioredis)$' },
+    },
+    {
       name: 'no-cross-business-module-imports',
       comment:
         'ADR-003: comunicacao entre modulos business/* e exclusivamente por eventos assincronos (BullMQ/outbox). Nao importar diretamente entre modulos business.',

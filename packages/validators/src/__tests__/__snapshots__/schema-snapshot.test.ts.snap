@@ -1,0 +1,515 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Prisma model field snapshot (drift guard vs validators) > captures field lists of business-critical models 1`] = `
+{
+  "Campaign": [
+    "attachments",
+    "audioUrl",
+    "createdAt",
+    "id",
+    "message",
+    "name",
+    "recipients",
+    "sales",
+    "scheduledAt",
+    "shareOnFeed",
+    "statsReceived",
+    "statsReplied",
+    "statsSales",
+    "statsViewed",
+    "status",
+    "tenant",
+    "tenantId",
+    "updatedAt",
+    "version",
+  ],
+  "CampaignRecipient": [
+    "campaign",
+    "campaignId",
+    "client",
+    "clientId",
+    "id",
+    "sentAt",
+    "status",
+  ],
+  "Cashback": [
+    "amount",
+    "client",
+    "clientId",
+    "createdAt",
+    "expiresAt",
+    "id",
+    "originSaleId",
+    "tenant",
+    "tenantId",
+    "usedAmount",
+  ],
+  "Client": [
+    "allergies",
+    "appointments",
+    "birthday",
+    "campaignRecipients",
+    "cashbacks",
+    "classification",
+    "createdAt",
+    "deliveries",
+    "email",
+    "engagementScore",
+    "firstPurchaseAt",
+    "giftSuggestors",
+    "hairType",
+    "id",
+    "isActive",
+    "isLead",
+    "loyaltyPoints",
+    "makeupTones",
+    "name",
+    "notes",
+    "opportunities",
+    "phone",
+    "preferences",
+    "profession",
+    "reminders",
+    "sales",
+    "samples",
+    "scheduledMessages",
+    "sex",
+    "skinType",
+    "source",
+    "tags",
+    "tenant",
+    "tenantId",
+    "updatedAt",
+    "version",
+    "wishlist",
+  ],
+  "LoyaltyEntry": [
+    "__MODEL_NOT_FOUND__",
+  ],
+  "Member": [
+    "__MODEL_NOT_FOUND__",
+  ],
+  "OutboxEvent": [
+    "attempts",
+    "createdAt",
+    "id",
+    "nextRetryAt",
+    "payload",
+    "processedAt",
+    "status",
+    "tenantId",
+    "type",
+  ],
+  "Payment": [
+    "amount",
+    "createdAt",
+    "dueDate",
+    "id",
+    "installmentNumber",
+    "mercadopagoId",
+    "paidAt",
+    "pixLink",
+    "pixQrCode",
+    "sale",
+    "saleId",
+    "status",
+  ],
+  "ProcessedEvent": [
+    "eventId",
+    "handlerName",
+    "processedAt",
+  ],
+  "Product": [
+    "brand",
+    "brandId",
+    "category",
+    "costPrice",
+    "createdAt",
+    "description",
+    "id",
+    "isActive",
+    "isCustom",
+    "name",
+    "photoUrl",
+    "price",
+    "saleItems",
+    "samples",
+    "showcaseProducts",
+    "stock",
+    "tenant",
+    "tenantId",
+    "updatedAt",
+    "wishlists",
+  ],
+  "Sale": [
+    "campaign",
+    "campaignId",
+    "cashbackGenerated",
+    "cashbackUsed",
+    "client",
+    "clientId",
+    "createdAt",
+    "delivery",
+    "deliveryDate",
+    "discount",
+    "id",
+    "items",
+    "notes",
+    "paymentMethod",
+    "payments",
+    "postSaleFlows",
+    "returns",
+    "status",
+    "tenant",
+    "tenantId",
+    "total",
+    "updatedAt",
+    "version",
+  ],
+  "SaleItem": [
+    "id",
+    "product",
+    "productId",
+    "quantity",
+    "sale",
+    "saleId",
+    "subtotal",
+    "unitPrice",
+  ],
+  "ScheduledMessage": [
+    "audioUrl",
+    "client",
+    "clientId",
+    "createdAt",
+    "id",
+    "message",
+    "sendAt",
+    "status",
+    "tenant",
+    "tenantId",
+    "type",
+  ],
+  "StockEntry": [
+    "__MODEL_NOT_FOUND__",
+  ],
+  "Tenant": [
+    "aiGenerations",
+    "appointments",
+    "brandOrders",
+    "campaigns",
+    "careerGoals",
+    "cashbacks",
+    "clients",
+    "costSnapshots",
+    "createdAt",
+    "currency",
+    "demoResetAt",
+    "expenses",
+    "financialReports",
+    "id",
+    "invites",
+    "isActive",
+    "isDemo",
+    "landingPage",
+    "locale",
+    "loyaltyPoints",
+    "members",
+    "mercadoPagoAccessToken",
+    "mercadoPagoConnectedAt",
+    "mercadoPagoUserId",
+    "messageCosts",
+    "messageTemplates",
+    "monthlyWhatsAppCosts",
+    "name",
+    "onboarding",
+    "opportunities",
+    "pixKey",
+    "pixKeyType",
+    "pixMerchantCity",
+    "pixMerchantName",
+    "postSaleDayDelay",
+    "postSaleEnabled",
+    "postSaleMonthDelay",
+    "postSaleWeekDelay",
+    "products",
+    "quickReplies",
+    "referralsMade",
+    "referralsReceived",
+    "reminders",
+    "sales",
+    "samples",
+    "scheduledMessages",
+    "showcases",
+    "slug",
+    "stocks",
+    "subscription",
+    "tags",
+    "team",
+    "timezone",
+    "updatedAt",
+  ],
+}
+`;
+
+exports[`validator schema snapshot > locks the shape of auth/MFA schemas 1`] = `
+{
+  "completeOnboarding": {
+    "object": {
+      "avatar": {
+        "optional": {
+          "effect": "string",
+        },
+      },
+      "brandId": {
+        "optional": "string",
+      },
+      "phone": {
+        "effect": "string",
+      },
+      "slug": "string",
+      "tenantName": "string",
+    },
+  },
+  "mfaConfirmEnrollment": {
+    "object": {
+      "secret": "string",
+      "token": "string",
+    },
+  },
+  "mfaDisable": {
+    "object": {
+      "currentToken": "string",
+    },
+  },
+  "passwordPolicy": "string",
+  "resetPassword": {
+    "object": {
+      "newPassword": "string",
+      "token": "string",
+    },
+  },
+  "updateMemberRole": {
+    "object": {
+      "memberId": "string",
+      "newRole": {
+        "enum": [
+          "ADMIN",
+          "CONSULTANT",
+          "DIRECTOR",
+          "LEADER",
+        ],
+      },
+    },
+  },
+}
+`;
+
+exports[`validator schema snapshot > locks the shape of campaign schemas 1`] = `
+{
+  "createCampaign": {
+    "object": {
+      "audioUrl": {
+        "optional": "string",
+      },
+      "message": "string",
+      "name": "string",
+      "recipientIds": {
+        "array": "string",
+      },
+      "scheduledAt": {
+        "optional": "date",
+      },
+    },
+  },
+}
+`;
+
+exports[`validator schema snapshot > locks the shape of client schemas 1`] = `
+{
+  "createClient": {
+    "object": {
+      "allergies": {
+        "optional": "string",
+      },
+      "birthday": {
+        "optional": "date",
+      },
+      "email": {
+        "optional": "string",
+      },
+      "hairType": {
+        "optional": {
+          "enum": [
+            "COILY",
+            "CURLY",
+            "STRAIGHT",
+            "WAVY",
+          ],
+        },
+      },
+      "idempotencyKey": {
+        "optional": "string",
+      },
+      "isLead": {
+        "optional": "boolean",
+      },
+      "makeupTones": {
+        "optional": "string",
+      },
+      "name": "string",
+      "notes": {
+        "optional": "string",
+      },
+      "phone": {
+        "effect": "string",
+      },
+      "preferences": {
+        "optional": "string",
+      },
+      "profession": {
+        "optional": "string",
+      },
+      "sex": {
+        "optional": {
+          "enum": [
+            "FEMALE",
+            "MALE",
+            "OTHER",
+          ],
+        },
+      },
+      "skinType": {
+        "optional": {
+          "enum": [
+            "COMBINATION",
+            "DRY",
+            "NORMAL",
+            "OILY",
+            "SENSITIVE",
+          ],
+        },
+      },
+      "source": {
+        "optional": {
+          "enum": [
+            "AUTOCADASTRO",
+            "IMPORT",
+            "MANUAL",
+            "QRCODE",
+            "REFERRAL",
+            "SPREADSHEET",
+            "WHATSAPP",
+          ],
+        },
+      },
+    },
+  },
+  "createTag": {
+    "object": {
+      "autoRule": {
+        "optional": "string",
+      },
+      "color": {
+        "optional": "string",
+      },
+      "name": "string",
+    },
+  },
+  "updateClient": {
+    "object": {
+      "email": {
+        "optional": {
+          "nullable": "string",
+        },
+      },
+      "id": "string",
+      "isActive": {
+        "optional": "boolean",
+      },
+      "name": {
+        "optional": "string",
+      },
+      "notes": {
+        "optional": {
+          "nullable": "string",
+        },
+      },
+      "phone": {
+        "effect": {
+          "optional": "string",
+        },
+      },
+    },
+  },
+}
+`;
+
+exports[`validator schema snapshot > locks the shape of critical sale schemas 1`] = `
+{
+  "cancelSale": {
+    "object": {
+      "id": "string",
+    },
+  },
+  "confirmSale": {
+    "object": {
+      "id": "string",
+    },
+  },
+  "createReturn": {
+    "object": {
+      "reason": "string",
+      "refundAmount": "number",
+      "saleId": "string",
+    },
+  },
+  "createSale": {
+    "object": {
+      "campaignId": {
+        "optional": "string",
+      },
+      "cashbackUsed": {
+        "optional": "number",
+      },
+      "clientId": "string",
+      "discount": {
+        "optional": "number",
+      },
+      "items": {
+        "array": {
+          "object": {
+            "productId": "string",
+            "quantity": "number",
+            "unitPrice": "number",
+          },
+        },
+      },
+      "notes": {
+        "optional": "string",
+      },
+      "paymentMethod": {
+        "optional": "string",
+      },
+    },
+  },
+  "markPaid": {
+    "object": {
+      "paymentId": "string",
+    },
+  },
+  "updateSaleStatus": {
+    "object": {
+      "id": "string",
+      "status": {
+        "enum": [
+          "CANCELLED",
+          "CONFIRMED",
+          "DELIVERED",
+          "SEPARATED",
+          "SHIPPED",
+        ],
+      },
+    },
+  },
+}
+`;

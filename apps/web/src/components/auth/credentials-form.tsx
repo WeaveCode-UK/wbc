@@ -115,7 +115,10 @@ export function CredentialsForm({ mode }: CredentialsFormProps) {
         )}
 
         {serverError && (
-          <p className="text-sm text-destructive" role="alert">
+          <p
+            className="rounded-wc-md border border-[var(--wc-error)]/30 bg-[var(--color-danger-bg)] px-3 py-2 text-[12px] text-[var(--color-danger-text)]"
+            role="alert"
+          >
             {serverError}
           </p>
         )}

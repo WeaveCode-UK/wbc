@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { Package } from "lucide-react";
 import {
   Badge,
   Button,
@@ -55,17 +56,17 @@ export default function LogisticsHubPage() {
   const rows = (list.data ?? []) as unknown as DeliveryRow[];
 
   return (
-    <div className="p-3 sm:p-6 space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
-          🚚 {t("title")}
+    <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
+      <header className="flex items-center justify-between">
+        <h1 className="text-[26px] sm:text-[32px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
+          {t("title")}
         </h1>
         <Link href="/logistics/route">
           <Button type="button" size="sm">
             {t("daily_route")}
           </Button>
         </Link>
-      </div>
+      </header>
 
       <SegmentedControl
         value={filter}
@@ -79,10 +80,18 @@ export default function LogisticsHubPage() {
         ]}
       />
 
-      <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-2 sm:p-4">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-3 sm:p-5">
         {list.isLoading && <ListSkeleton count={6} />}
         {!list.isLoading && rows.length === 0 && (
-          <EmptyState icon="📦" title={t("no_deliveries")} />
+          <EmptyState
+            icon={
+              <Package
+                className="h-5 w-5 text-[var(--wc-purple)]"
+                strokeWidth={1.75}
+              />
+            }
+            title={t("no_deliveries")}
+          />
         )}
         {rows.map((d) => (
           <ListItem

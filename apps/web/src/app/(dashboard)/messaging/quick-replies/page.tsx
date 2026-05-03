@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { MessageSquare } from "lucide-react";
 import {
   Alert,
   Button,
@@ -40,11 +41,11 @@ export default function QuickRepliesPage() {
 
   return (
     <div className="p-3 sm:p-6 space-y-4">
-      <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
+      <h1 className="text-[26px] sm:text-[32px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
         Quick replies
       </h1>
 
-      <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4 space-y-3">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white p-4 space-y-3 shadow-wc-xs">
         <Input
           value={label}
           onChange={(e) => setLabel(e.target.value)}
@@ -55,7 +56,7 @@ export default function QuickRepliesPage() {
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Mensagem completa"
-          className="w-full min-h-[80px] rounded-md border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-2 text-body-small text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+          className="w-full min-h-[80px] rounded-md border border-[var(--wc-border)] bg-white p-2 text-body-small text-[var(--wc-fg-1)] focus:outline-none focus:ring-2 focus:ring-[var(--wc-purple)]"
         />
         {create.error && <Alert variant="danger">{create.error.message}</Alert>}
         <Button
@@ -67,10 +68,18 @@ export default function QuickRepliesPage() {
         </Button>
       </section>
 
-      <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-2 sm:p-4">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white p-2 sm:p-4 shadow-wc-xs">
         {list.isLoading && <ListSkeleton count={3} />}
         {!list.isLoading && replies.length === 0 && (
-          <EmptyState icon="💬" title="Nenhuma resposta rápida" />
+          <EmptyState
+            icon={
+              <MessageSquare
+                className="h-5 w-5 text-[var(--wc-purple)]"
+                strokeWidth={1.75}
+              />
+            }
+            title="Nenhuma resposta rápida"
+          />
         )}
         {replies.map((r) => (
           <ListItem

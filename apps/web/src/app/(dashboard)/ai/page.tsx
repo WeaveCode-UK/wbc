@@ -59,8 +59,9 @@ export default function AiPage() {
 
   return (
     <div className="p-3 sm:p-6 space-y-4">
-      <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
-        ✨ {t("title")}
+      <h1 className="text-[26px] sm:text-[32px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
+        {t("title")}{" "}
+        <em className="font-serif italic font-normal text-[var(--wc-purple)]">{`{copilot}`}</em>
       </h1>
 
       <MetricCard label={t("monthly_usage")} value={`${used} / ${limit}`} />
@@ -76,7 +77,7 @@ export default function AiPage() {
         ]}
       />
 
-      <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4 space-y-3">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 space-y-3">
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
@@ -89,7 +90,7 @@ export default function AiPage() {
                   ? t("input_placeholder_reactivation")
                   : t("input_placeholder_correction")
           }
-          className="w-full min-h-[120px] rounded-md border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-3 text-body-small text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+          className="w-full min-h-[120px] rounded-md border border-[var(--wc-border)] bg-white p-3 text-[13px] text-[var(--wc-fg-1)] focus:outline-none focus:ring-2 focus:ring-[var(--wc-purple)]"
         />
         {error && <Alert variant="danger">{error.message}</Alert>}
         <Button
@@ -103,8 +104,8 @@ export default function AiPage() {
       </section>
 
       {output && (
-        <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-primary-surface)] p-4 space-y-2">
-          <p className="text-body-small text-[var(--color-text-primary)] whitespace-pre-line">
+        <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-purple-50)] p-5 space-y-2">
+          <p className="text-[13px] text-[var(--wc-fg-1)] whitespace-pre-line">
             {output}
           </p>
           <Button

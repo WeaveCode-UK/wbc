@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { Banknote, Inbox, Meh, ThumbsDown, ThumbsUp } from "lucide-react";
 import {
   Badge,
   Button,
@@ -120,14 +121,25 @@ export default function FinancePage() {
             </div>
           </div>
           <div className="mt-3 flex gap-2 text-caption">
-            <span className="rounded-md bg-[var(--color-success-bg)] px-2 py-1 text-[var(--color-success-text)]">
-              👍 {nps.data.promoters}
+            <span className="inline-flex items-center gap-1.5 rounded-md bg-[var(--color-success-bg)] px-2 py-1 text-[var(--color-success-text)]">
+              <ThumbsUp
+                className="h-3 w-3"
+                strokeWidth={2}
+                aria-hidden="true"
+              />
+              {nps.data.promoters}
             </span>
-            <span className="rounded-md bg-[var(--color-bg-secondary)] px-2 py-1 text-[var(--color-text-secondary)]">
-              😐 {nps.data.passives}
+            <span className="inline-flex items-center gap-1.5 rounded-md bg-[var(--color-bg-secondary)] px-2 py-1 text-[var(--color-text-secondary)]">
+              <Meh className="h-3 w-3" strokeWidth={2} aria-hidden="true" />
+              {nps.data.passives}
             </span>
-            <span className="rounded-md bg-[var(--color-danger-bg)] px-2 py-1 text-[var(--color-danger-text)]">
-              👎 {nps.data.detractors}
+            <span className="inline-flex items-center gap-1.5 rounded-md bg-[var(--color-danger-bg)] px-2 py-1 text-[var(--color-danger-text)]">
+              <ThumbsDown
+                className="h-3 w-3"
+                strokeWidth={2}
+                aria-hidden="true"
+              />
+              {nps.data.detractors}
             </span>
           </div>
         </section>
@@ -140,7 +152,15 @@ export default function FinancePage() {
         <div className="mt-3">
           {receivables.isLoading && <ListSkeleton count={3} />}
           {!receivables.isLoading && receivablesData.length === 0 && (
-            <EmptyState icon="📥" title={t("no_data")} />
+            <EmptyState
+              icon={
+                <Inbox
+                  className="h-5 w-5 text-[var(--wc-purple)]"
+                  strokeWidth={1.75}
+                />
+              }
+              title={t("no_data")}
+            />
           )}
           {!receivables.isLoading &&
             receivablesData.map((p) => {
@@ -204,7 +224,15 @@ export default function FinancePage() {
         <div className="mt-3">
           {expenses.isLoading && <ListSkeleton count={3} />}
           {!expenses.isLoading && expensesData.length === 0 && (
-            <EmptyState icon="💸" title={t("no_data")} />
+            <EmptyState
+              icon={
+                <Banknote
+                  className="h-5 w-5 text-[var(--wc-purple)]"
+                  strokeWidth={1.75}
+                />
+              }
+              title={t("no_data")}
+            />
           )}
           {!expenses.isLoading &&
             expensesData.map((e) => (

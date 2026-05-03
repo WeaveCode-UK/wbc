@@ -113,16 +113,16 @@ export default function CampaignDetailPage() {
     <div className="p-3 sm:p-6 space-y-6">
       <Link
         href="/campaigns"
-        className="text-body-small text-[var(--color-primary)] hover:underline"
+        className="text-body-small text-[var(--wc-purple)] hover:underline"
       >
         ← {t("back_to_list")}
       </Link>
 
       <header>
-        <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
+        <h1 className="text-[26px] sm:text-[32px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
           {notFound ? t("campaign_not_found") : (campaign?.name ?? "—")}
         </h1>
-        <p className="text-caption text-[var(--color-text-tertiary)]">
+        <p className="mt-1 text-[13px] sm:text-[14px] font-light text-[var(--wc-fg-2)]">
           ID: {id}
         </p>
       </header>
@@ -144,8 +144,8 @@ export default function CampaignDetailPage() {
         })}
       </section>
 
-      <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4 space-y-3">
-        <h2 className="text-heading-2 text-[var(--color-text-primary)]">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white p-4 space-y-3 shadow-wc-xs">
+        <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
           {t("funnel_title")}
         </h2>
         <FunnelChart steps={funnelSteps} />
@@ -195,26 +195,26 @@ export default function CampaignDetailPage() {
         </div>
       </section>
 
-      <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4">
-        <h2 className="text-heading-2 text-[var(--color-text-primary)]">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white p-4 shadow-wc-xs">
+        <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
           {t("negative_lists")}
         </h2>
         <div className="mt-3 flex flex-wrap gap-2">
           <button
             type="button"
-            className="rounded-full border border-[var(--color-danger-text)] bg-[var(--color-danger-bg)] px-3 py-1 text-caption text-[var(--color-danger-text)] hover:bg-[var(--color-bg-primary)]"
+            className="rounded-full border border-[var(--color-danger-text)] bg-[var(--color-danger-bg)] px-3 py-1 text-caption text-[var(--color-danger-text)] hover:bg-white"
           >
             {t("negative_no_receive")}
           </button>
           <button
             type="button"
-            className="rounded-full border border-[var(--color-warning-text)] bg-[var(--color-warning-bg)] px-3 py-1 text-caption text-[var(--color-warning-text)] hover:bg-[var(--color-bg-primary)]"
+            className="rounded-full border border-[var(--color-warning-text)] bg-[var(--color-warning-bg)] px-3 py-1 text-caption text-[var(--color-warning-text)] hover:bg-white"
           >
             {t("negative_no_view")}
           </button>
           <button
             type="button"
-            className="rounded-full border border-[var(--color-border-secondary)] bg-[var(--color-bg-secondary)] px-3 py-1 text-caption text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-primary)]"
+            className="rounded-full border border-[var(--wc-border)] bg-[var(--wc-bg-muted)] px-3 py-1 text-caption text-[var(--wc-fg-2)] hover:bg-white"
           >
             {t("negative_no_response")}
           </button>

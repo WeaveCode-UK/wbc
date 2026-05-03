@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, type ChangeEvent } from "react";
 import * as XLSX from "xlsx";
 import { useTranslations } from "next-intl";
+import { CircleCheck } from "lucide-react";
 import {
   Alert,
   Badge,
@@ -128,21 +129,21 @@ export default function ClientsImportPage() {
     <div className="p-3 sm:p-6 space-y-4">
       <Link
         href="/clients"
-        className="text-body-small text-[var(--color-primary)] hover:underline"
+        className="text-[13px] text-[var(--wc-purple)] hover:underline"
       >
         ← {t("title")}
       </Link>
 
       <header>
-        <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
+        <h1 className="text-[26px] sm:text-[32px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
           {t("import_title")}
         </h1>
-        <p className="mt-1 text-body-small text-[var(--color-text-secondary)]">
+        <p className="mt-1 text-[13px] sm:text-[14px] font-light text-[var(--wc-fg-2)]">
           {t("import_format_hint")}
         </p>
       </header>
 
-      <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4 space-y-3">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-4 space-y-3">
         <Button
           type="button"
           variant="ghost"
@@ -156,15 +157,15 @@ export default function ClientsImportPage() {
           accept=".xlsx,.xls,.csv"
           onChange={onFile}
           aria-label={t("import_title")}
-          className="block w-full text-body-small file:mr-3 file:rounded-md file:border-0 file:bg-[var(--color-primary)] file:px-3 file:py-2 file:text-white file:cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)]"
+          className="block w-full text-[13px] file:mr-3 file:rounded-md file:border-0 file:bg-[var(--wc-purple)] file:px-3 file:py-2 file:text-white file:cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--wc-purple)]"
         />
         {parseError && <Alert variant="danger">{parseError}</Alert>}
       </section>
 
       {rows.length > 0 && !report && (
-        <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4 space-y-3">
+        <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-4 space-y-3">
           <div className="flex items-center justify-between gap-3">
-            <h2 className="text-heading-3 text-[var(--color-text-primary)]">
+            <h2 className="text-[15px] font-medium text-[var(--wc-fg-1)]">
               {t(
                 rows.length === 1
                   ? "import_preview_count_one"
@@ -194,7 +195,7 @@ export default function ClientsImportPage() {
                 subtitle={row.phone}
                 right={
                   row.email ? (
-                    <span className="text-caption text-[var(--color-text-tertiary)]">
+                    <span className="text-[11px] text-[var(--wc-fg-3)]">
                       {row.email}
                     </span>
                   ) : null
@@ -202,7 +203,7 @@ export default function ClientsImportPage() {
               />
             ))}
             {rows.length > 50 && (
-              <p className="mt-2 text-caption text-[var(--color-text-tertiary)]">
+              <p className="mt-2 text-[11px] text-[var(--wc-fg-3)]">
                 {t("import_preview_more", { count: rows.length - 50 })}
               </p>
             )}
@@ -211,9 +212,9 @@ export default function ClientsImportPage() {
       )}
 
       {report && (
-        <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4 space-y-3">
+        <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-4 space-y-3">
           <div className="flex items-center justify-between gap-3">
-            <h2 className="text-heading-3 text-[var(--color-text-primary)]">
+            <h2 className="text-[15px] font-medium text-[var(--wc-fg-1)]">
               {t("import_done_title", {
                 imported: report.imported,
                 total: report.total,
@@ -227,7 +228,7 @@ export default function ClientsImportPage() {
           </div>
           {report.skipped.length > 0 && (
             <>
-              <p className="text-caption text-[var(--color-text-tertiary)]">
+              <p className="text-[11px] text-[var(--wc-fg-3)]">
                 {t(
                   report.skipped.length === 1
                     ? "import_skipped_one"
@@ -248,7 +249,15 @@ export default function ClientsImportPage() {
             </>
           )}
           {report.skipped.length === 0 && (
-            <EmptyState icon="✅" title={t("import_success")} />
+            <EmptyState
+              icon={
+                <CircleCheck
+                  className="h-5 w-5 text-[var(--wc-success)]"
+                  strokeWidth={1.75}
+                />
+              }
+              title={t("import_success")}
+            />
           )}
         </section>
       )}

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Check } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
 // F11 follow-up: progressive onboarding widget for the dashboard.
@@ -60,10 +61,10 @@ export function OnboardingChecklist() {
       className="rounded-lg border border-[var(--color-primary)] bg-[var(--color-primary-surface)] p-4 sm:p-6 space-y-3"
     >
       <header className="flex items-center justify-between">
-        <h2 className="text-heading-3 text-[var(--color-text-primary)]">
-          Vamos começar 💜
+        <h2 className="text-[15px] font-medium text-[var(--wc-fg-1)]">
+          Vamos começar
         </h2>
-        <span className="text-caption font-medium text-[var(--color-primary)]">
+        <span className="text-[11px] font-medium text-[var(--wc-purple)]">
           {completed}/{steps.length}
         </span>
       </header>
@@ -87,13 +88,13 @@ export function OnboardingChecklist() {
             <div className="flex items-start gap-3">
               <span
                 aria-hidden="true"
-                className={`mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold ${
+                className={`mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full ${
                   step.done
-                    ? "bg-[var(--color-success)] text-white"
-                    : "bg-[var(--color-bg-secondary)] text-[var(--color-text-tertiary)]"
+                    ? "bg-[var(--wc-success)] text-white"
+                    : "bg-[var(--wc-bg-muted)] text-[var(--wc-fg-3)]"
                 }`}
               >
-                {step.done ? "✓" : ""}
+                {step.done && <Check className="h-3 w-3" strokeWidth={3} />}
               </span>
               <div>
                 <p

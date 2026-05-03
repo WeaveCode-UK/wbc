@@ -14,6 +14,7 @@ import {
   MetricCard,
   Tag,
 } from "@wbc/ui";
+import { AlertTriangle, Clock, Gift, Star, Wallet } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { WhatsappButton } from "@/components/whatsapp-button";
 
@@ -71,7 +72,7 @@ export default function ClientProfilePage() {
       <div className="p-3 sm:p-6 space-y-4">
         <Link
           href="/clients"
-          className="text-body-small text-[var(--color-primary)] hover:underline"
+          className="text-[13px] text-[var(--wc-purple)] hover:underline"
         >
           ← {t("profile_back")}
         </Link>
@@ -95,7 +96,7 @@ export default function ClientProfilePage() {
     <div className="p-3 sm:p-6 space-y-6">
       <Link
         href="/clients"
-        className="text-body-small text-[var(--color-primary)] hover:underline"
+        className="text-[13px] text-[var(--wc-purple)] hover:underline"
       >
         ← {t("profile_back")}
       </Link>
@@ -108,12 +109,10 @@ export default function ClientProfilePage() {
             classification={c.classification as "A" | "B" | "C" | undefined}
           />
           <div className="space-y-1">
-            <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
+            <h1 className="text-[26px] sm:text-[32px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
               {c.name}
             </h1>
-            <p className="text-caption text-[var(--color-text-tertiary)]">
-              {c.phone}
-            </p>
+            <p className="text-[11px] text-[var(--wc-fg-3)]">{c.phone}</p>
             <div className="flex flex-wrap gap-2">
               {c.isLead && <Badge variant="info">{t("leads")}</Badge>}
               <Tag label={`${t("classification")} ${c.classification}`} />
@@ -164,26 +163,36 @@ export default function ClientProfilePage() {
       </section>
 
       {c.allergies && (
-        <Alert variant="danger" icon="⚠️">
+        <Alert
+          variant="danger"
+          icon={<AlertTriangle className="h-4 w-4" strokeWidth={1.75} />}
+        >
           <strong>{t("profile_allergy_warning")}:</strong> {c.allergies}
         </Alert>
       )}
 
       {cashbackValue > 0 && (
-        <Alert variant="success" icon="💰">
+        <Alert
+          variant="success"
+          icon={<Wallet className="h-4 w-4" strokeWidth={1.75} />}
+        >
           <strong>{t("profile_cashback_card")}:</strong>{" "}
           {formatBRL(cashbackValue)}
         </Alert>
       )}
 
       {loyalty.data && (
-        <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4">
+        <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-4">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-heading-2 text-[var(--color-text-primary)]">
-                ⭐ Loyalty
+              <h2 className="flex items-center gap-2 text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
+                <Star
+                  className="h-4 w-4 text-[var(--wc-orange)]"
+                  strokeWidth={1.75}
+                />
+                Loyalty
               </h2>
-              <p className="text-caption text-[var(--color-text-tertiary)]">
+              <p className="text-[11px] text-[var(--wc-fg-3)]">
                 {loyalty.data.balance} · {loyalty.data.lifetimeEarned}
               </p>
             </div>
@@ -197,26 +206,34 @@ export default function ClientProfilePage() {
       )}
 
       {c.notes && (
-        <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4">
-          <h2 className="text-heading-2 text-[var(--color-text-primary)]">
+        <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-4">
+          <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
             {t("profile_consultant_notes")}
           </h2>
-          <p className="mt-2 text-body-small italic text-[var(--color-text-secondary)]">
+          <p className="mt-2 text-[13px] italic text-[var(--wc-fg-2)]">
             {c.notes}
           </p>
         </section>
       )}
 
-      <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-heading-2 text-[var(--color-text-primary)]">
+          <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
             {t("profile_timeline")}
           </h2>
         </div>
         <div className="mt-3">
           {sales.isLoading && <ListSkeleton count={3} />}
           {!sales.isLoading && salesData.length === 0 && (
-            <EmptyState icon="🕓" title={t("profile_timeline_empty")} />
+            <EmptyState
+              icon={
+                <Clock
+                  className="h-5 w-5 text-[var(--wc-purple)]"
+                  strokeWidth={1.75}
+                />
+              }
+              title={t("profile_timeline_empty")}
+            />
           )}
           {!sales.isLoading &&
             salesData
@@ -231,9 +248,9 @@ export default function ClientProfilePage() {
         </div>
       </section>
 
-      <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-heading-2 text-[var(--color-text-primary)]">
+          <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
             {t("profile_wishlist")}
           </h2>
           <Button type="button" size="sm" variant="ghost">
@@ -241,12 +258,20 @@ export default function ClientProfilePage() {
           </Button>
         </div>
         <div className="mt-3">
-          <EmptyState icon="🎁" title={t("profile_wishlist_empty")} />
+          <EmptyState
+            icon={
+              <Gift
+                className="h-5 w-5 text-[var(--wc-purple)]"
+                strokeWidth={1.75}
+              />
+            }
+            title={t("profile_wishlist_empty")}
+          />
         </div>
       </section>
 
-      <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4">
-        <h2 className="text-heading-2 text-[var(--color-text-primary)]">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-4">
+        <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
           {t("profile_beauty")}
         </h2>
         <dl className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -264,12 +289,10 @@ export default function ClientProfilePage() {
             return (
               <div
                 key={key}
-                className="flex items-center justify-between border-b border-[var(--color-border-tertiary)] pb-2 last:border-b-0"
+                className="flex items-center justify-between border-b border-[var(--wc-border)] pb-2 last:border-b-0"
               >
-                <dt className="text-caption text-[var(--color-text-tertiary)]">
-                  {t(key)}
-                </dt>
-                <dd className="text-body-small text-[var(--color-text-primary)]">
+                <dt className="text-[11px] text-[var(--wc-fg-3)]">{t(key)}</dt>
+                <dd className="text-[13px] text-[var(--wc-fg-1)]">
                   {value || "—"}
                 </dd>
               </div>

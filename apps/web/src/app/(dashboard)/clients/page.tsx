@@ -15,6 +15,7 @@ import {
   SearchBar,
   SegmentedControl,
 } from "@wbc/ui";
+import { Check, Users, X } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { AddClientModal } from "@/components/add-client-modal";
 
@@ -85,11 +86,13 @@ export default function ClientsPage() {
 
   return (
     <div className="p-3 sm:p-6 space-y-4">
-      <div className="flex items-center justify-between gap-2">
-        <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
-          {t("title")}
-        </h1>
-        <div className="flex gap-2">
+      <header className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-[26px] sm:text-[32px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
+            {t("title")}
+          </h1>
+        </div>
+        <div className="flex flex-wrap gap-2">
           <Link href="/clients/qr">
             <Button type="button" size="sm" variant="ghost">
               QR
@@ -104,7 +107,7 @@ export default function ClientsPage() {
             {t("add_client")}
           </Button>
         </div>
-      </div>
+      </header>
 
       <AddClientModal open={addOpen} onClose={() => setAddOpen(false)} />
 
@@ -129,8 +132,8 @@ export default function ClientsPage() {
       )}
 
       {selected.size > 0 && (
-        <div className="rounded-lg border border-[var(--color-primary)] bg-[var(--color-primary-surface)] p-3 flex flex-wrap gap-2 items-center">
-          <span className="text-body-small text-[var(--color-primary)] mr-auto">
+        <div className="rounded-wc-lg border border-[var(--wc-purple)] bg-[var(--wc-purple-50)] p-3 flex flex-wrap gap-2 items-center">
+          <span className="text-[13px] text-[var(--wc-purple)] mr-auto">
             {selected.size}
           </span>
           {(["A", "B", "C"] as const).map((c) => (
@@ -152,7 +155,7 @@ export default function ClientsPage() {
             onClick={() => applyActive(true)}
             disabled={bulkUpdate.isPending}
           >
-            ✓
+            <Check className="h-4 w-4" strokeWidth={2} />
           </Button>
           <Button
             type="button"
@@ -161,7 +164,7 @@ export default function ClientsPage() {
             onClick={() => applyActive(false)}
             disabled={bulkUpdate.isPending}
           >
-            ✗
+            <X className="h-4 w-4" strokeWidth={2} />
           </Button>
           <Button
             type="button"
@@ -180,12 +183,17 @@ export default function ClientsPage() {
         </Alert>
       )}
 
-      <div className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-2 sm:p-4">
+      <div className="rounded-wc-lg border border-[var(--wc-border)] bg-white overflow-hidden p-2 sm:p-4">
         {list.isLoading && <ListSkeleton count={6} />}
 
         {!list.isLoading && (list.data?.data.length ?? 0) === 0 && (
           <EmptyState
-            icon="👥"
+            icon={
+              <Users
+                className="h-5 w-5 text-[var(--wc-purple)]"
+                strokeWidth={1.75}
+              />
+            }
             title={t("no_clients")}
             description={t("no_clients_hint")}
             action={
@@ -205,7 +213,7 @@ export default function ClientsPage() {
                 key={client.id}
                 className={
                   "flex items-center gap-2 rounded-md " +
-                  (isSelected ? "bg-[var(--color-primary-surface)]" : "")
+                  (isSelected ? "bg-[var(--wc-purple-50)]" : "")
                 }
               >
                 <input
@@ -213,7 +221,7 @@ export default function ClientsPage() {
                   aria-label={`select ${client.name}`}
                   checked={isSelected}
                   onChange={() => toggleSelected(client.id)}
-                  className="ml-2 h-4 w-4 accent-[var(--color-primary)]"
+                  className="ml-2 h-4 w-4 accent-[var(--wc-purple)]"
                 />
                 <Link href={`/clients/${client.id}`} className="flex-1">
                   <ListItem
@@ -233,7 +241,7 @@ export default function ClientsPage() {
                         {client.isLead && (
                           <Badge variant="info">{t("leads")}</Badge>
                         )}
-                        <span className="text-caption text-[var(--color-text-tertiary)]">
+                        <span className="text-[11px] text-[var(--wc-fg-3)]">
                           {client.classification}
                         </span>
                       </div>
@@ -246,7 +254,7 @@ export default function ClientsPage() {
       </div>
 
       {list.data?.meta && (
-        <p className="text-caption text-[var(--color-text-tertiary)] text-right">
+        <p className="text-[11px] text-[var(--wc-fg-3)] text-right">
           {list.data.meta.total} · {list.data.meta.page}/
           {Math.ceil(list.data.meta.total / list.data.meta.limit) || 1}
         </p>

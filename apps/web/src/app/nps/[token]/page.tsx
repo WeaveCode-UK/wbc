@@ -17,9 +17,9 @@ const SCORES = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as const;
 type Score = (typeof SCORES)[number];
 
 function scoreColor(score: Score): string {
-  if (score <= 6) return "var(--color-danger)";
-  if (score <= 8) return "var(--color-warning)";
-  return "var(--color-success)";
+  if (score <= 6) return "var(--wc-error)";
+  if (score <= 8) return "var(--wc-warning)";
+  return "var(--wc-success)";
 }
 
 export default function PublicNpsPage() {
@@ -48,22 +48,20 @@ export default function PublicNpsPage() {
 
   if (lookup.isLoading) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-[var(--color-bg-tertiary)] p-6">
-        <p className="text-body-small text-[var(--color-text-tertiary)]">
-          Carregando…
-        </p>
+      <main className="min-h-screen flex items-center justify-center bg-[var(--wc-blue-800)] bg-wc-dot-pattern bg-wc-dot text-white p-6">
+        <p className="text-[13px] opacity-80">Carregando…</p>
       </main>
     );
   }
 
   if (!lookup.data) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-[var(--color-bg-tertiary)] p-6">
-        <div className="max-w-md w-full rounded-lg bg-[var(--color-bg-primary)] p-8 shadow-sm space-y-3 text-center">
-          <h1 className="text-heading-2 text-[var(--color-text-primary)]">
+      <main className="min-h-screen flex items-center justify-center bg-[var(--wc-blue-800)] bg-wc-dot-pattern bg-wc-dot text-white p-6">
+        <div className="max-w-md w-full rounded-wc-lg bg-white p-8 shadow-wc-md space-y-3 text-center">
+          <h1 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
             Link inválido
           </h1>
-          <p className="text-body-small text-[var(--color-text-tertiary)]">
+          <p className="text-[13px] text-[var(--wc-fg-3)]">
             Este link de pesquisa não existe ou expirou.
           </p>
         </div>
@@ -73,12 +71,12 @@ export default function PublicNpsPage() {
 
   if (lookup.data.alreadyResponded || submitted) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-[var(--color-bg-tertiary)] p-6">
-        <div className="max-w-md w-full rounded-lg bg-[var(--color-bg-primary)] p-8 shadow-sm space-y-3 text-center">
-          <h1 className="text-heading-2 text-[var(--color-text-primary)]">
-            Obrigada! 💜
+      <main className="min-h-screen flex items-center justify-center bg-[var(--wc-blue-800)] bg-wc-dot-pattern bg-wc-dot text-white p-6">
+        <div className="max-w-md w-full rounded-wc-lg bg-white p-8 shadow-wc-md space-y-3 text-center">
+          <h1 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
+            Obrigada!
           </h1>
-          <p className="text-body-small text-[var(--color-text-tertiary)]">
+          <p className="text-[13px] text-[var(--wc-fg-3)]">
             Sua resposta foi registrada. Sua opinião é o que nos faz crescer.
           </p>
         </div>
@@ -87,13 +85,15 @@ export default function PublicNpsPage() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-[var(--color-bg-tertiary)] p-4 sm:p-6">
-      <div className="max-w-lg w-full rounded-lg bg-[var(--color-bg-primary)] p-6 sm:p-8 shadow-sm space-y-6">
+    <main className="min-h-screen flex items-center justify-center bg-[var(--wc-blue-800)] bg-wc-dot-pattern bg-wc-dot text-white p-4 sm:p-6">
+      <div className="max-w-lg w-full rounded-wc-lg bg-white p-6 sm:p-8 shadow-wc-md space-y-6">
         <header className="space-y-2 text-center">
-          <h1 className="text-heading-1 text-[var(--color-text-primary)]">
-            Como foi sua experiência?
+          <h1 className="text-[26px] sm:text-[32px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
+            Como foi sua{" "}
+            <em className="font-serif italic font-normal text-[var(--wc-orange)]">{`{experiência}`}</em>
+            ?
           </h1>
-          <p className="text-body-small text-[var(--color-text-tertiary)]">
+          <p className="text-[13px] text-[var(--wc-fg-3)]">
             De 0 a 10, o quanto você recomendaria a sua consultora a uma amiga?
           </p>
         </header>
@@ -108,10 +108,10 @@ export default function PublicNpsPage() {
                 onClick={() => setScore(n)}
                 aria-pressed={score === n}
                 aria-label={`Pontuação ${n}`}
-                className={`h-12 rounded-md text-body-small font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] ${
+                className={`h-12 rounded-md text-[13px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--wc-purple)] ${
                   score === n
                     ? "text-white"
-                    : "bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-[var(--color-border-tertiary)]"
+                    : "bg-[var(--wc-bg-muted)] text-[var(--wc-fg-1)] hover:bg-[var(--wc-border)]"
                 }`}
                 style={
                   score === n ? { backgroundColor: scoreColor(n) } : undefined
@@ -121,7 +121,7 @@ export default function PublicNpsPage() {
               </button>
             ))}
           </div>
-          <div className="flex justify-between text-caption text-[var(--color-text-tertiary)]">
+          <div className="flex justify-between text-[12px] text-[var(--wc-fg-3)]">
             <span>Pouco provável</span>
             <span>Muito provável</span>
           </div>
@@ -130,7 +130,7 @@ export default function PublicNpsPage() {
         <div className="space-y-1">
           <label
             htmlFor="nps-comment"
-            className="block text-caption text-[var(--color-text-tertiary)]"
+            className="block text-[12px] text-[var(--wc-fg-3)]"
           >
             Quer deixar um comentário? (opcional)
           </label>
@@ -140,7 +140,7 @@ export default function PublicNpsPage() {
             onChange={(e) => setComment(e.target.value)}
             rows={3}
             maxLength={500}
-            className="w-full rounded-md border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-3 text-body-small text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+            className="w-full rounded-md border border-[var(--wc-border)] bg-white p-3 text-[13px] text-[var(--wc-fg-1)] focus:outline-none focus:ring-2 focus:ring-[var(--wc-purple)]"
             placeholder="Conte o que mais te marcou…"
           />
         </div>

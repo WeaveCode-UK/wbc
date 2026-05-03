@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { ShoppingBag } from "lucide-react";
 import { Badge, Button, EmptyState, ListItem, ListSkeleton } from "@wbc/ui";
 import { trpc } from "@/lib/trpc";
 import { useToast } from "@/providers/toast-provider";
@@ -49,8 +50,8 @@ export default function ShowcasesPage() {
   return (
     <div className="p-3 sm:p-6 space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
-          🛍️ Vitrines
+        <h1 className="text-[26px] sm:text-[32px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
+          Vitrines
         </h1>
         <Link href="/showcases/new">
           <Button type="button" size="sm">
@@ -59,16 +60,21 @@ export default function ShowcasesPage() {
         </Link>
       </div>
 
-      <p className="text-body-small text-[var(--color-text-secondary)]">
+      <p className="text-[13px] sm:text-[14px] font-light text-[var(--wc-fg-2)]">
         Crie listas de produtos personalizadas e compartilhe o link com cada
         cliente. Sem login do lado dela.
       </p>
 
-      <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-2 sm:p-4">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-2 sm:p-4">
         {list.isLoading && <ListSkeleton count={4} />}
         {!list.isLoading && data.length === 0 && (
           <EmptyState
-            icon="🛍️"
+            icon={
+              <ShoppingBag
+                className="h-5 w-5 text-[var(--wc-purple)]"
+                strokeWidth={1.75}
+              />
+            }
             title="Nenhuma vitrine ainda"
             description="Crie sua primeira para enviar uma seleção curada por WhatsApp."
             action={

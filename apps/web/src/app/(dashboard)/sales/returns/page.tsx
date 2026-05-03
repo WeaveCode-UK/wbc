@@ -56,28 +56,26 @@ export default function ReturnsPage() {
     <div className="p-3 sm:p-6 space-y-4">
       <Link
         href="/sales"
-        className="text-body-small text-[var(--color-primary)] hover:underline"
+        className="text-body-small text-[var(--wc-purple)] hover:underline"
       >
         ← {t("title")}
       </Link>
 
-      <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
+      <h1 className="text-[26px] sm:text-[32px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
         Devoluções
       </h1>
 
-      <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4 space-y-3">
-        <h2 className="text-heading-2 text-[var(--color-text-primary)]">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 sm:p-6 space-y-3">
+        <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
           Nova devolução
         </h2>
 
         <div className="space-y-1">
-          <p className="text-caption text-[var(--color-text-tertiary)]">
-            Venda
-          </p>
-          <div className="max-h-48 overflow-y-auto rounded-md bg-[var(--color-bg-secondary)] divide-y divide-[var(--color-border-tertiary)]">
+          <p className="text-caption text-[var(--wc-fg-3)]">Venda</p>
+          <div className="max-h-48 overflow-y-auto rounded-md bg-[var(--wc-bg-muted)] divide-y divide-[var(--wc-border)]">
             {eligibleSales.isLoading && <ListSkeleton count={3} />}
             {!eligibleSales.isLoading && sales.length === 0 && (
-              <p className="p-3 text-caption text-[var(--color-text-tertiary)]">
+              <p className="p-3 text-caption text-[var(--wc-fg-3)]">
                 {t("no_sales")}
               </p>
             )}
@@ -90,15 +88,13 @@ export default function ReturnsPage() {
                   onClick={() => setSelectedSaleId(sale.id)}
                   className={
                     "block w-full text-left px-3 py-2 transition-colors " +
-                    (checked
-                      ? "bg-[var(--color-primary-surface)]"
-                      : "hover:bg-[var(--color-bg-primary)]")
+                    (checked ? "bg-[var(--wc-purple-50)]" : "hover:bg-white")
                   }
                 >
-                  <span className="text-body-small text-[var(--color-text-primary)]">
+                  <span className="text-body-small text-[var(--wc-fg-1)]">
                     {formatBRL(Number(sale.total))}
                   </span>
-                  <span className="ml-2 text-caption text-[var(--color-text-tertiary)]">
+                  <span className="ml-2 text-caption text-[var(--wc-fg-3)]">
                     {formatDate(sale.createdAt)} · {sale.status}
                   </span>
                 </button>
@@ -108,9 +104,7 @@ export default function ReturnsPage() {
         </div>
 
         <div className="space-y-1">
-          <p className="text-caption text-[var(--color-text-tertiary)]">
-            Motivo
-          </p>
+          <p className="text-caption text-[var(--wc-fg-3)]">Motivo</p>
           <Input
             value={reason}
             onChange={(e) => setReason(e.target.value)}
@@ -119,9 +113,7 @@ export default function ReturnsPage() {
         </div>
 
         <div className="space-y-1">
-          <p className="text-caption text-[var(--color-text-tertiary)]">
-            Valor a estornar
-          </p>
+          <p className="text-caption text-[var(--wc-fg-3)]">Valor a estornar</p>
           <Input
             type="number"
             min={0}
@@ -132,7 +124,7 @@ export default function ReturnsPage() {
             placeholder="0,00"
           />
           {selectedSale && (
-            <p className="text-caption text-[var(--color-text-tertiary)]">
+            <p className="text-caption text-[var(--wc-fg-3)]">
               Total da venda: {formatBRL(Number(selectedSale.total))}
             </p>
           )}
@@ -157,7 +149,7 @@ export default function ReturnsPage() {
         </Button>
       </section>
 
-      <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-2 sm:p-4">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-2 sm:p-4">
         {list.isLoading && <ListSkeleton count={4} />}
         {!list.isLoading && rows.length === 0 && (
           <EmptyState icon="↩️" title="Nenhuma devolução" />

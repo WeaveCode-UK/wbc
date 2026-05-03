@@ -67,10 +67,10 @@ export default function LandingPage() {
     <div className="p-3 sm:p-6 space-y-6">
       <header className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
+          <h1 className="text-[26px] sm:text-[32px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
             {t("title")}
           </h1>
-          <p className="text-caption text-[var(--color-text-tertiary)]">
+          <p className="text-[13px] sm:text-[14px] font-light text-[var(--wc-fg-2)]">
             {t("subtitle")}
           </p>
         </div>
@@ -80,7 +80,7 @@ export default function LandingPage() {
             onChange={(value) => toggleActive.mutate({ isActive: value })}
             disabled={landing.isLoading || toggleActive.isPending}
           />
-          <span className="text-caption text-[var(--color-text-tertiary)]">
+          <span className="text-[12px] text-[var(--wc-fg-3)]">
             {t("active_label")}
           </span>
         </div>
@@ -91,16 +91,16 @@ export default function LandingPage() {
       )}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4 space-y-3">
-          <h2 className="text-heading-2 text-[var(--color-text-primary)]">
+        <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 space-y-3">
+          <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
             {t("preview_title")}
           </h2>
-          <p className="text-caption text-[var(--color-text-tertiary)]">
+          <p className="text-[12px] text-[var(--wc-fg-3)]">
             {t("preview_hint")}
           </p>
-          <div className="aspect-[9/16] w-full max-w-sm rounded-lg bg-gradient-to-br from-[var(--color-primary-surface)] to-[var(--color-bg-secondary)] p-4">
+          <div className="aspect-[9/16] w-full max-w-sm rounded-wc-lg bg-gradient-to-br from-[var(--wc-purple-50)] to-[var(--wc-bg-muted)] p-4">
             <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
-              <div className="h-20 w-20 rounded-full bg-[var(--color-bg-primary)] overflow-hidden">
+              <div className="h-20 w-20 rounded-full bg-white overflow-hidden">
                 {photoUrl && (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -110,9 +110,7 @@ export default function LandingPage() {
                   />
                 )}
               </div>
-              <p className="text-body text-[var(--color-text-primary)]">
-                {bio || "—"}
-              </p>
+              <p className="text-[15px] text-[var(--wc-fg-1)]">{bio || "—"}</p>
               <Button type="button" size="sm">
                 {t("field_whatsapp")}
               </Button>
@@ -120,8 +118,8 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4 space-y-4">
-          <h2 className="text-heading-2 text-[var(--color-text-primary)]">
+        <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 space-y-4">
+          <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
             {t("form_title")}
           </h2>
 
@@ -133,7 +131,7 @@ export default function LandingPage() {
               onChange={(e) => setPhotoUrl(e.target.value)}
               placeholder="https://..."
             />
-            <p className="text-caption text-[var(--color-text-tertiary)]">
+            <p className="text-[12px] text-[var(--wc-fg-3)]">
               {t("field_photo_hint")}
             </p>
           </div>
@@ -146,7 +144,7 @@ export default function LandingPage() {
               onChange={(e) => setBio(e.target.value)}
               maxLength={120}
             />
-            <p className="text-caption text-[var(--color-text-tertiary)]">
+            <p className="text-[12px] text-[var(--wc-fg-3)]">
               {t("field_bio_hint")}
             </p>
           </div>
@@ -156,7 +154,7 @@ export default function LandingPage() {
             <textarea
               value={philosophy}
               onChange={(e) => setPhilosophy(e.target.value)}
-              className="w-full min-h-[80px] rounded-md border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-2 text-body-small text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+              className="w-full min-h-[80px] rounded-md border border-[var(--wc-border)] bg-white p-2 text-[13px] text-[var(--wc-fg-1)] focus:outline-none focus:ring-2 focus:ring-[var(--wc-purple)]"
             />
           </div>
 
@@ -178,13 +176,11 @@ export default function LandingPage() {
               disabled
               placeholder="renata-cosmeticos"
             />
-            <p className="text-caption text-[var(--color-text-tertiary)]">
-              {publicUrl}
-            </p>
+            <p className="text-[12px] text-[var(--wc-fg-3)]">{publicUrl}</p>
           </div>
 
-          <div className="border-t border-[var(--color-border-tertiary)] pt-3 space-y-2">
-            <p className="text-caption text-[var(--color-text-tertiary)]">
+          <div className="border-t border-[var(--wc-border)] pt-3 space-y-2">
+            <p className="text-[12px] text-[var(--wc-fg-3)]">
               {t("share_link")}
             </p>
             <div className="flex gap-2">

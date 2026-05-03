@@ -40,9 +40,11 @@ export default function ResetPasswordPage() {
 
   if (sent) {
     return (
-      <div className="text-center space-y-4">
-        <h1 className="text-2xl font-bold">{t("resetPassword.sentTitle")}</h1>
-        <p className="text-muted-foreground">
+      <div className="space-y-4 text-center">
+        <h1 className="text-[26px] font-semibold tracking-tight text-text-primary">
+          {t("resetPassword.sentTitle")}
+        </h1>
+        <p className="text-[13px] font-light text-text-tertiary">
           {t("resetPassword.sentDescription")}
         </p>
         <Link href="/login">
@@ -53,10 +55,12 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="text-center">
-        <h1 className="text-2xl font-bold">{t("resetPassword.title")}</h1>
-        <p className="mt-2 text-muted-foreground">
+    <div className="space-y-5">
+      <div>
+        <h1 className="text-[26px] font-semibold tracking-tight text-text-primary">
+          {t("resetPassword.title")}
+        </h1>
+        <p className="mt-1 text-[13px] font-light text-text-tertiary">
           {t("resetPassword.subtitle")}
         </p>
       </div>

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { ArrowDown, ArrowUp, ShoppingBag, X } from "lucide-react";
 import {
   Alert,
   Badge,
@@ -149,7 +150,7 @@ export default function ShowcaseDetailPage() {
       <div className="p-3 sm:p-6 space-y-4">
         <Link
           href="/showcases"
-          className="text-body-small text-[var(--color-primary)] hover:underline"
+          className="text-[13px] text-[var(--wc-purple)] hover:underline"
         >
           ← {tCommon("back")}
         </Link>
@@ -192,7 +193,7 @@ export default function ShowcaseDetailPage() {
     <div className="p-3 sm:p-6 space-y-4">
       <Link
         href="/showcases"
-        className="text-body-small text-[var(--color-primary)] hover:underline"
+        className="text-[13px] text-[var(--wc-purple)] hover:underline"
       >
         ← {tCommon("back")}
       </Link>
@@ -206,7 +207,7 @@ export default function ShowcaseDetailPage() {
               aria-label="Nome da vitrine"
             />
           ) : (
-            <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
+            <h1 className="text-[26px] sm:text-[32px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
               {data.name}
             </h1>
           )}
@@ -257,13 +258,11 @@ export default function ShowcaseDetailPage() {
         </div>
       </header>
 
-      <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4 space-y-3">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 space-y-3">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-1">
-            <p className="text-caption text-[var(--color-text-tertiary)]">
-              Link público
-            </p>
-            <code className="text-body-small text-[var(--color-text-primary)] break-all">
+            <p className="text-[12px] text-[var(--wc-fg-3)]">Link público</p>
+            <code className="text-[13px] text-[var(--wc-fg-1)] break-all">
               {publicShowcaseUrl(data.shareLink)}
             </code>
           </div>
@@ -289,12 +288,10 @@ export default function ShowcaseDetailPage() {
           </div>
         </div>
         {editing && (
-          <div className="flex items-center justify-between border-t border-[var(--color-border-tertiary)] pt-3">
+          <div className="flex items-center justify-between border-t border-[var(--wc-border)] pt-3">
             <div>
-              <p className="text-body-small text-[var(--color-text-primary)]">
-                Vitrine ativa
-              </p>
-              <p className="text-caption text-[var(--color-text-tertiary)]">
+              <p className="text-[13px] text-[var(--wc-fg-1)]">Vitrine ativa</p>
+              <p className="text-[12px] text-[var(--wc-fg-3)]">
                 Quando inativa, o link público responde 404.
               </p>
             </div>
@@ -303,12 +300,20 @@ export default function ShowcaseDetailPage() {
         )}
       </section>
 
-      <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-2 sm:p-4 space-y-2">
-        <h2 className="text-heading-3 px-2 text-[var(--color-text-primary)]">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-2 sm:p-4 space-y-2">
+        <h2 className="text-[15px] font-medium px-2 text-[var(--wc-fg-1)]">
           Produtos
         </h2>
         {selected.length === 0 ? (
-          <EmptyState icon="🛍️" title="Sem produtos" />
+          <EmptyState
+            icon={
+              <ShoppingBag
+                className="h-5 w-5 text-[var(--wc-purple)]"
+                strokeWidth={1.75}
+              />
+            }
+            title="Sem produtos"
+          />
         ) : (
           selected.map((productId, idx) => {
             const p = productById.get(productId);
@@ -329,7 +334,7 @@ export default function ShowcaseDetailPage() {
                         disabled={idx === 0}
                         aria-label="Mover para cima"
                       >
-                        ↑
+                        <ArrowUp className="h-4 w-4" strokeWidth={2} />
                       </Button>
                       <Button
                         type="button"
@@ -339,7 +344,7 @@ export default function ShowcaseDetailPage() {
                         disabled={idx === selected.length - 1}
                         aria-label="Mover para baixo"
                       >
-                        ↓
+                        <ArrowDown className="h-4 w-4" strokeWidth={2} />
                       </Button>
                       <Button
                         type="button"
@@ -348,7 +353,7 @@ export default function ShowcaseDetailPage() {
                         onClick={() => toggle(productId)}
                         aria-label="Remover produto"
                       >
-                        ✕
+                        <X className="h-4 w-4" strokeWidth={2} />
                       </Button>
                     </div>
                   ) : null
@@ -360,8 +365,8 @@ export default function ShowcaseDetailPage() {
       </section>
 
       {editing && (
-        <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4 space-y-3">
-          <h2 className="text-heading-3 text-[var(--color-text-primary)]">
+        <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 space-y-3">
+          <h2 className="text-[15px] font-medium text-[var(--wc-fg-1)]">
             Adicionar produtos
           </h2>
           <Input

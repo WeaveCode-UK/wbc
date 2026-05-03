@@ -55,7 +55,7 @@ export default function PostSalePage() {
 
   return (
     <div className="p-3 sm:p-6 space-y-4">
-      <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
+      <h1 className="text-[26px] sm:text-[32px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
         Pós-venda 2+2+2
       </h1>
 
@@ -64,13 +64,13 @@ export default function PostSalePage() {
         configurada abaixo.
       </Alert>
 
-      <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4 space-y-3">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white p-4 space-y-3 shadow-wc-xs">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-heading-2 text-[var(--color-text-primary)]">
+            <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
               Fluxo ativo
             </h2>
-            <p className="text-caption text-[var(--color-text-tertiary)]">
+            <p className="text-caption text-[var(--wc-fg-3)]">
               {t("title", { fallback: "Mensagens" })}
             </p>
           </div>
@@ -79,8 +79,8 @@ export default function PostSalePage() {
       </section>
 
       {enabled && (
-        <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4 space-y-3">
-          <h2 className="text-heading-2 text-[var(--color-text-primary)]">
+        <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white p-4 space-y-3 shadow-wc-xs">
+          <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
             Cadência (em dias)
           </h2>
           <div className="grid grid-cols-3 gap-2">
@@ -92,7 +92,7 @@ export default function PostSalePage() {
               ] as const
             ).map((opt) => (
               <label key={opt.key} className="space-y-1">
-                <span className="text-caption text-[var(--color-text-tertiary)]">
+                <span className="text-caption text-[var(--wc-fg-3)]">
                   {opt.label}
                 </span>
                 <input
@@ -105,7 +105,7 @@ export default function PostSalePage() {
                       [opt.key]: Number(e.target.value),
                     }))
                   }
-                  className="w-full rounded-md border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-2 text-body-small text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+                  className="w-full rounded-md border border-[var(--wc-border)] bg-white p-2 text-body-small text-[var(--wc-fg-1)] focus:outline-none focus:ring-2 focus:ring-[var(--wc-purple)]"
                 />
               </label>
             ))}

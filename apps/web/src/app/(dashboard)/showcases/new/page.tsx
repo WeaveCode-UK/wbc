@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { Search } from "lucide-react";
 import {
   Alert,
   Badge,
@@ -69,16 +70,16 @@ export default function NewShowcasePage() {
     <div className="p-3 sm:p-6 space-y-4">
       <Link
         href="/showcases"
-        className="text-body-small text-[var(--color-primary)] hover:underline"
+        className="text-[13px] text-[var(--wc-purple)] hover:underline"
       >
         ← {tCommon("back")}
       </Link>
 
-      <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
+      <h1 className="text-[26px] sm:text-[32px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
         Nova vitrine
       </h1>
 
-      <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4 space-y-3">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 space-y-3">
         <Input
           label="Nome da vitrine"
           value={name}
@@ -90,7 +91,7 @@ export default function NewShowcasePage() {
         <div className="space-y-1">
           <label
             htmlFor="showcase-client"
-            className="block text-caption text-[var(--color-text-tertiary)]"
+            className="block text-[12px] text-[var(--wc-fg-3)]"
           >
             Cliente (opcional)
           </label>
@@ -98,7 +99,7 @@ export default function NewShowcasePage() {
             id="showcase-client"
             value={clientId}
             onChange={(e) => setClientId(e.target.value)}
-            className="h-10 w-full rounded-md border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] px-3 text-body-small text-[var(--color-text-primary)]"
+            className="h-10 w-full rounded-md border border-[var(--wc-border)] bg-white px-3 text-[13px] text-[var(--wc-fg-1)]"
           >
             <option value="">Vitrine geral (sem cliente específico)</option>
             {clientList.map((c) => (
@@ -110,9 +111,9 @@ export default function NewShowcasePage() {
         </div>
       </section>
 
-      <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4 space-y-3">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-heading-3 text-[var(--color-text-primary)]">
+          <h2 className="text-[15px] font-medium text-[var(--wc-fg-1)]">
             Produtos
           </h2>
           <Badge variant="info">{`${selected.size} selecionado(s)`}</Badge>
@@ -127,7 +128,15 @@ export default function NewShowcasePage() {
         <div className="max-h-[420px] overflow-y-auto">
           {products.isLoading && <ListSkeleton count={6} />}
           {!products.isLoading && productList.length === 0 && (
-            <EmptyState icon="🔍" title="Nenhum produto" />
+            <EmptyState
+              icon={
+                <Search
+                  className="h-5 w-5 text-[var(--wc-purple)]"
+                  strokeWidth={1.75}
+                />
+              }
+              title="Nenhum produto"
+            />
           )}
           {productList.map((p) => {
             const isSelected = selected.has(p.id);
@@ -146,7 +155,7 @@ export default function NewShowcasePage() {
                     checked={isSelected}
                     onChange={() => toggle(p.id)}
                     aria-label={`Selecionar ${p.name}`}
-                    className="h-4 w-4 accent-[var(--color-primary)]"
+                    className="h-4 w-4 accent-[var(--wc-purple)]"
                   />
                 }
               />

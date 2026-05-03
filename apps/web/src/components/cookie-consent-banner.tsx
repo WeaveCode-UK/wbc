@@ -73,14 +73,14 @@ export function CookieConsentBanner() {
     <div
       role="region"
       aria-label="Cookie consent"
-      className="fixed inset-x-0 bottom-0 z-50 border-t border-[var(--color-border-tertiary)] bg-[var(--color-bg-primary)] p-4 shadow-lg"
+      className="fixed inset-x-0 bottom-0 z-50 border-t border-[var(--wc-border)] bg-white p-4 shadow-wc-lg"
     >
-      <div className="mx-auto max-w-3xl flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-body-small text-[var(--color-text-primary)]">
+      <div className="mx-auto flex max-w-3xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-[13px] font-light text-[var(--wc-fg-2)]">
           Usamos cookies essenciais para autenticação. Saiba mais em{" "}
           <Link
             href="/privacy-policy"
-            className="text-[var(--color-primary)] hover:underline"
+            className="font-medium text-[var(--wc-purple)] hover:text-[var(--wc-purple-600)] hover:underline"
           >
             Política de Privacidade
           </Link>
@@ -90,14 +90,14 @@ export function CookieConsentBanner() {
           <button
             type="button"
             onClick={essentialOnly}
-            className="h-10 px-4 rounded-md border border-[var(--color-border-secondary)] text-body-small hover:bg-[var(--color-bg-secondary)]"
+            className="min-h-[44px] rounded-wc-sm border border-[var(--wc-border)] bg-white px-4 text-[13px] font-medium text-[var(--wc-fg-1)] transition-colors duration-wc-2 hover:bg-[var(--wc-bg-muted)]"
           >
             Só essenciais
           </button>
           <button
             type="button"
             onClick={acceptAll}
-            className="h-10 px-4 rounded-md bg-[var(--color-primary)] text-white text-body-small hover:bg-[var(--color-primary-hover)]"
+            className="min-h-[44px] rounded-wc-sm bg-[var(--wc-purple)] px-4 text-[13px] font-medium text-white transition-colors duration-wc-2 hover:bg-[var(--wc-purple-600)] hover:shadow-[0_4px_12px_rgba(129,39,232,0.35)]"
           >
             Aceitar todos
           </button>

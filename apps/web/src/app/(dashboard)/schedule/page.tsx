@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { Bell, Cake, Calendar } from "lucide-react";
 import { Badge, Button, EmptyState, ListItem, ListSkeleton } from "@wbc/ui";
 import { trpc } from "@/lib/trpc";
 
@@ -46,24 +47,29 @@ export default function SchedulePage() {
   const remindersData = (reminders.data ?? []) as ReminderRow[];
 
   return (
-    <div className="p-3 sm:p-6 space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
+    <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
+      <header className="flex items-center justify-between">
+        <h1 className="text-[26px] sm:text-[32px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
           {t("title")}
         </h1>
         <Button type="button" size="sm">
           {t("new_appointment")}
         </Button>
-      </div>
+      </header>
 
-      <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-3 sm:p-4">
-        <h2 className="text-heading-2 text-[var(--color-text-primary)] mb-3">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-3 sm:p-5">
+        <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)] mb-3">
           {t("calendar")}
         </h2>
         {appointments.isLoading && <ListSkeleton count={4} />}
         {!appointments.isLoading && appsData.length === 0 && (
           <EmptyState
-            icon="📅"
+            icon={
+              <Calendar
+                className="h-5 w-5 text-[var(--wc-purple)]"
+                strokeWidth={1.75}
+              />
+            }
             title={t("no_events")}
             description={t("no_events_hint")}
           />
@@ -79,13 +85,21 @@ export default function SchedulePage() {
           ))}
       </section>
 
-      <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-3 sm:p-4">
-        <h2 className="text-heading-2 text-[var(--color-text-primary)] mb-3">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-3 sm:p-5">
+        <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)] mb-3">
           {t("reminders")}
         </h2>
         {reminders.isLoading && <ListSkeleton count={3} />}
         {!reminders.isLoading && remindersData.length === 0 && (
-          <EmptyState icon="🔔" title={t("no_events")} />
+          <EmptyState
+            icon={
+              <Bell
+                className="h-5 w-5 text-[var(--wc-purple)]"
+                strokeWidth={1.75}
+              />
+            }
+            title={t("no_events")}
+          />
         )}
         {!reminders.isLoading &&
           remindersData.map((r) => (
@@ -98,13 +112,21 @@ export default function SchedulePage() {
           ))}
       </section>
 
-      <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-3 sm:p-4">
-        <h2 className="text-heading-2 text-[var(--color-text-primary)] mb-3">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-3 sm:p-5">
+        <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)] mb-3">
           {t("birthdays")}
         </h2>
         {birthdays.isLoading && <ListSkeleton count={3} />}
         {!birthdays.isLoading && birthdaysData.length === 0 && (
-          <EmptyState icon="🎂" title={t("no_events")} />
+          <EmptyState
+            icon={
+              <Cake
+                className="h-5 w-5 text-[var(--wc-purple)]"
+                strokeWidth={1.75}
+              />
+            }
+            title={t("no_events")}
+          />
         )}
         {!birthdays.isLoading &&
           birthdaysData.map((b) => (
@@ -116,7 +138,11 @@ export default function SchedulePage() {
                   ? new Date(b.birthday).toLocaleDateString("pt-BR")
                   : "—"
               }
-              right={<Badge variant="success">🎂</Badge>}
+              right={
+                <Badge variant="success">
+                  <Cake className="h-3 w-3" strokeWidth={2} />
+                </Badge>
+              }
             />
           ))}
       </section>

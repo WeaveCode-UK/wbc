@@ -13,6 +13,7 @@ import {
   MetricCard,
   SegmentedControl,
 } from "@wbc/ui";
+import { Wallet } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
 type StatusFilter = "all" | "DRAFT" | "CONFIRMED" | "DELIVERED" | "CANCELLED";
@@ -64,8 +65,8 @@ export default function SalesPage() {
 
   return (
     <div className="p-3 sm:p-6 space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
+      <header className="flex items-center justify-between">
+        <h1 className="text-[26px] sm:text-[32px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
           {t("title")}
         </h1>
         <Link href="/sales/new">
@@ -73,7 +74,7 @@ export default function SalesPage() {
             {t("new_sale")}
           </Button>
         </Link>
-      </div>
+      </header>
 
       <div className="grid gap-2 sm:gap-3 grid-cols-1 sm:grid-cols-3">
         <MetricCard
@@ -102,12 +103,17 @@ export default function SalesPage() {
         ]}
       />
 
-      <div className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-2 sm:p-4">
+      <div className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-2 sm:p-4">
         {sales.isLoading && <ListSkeleton count={6} />}
 
         {!sales.isLoading && data.length === 0 && (
           <EmptyState
-            icon="💰"
+            icon={
+              <Wallet
+                className="h-5 w-5 text-[var(--wc-purple)]"
+                strokeWidth={1.75}
+              />
+            }
             title={t("no_sales")}
             description={t("no_sales_hint")}
             action={

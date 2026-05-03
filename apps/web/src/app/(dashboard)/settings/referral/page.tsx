@@ -25,20 +25,19 @@ export default function ReferralPage() {
     <div className="p-3 sm:p-6 space-y-4">
       <Link
         href="/settings"
-        className="text-body-small text-[var(--color-primary)] hover:underline"
+        className="text-[13px] text-[var(--wc-purple)] hover:underline"
       >
         ← {tCommon("back")}
       </Link>
 
-      <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
-        💜 Indique e ganhe
+      <h1 className="text-[26px] sm:text-[32px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
+        Indique e ganhe
       </h1>
 
       {referral.isLoading && <Alert variant="ia">{tCommon("loading")}</Alert>}
 
       {!referral.isLoading && (!data || !data.code) && (
         <EmptyState
-          icon="🎁"
           title="Sem código de indicação"
           description="Seu código será gerado quando o programa de indicação for ativado."
         />
@@ -46,17 +45,15 @@ export default function ReferralPage() {
 
       {data?.code && (
         <>
-          <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-6 text-center space-y-3">
-            <p className="text-caption text-[var(--color-text-tertiary)]">
-              Seu código
-            </p>
+          <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-6 text-center space-y-3">
+            <p className="text-[12px] text-[var(--wc-fg-3)]">Seu código</p>
             <p
-              className="text-heading-1 text-[var(--color-primary)] tracking-wider"
+              className="text-[24px] font-semibold tracking-wider text-[var(--wc-purple)]"
               style={{ fontVariantNumeric: "tabular-nums" }}
             >
               {data.code}
             </p>
-            <p className="text-body-small text-[var(--color-text-secondary)] break-all">
+            <p className="text-[13px] text-[var(--wc-fg-2)] break-all">
               {data.link}
             </p>
             <Button type="button" size="sm" onClick={onCopy}>
@@ -64,11 +61,11 @@ export default function ReferralPage() {
             </Button>
           </section>
 
-          <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4">
-            <h2 className="text-heading-2 text-[var(--color-text-primary)]">
+          <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 sm:p-6">
+            <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
               Estatísticas
             </h2>
-            <p className="mt-2 text-body-small text-[var(--color-text-secondary)]">
+            <p className="mt-2 text-[13px] text-[var(--wc-fg-2)]">
               {data.stats?.used ?? 0} indicações utilizaram seu código.
             </p>
           </section>

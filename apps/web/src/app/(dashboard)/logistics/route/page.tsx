@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { Map as MapIcon } from "lucide-react";
 import { Badge, EmptyState, ListItem, ListSkeleton } from "@wbc/ui";
 import { trpc } from "@/lib/trpc";
 
@@ -22,35 +23,48 @@ export default function DailyRoutePage() {
   }
 
   return (
-    <div className="p-3 sm:p-6 space-y-4">
+    <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
       <Link
         href="/logistics"
-        className="text-body-small text-[var(--color-primary)] hover:underline"
+        className="text-[13px] text-[var(--wc-purple)] hover:underline"
       >
         ← {tCommon("back")}
       </Link>
 
-      <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
-        🗺️ {t("daily_route")}
-      </h1>
-      <p className="text-caption text-[var(--color-text-tertiary)]">
-        {t(stops.length === 1 ? "route_subtitle_one" : "route_subtitle_other", {
-          count: stops.length,
-        })}
-      </p>
+      <header>
+        <h1 className="text-[26px] sm:text-[32px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
+          {t("daily_route")}
+        </h1>
+        <p className="mt-1 text-[13px] sm:text-[14px] font-light text-[var(--wc-fg-2)]">
+          {t(
+            stops.length === 1 ? "route_subtitle_one" : "route_subtitle_other",
+            {
+              count: stops.length,
+            },
+          )}
+        </p>
+      </header>
 
       {route.isLoading && <ListSkeleton count={4} variant="card" />}
       {!route.isLoading && stops.length === 0 && (
-        <EmptyState icon="🗺️" title={t("no_route")} />
+        <EmptyState
+          icon={
+            <MapIcon
+              className="h-5 w-5 text-[var(--wc-purple)]"
+              strokeWidth={1.75}
+            />
+          }
+          title={t("no_route")}
+        />
       )}
 
       {!route.isLoading &&
         Array.from(grouped.entries()).map(([key, items]) => (
           <section
             key={key}
-            className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-3 sm:p-4 space-y-2"
+            className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-3 sm:p-5 space-y-2"
           >
-            <h2 className="text-heading-2 text-[var(--color-text-primary)]">
+            <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
               {key === "ZZZ_sem_endereco" ? t("no_address") : key}
             </h2>
             {items.map((stop) => (

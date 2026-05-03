@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { Bell, Check } from "lucide-react";
 import { Badge, Button, EmptyState, ListItem, ListSkeleton } from "@wbc/ui";
 import { trpc } from "@/lib/trpc";
 
@@ -39,8 +40,8 @@ export default function NotificationsPage() {
   return (
     <div className="p-3 sm:p-6 space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
-          🔔 Notificações
+        <h1 className="text-[26px] sm:text-[32px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
+          Notificações
           {unread > 0 && (
             <Badge variant="danger" className="ml-2">
               {String(unread)}
@@ -58,21 +59,33 @@ export default function NotificationsPage() {
         </Button>
       </div>
 
-      <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-2 sm:p-4">
+      <section className="space-y-2">
         {list.isLoading && <ListSkeleton count={5} />}
         {!list.isLoading && items.length === 0 && (
-          <EmptyState icon="🔔" title="Sem notificações" />
+          <div className="rounded-wc-lg border border-[var(--wc-border)] bg-white p-2 sm:p-4 shadow-wc-xs">
+            <EmptyState
+              icon={
+                <Bell
+                  className="h-5 w-5 text-[var(--wc-purple)]"
+                  strokeWidth={1.75}
+                />
+              }
+              title="Sem notificações"
+            />
+          </div>
         )}
         {items.map((n) => (
           <div
             key={n.id}
             className={
-              !n.read ? "rounded-md bg-[var(--color-primary-surface)] mb-1" : ""
+              "rounded-wc-md border border-[var(--wc-border)] bg-white p-4 transition-all duration-150 hover:shadow-wc-xs hover:-translate-y-px " +
+              (!n.read ? "bg-[var(--wc-purple-50)]" : "")
             }
           >
             <ListItem
               title={n.title}
               subtitle={`${formatDateTime(n.createdAt)} · ${n.body}`}
+              separator={false}
               right={
                 <div className="flex gap-2">
                   <Badge variant="neutral">{n.type}</Badge>
@@ -83,7 +96,7 @@ export default function NotificationsPage() {
                       variant="ghost"
                       onClick={() => markRead.mutate({ id: n.id })}
                     >
-                      ✓
+                      <Check className="h-4 w-4" strokeWidth={2} />
                     </Button>
                   )}
                 </div>

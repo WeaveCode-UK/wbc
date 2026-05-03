@@ -16,6 +16,7 @@ import {
   SegmentedControl,
   StepIndicator,
 } from "@wbc/ui";
+import { ShoppingBag, User } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
 const TOTAL_STEPS = 4;
@@ -132,16 +133,16 @@ export default function NewSalePage() {
     <div className="p-3 sm:p-6 space-y-6">
       <Link
         href="/sales"
-        className="text-body-small text-[var(--color-primary)] hover:underline"
+        className="text-body-small text-[var(--wc-purple)] hover:underline"
       >
         ← {t("wizard_back")}
       </Link>
 
       <header className="flex items-center justify-between">
-        <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
+        <h1 className="text-[26px] sm:text-[32px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
           {t("new_sale")}
         </h1>
-        <span className="text-caption text-[var(--color-text-tertiary)]">
+        <span className="text-[13px] sm:text-[14px] font-light text-[var(--wc-fg-3)]">
           {step}/{TOTAL_STEPS} · {stepTitle}
         </span>
       </header>
@@ -150,10 +151,10 @@ export default function NewSalePage() {
 
       {submitError && <Alert variant="danger">{submitError}</Alert>}
 
-      <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4 space-y-4">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 sm:p-6 space-y-4">
         {step === 1 && (
           <>
-            <h2 className="text-heading-2 text-[var(--color-text-primary)]">
+            <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
               {t("wizard_select_client")}
             </h2>
             <SearchBar
@@ -164,7 +165,15 @@ export default function NewSalePage() {
             />
             {clients.isLoading && <ListSkeleton count={4} />}
             {!clients.isLoading && (clients.data?.data.length ?? 0) === 0 && (
-              <EmptyState icon="👤" title={t("wizard_no_clients")} />
+              <EmptyState
+                icon={
+                  <User
+                    className="h-5 w-5 text-[var(--wc-purple)]"
+                    strokeWidth={1.75}
+                  />
+                }
+                title={t("wizard_no_clients")}
+              />
             )}
             {!clients.isLoading &&
               clients.data?.data.map((c) => (
@@ -175,8 +184,8 @@ export default function NewSalePage() {
                   className={
                     "w-full text-left rounded-md border-2 transition-colors " +
                     (selectedClientId === c.id
-                      ? "border-[var(--color-primary)] bg-[var(--color-primary-surface)]"
-                      : "border-transparent hover:bg-[var(--color-bg-secondary)]")
+                      ? "border-[var(--wc-purple)] bg-[var(--wc-purple-50)]"
+                      : "border-transparent hover:bg-[var(--wc-bg-muted)]")
                   }
                 >
                   <ListItem
@@ -200,7 +209,7 @@ export default function NewSalePage() {
 
         {step === 2 && (
           <>
-            <h2 className="text-heading-2 text-[var(--color-text-primary)]">
+            <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
               {t("wizard_select_products")}
             </h2>
             <SearchBar
@@ -211,8 +220,8 @@ export default function NewSalePage() {
             />
 
             {cart.length > 0 && (
-              <div className="rounded-md bg-[var(--color-bg-secondary)] p-3 space-y-2">
-                <p className="text-caption text-[var(--color-text-tertiary)]">
+              <div className="rounded-md bg-[var(--wc-bg-muted)] p-3 space-y-2">
+                <p className="text-caption text-[var(--wc-fg-3)]">
                   {t("items")} · {cart.length}
                 </p>
                 {cart.map((item) => (
@@ -220,25 +229,25 @@ export default function NewSalePage() {
                     key={item.productId}
                     className="flex items-center justify-between text-body-small"
                   >
-                    <span className="text-[var(--color-text-primary)] truncate">
+                    <span className="text-[var(--wc-fg-1)] truncate">
                       {item.quantity}× {item.name}
                     </span>
                     <span className="flex items-center gap-2">
-                      <span className="text-[var(--color-text-primary)]">
+                      <span className="text-[var(--wc-fg-1)]">
                         {formatBRL(item.unitPrice * item.quantity)}
                       </span>
                       <button
                         type="button"
                         aria-label="Remove"
                         onClick={() => removeFromCart(item.productId)}
-                        className="text-[var(--color-danger-text)] hover:opacity-70"
+                        className="text-[var(--wc-error)] hover:opacity-70"
                       >
                         ×
                       </button>
                     </span>
                   </div>
                 ))}
-                <div className="flex justify-between border-t border-[var(--color-border-tertiary)] pt-2 text-body-small font-medium text-[var(--color-text-primary)]">
+                <div className="flex justify-between border-t border-[var(--wc-border)] pt-2 text-body-small font-medium text-[var(--wc-fg-1)]">
                   <span>{t("total")}</span>
                   <span>{formatBRL(total)}</span>
                 </div>
@@ -247,7 +256,15 @@ export default function NewSalePage() {
 
             {products.isLoading && <ListSkeleton count={4} />}
             {!products.isLoading && (products.data?.length ?? 0) === 0 && (
-              <EmptyState icon="🛍️" title={t("wizard_no_products")} />
+              <EmptyState
+                icon={
+                  <ShoppingBag
+                    className="h-5 w-5 text-[var(--wc-purple)]"
+                    strokeWidth={1.75}
+                  />
+                }
+                title={t("wizard_no_products")}
+              />
             )}
             {!products.isLoading &&
               products.data?.map((p) => (
@@ -272,12 +289,12 @@ export default function NewSalePage() {
 
         {step === 3 && (
           <>
-            <h2 className="text-heading-2 text-[var(--color-text-primary)]">
+            <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
               {t("wizard_payment_title")}
             </h2>
 
             <div className="space-y-2">
-              <p className="text-caption text-[var(--color-text-tertiary)]">
+              <p className="text-caption text-[var(--wc-fg-3)]">
                 {t("wizard_payment_method")}
               </p>
               <SegmentedControl
@@ -292,7 +309,7 @@ export default function NewSalePage() {
             </div>
 
             <div className="space-y-2">
-              <p className="text-caption text-[var(--color-text-tertiary)]">
+              <p className="text-caption text-[var(--wc-fg-3)]">
                 {t("wizard_delivery_method")}
               </p>
               <SegmentedControl
@@ -307,7 +324,7 @@ export default function NewSalePage() {
             </div>
 
             <div className="space-y-2">
-              <p className="text-caption text-[var(--color-text-tertiary)]">
+              <p className="text-caption text-[var(--wc-fg-3)]">
                 {t("discount")}
               </p>
               <Input
@@ -324,48 +341,40 @@ export default function NewSalePage() {
 
         {step === 4 && (
           <>
-            <h2 className="text-heading-2 text-[var(--color-text-primary)]">
+            <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
               {t("wizard_review_title")}
             </h2>
-            <p className="text-body-small text-[var(--color-text-secondary)]">
+            <p className="text-body-small text-[var(--wc-fg-2)]">
               {t("wizard_review_hint")}
             </p>
-            <div className="space-y-2 rounded-md bg-[var(--color-bg-secondary)] p-3 text-body-small">
+            <div className="space-y-2 rounded-md bg-[var(--wc-bg-muted)] p-3 text-body-small">
               <div className="flex justify-between">
-                <span className="text-[var(--color-text-tertiary)]">
+                <span className="text-[var(--wc-fg-3)]">
                   {t("wizard_step_client")}
                 </span>
-                <span className="text-[var(--color-text-primary)]">
+                <span className="text-[var(--wc-fg-1)]">
                   {selectedClient?.name ?? "—"}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[var(--color-text-tertiary)]">
-                  {t("items")}
-                </span>
-                <span className="text-[var(--color-text-primary)]">
-                  {cart.length}
-                </span>
+                <span className="text-[var(--wc-fg-3)]">{t("items")}</span>
+                <span className="text-[var(--wc-fg-1)]">{cart.length}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[var(--color-text-tertiary)]">
+                <span className="text-[var(--wc-fg-3)]">
                   {t("payment_method")}
                 </span>
-                <span className="text-[var(--color-text-primary)]">
-                  {paymentMethod}
-                </span>
+                <span className="text-[var(--wc-fg-1)]">{paymentMethod}</span>
               </div>
               {discountValue > 0 && (
                 <div className="flex justify-between">
-                  <span className="text-[var(--color-text-tertiary)]">
-                    {t("discount")}
-                  </span>
-                  <span className="text-[var(--color-text-primary)]">
+                  <span className="text-[var(--wc-fg-3)]">{t("discount")}</span>
+                  <span className="text-[var(--wc-fg-1)]">
                     -{formatBRL(discountValue)}
                   </span>
                 </div>
               )}
-              <div className="flex justify-between border-t border-[var(--color-border-tertiary)] pt-2 text-heading-2 text-[var(--color-text-primary)]">
+              <div className="flex justify-between border-t border-[var(--wc-border)] pt-2 text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
                 <span>{t("total")}</span>
                 <span>{formatBRL(finalTotal)}</span>
               </div>

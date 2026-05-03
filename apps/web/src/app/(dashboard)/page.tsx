@@ -2,6 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import {
+  Calendar,
+  MessageSquare,
+  Plus,
+  Sparkles,
+  UserPlus,
+} from "lucide-react";
 import { EmptyState, Skeleton } from "@wbc/ui";
 import { trpc } from "@/lib/trpc";
 import { OnboardingChecklist } from "../../components/onboarding-checklist";
@@ -35,16 +42,23 @@ export default function DashboardPage() {
   const data = dashboard.data;
   const isLoading = dashboard.isLoading;
 
+  const quickActions = [
+    { label: t("new_sale"), Icon: Plus, onClick: goNewSale },
+    { label: t("new_client"), Icon: UserPlus, onClick: goNewClient },
+    { label: t("send_message"), Icon: MessageSquare, onClick: goSendMessage },
+    { label: t("ask_ai"), Icon: Sparkles, onClick: goAskAi },
+  ];
+
   return (
     <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
       <header>
-        <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
+        <h1 className="text-[26px] sm:text-[32px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
           {tCommon("nav_my_day")}
         </h1>
-        <p className="mt-1 text-body-small sm:text-body text-[var(--color-text-secondary)]">
-          {greeting}! <span aria-hidden="true">👋</span>
+        <p className="mt-1 text-[13px] sm:text-[14px] font-light text-[var(--wc-fg-2)]">
+          {greeting}.
         </p>
-        <p className="mt-0.5 text-caption text-[var(--color-text-tertiary)]">
+        <p className="mt-0.5 text-[11px] text-[var(--wc-fg-3)]">
           {t("summary")}
         </p>
       </header>
@@ -52,65 +66,65 @@ export default function DashboardPage() {
       <OnboardingChecklist />
 
       <div className="grid gap-2 sm:gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-lg bg-[var(--color-bg-secondary)] p-3 sm:p-4 space-y-1">
-          <p className="text-caption text-[var(--color-text-tertiary)]">
+        <div className="rounded-wc-lg bg-white border border-[var(--wc-border)] p-4 sm:p-5 space-y-1 shadow-wc-xs">
+          <p className="text-[10px] uppercase tracking-[0.06em] font-medium text-[var(--wc-fg-3)]">
             {t("sales_month")}
           </p>
           {isLoading ? (
             <Skeleton className="h-8 w-20" />
           ) : (
             <p
-              className="text-heading-3 sm:text-heading-2 text-[var(--color-text-primary)]"
+              className="text-[20px] sm:text-[26px] font-semibold tracking-tight text-[var(--wc-fg-1)]"
               style={{ fontVariantNumeric: "tabular-nums" }}
             >
               {data?.salesThisMonth ?? 0}
             </p>
           )}
         </div>
-        <div className="rounded-lg bg-[var(--color-bg-secondary)] p-3 sm:p-4 space-y-1">
-          <p className="text-caption text-[var(--color-text-tertiary)]">
+        <div className="rounded-wc-lg bg-white border border-[var(--wc-border)] p-4 sm:p-5 space-y-1 shadow-wc-xs">
+          <p className="text-[10px] uppercase tracking-[0.06em] font-medium text-[var(--wc-fg-3)]">
             {t("revenue")}
           </p>
           {isLoading ? (
             <Skeleton className="h-8 w-28" />
           ) : (
             <p
-              className="text-heading-3 sm:text-heading-2 text-[var(--color-text-primary)]"
+              className="text-[20px] sm:text-[26px] font-semibold tracking-tight text-[var(--wc-fg-1)]"
               style={{ fontVariantNumeric: "tabular-nums" }}
             >
               {formatBRL(Number(data?.revenue ?? 0))}
             </p>
           )}
         </div>
-        <div className="rounded-lg bg-[var(--color-bg-secondary)] p-3 sm:p-4 space-y-1">
-          <p className="text-caption text-[var(--color-text-tertiary)]">
+        <div className="rounded-wc-lg bg-white border border-[var(--wc-border)] p-4 sm:p-5 space-y-1 shadow-wc-xs">
+          <p className="text-[10px] uppercase tracking-[0.06em] font-medium text-[var(--wc-fg-3)]">
             {t("reminders")}
           </p>
           {isLoading ? (
             <Skeleton className="h-8 w-12" />
           ) : (
             <p
-              className="text-heading-3 sm:text-heading-2 text-[var(--color-text-primary)]"
+              className="text-[20px] sm:text-[26px] font-semibold tracking-tight text-[var(--wc-fg-1)]"
               style={{ fontVariantNumeric: "tabular-nums" }}
             >
               {data?.pendingReminders ?? 0}
             </p>
           )}
           {(data?.pendingReminders ?? 0) > 0 && (
-            <p className="text-caption text-[var(--color-warning)]">
+            <p className="text-[11px] font-medium text-[var(--wc-warning)]">
               {t("pending")}
             </p>
           )}
         </div>
-        <div className="rounded-lg bg-[var(--color-bg-secondary)] p-3 sm:p-4 space-y-1">
-          <p className="text-caption text-[var(--color-text-tertiary)]">
+        <div className="rounded-wc-lg bg-white border border-[var(--wc-border)] p-4 sm:p-5 space-y-1 shadow-wc-xs">
+          <p className="text-[10px] uppercase tracking-[0.06em] font-medium text-[var(--wc-fg-3)]">
             {t("today")}
           </p>
           {isLoading ? (
             <Skeleton className="h-8 w-12" />
           ) : (
             <p
-              className="text-heading-3 sm:text-heading-2 text-[var(--color-text-primary)]"
+              className="text-[20px] sm:text-[26px] font-semibold tracking-tight text-[var(--wc-fg-1)]"
               style={{ fontVariantNumeric: "tabular-nums" }}
             >
               {data?.upcomingAppointments ?? 0}
@@ -120,76 +134,42 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-3 sm:gap-4 lg:grid-cols-2">
-        <div className="rounded-lg bg-[var(--color-bg-primary)] border border-[var(--color-border-secondary)] p-4 sm:p-5 space-y-4">
-          <h2 className="text-heading-3 text-[var(--color-text-primary)]">
+        <div className="rounded-wc-lg bg-white border border-[var(--wc-border)] p-4 sm:p-5 space-y-4 shadow-wc-xs">
+          <h2 className="text-[15px] font-medium text-[var(--wc-fg-1)]">
             {t("quick_actions")}
           </h2>
           <div className="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              onClick={goNewSale}
-              aria-label={t("new_sale")}
-              className="flex items-center gap-3 rounded-md bg-[var(--color-primary-surface)] p-3 text-body-small text-[var(--color-primary)] hover:bg-[var(--color-primary-surface-hover)] transition-all duration-150 active:scale-[0.98] active:opacity-90 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-offset-2"
-            >
-              <span
-                aria-hidden="true"
-                className="flex h-9 w-9 items-center justify-center rounded-md bg-[var(--color-primary)] text-white text-lg"
+            {quickActions.map(({ label, Icon, onClick }) => (
+              <button
+                key={label}
+                type="button"
+                onClick={onClick}
+                aria-label={label}
+                className="flex items-center gap-3 rounded-wc-sm bg-[var(--wc-purple-50)] p-3 text-[13px] font-medium text-[var(--wc-purple)] hover:bg-[var(--wc-purple-100)] transition-all duration-wc-2 active:scale-[0.98]"
               >
-                +
-              </span>
-              {t("new_sale")}
-            </button>
-            <button
-              type="button"
-              onClick={goNewClient}
-              aria-label={t("new_client")}
-              className="flex items-center gap-3 rounded-md bg-[var(--color-primary-surface)] p-3 text-body-small text-[var(--color-primary)] hover:bg-[var(--color-primary-surface-hover)] transition-all duration-150 active:scale-[0.98] active:opacity-90 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-offset-2"
-            >
-              <span
-                aria-hidden="true"
-                className="flex h-9 w-9 items-center justify-center rounded-md bg-[var(--color-primary)] text-white text-lg"
-              >
-                👤
-              </span>
-              {t("new_client")}
-            </button>
-            <button
-              type="button"
-              onClick={goSendMessage}
-              aria-label={t("send_message")}
-              className="flex items-center gap-3 rounded-md bg-[var(--color-primary-surface)] p-3 text-body-small text-[var(--color-primary)] hover:bg-[var(--color-primary-surface-hover)] transition-all duration-150 active:scale-[0.98] active:opacity-90 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-offset-2"
-            >
-              <span
-                aria-hidden="true"
-                className="flex h-9 w-9 items-center justify-center rounded-md bg-[var(--color-primary)] text-white text-lg"
-              >
-                💬
-              </span>
-              {t("send_message")}
-            </button>
-            <button
-              type="button"
-              onClick={goAskAi}
-              aria-label={t("ask_ai")}
-              className="flex items-center gap-3 rounded-md bg-[var(--color-primary-surface)] p-3 text-body-small text-[var(--color-primary)] hover:bg-[var(--color-primary-surface-hover)] transition-all duration-150 active:scale-[0.98] active:opacity-90 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] focus:ring-offset-2"
-            >
-              <span
-                aria-hidden="true"
-                className="flex h-9 w-9 items-center justify-center rounded-md bg-[var(--color-primary)] text-white text-lg"
-              >
-                ✨
-              </span>
-              {t("ask_ai")}
-            </button>
+                <span
+                  aria-hidden="true"
+                  className="flex h-9 w-9 items-center justify-center rounded-wc-sm bg-[var(--wc-purple)] text-white"
+                >
+                  <Icon className="h-4 w-4" strokeWidth={2} />
+                </span>
+                {label}
+              </button>
+            ))}
           </div>
         </div>
 
-        <div className="rounded-lg bg-[var(--color-bg-primary)] border border-[var(--color-border-secondary)] p-4 sm:p-5 space-y-4">
-          <h2 className="text-heading-3 text-[var(--color-text-primary)]">
+        <div className="rounded-wc-lg bg-white border border-[var(--wc-border)] p-4 sm:p-5 space-y-4 shadow-wc-xs">
+          <h2 className="text-[15px] font-medium text-[var(--wc-fg-1)]">
             {t("today")}
           </h2>
           <EmptyState
-            icon="📅"
+            icon={
+              <Calendar
+                className="h-5 w-5 text-[var(--wc-purple)]"
+                strokeWidth={1.75}
+              />
+            }
             title={t("summary")}
             description={t("pending")}
           />

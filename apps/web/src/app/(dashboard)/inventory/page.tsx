@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { Package, Truck } from "lucide-react";
 import {
   Badge,
   Button,
@@ -31,15 +32,15 @@ export default function InventoryPage() {
   });
 
   return (
-    <div className="p-3 sm:p-6 space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
+    <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
+      <header className="flex items-center justify-between">
+        <h1 className="text-[26px] sm:text-[32px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
           {t("title")}
         </h1>
         <Button type="button" size="sm">
           {t("new_order")}
         </Button>
-      </div>
+      </header>
 
       <SegmentedControl
         value={filter}
@@ -51,14 +52,19 @@ export default function InventoryPage() {
         ]}
       />
 
-      <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-2 sm:p-4">
-        <h2 className="text-heading-2 text-[var(--color-text-primary)] mb-3">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-3 sm:p-5">
+        <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)] mb-3">
           {t("stock")}
         </h2>
         {stock.isLoading && <ListSkeleton count={6} />}
         {!stock.isLoading && filtered.length === 0 && (
           <EmptyState
-            icon="📦"
+            icon={
+              <Package
+                className="h-5 w-5 text-[var(--wc-purple)]"
+                strokeWidth={1.75}
+              />
+            }
             title={t("no_stock")}
             description={t("no_stock_hint")}
           />
@@ -88,13 +94,21 @@ export default function InventoryPage() {
           })}
       </section>
 
-      <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-2 sm:p-4">
-        <h2 className="text-heading-2 text-[var(--color-text-primary)] mb-3">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-3 sm:p-5">
+        <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)] mb-3">
           {t("orders")}
         </h2>
         {orders.isLoading && <ListSkeleton count={3} />}
         {!orders.isLoading && ordersData.length === 0 && (
-          <EmptyState icon="🚚" title={t("no_stock")} />
+          <EmptyState
+            icon={
+              <Truck
+                className="h-5 w-5 text-[var(--wc-purple)]"
+                strokeWidth={1.75}
+              />
+            }
+            title={t("no_stock")}
+          />
         )}
         {!orders.isLoading &&
           ordersData.map((o) => (

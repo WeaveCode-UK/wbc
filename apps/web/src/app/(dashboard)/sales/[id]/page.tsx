@@ -13,6 +13,7 @@ import {
   ListSkeleton,
   MetricCard,
 } from "@wbc/ui";
+import { CreditCard, Receipt } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useToast } from "@/providers/toast-provider";
 import { PixModal } from "../../../../components/pix-modal";
@@ -140,7 +141,7 @@ export default function SaleDetailPage() {
       <div className="p-3 sm:p-6 space-y-4">
         <Link
           href="/sales"
-          className="text-body-small text-[var(--color-primary)] hover:underline"
+          className="text-body-small text-[var(--wc-purple)] hover:underline"
         >
           ← {t("title")}
         </Link>
@@ -157,17 +158,17 @@ export default function SaleDetailPage() {
     <div className="p-3 sm:p-6 space-y-4">
       <Link
         href="/sales"
-        className="text-body-small text-[var(--color-primary)] hover:underline"
+        className="text-body-small text-[var(--wc-purple)] hover:underline"
       >
         ← {t("title")}
       </Link>
 
       <header className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-1">
-          <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
+          <h1 className="text-[26px] sm:text-[32px] font-semibold tracking-tight tabular-nums text-[var(--wc-fg-1)]">
             {formatBRL(data.total)}
           </h1>
-          <p className="text-caption text-[var(--color-text-tertiary)]">
+          <p className="text-[13px] sm:text-[14px] font-light text-[var(--wc-fg-2)]">
             {formatDate(data.createdAt)}
             {data.paymentMethod ? ` · ${data.paymentMethod}` : ""}
             {data.client?.name ? ` · ${data.client.name}` : ""}
@@ -182,12 +183,20 @@ export default function SaleDetailPage() {
         <MetricCard label="Parcelas" value={String(paymentList.length)} />
       </div>
 
-      <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-2 sm:p-4">
-        <h2 className="px-2 text-heading-3 text-[var(--color-text-primary)]">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-2 sm:p-4">
+        <h2 className="px-2 text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
           Itens
         </h2>
         {itemList.length === 0 ? (
-          <EmptyState icon="🧾" title="Sem itens" />
+          <EmptyState
+            icon={
+              <Receipt
+                className="h-5 w-5 text-[var(--wc-purple)]"
+                strokeWidth={1.75}
+              />
+            }
+            title="Sem itens"
+          />
         ) : (
           itemList.map((it) => (
             <ListItem
@@ -195,7 +204,7 @@ export default function SaleDetailPage() {
               title={it.productName ?? "Item"}
               subtitle={`${it.quantity} × ${formatBRL(it.unitPrice)}`}
               right={
-                <span className="text-body-small font-medium text-[var(--color-text-primary)]">
+                <span className="text-body-small font-medium text-[var(--wc-fg-1)]">
                   {formatBRL(Number(it.unitPrice) * it.quantity)}
                 </span>
               }
@@ -204,13 +213,21 @@ export default function SaleDetailPage() {
         )}
       </section>
 
-      <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-2 sm:p-4">
-        <h2 className="px-2 text-heading-3 text-[var(--color-text-primary)]">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-2 sm:p-4">
+        <h2 className="px-2 text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
           Cobranças
         </h2>
         {payments.isLoading && <ListSkeleton count={2} />}
         {!payments.isLoading && paymentList.length === 0 && (
-          <EmptyState icon="💳" title="Sem cobranças" />
+          <EmptyState
+            icon={
+              <CreditCard
+                className="h-5 w-5 text-[var(--wc-purple)]"
+                strokeWidth={1.75}
+              />
+            }
+            title="Sem cobranças"
+          />
         )}
         {!payments.isLoading &&
           paymentList.map((p) => {

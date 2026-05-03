@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { FileText, Heart } from "lucide-react";
 import {
   Alert,
   Badge,
@@ -64,7 +65,7 @@ export default function TemplatesPage() {
 
   return (
     <div className="p-3 sm:p-6 space-y-4">
-      <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
+      <h1 className="text-[26px] sm:text-[32px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
         Templates de mensagem
       </h1>
 
@@ -79,7 +80,7 @@ export default function TemplatesPage() {
 
       {tab === "personal" && (
         <>
-          <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4 space-y-3">
+          <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white p-4 space-y-3 shadow-wc-xs">
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -94,7 +95,7 @@ export default function TemplatesPage() {
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder="Mensagem (use {{nome}})"
-              className="w-full min-h-[80px] rounded-md border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-2 text-body-small text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+              className="w-full min-h-[80px] rounded-md border border-[var(--wc-border)] bg-white p-2 text-body-small text-[var(--wc-fg-1)] focus:outline-none focus:ring-2 focus:ring-[var(--wc-purple)]"
             />
             {create.error && (
               <Alert variant="danger">{create.error.message}</Alert>
@@ -110,10 +111,18 @@ export default function TemplatesPage() {
             </Button>
           </section>
 
-          <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-2 sm:p-4">
+          <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white p-2 sm:p-4 shadow-wc-xs">
             {list.isLoading && <ListSkeleton count={3} />}
             {!list.isLoading && templates.length === 0 && (
-              <EmptyState icon="📝" title="Nenhum template" />
+              <EmptyState
+                icon={
+                  <FileText
+                    className="h-5 w-5 text-[var(--wc-purple)]"
+                    strokeWidth={1.75}
+                  />
+                }
+                title="Nenhum template"
+              />
             )}
             {templates.map((tpl) => (
               <ListItem
@@ -155,10 +164,18 @@ export default function TemplatesPage() {
       )}
 
       {tab === "community" && (
-        <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-2 sm:p-4">
+        <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white p-2 sm:p-4 shadow-wc-xs">
           {community.isLoading && <ListSkeleton count={3} />}
           {!community.isLoading && feed.length === 0 && (
-            <EmptyState icon="💜" title="Feed vazio" />
+            <EmptyState
+              icon={
+                <Heart
+                  className="h-5 w-5 text-[var(--wc-purple)]"
+                  strokeWidth={1.75}
+                />
+              }
+              title="Feed vazio"
+            />
           )}
           {feed.map((tpl) => (
             <ListItem
@@ -166,8 +183,12 @@ export default function TemplatesPage() {
               title={tpl.text.slice(0, 80)}
               subtitle={tpl.topic ?? ""}
               right={
-                <span className="text-caption text-[var(--color-text-tertiary)]">
-                  ❤️ {tpl.likes ?? 0}
+                <span className="text-caption text-[var(--wc-fg-3)]">
+                  <Heart
+                    className="inline h-3 w-3 mr-1 text-[var(--wc-error)]"
+                    strokeWidth={1.75}
+                  />{" "}
+                  {tpl.likes ?? 0}
                 </span>
               }
             />

@@ -22,8 +22,10 @@ function InviteContent() {
   if (!token) {
     return (
       <div className="text-center">
-        <h1 className="text-2xl font-bold">{t("invite.invalidTitle")}</h1>
-        <p className="mt-2 text-muted-foreground">
+        <h1 className="text-[26px] font-semibold tracking-tight text-text-primary">
+          {t("invite.invalidTitle")}
+        </h1>
+        <p className="mt-2 text-text-tertiary">
           {t("invite.invalidDescription")}
         </p>
       </div>
@@ -56,8 +58,10 @@ function InviteContent() {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h1 className="text-2xl font-bold">{t("invite.title")}</h1>
-        <p className="mt-2 text-muted-foreground">{t("invite.subtitle")}</p>
+        <h1 className="text-[26px] font-semibold tracking-tight text-text-primary">
+          {t("invite.title")}
+        </h1>
+        <p className="mt-2 text-text-tertiary">{t("invite.subtitle")}</p>
       </div>
 
       <div className="space-y-4">
@@ -79,7 +83,7 @@ function InviteContent() {
             minLength={10}
           />
         </div>
-        {error && <p className="text-sm text-destructive">{error}</p>}
+        {error && <p className="text-sm text-danger">{error}</p>}
         <Button
           className="w-full"
           onClick={handleAccept}

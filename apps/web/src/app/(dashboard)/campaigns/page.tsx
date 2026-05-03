@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { Lock, Megaphone } from "lucide-react";
 import {
   Alert,
   Badge,
@@ -66,7 +67,7 @@ export default function CampaignsPage() {
   return (
     <div className="p-3 sm:p-6 space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
+        <h1 className="text-[26px] sm:text-[32px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
           {t("title")}
         </h1>
         <Link href="/campaigns/new">
@@ -77,7 +78,12 @@ export default function CampaignsPage() {
       </div>
 
       {campaignsLocked && (
-        <Alert variant="warning">🔒 {t("no_campaigns_hint")}</Alert>
+        <Alert
+          variant="warning"
+          icon={<Lock className="h-4 w-4" strokeWidth={1.75} />}
+        >
+          {t("no_campaigns_hint")}
+        </Alert>
       )}
 
       <SegmentedControl
@@ -91,12 +97,17 @@ export default function CampaignsPage() {
         ]}
       />
 
-      <div className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-2 sm:p-4">
+      <div className="rounded-wc-lg border border-[var(--wc-border)] bg-white p-2 sm:p-4 shadow-wc-xs">
         {list.isLoading && <ListSkeleton count={4} />}
 
         {!list.isLoading && data.length === 0 && (
           <EmptyState
-            icon="📣"
+            icon={
+              <Megaphone
+                className="h-5 w-5 text-[var(--wc-purple)]"
+                strokeWidth={1.75}
+              />
+            }
             title={t("no_campaigns")}
             description={t("no_campaigns_hint")}
             action={

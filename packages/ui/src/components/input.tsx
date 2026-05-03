@@ -1,4 +1,5 @@
 import { forwardRef, useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { cn } from "../lib/utils";
 import type { InputHTMLAttributes } from "react";
 
@@ -70,9 +71,21 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               aria-pressed={revealed}
               aria-controls={inputId}
               onClick={() => setRevealed((v) => !v)}
-              className="absolute inset-y-0 right-0 flex min-h-[44px] min-w-[44px] items-center justify-center px-3 text-caption text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] rounded-md"
+              className="absolute inset-y-0 right-0 flex min-h-[44px] min-w-[44px] items-center justify-center px-3 text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] rounded-md"
             >
-              <span aria-hidden="true">{revealed ? "🙈" : "👁"}</span>
+              {revealed ? (
+                <EyeOff
+                  aria-hidden="true"
+                  className="h-4 w-4"
+                  strokeWidth={1.75}
+                />
+              ) : (
+                <Eye
+                  aria-hidden="true"
+                  className="h-4 w-4"
+                  strokeWidth={1.75}
+                />
+              )}
             </button>
           )}
         </div>

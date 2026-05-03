@@ -47,7 +47,7 @@ export default function WorkspaceSelectorPage() {
   if (loading) {
     return (
       <div className="text-center">
-        <p className="text-muted-foreground">{t("workspace.loading")}</p>
+        <p className="text-text-tertiary">{t("workspace.loading")}</p>
       </div>
     );
   }
@@ -55,8 +55,10 @@ export default function WorkspaceSelectorPage() {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h1 className="text-2xl font-bold">{t("workspace.title")}</h1>
-        <p className="mt-2 text-muted-foreground">{t("workspace.subtitle")}</p>
+        <h1 className="text-[26px] font-semibold tracking-tight text-text-primary">
+          {t("workspace.title")}
+        </h1>
+        <p className="mt-2 text-text-tertiary">{t("workspace.subtitle")}</p>
       </div>
 
       <div className="space-y-3">
@@ -70,7 +72,7 @@ export default function WorkspaceSelectorPage() {
           >
             <div className="text-left">
               <p className="font-medium">{ws.tenantName}</p>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-text-tertiary">
                 {ws.role} · {ws.plan}
               </p>
             </div>

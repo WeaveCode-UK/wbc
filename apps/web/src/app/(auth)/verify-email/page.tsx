@@ -14,8 +14,10 @@ function VerifyEmailContent() {
   if (!token) {
     return (
       <div className="text-center space-y-4">
-        <h1 className="text-2xl font-bold">{t("verifyEmail.invalidTitle")}</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-[26px] font-semibold tracking-tight text-text-primary">
+          {t("verifyEmail.invalidTitle")}
+        </h1>
+        <p className="text-text-tertiary">
           {t("verifyEmail.invalidDescription")}
         </p>
         <Link href="/login">
@@ -27,8 +29,10 @@ function VerifyEmailContent() {
 
   return (
     <div className="text-center space-y-4">
-      <h1 className="text-2xl font-bold">{t("verifyEmail.title")}</h1>
-      <p className="text-muted-foreground">{t("verifyEmail.description")}</p>
+      <h1 className="text-[26px] font-semibold tracking-tight text-text-primary">
+        {t("verifyEmail.title")}
+      </h1>
+      <p className="text-text-tertiary">{t("verifyEmail.description")}</p>
       <Link href="/">
         <Button>{t("verifyEmail.continue")}</Button>
       </Link>

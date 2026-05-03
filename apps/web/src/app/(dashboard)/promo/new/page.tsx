@@ -36,22 +36,22 @@ export default function NewPromoCardPage() {
     <div className="p-3 sm:p-6 space-y-4">
       <Link
         href="/campaigns"
-        className="text-body-small text-[var(--color-primary)] hover:underline"
+        className="text-[13px] text-[var(--wc-purple)] hover:underline"
       >
         ← Campanhas
       </Link>
 
       <header>
-        <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
-          🎨 Card promocional
+        <h1 className="text-[26px] sm:text-[32px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
+          Card promocional
         </h1>
-        <p className="text-caption text-[var(--color-text-tertiary)]">
+        <p className="text-[13px] sm:text-[14px] font-light text-[var(--wc-fg-2)]">
           1080×1080 · pronto pra Instagram, Stories e WhatsApp
         </p>
       </header>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4 space-y-4">
+        <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 space-y-4">
           <div className="space-y-1">
             <Label>Template</Label>
             <SegmentedControl
@@ -120,12 +120,12 @@ export default function NewPromoCardPage() {
           </Button>
         </section>
 
-        <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4 space-y-3">
-          <h2 className="text-heading-2 text-[var(--color-text-primary)]">
+        <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 space-y-3">
+          <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
             Pré-visualização
           </h2>
           {!dataUrl && (
-            <div className="aspect-square rounded-md bg-[var(--color-bg-secondary)] flex items-center justify-center text-[var(--color-text-tertiary)]">
+            <div className="aspect-square rounded-md bg-[var(--wc-bg-muted)] flex items-center justify-center text-[var(--wc-fg-3)]">
               {tCommon("loading")}
             </div>
           )}

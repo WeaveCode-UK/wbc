@@ -52,16 +52,16 @@ export default function ClientsQrPage() {
     <div className="p-3 sm:p-6 space-y-4">
       <Link
         href="/clients"
-        className="text-body-small text-[var(--color-primary)] hover:underline"
+        className="text-[13px] text-[var(--wc-purple)] hover:underline"
       >
         ← {t("title")}
       </Link>
 
       <header>
-        <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
+        <h1 className="text-[26px] sm:text-[32px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
           QR Code
         </h1>
-        <p className="text-caption text-[var(--color-text-tertiary)]">
+        <p className="mt-1 text-[13px] sm:text-[14px] font-light text-[var(--wc-fg-2)]">
           {t("import")}
         </p>
       </header>
@@ -71,7 +71,7 @@ export default function ClientsQrPage() {
       {renderError && <Alert variant="danger">{renderError}</Alert>}
 
       {dataUrl && (
-        <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4 flex flex-col items-center gap-3">
+        <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-4 flex flex-col items-center gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={dataUrl}
@@ -80,7 +80,7 @@ export default function ClientsQrPage() {
             height={320}
             className="rounded-md"
           />
-          <p className="text-body-small text-[var(--color-text-primary)] break-all text-center">
+          <p className="text-[13px] text-[var(--wc-fg-1)] break-all text-center">
             {url}
           </p>
           <div className="flex gap-2">

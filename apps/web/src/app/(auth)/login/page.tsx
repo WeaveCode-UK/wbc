@@ -1,39 +1,50 @@
-import Link from 'next/link';
-import { useTranslations } from 'next-intl';
-import { GoogleLoginButton } from '@/components/auth/google-login-button';
-import { CredentialsForm } from '@/components/auth/credentials-form';
+import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { GoogleLoginButton } from "@/components/auth/google-login-button";
+import { CredentialsForm } from "@/components/auth/credentials-form";
 
 export default function LoginPage() {
-  const t = useTranslations('auth');
+  const t = useTranslations("auth");
 
   return (
     <>
-      <div className="text-center">
-        <h1 className="text-2xl font-bold">{t('login.title')}</h1>
+      <header>
+        <h1 className="text-[26px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
+          {t("login.title")}
+        </h1>
+        <p className="mt-1 text-[13px] font-light text-[var(--wc-fg-3)]">
+          {t("login.noAccount")}{" "}
+          <Link
+            href="/register"
+            className="font-medium text-[var(--wc-purple)] hover:text-[var(--wc-purple-600)]"
+          >
+            {t("login.createAccount")}
+          </Link>
+        </p>
+      </header>
+
+      <CredentialsForm mode="login" />
+
+      <div className="flex items-center gap-3 text-[11px] uppercase tracking-[0.1em] text-[var(--wc-fg-3)]">
+        <span
+          className="h-px flex-1 bg-[var(--wc-border)]"
+          aria-hidden="true"
+        />
+        {t("login.or")}
+        <span
+          className="h-px flex-1 bg-[var(--wc-border)]"
+          aria-hidden="true"
+        />
       </div>
 
       <GoogleLoginButton />
 
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2 text-muted-foreground">{t('login.or')}</span>
-        </div>
-      </div>
-
-      <CredentialsForm mode="login" />
-
-      <div className="text-center text-sm">
-        <Link href="/reset-password" className="text-primary hover:underline">
-          {t('login.forgotPassword')}
-        </Link>
-      </div>
-      <div className="text-center text-sm">
-        <span className="text-muted-foreground">{t('login.noAccount')}</span>{' '}
-        <Link href="/register" className="text-primary hover:underline">
-          {t('login.createAccount')}
+      <div className="text-center text-[12px]">
+        <Link
+          href="/reset-password"
+          className="font-medium text-[var(--wc-purple)] hover:text-[var(--wc-purple-600)]"
+        >
+          {t("login.forgotPassword")}
         </Link>
       </div>
     </>

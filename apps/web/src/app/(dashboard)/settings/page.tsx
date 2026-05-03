@@ -56,14 +56,14 @@ export default function SettingsPage() {
 
   return (
     <div className="p-3 sm:p-6">
-      <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
+      <h1 className="text-[26px] sm:text-[32px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
         {t("settings")}
       </h1>
 
       <div
         role="tablist"
         aria-label={t("settings")}
-        className="mt-4 flex gap-1 overflow-x-auto border-b border-[var(--color-border-tertiary)]"
+        className="mt-4 flex gap-1 overflow-x-auto border-b border-[var(--wc-border)]"
       >
         {TABS.map((tab) => {
           const isActive = active === tab.id;
@@ -77,10 +77,10 @@ export default function SettingsPage() {
               id={`settings-tab-${tab.id}`}
               onClick={() => setActive(tab.id)}
               className={
-                "relative whitespace-nowrap px-4 py-2 text-body-small font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] rounded-t-md " +
+                "relative whitespace-nowrap px-4 py-2 text-[13px] font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--wc-purple)] rounded-t-md " +
                 (isActive
-                  ? "text-[var(--color-primary)] after:absolute after:inset-x-0 after:-bottom-px after:h-0.5 after:bg-[var(--color-primary)]"
-                  : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]")
+                  ? "text-[var(--wc-purple)] after:absolute after:inset-x-0 after:-bottom-px after:h-0.5 after:bg-[var(--wc-purple)]"
+                  : "text-[var(--wc-fg-2)] hover:text-[var(--wc-fg-1)]")
               }
             >
               {t(tab.key)}
@@ -98,22 +98,22 @@ export default function SettingsPage() {
         {active === "profile" && <ProfileSettingsForm />}
 
         {active === "plan" && (
-          <div className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-6 space-y-2">
-            <h2 className="text-heading-3 text-[var(--color-text-primary)]">
+          <div className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 sm:p-6 space-y-2">
+            <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
               {t("plan")}
             </h2>
-            <p className="text-body-small text-[var(--color-text-tertiary)]">
+            <p className="text-[13px] text-[var(--wc-fg-3)]">
               {t("plan_hint")}
             </p>
           </div>
         )}
 
         {active === "landing" && (
-          <div className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-6 space-y-3">
-            <h2 className="text-heading-3 text-[var(--color-text-primary)]">
+          <div className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 sm:p-6 space-y-3">
+            <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
               {t("landing_page")}
             </h2>
-            <p className="text-body-small text-[var(--color-text-tertiary)]">
+            <p className="text-[13px] text-[var(--wc-fg-3)]">
               {t("landing_page_hint")}
             </p>
             <Link href="/landing">
@@ -125,11 +125,11 @@ export default function SettingsPage() {
         )}
 
         {active === "pix" && (
-          <div className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-6 space-y-3">
-            <h2 className="text-heading-3 text-[var(--color-text-primary)]">
+          <div className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 sm:p-6 space-y-3">
+            <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
               {t("pix_settings")}
             </h2>
-            <p className="text-body-small text-[var(--color-text-tertiary)]">
+            <p className="text-[13px] text-[var(--wc-fg-3)]">
               {t("pix_settings_hint")}
             </p>
             <Link href="/settings/pix">
@@ -141,11 +141,11 @@ export default function SettingsPage() {
         )}
 
         {active === "export" && (
-          <div className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-6 space-y-3">
-            <h2 className="text-heading-3 text-[var(--color-text-primary)]">
+          <div className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 sm:p-6 space-y-3">
+            <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
               {t("export_data")}
             </h2>
-            <p className="text-body-small text-[var(--color-text-tertiary)]">
+            <p className="text-[13px] text-[var(--wc-fg-3)]">
               {t("export_data_hint")}
             </p>
             {exportNotice && (
@@ -161,10 +161,8 @@ export default function SettingsPage() {
             >
               {exportMutation.isFetching ? "..." : t("export_data")}
             </Button>
-            <div className="border-t border-[var(--color-border-tertiary)] pt-3 space-y-1">
-              <p className="text-caption text-[var(--color-text-tertiary)]">
-                Referral
-              </p>
+            <div className="border-t border-[var(--wc-border)] pt-3 space-y-1">
+              <p className="text-[12px] text-[var(--wc-fg-3)]">Referral</p>
               <Button
                 type="button"
                 variant="ghost"
@@ -183,11 +181,11 @@ export default function SettingsPage() {
         )}
 
         {active === "theme" && (
-          <div className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-6 space-y-3">
-            <h2 className="text-heading-3 text-[var(--color-text-primary)]">
+          <div className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 sm:p-6 space-y-3">
+            <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
               {t("theme_title")}
             </h2>
-            <p className="text-body-small text-[var(--color-text-tertiary)]">
+            <p className="text-[13px] text-[var(--wc-fg-3)]">
               {t("theme_subtitle")}
             </p>
             <Link href="/settings/theme">

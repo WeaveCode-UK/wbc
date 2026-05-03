@@ -62,12 +62,12 @@ export default function PixSettingsPage() {
     <div className="p-3 sm:p-6 space-y-4">
       <Link
         href="/settings"
-        className="text-body-small text-[var(--color-primary)] hover:underline"
+        className="text-[13px] text-[var(--wc-purple)] hover:underline"
       >
         ← {tCommon("back")}
       </Link>
 
-      <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
+      <h1 className="text-[26px] sm:text-[32px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
         PIX
       </h1>
 
@@ -77,11 +77,11 @@ export default function PixSettingsPage() {
         intermediar pagamento.
       </Alert>
 
-      <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4 sm:p-6 space-y-4">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 sm:p-6 space-y-4">
         <div className="space-y-1">
           <label
             htmlFor="pix-key-type"
-            className="block text-caption text-[var(--color-text-tertiary)]"
+            className="block text-[12px] text-[var(--wc-fg-3)]"
           >
             Tipo de chave
           </label>
@@ -89,7 +89,7 @@ export default function PixSettingsPage() {
             id="pix-key-type"
             value={pixKeyType}
             onChange={(e) => setPixKeyType(e.target.value as KeyType)}
-            className="h-10 w-full rounded-md border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] px-3 text-body-small text-[var(--color-text-primary)]"
+            className="h-10 w-full rounded-md border border-[var(--wc-border)] bg-white px-3 text-[13px] text-[var(--wc-fg-1)]"
           >
             {KEY_TYPES.map((t) => (
               <option key={t.value} value={t.value}>

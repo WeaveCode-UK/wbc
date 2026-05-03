@@ -105,16 +105,16 @@ export default function NewCampaignPage() {
     <div className="p-3 sm:p-6 space-y-6">
       <Link
         href="/campaigns"
-        className="text-body-small text-[var(--color-primary)] hover:underline"
+        className="text-body-small text-[var(--wc-purple)] hover:underline"
       >
         ← {t("back_to_list")}
       </Link>
 
       <header className="flex items-center justify-between">
-        <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
+        <h1 className="text-[26px] sm:text-[32px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
           {t("new_campaign")}
         </h1>
-        <span className="text-caption text-[var(--color-text-tertiary)]">
+        <span className="text-caption text-[var(--wc-fg-3)]">
           {step}/{TOTAL_STEPS} · {stepTitle}
         </span>
       </header>
@@ -123,10 +123,10 @@ export default function NewCampaignPage() {
 
       {submitError && <Alert variant="danger">{submitError}</Alert>}
 
-      <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4 space-y-4">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white p-4 space-y-4 shadow-wc-xs">
         {step === 1 && (
           <>
-            <h2 className="text-heading-2 text-[var(--color-text-primary)]">
+            <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
               {t("recipients")}
             </h2>
             <SegmentedControl
@@ -162,8 +162,8 @@ export default function NewCampaignPage() {
                       className={
                         "w-full text-left rounded-md border-2 transition-colors " +
                         (selectedClientIds.has(c.id)
-                          ? "border-[var(--color-primary)] bg-[var(--color-primary-surface)]"
-                          : "border-transparent hover:bg-[var(--color-bg-secondary)]")
+                          ? "border-[var(--wc-purple)] bg-[var(--wc-purple-50)]"
+                          : "border-transparent hover:bg-[var(--wc-bg-muted)]")
                       }
                     >
                       <ListItem
@@ -176,7 +176,7 @@ export default function NewCampaignPage() {
               </div>
             )}
 
-            <p className="text-body-small text-[var(--color-text-secondary)]">
+            <p className="text-body-small text-[var(--wc-fg-2)]">
               {recipientCount} {t("wizard_recipients_summary")}
             </p>
           </>
@@ -184,14 +184,12 @@ export default function NewCampaignPage() {
 
         {step === 2 && (
           <>
-            <h2 className="text-heading-2 text-[var(--color-text-primary)]">
+            <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
               {t("wizard_message_title")}
             </h2>
 
             <div className="space-y-1">
-              <p className="text-caption text-[var(--color-text-tertiary)]">
-                {t("title")}
-              </p>
+              <p className="text-caption text-[var(--wc-fg-3)]">{t("title")}</p>
               <Input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -203,14 +201,14 @@ export default function NewCampaignPage() {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder={t("wizard_message_placeholder")}
-              className="w-full min-h-[120px] rounded-md border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-3 text-body-small text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+              className="w-full min-h-[120px] rounded-md border border-[var(--wc-border)] bg-white p-3 text-body-small text-[var(--wc-fg-1)] placeholder:text-[var(--wc-fg-3)] focus:outline-none focus:ring-2 focus:ring-[var(--wc-purple)]"
             />
-            <p className="text-caption text-[var(--color-text-tertiary)]">
+            <p className="text-caption text-[var(--wc-fg-3)]">
               {t("wizard_message_variables")}
             </p>
 
-            <div className="rounded-md bg-[var(--color-primary-surface)] p-3">
-              <p className="text-body-small text-[var(--color-primary)]">
+            <div className="rounded-md bg-[var(--wc-purple-50)] p-3">
+              <p className="text-body-small text-[var(--wc-purple)]">
                 {t("wizard_ai_assist")}
               </p>
               <Button
@@ -235,7 +233,7 @@ export default function NewCampaignPage() {
             </div>
 
             <div className="space-y-1">
-              <p className="text-caption text-[var(--color-text-tertiary)]">
+              <p className="text-caption text-[var(--wc-fg-3)]">
                 {t("wizard_schedule_title")}
               </p>
               <Input
@@ -249,42 +247,32 @@ export default function NewCampaignPage() {
 
         {step === 3 && (
           <>
-            <h2 className="text-heading-2 text-[var(--color-text-primary)]">
+            <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
               {t("wizard_review_title")}
             </h2>
-            <p className="text-body-small text-[var(--color-text-secondary)]">
+            <p className="text-body-small text-[var(--wc-fg-2)]">
               {t("wizard_review_hint")}
             </p>
-            <div className="space-y-2 rounded-md bg-[var(--color-bg-secondary)] p-3 text-body-small">
+            <div className="space-y-2 rounded-md bg-[var(--wc-bg-muted)] p-3 text-body-small">
               <div className="flex justify-between">
-                <span className="text-[var(--color-text-tertiary)]">
-                  {t("title")}
-                </span>
-                <span className="text-[var(--color-text-primary)]">
-                  {name || "—"}
-                </span>
+                <span className="text-[var(--wc-fg-3)]">{t("title")}</span>
+                <span className="text-[var(--wc-fg-1)]">{name || "—"}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[var(--color-text-tertiary)]">
-                  {t("recipients")}
-                </span>
-                <span className="text-[var(--color-text-primary)]">
-                  {recipientCount}
-                </span>
+                <span className="text-[var(--wc-fg-3)]">{t("recipients")}</span>
+                <span className="text-[var(--wc-fg-1)]">{recipientCount}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[var(--color-text-tertiary)]">
-                  {t("schedule")}
-                </span>
-                <span className="text-[var(--color-text-primary)]">
+                <span className="text-[var(--wc-fg-3)]">{t("schedule")}</span>
+                <span className="text-[var(--wc-fg-1)]">
                   {scheduledAt || tCommon("save")}
                 </span>
               </div>
-              <div className="border-t border-[var(--color-border-tertiary)] pt-2">
-                <p className="text-[var(--color-text-tertiary)]">
+              <div className="border-t border-[var(--wc-border)] pt-2">
+                <p className="text-[var(--wc-fg-3)]">
                   {t("wizard_message_title")}
                 </p>
-                <p className="mt-1 whitespace-pre-line text-[var(--color-text-primary)]">
+                <p className="mt-1 whitespace-pre-line text-[var(--wc-fg-1)]">
                   {message || "—"}
                 </p>
               </div>

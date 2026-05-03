@@ -65,9 +65,11 @@ export default function OnboardingPage() {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h1 className="text-2xl font-bold">{t("onboarding.title")}</h1>
+        <h1 className="text-[26px] font-semibold tracking-tight text-text-primary">
+          {t("onboarding.title")}
+        </h1>
         <StepIndicator total={3} current={step - 1} className="mt-3" />
-        <p className="mt-2 text-sm text-muted-foreground">
+        <p className="mt-2 text-sm text-text-tertiary">
           {t("onboarding.step", { current: step, total: 3 })}
         </p>
       </div>
@@ -94,7 +96,7 @@ export default function OnboardingPage() {
               pattern="^[a-z0-9-]+$"
               aria-describedby={`${slugId}-hint`}
             />
-            <p id={`${slugId}-hint`} className="text-xs text-muted-foreground">
+            <p id={`${slugId}-hint`} className="text-xs text-text-tertiary">
               {t("onboarding.slugHint")}
             </p>
           </div>
@@ -178,7 +180,7 @@ export default function OnboardingPage() {
             </p>
           </div>
 
-          {error && <p className="text-sm text-destructive">{error}</p>}
+          {error && <p className="text-sm text-danger">{error}</p>}
           <div className="flex gap-2">
             <Button
               variant="outline"

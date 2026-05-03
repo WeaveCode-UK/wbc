@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { ShoppingBag } from "lucide-react";
 import {
   Badge,
   Button,
@@ -55,13 +56,13 @@ export default function CatalogPage() {
   const data = products.data ?? [];
 
   return (
-    <div className="p-3 sm:p-6 space-y-4">
+    <div className="p-3 sm:p-6 space-y-4 sm:space-y-6">
       <header className="flex items-center justify-between">
         <div>
-          <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
+          <h1 className="text-[26px] sm:text-[32px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
             {t("title")}
           </h1>
-          <p className="text-caption text-[var(--color-text-tertiary)]">
+          <p className="mt-1 text-[13px] sm:text-[14px] font-light text-[var(--wc-fg-2)]">
             {t("subtitle")}
           </p>
         </div>
@@ -94,9 +95,14 @@ export default function CatalogPage() {
       {products.isLoading && <ListSkeleton count={6} variant="card" />}
 
       {!products.isLoading && data.length === 0 && (
-        <div className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)]">
+        <div className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs">
           <EmptyState
-            icon="🛍️"
+            icon={
+              <ShoppingBag
+                className="h-5 w-5 text-[var(--wc-purple)]"
+                strokeWidth={1.75}
+              />
+            }
             title={t("no_products")}
             description={t("no_products_hint")}
           />
@@ -108,14 +114,14 @@ export default function CatalogPage() {
           {data.map((p) => (
             <div
               key={p.id}
-              className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-3 space-y-2"
+              className="rounded-wc-md border border-[var(--wc-border)] bg-white shadow-wc-xs p-3 space-y-2"
             >
-              <div className="aspect-square w-full rounded-md bg-[var(--color-bg-secondary)]" />
-              <p className="text-body-small font-medium text-[var(--color-text-primary)] truncate">
+              <div className="aspect-square w-full rounded-wc-md bg-[var(--wc-bg-muted)]" />
+              <p className="text-[13px] font-medium text-[var(--wc-fg-1)] truncate">
                 {p.name}
               </p>
               {p.category && <Badge variant="neutral">{p.category}</Badge>}
-              <p className="text-body-small text-[var(--color-text-primary)]">
+              <p className="text-[13px] tabular-nums text-[var(--wc-fg-1)]">
                 {formatBRL(Number(p.price))}
               </p>
             </div>

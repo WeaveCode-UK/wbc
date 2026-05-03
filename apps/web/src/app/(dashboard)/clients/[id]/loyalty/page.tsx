@@ -14,6 +14,7 @@ import {
   ListSkeleton,
   MetricCard,
 } from "@wbc/ui";
+import { Star } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 
 function formatDate(value: Date | string | null | undefined): string {
@@ -84,14 +85,18 @@ export default function LoyaltyExtractPage() {
     <div className="p-3 sm:p-6 space-y-4">
       <Link
         href={`/clients/${id}`}
-        className="text-body-small text-[var(--color-primary)] hover:underline"
+        className="text-[13px] text-[var(--wc-purple)] hover:underline"
       >
         ← {t("profile_back")}
       </Link>
 
       <header>
-        <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
-          ⭐ Loyalty
+        <h1 className="flex items-center gap-2 text-[26px] sm:text-[32px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
+          <Star
+            className="h-6 w-6 text-[var(--wc-orange)]"
+            strokeWidth={1.75}
+          />
+          Loyalty
         </h1>
       </header>
 
@@ -103,8 +108,8 @@ export default function LoyaltyExtractPage() {
         />
       </div>
 
-      <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4 space-y-3">
-        <h2 className="text-heading-2 text-[var(--color-text-primary)]">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-4 space-y-3">
+        <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
           {t("profile_cashback_remind")}
         </h2>
         {notice && (
@@ -135,13 +140,21 @@ export default function LoyaltyExtractPage() {
         </div>
       </section>
 
-      <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4 space-y-3">
-        <h2 className="text-heading-2 text-[var(--color-text-primary)]">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-4 space-y-3">
+        <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
           {t("profile_timeline")}
         </h2>
         {statement.isLoading && <ListSkeleton count={4} />}
         {!statement.isLoading && rows.length === 0 && (
-          <EmptyState icon="⭐" title={t("profile_timeline_empty")} />
+          <EmptyState
+            icon={
+              <Star
+                className="h-5 w-5 text-[var(--wc-orange)]"
+                strokeWidth={1.75}
+              />
+            }
+            title={t("profile_timeline_empty")}
+          />
         )}
         {!statement.isLoading &&
           rows.map((row) => (

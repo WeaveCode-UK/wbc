@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button, EmptyState, ListItem, ListSkeleton, SearchBar } from "@wbc/ui";
+import { Check, Gift } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { useToast } from "@/providers/toast-provider";
 
@@ -59,16 +60,17 @@ export default function WishlistPage() {
     <div className="p-3 sm:p-6 space-y-4">
       <Link
         href={`/clients/${id}`}
-        className="text-body-small text-[var(--color-primary)] hover:underline"
+        className="text-[13px] text-[var(--wc-purple)] hover:underline"
       >
         ← {t("profile_back")}
       </Link>
 
-      <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
-        🎁 {t("wishlist")}
+      <h1 className="flex items-center gap-2 text-[26px] sm:text-[32px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
+        <Gift className="h-6 w-6 text-[var(--wc-purple)]" strokeWidth={1.75} />
+        {t("wishlist")}
       </h1>
 
-      <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4 space-y-3">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-4 space-y-3">
         <SearchBar
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -76,10 +78,10 @@ export default function WishlistPage() {
           placeholder={t("profile_wishlist_add")}
         />
         {search.trim().length > 0 && (
-          <div className="max-h-72 overflow-y-auto rounded-md bg-[var(--color-bg-secondary)] divide-y divide-[var(--color-border-tertiary)]">
+          <div className="max-h-72 overflow-y-auto rounded-md bg-[var(--wc-bg-muted)] divide-y divide-[var(--wc-border)]">
             {products.isLoading && <ListSkeleton count={3} />}
             {!products.isLoading && productsHits.length === 0 && (
-              <p className="p-3 text-caption text-[var(--color-text-tertiary)]">
+              <p className="p-3 text-[11px] text-[var(--wc-fg-3)]">
                 {tCommon("no_results")}
               </p>
             )}
@@ -93,17 +95,17 @@ export default function WishlistPage() {
                     !already && add.mutate({ clientId: id, productId: p.id })
                   }
                   disabled={already || add.isPending}
-                  className="block w-full text-left px-3 py-2 hover:bg-[var(--color-bg-primary)] disabled:opacity-50"
+                  className="block w-full text-left px-3 py-2 hover:bg-white disabled:opacity-50"
                 >
-                  <span className="text-body-small text-[var(--color-text-primary)]">
+                  <span className="text-[13px] text-[var(--wc-fg-1)]">
                     {p.name}
                   </span>
-                  <span className="ml-2 text-caption text-[var(--color-text-tertiary)]">
+                  <span className="ml-2 text-[11px] text-[var(--wc-fg-3)]">
                     {formatBRL(Number(p.price))}
                   </span>
                   {already && (
-                    <span className="ml-2 text-caption text-[var(--color-success-text)]">
-                      ✓
+                    <span className="ml-2 inline-flex text-[var(--wc-success)]">
+                      <Check className="h-3.5 w-3.5" strokeWidth={2} />
                     </span>
                   )}
                 </button>
@@ -113,10 +115,18 @@ export default function WishlistPage() {
         )}
       </section>
 
-      <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-2 sm:p-4">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white overflow-hidden p-2 sm:p-4">
         {list.isLoading && <ListSkeleton count={3} />}
         {!list.isLoading && items.length === 0 && (
-          <EmptyState icon="🎁" title={t("profile_wishlist_empty")} />
+          <EmptyState
+            icon={
+              <Gift
+                className="h-5 w-5 text-[var(--wc-purple)]"
+                strokeWidth={1.75}
+              />
+            }
+            title={t("profile_wishlist_empty")}
+          />
         )}
         {items.map((item) => (
           <ListItem

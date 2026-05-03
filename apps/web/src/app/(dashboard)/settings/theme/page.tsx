@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { Check } from "lucide-react";
 import { ToggleSwitch } from "@wbc/ui";
 import { useTheme } from "../../../../providers/theme-provider";
 
@@ -54,22 +55,22 @@ export default function ThemeSettingsPage() {
     <div className="p-3 sm:p-6 space-y-6">
       <Link
         href="/settings"
-        className="text-body-small text-[var(--color-primary)] hover:underline"
+        className="text-[13px] text-[var(--wc-purple)] hover:underline"
       >
         ← {t("settings")}
       </Link>
 
       <header>
-        <h1 className="text-heading-2 sm:text-heading-1 text-[var(--color-text-primary)]">
+        <h1 className="text-[26px] sm:text-[32px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
           {t("theme_title")}
         </h1>
-        <p className="text-caption text-[var(--color-text-tertiary)]">
+        <p className="text-[13px] sm:text-[14px] font-light text-[var(--wc-fg-2)]">
           {t("theme_subtitle")}
         </p>
       </header>
 
-      <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4 space-y-3">
-        <h2 className="text-heading-2 text-[var(--color-text-primary)]">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 sm:p-6 space-y-3">
+        <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
           {t("theme_color")}
         </h2>
         <div
@@ -87,10 +88,10 @@ export default function ThemeSettingsPage() {
                 aria-checked={checked}
                 onClick={() => setTheme(opt.id)}
                 className={
-                  "flex items-center gap-3 rounded-lg border p-3 text-left transition-colors " +
+                  "flex items-center gap-3 rounded-wc-lg border p-3 text-left transition-colors " +
                   (checked
-                    ? "border-[var(--color-primary)] bg-[var(--color-primary-surface)]"
-                    : "border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] hover:bg-[var(--color-bg-secondary)]")
+                    ? "border-[var(--wc-purple)] ring-2 ring-[var(--wc-purple)] bg-[var(--wc-purple-50)]"
+                    : "border-[var(--wc-border)] bg-white hover:bg-[var(--wc-bg-muted)]")
                 }
               >
                 <span
@@ -99,10 +100,10 @@ export default function ThemeSettingsPage() {
                   style={{ background: opt.swatch }}
                 />
                 <span>
-                  <span className="block text-body-small text-[var(--color-text-primary)]">
+                  <span className="block text-[13px] text-[var(--wc-fg-1)]">
                     {t(opt.titleKey)}
                   </span>
-                  <span className="block text-caption text-[var(--color-text-tertiary)]">
+                  <span className="block text-[12px] text-[var(--wc-fg-3)]">
                     {t(opt.hintKey)}
                   </span>
                 </span>
@@ -112,13 +113,13 @@ export default function ThemeSettingsPage() {
         </div>
       </section>
 
-      <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 sm:p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-heading-2 text-[var(--color-text-primary)]">
+            <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
               {t("theme_mode")}
             </h2>
-            <p className="text-caption text-[var(--color-text-tertiary)]">
+            <p className="text-[12px] text-[var(--wc-fg-3)]">
               {mode === "light" ? t("theme_mode_light") : t("theme_mode_dark")}
             </p>
           </div>
@@ -126,8 +127,8 @@ export default function ThemeSettingsPage() {
         </div>
       </section>
 
-      <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] p-4 space-y-3">
-        <h2 className="text-heading-2 text-[var(--color-text-primary)]">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-white shadow-wc-xs p-5 sm:p-6 space-y-3">
+        <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
           {t("theme_language")}
         </h2>
         <div
@@ -147,19 +148,16 @@ export default function ThemeSettingsPage() {
                 className={
                   "flex w-full items-center justify-between rounded-md border px-3 py-2 text-left transition-colors " +
                   (checked
-                    ? "border-[var(--color-primary)] bg-[var(--color-primary-surface)]"
-                    : "border-[var(--color-border-secondary)] bg-[var(--color-bg-primary)] hover:bg-[var(--color-bg-secondary)]")
+                    ? "border-[var(--wc-purple)] ring-2 ring-[var(--wc-purple)] bg-[var(--wc-purple-50)]"
+                    : "border-[var(--wc-border)] bg-white hover:bg-[var(--wc-bg-muted)]")
                 }
               >
-                <span className="text-body-small text-[var(--color-text-primary)]">
+                <span className="text-[13px] text-[var(--wc-fg-1)]">
                   {t(opt.labelKey)}
                 </span>
                 {checked && (
-                  <span
-                    aria-hidden="true"
-                    className="text-[var(--color-primary)]"
-                  >
-                    ✓
+                  <span aria-hidden="true" className="text-[var(--wc-purple)]">
+                    <Check className="h-4 w-4" strokeWidth={2} />
                   </span>
                 )}
               </button>
@@ -168,11 +166,11 @@ export default function ThemeSettingsPage() {
         </div>
       </section>
 
-      <section className="rounded-lg border border-[var(--color-border-secondary)] bg-[var(--color-bg-secondary)] p-4">
-        <h2 className="text-heading-2 text-[var(--color-text-primary)]">
+      <section className="rounded-wc-lg border border-[var(--wc-border)] bg-[var(--wc-bg-muted)] shadow-wc-xs p-5 sm:p-6">
+        <h2 className="text-[18px] font-semibold tracking-tight text-[var(--wc-fg-1)]">
           {t("theme_preview_title")}
         </h2>
-        <p className="text-caption text-[var(--color-text-tertiary)]">
+        <p className="text-[12px] text-[var(--wc-fg-3)]">
           {t("theme_preview_hint")}
         </p>
       </section>

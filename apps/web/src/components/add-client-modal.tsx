@@ -82,12 +82,12 @@ export function AddClientModal({
       role="dialog"
       aria-modal="true"
       aria-label={t("add_client")}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--wc-blue-800)]/55 p-4 backdrop-blur-sm"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="w-full max-w-md rounded-lg bg-[var(--color-bg-primary)] p-6 shadow-xl space-y-4">
+      <div className="w-full max-w-md space-y-4 rounded-wc-xl bg-white p-6 shadow-wc-xl">
         <h2 className="text-heading-2 text-[var(--color-text-primary)]">
           {t("add_client")}
         </h2>

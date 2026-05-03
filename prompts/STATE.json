@@ -2,7 +2,7 @@
   "version": 1,
   "project": "WBC Platform",
   "current_phase": 11,
-  "current_epic": "F11.E23",
+  "current_epic": "F11.E30",
   "current_task": 0,
   "current_mode": "EXECUTOR",
   "status": "BUILD_COMPLETE",
@@ -53,7 +53,14 @@
     { "epic": "F11.E20.5", "status": "COMPLETED" },
     { "epic": "F11.E21", "status": "COMPLETED" },
     { "epic": "F11.E22", "status": "COMPLETED" },
-    { "epic": "F11.E23", "status": "COMPLETED", "type": "CHECKPOINT" }
+    { "epic": "F11.E23", "status": "COMPLETED", "type": "CHECKPOINT" },
+    { "epic": "F11.E24", "status": "COMPLETED" },
+    { "epic": "F11.E25", "status": "COMPLETED" },
+    { "epic": "F11.E26", "status": "COMPLETED" },
+    { "epic": "F11.E27", "status": "COMPLETED" },
+    { "epic": "F11.E28", "status": "COMPLETED" },
+    { "epic": "F11.E29", "status": "COMPLETED" },
+    { "epic": "F11.E30", "status": "AWAITING_USER", "type": "PRODUCTION_LIVE" }
   ],
   "phase_summary": {
     "phase_1": { "status": "COMPLETED", "tag": "v0.2.0-fase-01" },
@@ -69,7 +76,6 @@
     "phase_11": { "status": "BUILD_COMPLETE", "tag": "v3.0.0-fase-11" }
   },
   "started_at": "2026-03-20T19:30:00Z",
-  "last_updated": "2026-05-02T22:30:00Z",
-  "status_note": "Fase 11 (Gap Closure to MVP) build-complete em 2026-05-02. Tag v3.0.0-fase-11 será criada após smoke pós-deploy em production conforme docs/DEPLOY.md § 5.",
-  "status": "BUILD_COMPLETE"
+  "last_updated": "2026-05-03T07:00:00Z",
+  "status_note": "Fase 11 build-complete (v3.0.0-fase-11) em 2026-05-02. Bloco G (E24–E29) entregue em 2026-05-03 fechando os 6 follow-ups; F11.E30 (production-live) aguarda execução do operador conforme docs/F11-E30-PRODUCTION-LIVE-CHECKLIST.md."
 }

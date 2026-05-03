@@ -6,6 +6,7 @@ import { runWithTenant, logSecurityEvent, redactId } from "@wbc/shared";
 import {
   applyPublicRateLimit,
   applyProtectedRateLimit,
+  applyTenantBudgetLimit,
 } from "./rate-limit-middleware";
 import { mapDomainErrorToTRPC } from "./error-handler";
 import { Sentry } from "../lib/sentry";
@@ -129,6 +130,11 @@ export const tenantProcedure = baseProcedure.use(
       role: tenant.role,
       plan: tenant.plan,
     });
+    // HG1 — order matters: cheap tenant-budget bucket first (single
+    // Redis key, no path component) so a tenant blowing through its
+    // ceiling doesn't even reach the per-user/path check. The per-user
+    // limit then catches single-seat abuse within the tenant's budget.
+    await applyTenantBudgetLimit(tenantCtx.tenantId, tenantCtx.plan);
     await applyProtectedRateLimit(
       path,
       tenantCtx.tenantId,

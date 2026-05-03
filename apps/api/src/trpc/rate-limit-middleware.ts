@@ -3,6 +3,7 @@ import { getRedis } from "../lib/redis";
 import {
   RATE_LIMIT_PUBLIC_WINDOW_MS,
   RATE_LIMIT_PROTECTED_WINDOW_MS,
+  type Plan,
 } from "@wbc/shared";
 
 interface RateLimitConfig {
@@ -162,6 +163,46 @@ export async function applyProtectedRateLimit(
     throw new TRPCError({
       code: "TOO_MANY_REQUESTS",
       message: "Rate limit exceeded",
+    });
+  }
+}
+
+// HG1 — tenant-aggregate budget. The per-user limit above already stops a
+// single seat from runaway, but a tenant with 10 active seats × N paths
+// can still saturate the Postgres pool (now 10 connections after the
+// hardening pass) without any one seat tripping the per-user/path bucket.
+// This second layer caps the *whole tenant's* request rate in the same
+// window, with the ceiling scaled by plan.
+//
+// Numbers chosen so a real consultora's UI never bumps the limit
+// (typical dashboard load: ~10 procedures × 1 fan-out per page nav,
+// peak ~30 req/min). PRO is 5× since multi-seat shops legitimately
+// emit more traffic. Tune via PLAN_TENANT_BUDGET_OVERRIDE if a tenant
+// turns out to be larger than the canonical assumption.
+const PLAN_TENANT_BUDGET: Record<Plan, RateLimitConfig> = {
+  ESSENTIAL: {
+    windowMs: RATE_LIMIT_PROTECTED_WINDOW_MS,
+    maxRequests: 300,
+  },
+  PRO: {
+    windowMs: RATE_LIMIT_PROTECTED_WINDOW_MS,
+    maxRequests: 1500,
+  },
+};
+
+export async function applyTenantBudgetLimit(
+  tenantId: string,
+  plan: Plan,
+): Promise<void> {
+  const config = PLAN_TENANT_BUDGET[plan];
+  // Single bucket per tenant for the window — no path component, no user
+  // component. That's the whole point: one tenant = one budget.
+  const key = `ratelimit:tenant-budget:${tenantId}`;
+  const { allowed } = await checkRateLimit(key, config);
+  if (!allowed) {
+    throw new TRPCError({
+      code: "TOO_MANY_REQUESTS",
+      message: "Tenant request budget exceeded for this minute",
     });
   }
 }

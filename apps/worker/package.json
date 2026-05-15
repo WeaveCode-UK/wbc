@@ -9,19 +9,19 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@sentry/node": "^10.45.0",
+    "@sentry/node": "^10.53.1",
     "@wbc/db": "workspace:*",
     "@wbc/shared": "workspace:*",
     "bcryptjs": "^3.0.3",
-    "bullmq": "^5.0.0",
+    "bullmq": "^5.76.8",
     "ioredis": "^5.10.1",
-    "libphonenumber-js": "^1.11.0",
+    "libphonenumber-js": "^1.13.2",
     "otplib": "^12.0.1",
     "pino": "^9.0.0",
     "prom-client": "^15.1.0"
   },
   "devDependencies": {
     "@wbc/config": "workspace:*",
-    "tsx": "^4.0.0"
+    "tsx": "^4.22.0"
   }
 }

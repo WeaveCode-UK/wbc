@@ -12,8 +12,8 @@
     "@wbc/db": "workspace:*",
     "@wbc/ui": "workspace:*",
     "next": "^15.0.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
     "tailwindcss": "^3.4.0"
   },
   "devDependencies": {

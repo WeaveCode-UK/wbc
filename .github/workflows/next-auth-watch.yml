@@ -41,7 +41,7 @@ jobs:
 
       - name: Open issue if update available
         if: steps.npm.outputs.has_update == 'true'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const { latest, current, is_ga } = ${{ toJSON(steps.npm.outputs) }};

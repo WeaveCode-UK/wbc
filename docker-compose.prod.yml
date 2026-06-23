@@ -181,7 +181,7 @@ services:
   # disparavam sem destino.
   alertmanager:
     # ACH-004 supply-chain-dependencias: pin por digest. Tag prom/alertmanager:v0.27.0 em 2026-04-23.
-    image: prom/alertmanager:v0.27.0@sha256:e13b6ed5cb929eeaee733479dce55e10eb3bc2e9c4586c705a4e8da41e5eacf5
+    image: prom/alertmanager:v0.32.1@sha256:51a825c2a40acc3e338fdd00d622e01ec090f72be2b3ea46be0839cd47a4d286
     container_name: wbc-alertmanager
     restart: unless-stopped
     env_file: .env.production

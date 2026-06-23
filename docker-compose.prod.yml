@@ -161,7 +161,7 @@ services:
   # ── Prometheus (metrics collection) ──────────────────────────
   prometheus:
     # ACH-004 supply-chain-dependencias: pin por digest. Tag prom/prometheus:v2.54.1 em 2026-04-23.
-    image: prom/prometheus:v2.54.1@sha256:f6639335d34a77d9d9db382b92eeb7fc00934be8eae81dbc03b31cfe90411a94
+    image: prom/prometheus:v3.11.2@sha256:5550dc63da361dc30f6fe02ac0e4dfc736ededfef3c8d12a634db04a67824d78
     container_name: wbc-prometheus
     restart: unless-stopped
     volumes:
